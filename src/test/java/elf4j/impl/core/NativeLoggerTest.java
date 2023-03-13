@@ -104,14 +104,20 @@ class NativeLoggerTest {
         void exception() {
             nativeLogger.log(exception);
 
-            then(mockLogService).should().log(same(nativeLogger), same(exception), isNull(), isNull());
+            then(mockLogService).should()
+                    .log(same(nativeLogger), same(NativeLogger.class), same(exception), isNull(), isNull());
         }
 
         @Test
         void exceptionWithMessage() {
             nativeLogger.log(exception, plainTextMessage);
 
-            then(mockLogService).should().log(same(nativeLogger), same(exception), same(plainTextMessage), isNull());
+            then(mockLogService).should()
+                    .log(same(nativeLogger),
+                            same(NativeLogger.class),
+                            same(exception),
+                            same(plainTextMessage),
+                            isNull());
         }
 
         @Test
@@ -119,7 +125,11 @@ class NativeLoggerTest {
             nativeLogger.log(exception, textMessageWithArgHolders, args);
 
             then(mockLogService).should()
-                    .log(same(nativeLogger), same(exception), same(textMessageWithArgHolders), same(args));
+                    .log(same(nativeLogger),
+                            same(NativeLogger.class),
+                            same(exception),
+                            same(textMessageWithArgHolders),
+                            same(args));
         }
 
         @Test
@@ -127,14 +137,19 @@ class NativeLoggerTest {
             nativeLogger.log(textMessageWithArgHolders, args);
 
             then(mockLogService).should()
-                    .log(same(nativeLogger), isNull(), same(textMessageWithArgHolders), same(args));
+                    .log(same(nativeLogger),
+                            same(NativeLogger.class),
+                            isNull(),
+                            same(textMessageWithArgHolders),
+                            same(args));
         }
 
         @Test
         void plainText() {
             nativeLogger.log(plainTextMessage);
 
-            then(mockLogService).should().log(same(nativeLogger), isNull(), same(plainTextMessage), isNull());
+            then(mockLogService).should()
+                    .log(same(nativeLogger), same(NativeLogger.class), isNull(), same(plainTextMessage), isNull());
         }
     }
 }

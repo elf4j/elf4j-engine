@@ -27,8 +27,8 @@ package elf4j.impl.core.writer.pattern;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import elf4j.impl.core.util.StackTraceUtils;
 import elf4j.impl.core.service.LogEntry;
+import elf4j.impl.core.util.StackTraceUtils;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;

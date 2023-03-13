@@ -26,9 +26,9 @@
 package elf4j.impl.core.writer;
 
 import elf4j.Level;
+import elf4j.impl.core.service.LogEntry;
 import elf4j.impl.core.writer.pattern.GroupLogPattern;
 import elf4j.impl.core.writer.pattern.LogPattern;
-import elf4j.impl.core.service.LogEntry;
 
 import javax.annotation.Nullable;
 import java.io.PrintStream;

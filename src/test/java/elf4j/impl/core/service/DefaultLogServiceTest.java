@@ -66,7 +66,7 @@ class DefaultLogServiceTest {
     class isEnabled {
         @BeforeEach
         void init() {
-            logService = new DefaultLogService(this.getClass(), mockLoggingConfiguration, mockWriterThreadProvider);
+            logService = new DefaultLogService(mockLoggingConfiguration, mockWriterThreadProvider);
             nativeLogger = new NativeLogger(this.getClass().getName(), Level.TRACE, logService);
         }
 
@@ -86,7 +86,7 @@ class DefaultLogServiceTest {
 
         @BeforeEach
         void init() {
-            logService = new DefaultLogService(this.getClass(), mockLoggingConfiguration, mockWriterThreadProvider);
+            logService = new DefaultLogService(mockLoggingConfiguration, mockWriterThreadProvider);
             nativeLogger = new NativeLogger(this.getClass().getName(), Level.TRACE, logService);
         }
 
@@ -96,7 +96,7 @@ class DefaultLogServiceTest {
             given(mockLoggingConfiguration.getLogServiceWriter()).willReturn(mockLogWriter);
             given(mockWriterThreadProvider.getWriterThread()).willReturn(mockExecutorService);
 
-            logService.log(nativeLogger, null, null, null);
+            logService.log(nativeLogger, this.getClass(), null, null, null);
 
             then(mockExecutorService).should().execute(any(Runnable.class));
         }
@@ -108,7 +108,7 @@ class DefaultLogServiceTest {
             given(mockLoggingConfiguration.getLogServiceWriter()).willReturn(mockLogWriter);
             given(mockWriterThreadProvider.getWriterThread()).willReturn(new StubSyncExecutor());
 
-            logService.log(nativeLogger, null, null, null);
+            logService.log(nativeLogger, this.getClass(), null, null, null);
 
             then(mockLogWriter).should().write(captorLogEntry.capture());
             assertEquals(Thread.currentThread().getName(), captorLogEntry.getValue().getCallerThread().getName());
@@ -122,7 +122,7 @@ class DefaultLogServiceTest {
             given(mockLoggingConfiguration.getLogServiceWriter()).willReturn(mockLogWriter);
             given(mockWriterThreadProvider.getWriterThread()).willReturn(new StubSyncExecutor());
 
-            logService.log(nativeLogger, null, null, null);
+            logService.log(nativeLogger, this.getClass(), null, null, null);
 
             then(mockLogWriter).should().write(captorLogEntry.capture());
             assertNull(captorLogEntry.getValue().getCallerThread());
@@ -135,7 +135,7 @@ class DefaultLogServiceTest {
             given(mockLogWriter.includeCallerDetail()).willReturn(true);
             given(mockWriterThreadProvider.getWriterThread()).willReturn(new StubSyncExecutor());
 
-            logService.log(nativeLogger, null, null, null);
+            logService.log(nativeLogger, this.getClass(), null, null, null);
 
             then(mockLogWriter).should().write(captorLogEntry.capture());
             assertNotNull(captorLogEntry.getValue().getCallerFrame());
@@ -151,7 +151,7 @@ class DefaultLogServiceTest {
             String message = "test message {}";
             Object[] args = { "test arg" };
 
-            logService.log(nativeLogger, exception, message, args);
+            logService.log(nativeLogger, this.getClass(), exception, message, args);
 
             then(mockLogWriter).should().write(captorLogEntry.capture());
             LogEntry logEntry = captorLogEntry.getValue();
@@ -165,7 +165,7 @@ class DefaultLogServiceTest {
         void onlyLogWhenEnabled() {
             given(mockLoggingConfiguration.isEnabled(any(NativeLogger.class))).willReturn(false);
 
-            logService.log(nativeLogger, null, null, null);
+            logService.log(nativeLogger, this.getClass(), null, null, null);
 
             then(mockLoggingConfiguration).should(never()).getLogServiceWriter();
         }

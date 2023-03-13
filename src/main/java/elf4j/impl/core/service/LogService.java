@@ -26,7 +26,6 @@
 package elf4j.impl.core.service;
 
 import elf4j.impl.core.NativeLogger;
-import elf4j.impl.core.NativeLoggerFactory;
 import elf4j.impl.core.writer.PerformanceSensitive;
 
 /**
@@ -40,23 +39,16 @@ public interface LogService extends PerformanceSensitive {
     boolean isEnabled(NativeLogger nativeLogger);
 
     /**
-     * @param nativeLogger the serviced logger
-     * @param exception    to log
-     * @param message      to log, can have argument placeholders
-     * @param args         to replace the placeholders in the message
-     */
-    void log(NativeLogger nativeLogger, Throwable exception, Object message, Object[] args);
-
-    /**
-     * @param nativeLogger        the serviced logger
-     * @param overrideCallerFrame caller detail frame to override the default which is derived from the logger service
-     *                            interface set by {@link NativeLoggerFactory#NativeLoggerFactory(Class, Class)}
-     * @param exception           to log
-     * @param message             to log, can have argument placeholders
-     * @param args                to replace the placeholders in the message
+     * @param nativeLogger           the serviced logger
+     * @param loggerServiceInterface runtime logging service class that the client calls directly to issue the log. For
+     *                               native ELF4J service, it is always the {@link NativeLogger} class; may be a
+     *                               different class if this core library is used to service other logging API.
+     * @param exception              to log
+     * @param message                to log, can have argument placeholders
+     * @param args                   to replace the placeholders in the message
      */
     void log(NativeLogger nativeLogger,
-            LogEntry.StackTraceFrame overrideCallerFrame,
+            Class<?> loggerServiceInterface,
             Throwable exception,
             Object message,
             Object[] args);

@@ -44,7 +44,6 @@ import java.util.Properties;
 public class NativeLoggerFactory implements LoggerFactory {
     private static final Class<Logger> DEFAULT_ACCESS_INTERFACE = Logger.class;
     private static final Level DEFAULT_LOGGER_SEVERITY_LEVEL = Level.TRACE;
-    private static final Class<?> DEFAULT_SERVICE_INTERFACE = NativeLogger.class;
     @NonNull private final Level defaultLoggerLevel;
     @NonNull private final Class<?> accessInterface;
     @NonNull private final LogService logService;
@@ -53,29 +52,26 @@ public class NativeLoggerFactory implements LoggerFactory {
      * Default constructor required by {@link java.util.ServiceLoader}
      */
     public NativeLoggerFactory() {
-        this(DEFAULT_ACCESS_INTERFACE, DEFAULT_SERVICE_INTERFACE);
+        this(DEFAULT_ACCESS_INTERFACE);
     }
 
     /**
-     * @param accessInterface  the class that the API client uses to obtain access to a logger instance
-     * @param serviceInterface the class that the API client uses to invoke logging service
+     * @param accessInterface the class that the API client uses to obtain access to a logger instance
      */
-    public NativeLoggerFactory(@NonNull Class<?> accessInterface, @NonNull Class<?> serviceInterface) {
+    public NativeLoggerFactory(@NonNull Class<?> accessInterface) {
         this(DEFAULT_LOGGER_SEVERITY_LEVEL,
                 accessInterface,
-                serviceInterface,
                 ConfigurationInstanceHolder.INSTANCE,
                 new WriterThreadProvider());
     }
 
     NativeLoggerFactory(@NonNull Level defaultLoggerLevel,
             @NonNull Class<?> accessInterface,
-            @NonNull Class<?> serviceInterface,
             @NonNull LoggingConfiguration loggingConfiguration,
             @NonNull WriterThreadProvider writerThreadProvider) {
         this.defaultLoggerLevel = defaultLoggerLevel;
         this.accessInterface = accessInterface;
-        this.logService = new DefaultLogService(serviceInterface, loggingConfiguration, writerThreadProvider);
+        this.logService = new DefaultLogService(loggingConfiguration, writerThreadProvider);
     }
 
     /**

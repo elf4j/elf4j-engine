@@ -29,27 +29,22 @@ import elf4j.impl.core.NativeLogger;
 import elf4j.impl.core.configuration.LoggingConfiguration;
 import elf4j.impl.core.util.StackTraceUtils;
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+
+import java.util.Objects;
 
 /**
  *
  */
 @EqualsAndHashCode
 public class DefaultLogService implements LogService {
-    @NonNull private final Class<?> serviceInterface;
     private final LoggingConfiguration loggingConfiguration;
     private final WriterThreadProvider writerThreadProvider;
 
     /**
-     * @param serviceInterface     the direct client facing class being called for logging service, usually the concrete
-     *                             logger class
      * @param loggingConfiguration configuration for min logging output level and log writers
      * @param writerThreadProvider provides the async writer thread
      */
-    public DefaultLogService(@NonNull Class<?> serviceInterface,
-            LoggingConfiguration loggingConfiguration,
-            WriterThreadProvider writerThreadProvider) {
-        this.serviceInterface = serviceInterface;
+    public DefaultLogService(LoggingConfiguration loggingConfiguration, WriterThreadProvider writerThreadProvider) {
         this.loggingConfiguration = loggingConfiguration;
         this.writerThreadProvider = writerThreadProvider;
     }
@@ -70,13 +65,8 @@ public class DefaultLogService implements LogService {
     }
 
     @Override
-    public void log(@NonNull NativeLogger nativeLogger, Throwable exception, Object message, Object[] args) {
-        this.log(nativeLogger, null, exception, message, args);
-    }
-
-    @Override
     public void log(NativeLogger nativeLogger,
-            LogEntry.StackTraceFrame overrideCallerFrame,
+            Class<?> loggerServiceInterface,
             Throwable exception,
             Object message,
             Object[] args) {
@@ -86,8 +76,7 @@ public class DefaultLogService implements LogService {
         LogEntry.LogEntryBuilder logEntryBuilder =
                 LogEntry.builder().nativeLogger(nativeLogger).exception(exception).message(message).arguments(args);
         if (this.includeCallerDetail()) {
-            logEntryBuilder.callerFrame(overrideCallerFrame != null ? overrideCallerFrame :
-                    StackTraceUtils.callerOf(this.getServiceInterface()));
+            logEntryBuilder.callerFrame(StackTraceUtils.callerOf(Objects.requireNonNull(loggerServiceInterface)));
         }
         if (this.includeCallerThread()) {
             Thread callerThread = Thread.currentThread();
@@ -96,9 +85,5 @@ public class DefaultLogService implements LogService {
         LogEntry logEntry = logEntryBuilder.build();
         writerThreadProvider.getWriterThread()
                 .execute(() -> loggingConfiguration.getLogServiceWriter().write(logEntry));
-    }
-
-    @NonNull Class<?> getServiceInterface() {
-        return serviceInterface;
     }
 }

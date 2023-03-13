@@ -25,8 +25,8 @@
 
 package elf4j.impl.core.writer.pattern;
 
-import elf4j.impl.core.util.StackTraceUtils;
 import elf4j.impl.core.service.LogEntry;
+import elf4j.impl.core.util.StackTraceUtils;
 import lombok.Value;
 
 import javax.annotation.Nonnull;

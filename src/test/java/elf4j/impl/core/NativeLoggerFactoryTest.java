@@ -49,10 +49,8 @@ class NativeLoggerFactoryTest {
         @Test
         void level() {
             Class<?> stubLoggerAccessInterface = NativeLoggerFactory.class;
-            Class<?> stubLoggerServiceInterface = this.getClass();
             NativeLoggerFactory nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR,
                     stubLoggerAccessInterface,
-                    stubLoggerServiceInterface,
                     mockLoggingConfiguration,
                     mockWriterThreadProvider);
 
@@ -62,25 +60,20 @@ class NativeLoggerFactoryTest {
         @Test
         void loggerClass() {
             Class<?> stubLoggerAccessInterface = NativeLoggerFactory.class;
-            Class<?> mockLoggerServiceInterface = this.getClass();
             NativeLoggerFactory nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR,
                     stubLoggerAccessInterface,
-                    mockLoggerServiceInterface,
                     mockLoggingConfiguration,
                     mockWriterThreadProvider);
 
-            assertEquals(new DefaultLogService(mockLoggerServiceInterface,
-                    mockLoggingConfiguration,
-                    mockWriterThreadProvider), nativeLoggerFactory.logger().getLogService());
+            assertEquals(new DefaultLogService(mockLoggingConfiguration, mockWriterThreadProvider),
+                    nativeLoggerFactory.logger().getLogService());
         }
 
         @Test
         void name() {
             Class<?> mockLoggerInterface = this.getClass();
-            Class<?> stubLoggerServiceInterface = this.getClass();
             NativeLoggerFactory nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR,
                     mockLoggerInterface,
-                    stubLoggerServiceInterface,
                     mockLoggingConfiguration,
                     mockWriterThreadProvider);
 
@@ -92,16 +85,13 @@ class NativeLoggerFactoryTest {
         @Test
         void service() {
             Class<?> stubLoggerAccessInterface = NativeLoggerFactory.class;
-            Class<?> stubLoggerServiceInterface = this.getClass();
             NativeLoggerFactory nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR,
                     stubLoggerAccessInterface,
-                    stubLoggerServiceInterface,
                     mockLoggingConfiguration,
                     mockWriterThreadProvider);
 
-            assertEquals(new DefaultLogService(stubLoggerServiceInterface,
-                    mockLoggingConfiguration,
-                    mockWriterThreadProvider), nativeLoggerFactory.logger().getLogService());
+            assertEquals(new DefaultLogService(mockLoggingConfiguration, mockWriterThreadProvider),
+                    nativeLoggerFactory.logger().getLogService());
         }
     }
 }

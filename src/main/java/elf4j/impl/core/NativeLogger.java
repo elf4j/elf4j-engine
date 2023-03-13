@@ -132,6 +132,6 @@ public class NativeLogger implements Logger {
     }
 
     private void service(Throwable exception, Object message, Object[] args) {
-        this.logService.log(this, exception, message, args);
+        this.logService.log(this, NativeLogger.class, exception, message, args);
     }
 }
