@@ -26,6 +26,7 @@
 package elf4j.impl.core.service;
 
 import elf4j.impl.core.NativeLogger;
+import elf4j.impl.core.NativeLoggerFactory;
 import elf4j.impl.core.writer.PerformanceSensitive;
 
 /**
@@ -45,4 +46,18 @@ public interface LogService extends PerformanceSensitive {
      * @param args         to replace the placeholders in the message
      */
     void log(NativeLogger nativeLogger, Throwable exception, Object message, Object[] args);
+
+    /**
+     * @param nativeLogger        the serviced logger
+     * @param overrideCallerFrame caller detail frame to override the default which is derived from the logger service
+     *                            interface set by {@link NativeLoggerFactory#NativeLoggerFactory(Class, Class)}
+     * @param exception           to log
+     * @param message             to log, can have argument placeholders
+     * @param args                to replace the placeholders in the message
+     */
+    void log(NativeLogger nativeLogger,
+            LogEntry.StackTraceFrame overrideCallerFrame,
+            Throwable exception,
+            Object message,
+            Object[] args);
 }

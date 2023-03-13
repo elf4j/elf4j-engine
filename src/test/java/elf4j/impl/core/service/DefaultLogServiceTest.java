@@ -26,7 +26,6 @@
 package elf4j.impl.core.service;
 
 import elf4j.Level;
-import elf4j.Logger;
 import elf4j.impl.core.NativeLogger;
 import elf4j.impl.core.configuration.LoggingConfiguration;
 import elf4j.impl.core.writer.LogWriter;
@@ -39,7 +38,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.NoSuchElementException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
@@ -57,12 +55,6 @@ class DefaultLogServiceTest {
     NativeLogger nativeLogger;
     DefaultLogService logService;
 
-    @BeforeEach
-    void init() {
-        logService = new DefaultLogService(Logger.class, mockLoggingConfiguration, mockWriterThreadProvider);
-        nativeLogger = new NativeLogger(this.getClass().getName(), Level.TRACE, logService);
-    }
-
     static class StubSyncExecutor implements Executor {
         @Override
         public void execute(Runnable command) {
@@ -72,6 +64,12 @@ class DefaultLogServiceTest {
 
     @Nested
     class isEnabled {
+        @BeforeEach
+        void init() {
+            logService = new DefaultLogService(this.getClass(), mockLoggingConfiguration, mockWriterThreadProvider);
+            nativeLogger = new NativeLogger(this.getClass().getName(), Level.TRACE, logService);
+        }
+
         @Test
         void delegateToConfiguration() {
             logService.isEnabled(nativeLogger);
@@ -85,6 +83,12 @@ class DefaultLogServiceTest {
         @Mock LogWriter mockLogWriter;
         @Captor ArgumentCaptor<LogEntry> captorLogEntry;
         @Mock private ExecutorService mockExecutorService;
+
+        @BeforeEach
+        void init() {
+            logService = new DefaultLogService(this.getClass(), mockLoggingConfiguration, mockWriterThreadProvider);
+            nativeLogger = new NativeLogger(this.getClass().getName(), Level.TRACE, logService);
+        }
 
         @Test
         void async() {
@@ -129,8 +133,12 @@ class DefaultLogServiceTest {
             given(mockLoggingConfiguration.isEnabled(any(NativeLogger.class))).willReturn(true);
             given(mockLoggingConfiguration.getLogServiceWriter()).willReturn(mockLogWriter);
             given(mockLogWriter.includeCallerDetail()).willReturn(true);
+            given(mockWriterThreadProvider.getWriterThread()).willReturn(new StubSyncExecutor());
 
-            assertThrows(NoSuchElementException.class, () -> logService.log(nativeLogger, null, null, null));
+            logService.log(nativeLogger, null, null, null);
+
+            then(mockLogWriter).should().write(captorLogEntry.capture());
+            assertNotNull(captorLogEntry.getValue().getCallerFrame());
         }
 
         @Test

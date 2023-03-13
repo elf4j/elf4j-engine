@@ -28,8 +28,6 @@ package elf4j.impl.core.service;
 import elf4j.impl.core.NativeLogger;
 import elf4j.impl.core.configuration.LoggingConfiguration;
 import elf4j.impl.core.util.StackTraceUtils;
-import elf4j.impl.core.util.ThreadLocalContext;
-import elf4j.impl.core.writer.LogWriter;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
@@ -58,7 +56,7 @@ public class DefaultLogService implements LogService {
 
     @Override
     public boolean includeCallerDetail() {
-        return this.loggingConfiguration.getLogServiceWriter().includeCallerThread();
+        return this.loggingConfiguration.getLogServiceWriter().includeCallerDetail();
     }
 
     @Override
@@ -73,24 +71,31 @@ public class DefaultLogService implements LogService {
 
     @Override
     public void log(@NonNull NativeLogger nativeLogger, Throwable exception, Object message, Object[] args) {
+        this.log(nativeLogger, null, exception, message, args);
+    }
+
+    @Override
+    public void log(NativeLogger nativeLogger,
+            LogEntry.StackTraceFrame overrideCallerFrame,
+            Throwable exception,
+            Object message,
+            Object[] args) {
         if (!loggingConfiguration.isEnabled(nativeLogger)) {
             return;
         }
         LogEntry.LogEntryBuilder logEntryBuilder =
                 LogEntry.builder().nativeLogger(nativeLogger).exception(exception).message(message).arguments(args);
-        LogWriter writer = loggingConfiguration.getLogServiceWriter();
-        if (writer.includeCallerDetail()) {
-            LogEntry.StackTraceFrame overrideCallerFrame = ThreadLocalContext.data().getCallerFrame();
+        if (this.includeCallerDetail()) {
             logEntryBuilder.callerFrame(overrideCallerFrame != null ? overrideCallerFrame :
                     StackTraceUtils.callerOf(this.getServiceInterface()));
         }
-        if (writer.includeCallerThread()) {
+        if (this.includeCallerThread()) {
             Thread callerThread = Thread.currentThread();
             logEntryBuilder.callerThread(new LogEntry.ThreadInformation(callerThread.getName(), callerThread.getId()));
         }
         LogEntry logEntry = logEntryBuilder.build();
-        ThreadLocalContext.clear();
-        writerThreadProvider.getWriterThread().execute(() -> writer.write(logEntry));
+        writerThreadProvider.getWriterThread()
+                .execute(() -> loggingConfiguration.getLogServiceWriter().write(logEntry));
     }
 
     @NonNull Class<?> getServiceInterface() {
