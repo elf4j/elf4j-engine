@@ -38,12 +38,12 @@ import java.util.Map;
  *
  */
 public class ConsoleWriter implements LogWriter {
+    private static final PrintStream BUFFERED_ERR = new PrintStream(System.err, false);
+    private static final PrintStream BUFFERED_OUT = new PrintStream(System.out, false);
     private static final Level DEFAULT_MINIMUM_LEVEL = Level.TRACE;
     private static final OutStreamType DEFAULT_OUT_STREAM = OutStreamType.STDOUT;
     private static final String DEFAULT_PATTERN =
             "{timestamp:yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ} {level} {class} - {message}";
-    private static final PrintStream STREAM_ERR = new PrintStream(System.err, false);
-    private static final PrintStream STREAM_OUT = new PrintStream(System.out, false);
     private final LogPattern logPattern;
     private final Level minimumLevel;
     private final OutStreamType outStreamType;
@@ -75,13 +75,13 @@ public class ConsoleWriter implements LogWriter {
     }
 
     private static void flushErr(StringBuilder logTextBuilder) {
-        STREAM_ERR.println(logTextBuilder);
-        STREAM_ERR.flush();
+        BUFFERED_ERR.println(logTextBuilder);
+        BUFFERED_ERR.flush();
     }
 
     private static void flushOut(StringBuilder logTextBuilder) {
-        STREAM_OUT.println(logTextBuilder);
-        STREAM_OUT.flush();
+        BUFFERED_OUT.println(logTextBuilder);
+        BUFFERED_OUT.flush();
     }
 
     @Override

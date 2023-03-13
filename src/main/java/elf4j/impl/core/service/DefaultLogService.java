@@ -82,8 +82,7 @@ public class DefaultLogService implements LogService {
             Thread callerThread = Thread.currentThread();
             logEntryBuilder.callerThread(new LogEntry.ThreadInformation(callerThread.getName(), callerThread.getId()));
         }
-        LogEntry logEntry = logEntryBuilder.build();
         writerThreadProvider.getWriterThread()
-                .execute(() -> loggingConfiguration.getLogServiceWriter().write(logEntry));
+                .execute(() -> loggingConfiguration.getLogServiceWriter().write(logEntryBuilder.build()));
     }
 }
