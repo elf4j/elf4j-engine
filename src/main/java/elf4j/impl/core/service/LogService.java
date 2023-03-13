@@ -39,16 +39,16 @@ public interface LogService extends PerformanceSensitive {
     boolean isEnabled(NativeLogger nativeLogger);
 
     /**
-     * @param nativeLogger           the serviced logger
-     * @param loggerServiceInterface runtime logging service class that the client calls directly to issue the log. For
-     *                               native ELF4J service, it is always the {@link NativeLogger} class; may be a
-     *                               different class if this core library is used to service other logging API.
-     * @param exception              to log
-     * @param message                to log, can have argument placeholders
-     * @param args                   to replace the placeholders in the message
+     * @param nativeLogger            the serviced logger
+     * @param loggingServiceInterface runtime logging service class that the client calls directly to issue the log. For
+     *                                native ELF4J service, it is always the {@link NativeLogger} class; may be a
+     *                                different class if this core library is used to service other logging API.
+     * @param exception               to log
+     * @param message                 to log, can have argument placeholders
+     * @param args                    to replace the placeholders in the message
      */
     void log(NativeLogger nativeLogger,
-            Class<?> loggerServiceInterface,
+            Class<?> loggingServiceInterface,
             Throwable exception,
             Object message,
             Object[] args);

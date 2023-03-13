@@ -42,35 +42,35 @@ import java.util.Properties;
  *
  */
 public class NativeLoggerFactory implements LoggerFactory {
-    private static final Class<Logger> DEFAULT_ACCESS_INTERFACE = Logger.class;
     private static final Level DEFAULT_LOGGER_SEVERITY_LEVEL = Level.TRACE;
+    private static final Class<Logger> DEFAULT_LOGGING_SERVICE_ACCESS_INTERFACE = Logger.class;
     @NonNull private final Level defaultLoggerLevel;
-    @NonNull private final Class<?> accessInterface;
+    @NonNull private final Class<?> loggingServiceAccessInterface;
     @NonNull private final LogService logService;
 
     /**
      * Default constructor required by {@link java.util.ServiceLoader}
      */
     public NativeLoggerFactory() {
-        this(DEFAULT_ACCESS_INTERFACE);
+        this(DEFAULT_LOGGING_SERVICE_ACCESS_INTERFACE);
     }
 
     /**
-     * @param accessInterface the class that the API client uses to obtain access to a logger instance
+     * @param loggingServiceAccessInterface the class that the API client uses to obtain access to a logger instance
      */
-    public NativeLoggerFactory(@NonNull Class<?> accessInterface) {
+    public NativeLoggerFactory(@NonNull Class<?> loggingServiceAccessInterface) {
         this(DEFAULT_LOGGER_SEVERITY_LEVEL,
-                accessInterface,
+                loggingServiceAccessInterface,
                 ConfigurationInstanceHolder.INSTANCE,
                 new WriterThreadProvider());
     }
 
     NativeLoggerFactory(@NonNull Level defaultLoggerLevel,
-            @NonNull Class<?> accessInterface,
+            @NonNull Class<?> loggingServiceAccessInterface,
             @NonNull LoggingConfiguration loggingConfiguration,
             @NonNull WriterThreadProvider writerThreadProvider) {
         this.defaultLoggerLevel = defaultLoggerLevel;
-        this.accessInterface = accessInterface;
+        this.loggingServiceAccessInterface = loggingServiceAccessInterface;
         this.logService = new DefaultLogService(loggingConfiguration, writerThreadProvider);
     }
 
@@ -90,7 +90,7 @@ public class NativeLoggerFactory implements LoggerFactory {
 
     @Override
     public NativeLogger logger() {
-        return new NativeLogger(StackTraceUtils.callerOf(this.accessInterface).getClassName(),
+        return new NativeLogger(StackTraceUtils.callerOf(this.loggingServiceAccessInterface).getClassName(),
                 defaultLoggerLevel,
                 logService);
     }
