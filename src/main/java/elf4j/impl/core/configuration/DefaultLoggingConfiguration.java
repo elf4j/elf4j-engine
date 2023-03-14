@@ -96,6 +96,9 @@ public class DefaultLoggingConfiguration implements LoggingConfiguration {
 
     private void setRepositories(@NonNull Properties properties) {
         this.noop = Boolean.parseBoolean(properties.getProperty("noop"));
+        if (this.noop) {
+            System.err.println("ELF4J status: Falling back to no-op");
+        }
         this.levelRepository = new LevelRepository(properties);
         this.writerRepository = new WriterRepository(properties);
     }

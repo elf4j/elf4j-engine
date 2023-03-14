@@ -53,6 +53,7 @@ public class PropertiesLoader {
         if (customPropertiesLocation == null) {
             propertiesInputStream = fromDefaultPropertiesLocation();
             if (propertiesInputStream == null) {
+                System.err.println("ELF4J status: No configuration file located");
                 properties.setProperty("noop", "true");
                 return properties;
             }
