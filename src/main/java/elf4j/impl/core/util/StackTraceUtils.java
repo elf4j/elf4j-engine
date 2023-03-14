@@ -74,8 +74,7 @@ public class StackTraceUtils {
      * @return stack trace text of the specified throwable
      */
     public static String stackTraceTextOf(Throwable throwable) {
-        try (StringWriter stringWriter = new StringWriter();
-                PrintWriter printWriter = new PrintWriter(stringWriter, true)) {
+        try (StringWriter stringWriter = new StringWriter(); PrintWriter printWriter = new PrintWriter(stringWriter)) {
             throwable.printStackTrace(printWriter);
             return stringWriter.toString();
         } catch (IOException e) {

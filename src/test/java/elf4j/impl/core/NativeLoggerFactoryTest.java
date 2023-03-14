@@ -26,10 +26,7 @@
 package elf4j.impl.core;
 
 import elf4j.Level;
-import elf4j.impl.core.configuration.LoggingConfiguration;
-import elf4j.impl.core.service.DefaultLogService;
-import elf4j.impl.core.service.WriterThreadProvider;
-import elf4j.impl.core.util.StackTraceUtils;
+import elf4j.impl.core.service.LogService;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,57 +38,39 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 @ExtendWith(MockitoExtension.class)
 class NativeLoggerFactoryTest {
-    @Mock LoggingConfiguration mockLoggingConfiguration;
-    @Mock WriterThreadProvider mockWriterThreadProvider;
+    @Mock LogService mockLogService;
 
     @Nested
     class customizedFactory {
         @Test
         void level() {
             Class<?> stubLoggerAccessInterface = NativeLoggerFactory.class;
-            NativeLoggerFactory nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR,
-                    stubLoggerAccessInterface,
-                    mockLoggingConfiguration,
-                    mockWriterThreadProvider);
+            NativeLoggerFactory nativeLoggerFactory =
+                    new NativeLoggerFactory(Level.ERROR, stubLoggerAccessInterface, mockLogService);
 
             assertEquals(Level.ERROR, nativeLoggerFactory.logger().getLevel());
         }
 
         @Test
-        void loggerClass() {
-            Class<?> stubLoggerAccessInterface = NativeLoggerFactory.class;
-            NativeLoggerFactory nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR,
-                    stubLoggerAccessInterface,
-                    mockLoggingConfiguration,
-                    mockWriterThreadProvider);
-
-            assertEquals(new DefaultLogService(mockLoggingConfiguration, mockWriterThreadProvider),
-                    nativeLoggerFactory.logger().getLogService());
-        }
-
-        @Test
         void name() {
-            Class<?> mockLoggerInterface = this.getClass();
-            NativeLoggerFactory nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR,
-                    mockLoggerInterface,
-                    mockLoggingConfiguration,
-                    mockWriterThreadProvider);
+            Class<?> mockLoggerInterface = NativeLoggerFactory.class;
+            NativeLoggerFactory nativeLoggerFactory =
+                    new NativeLoggerFactory(Level.ERROR, mockLoggerInterface, mockLogService);
 
             NativeLogger logger = nativeLoggerFactory.logger();
 
-            assertSame(StackTraceUtils.callerOf(mockLoggerInterface).getClassName(), logger.getName());
+            assertSame(this.getClass().getName(), logger.getName());
         }
 
         @Test
         void service() {
             Class<?> stubLoggerAccessInterface = NativeLoggerFactory.class;
-            NativeLoggerFactory nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR,
-                    stubLoggerAccessInterface,
-                    mockLoggingConfiguration,
-                    mockWriterThreadProvider);
+            NativeLoggerFactory nativeLoggerFactory =
+                    new NativeLoggerFactory(Level.ERROR, stubLoggerAccessInterface, mockLogService);
 
-            assertEquals(new DefaultLogService(mockLoggingConfiguration, mockWriterThreadProvider),
-                    nativeLoggerFactory.logger().getLogService());
+            NativeLogger nativeLogger = nativeLoggerFactory.logger();
+
+            assertEquals(mockLogService, nativeLogger.getLogService());
         }
     }
 }

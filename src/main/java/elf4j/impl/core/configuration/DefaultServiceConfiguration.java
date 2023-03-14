@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  *
  */
-public class DefaultLoggingConfiguration implements LoggingConfiguration {
+public class DefaultServiceConfiguration implements ServiceConfiguration {
     private final Map<NativeLogger, Boolean> loggerConfigurationCache = new ConcurrentHashMap<>();
     private final PropertiesLoader propertiesLoader;
     private boolean noop;
@@ -48,16 +48,16 @@ public class DefaultLoggingConfiguration implements LoggingConfiguration {
     /**
      *
      */
-    public DefaultLoggingConfiguration() {
+    public DefaultServiceConfiguration() {
         this(new PropertiesLoader());
     }
 
-    DefaultLoggingConfiguration(PropertiesLoader propertiesLoader) {
+    DefaultServiceConfiguration(PropertiesLoader propertiesLoader) {
         this.propertiesLoader = propertiesLoader;
         setRepositories(propertiesLoader.load());
     }
 
-    DefaultLoggingConfiguration(LevelRepository levelRepository, WriterRepository writerRepository) {
+    DefaultServiceConfiguration(LevelRepository levelRepository, WriterRepository writerRepository) {
         this(new PropertiesLoader());
         this.levelRepository = levelRepository;
         this.writerRepository = writerRepository;
@@ -97,7 +97,7 @@ public class DefaultLoggingConfiguration implements LoggingConfiguration {
     private void setRepositories(@NonNull Properties properties) {
         this.noop = Boolean.parseBoolean(properties.getProperty("noop"));
         if (this.noop) {
-            System.err.println("ELF4J status: Falling back to no-op");
+            System.err.println("ELF4J status: No-op per configuration");
         }
         this.levelRepository = new LevelRepository(properties);
         this.writerRepository = new WriterRepository(properties);

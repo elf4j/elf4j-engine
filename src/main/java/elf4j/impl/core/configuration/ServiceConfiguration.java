@@ -34,7 +34,7 @@ import java.util.Properties;
 /**
  *
  */
-public interface LoggingConfiguration {
+public interface ServiceConfiguration {
     /**
      * @return the top level (group) writer for the log service, may contain multiple individual writers.
      */

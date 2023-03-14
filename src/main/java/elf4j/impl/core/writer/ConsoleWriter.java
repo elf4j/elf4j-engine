@@ -31,15 +31,12 @@ import elf4j.impl.core.writer.pattern.GroupLogPattern;
 import elf4j.impl.core.writer.pattern.LogPattern;
 
 import javax.annotation.Nullable;
-import java.io.PrintStream;
 import java.util.Map;
 
 /**
  *
  */
 public class ConsoleWriter implements LogWriter {
-    private static final PrintStream BUFFERED_ERR = new PrintStream(System.err, false);
-    private static final PrintStream BUFFERED_OUT = new PrintStream(System.out, false);
     private static final Level DEFAULT_MINIMUM_LEVEL = Level.TRACE;
     private static final OutStreamType DEFAULT_OUT_STREAM = OutStreamType.STDOUT;
     private static final String DEFAULT_PATTERN =
@@ -75,13 +72,13 @@ public class ConsoleWriter implements LogWriter {
     }
 
     private static void flushErr(StringBuilder logTextBuilder) {
-        BUFFERED_ERR.println(logTextBuilder);
-        BUFFERED_ERR.flush();
+        System.err.println(logTextBuilder);
+        System.err.flush();
     }
 
     private static void flushOut(StringBuilder logTextBuilder) {
-        BUFFERED_OUT.println(logTextBuilder);
-        BUFFERED_OUT.flush();
+        System.out.println(logTextBuilder);
+        System.out.flush();
     }
 
     @Override

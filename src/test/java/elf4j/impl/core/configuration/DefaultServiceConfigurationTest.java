@@ -39,7 +39,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
-class DefaultLoggingConfigurationTest {
+class DefaultServiceConfigurationTest {
     @Mock LevelRepository mockLevelRepository;
     @Mock WriterRepository mockWriterRepository;
     @Mock LogWriter stubLogWriter;
@@ -49,8 +49,8 @@ class DefaultLoggingConfigurationTest {
     class isEnabled {
         @Test
         void loadFromReposOnlyOnce() {
-            DefaultLoggingConfiguration defaultLoggingConfiguration =
-                    new DefaultLoggingConfiguration(mockLevelRepository, mockWriterRepository);
+            DefaultServiceConfiguration defaultLoggingConfiguration =
+                    new DefaultServiceConfiguration(mockLevelRepository, mockWriterRepository);
             NativeLogger nativeLogger = new NativeLogger("test.owner.class.Name", Level.OFF, mockLogService);
             given(mockWriterRepository.getLogServiceWriter()).willReturn(stubLogWriter);
             given(stubLogWriter.getMinimumLevel()).willReturn(Level.TRACE);

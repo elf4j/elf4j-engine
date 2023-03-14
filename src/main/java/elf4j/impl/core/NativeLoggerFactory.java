@@ -27,16 +27,11 @@ package elf4j.impl.core;
 
 import elf4j.Level;
 import elf4j.Logger;
-import elf4j.impl.core.configuration.DefaultLoggingConfiguration;
-import elf4j.impl.core.configuration.LoggingConfiguration;
 import elf4j.impl.core.service.DefaultLogService;
 import elf4j.impl.core.service.LogService;
-import elf4j.impl.core.service.WriterThreadProvider;
 import elf4j.impl.core.util.StackTraceUtils;
 import elf4j.spi.LoggerFactory;
 import lombok.NonNull;
-
-import java.util.Properties;
 
 /**
  *
@@ -59,33 +54,15 @@ public class NativeLoggerFactory implements LoggerFactory {
      * @param loggingServiceAccessInterface the class that the API client uses to obtain access to a logger instance
      */
     public NativeLoggerFactory(@NonNull Class<?> loggingServiceAccessInterface) {
-        this(DEFAULT_LOGGER_SEVERITY_LEVEL,
-                loggingServiceAccessInterface,
-                ConfigurationInstanceHolder.INSTANCE,
-                new WriterThreadProvider());
+        this(DEFAULT_LOGGER_SEVERITY_LEVEL, loggingServiceAccessInterface, new DefaultLogService());
     }
 
     NativeLoggerFactory(@NonNull Level defaultLoggerLevel,
             @NonNull Class<?> loggingServiceAccessInterface,
-            @NonNull LoggingConfiguration loggingConfiguration,
-            @NonNull WriterThreadProvider writerThreadProvider) {
+            @NonNull LogService logService) {
         this.defaultLoggerLevel = defaultLoggerLevel;
         this.loggingServiceAccessInterface = loggingServiceAccessInterface;
-        this.logService = new DefaultLogService(loggingConfiguration, writerThreadProvider);
-    }
-
-    /**
-     *
-     */
-    public static void refreshConfiguration() {
-        refreshConfiguration(null);
-    }
-
-    /**
-     * @param properties used to override those reloaded from configuration file
-     */
-    public static void refreshConfiguration(Properties properties) {
-        ConfigurationInstanceHolder.INSTANCE.refresh(properties);
+        this.logService = logService;
     }
 
     @Override
@@ -93,9 +70,5 @@ public class NativeLoggerFactory implements LoggerFactory {
         return new NativeLogger(StackTraceUtils.callerOf(this.loggingServiceAccessInterface).getClassName(),
                 defaultLoggerLevel,
                 logService);
-    }
-
-    private static class ConfigurationInstanceHolder {
-        private static final LoggingConfiguration INSTANCE = new DefaultLoggingConfiguration();
     }
 }
