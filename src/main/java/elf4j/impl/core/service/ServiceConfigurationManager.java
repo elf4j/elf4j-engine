@@ -27,14 +27,24 @@ package elf4j.impl.core.service;
 
 import java.util.Properties;
 
+/**
+ *
+ */
 public class ServiceConfigurationManager {
     private ServiceConfigurationManager() {
     }
 
+    /**
+     *
+     */
     public static void refreshConfiguration() {
         refreshConfiguration(null);
     }
 
+    /**
+     * @param properties overriding properties for the new configuration, in addition to the reloaded properties from
+     *                   the configuration file
+     */
     public static void refreshConfiguration(Properties properties) {
         DefaultLogService.refreshConfiguration(properties);
     }
