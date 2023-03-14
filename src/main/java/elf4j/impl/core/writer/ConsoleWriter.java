@@ -31,6 +31,8 @@ import elf4j.impl.core.writer.pattern.GroupLogPattern;
 import elf4j.impl.core.writer.pattern.LogPattern;
 
 import javax.annotation.Nullable;
+import java.io.BufferedOutputStream;
+import java.io.PrintStream;
 import java.util.Map;
 
 /**
@@ -41,6 +43,8 @@ public class ConsoleWriter implements LogWriter {
     private static final OutStreamType DEFAULT_OUT_STREAM = OutStreamType.STDOUT;
     private static final String DEFAULT_PATTERN =
             "{timestamp:yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ} {level} {class} - {message}";
+    private static final PrintStream ERR = new PrintStream(new BufferedOutputStream(System.err));
+    private static final PrintStream OUT = new PrintStream(new BufferedOutputStream(System.out));
     private final LogPattern logPattern;
     private final Level minimumLevel;
     private final OutStreamType outStreamType;
@@ -72,13 +76,13 @@ public class ConsoleWriter implements LogWriter {
     }
 
     private static void flushErr(StringBuilder logTextBuilder) {
-        System.err.println(logTextBuilder);
-        System.err.flush();
+        ERR.println(logTextBuilder);
+        ERR.flush();
     }
 
     private static void flushOut(StringBuilder logTextBuilder) {
-        System.out.println(logTextBuilder);
-        System.out.flush();
+        OUT.println(logTextBuilder);
+        OUT.flush();
     }
 
     @Override
