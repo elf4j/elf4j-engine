@@ -53,7 +53,7 @@ public class LogEntry {
     @Nullable ThreadInformation callerThread;
 
     private static String resolve(Object msg, Object[] arguments) {
-        String message = Objects.toString(supply(msg));
+        String message = Objects.toString(supply(msg), "");
         int messageLength = message.length();
         StringBuilder builder = new StringBuilder(messageLength + ADDITIONAL_STRING_BUILDER_CAPACITY);
         int i = 0;

@@ -25,7 +25,10 @@
 
 package elf4j.impl.core.util;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -36,36 +39,31 @@ public class PropertiesUtils {
     }
 
     /**
-     * @param prefix     all properties whose keys start with this prefix are to be searched for
+     * @param prefix     key prefix to search for
      * @param properties search source
-     * @return all properties whose keys start with the specified prefix
+     * @return all properties entries whose original keys start with the specified prefix. The prefix is removed from
+     *         the keys of the returned entries.
      */
     public static Map<String, String> getChildProperties(String prefix, Properties properties) {
-        Map<String, String> childProperties = new HashMap<>();
-        String parentPrefix = prefix + '.';
-        properties.stringPropertyNames()
+        final String start = prefix + '.';
+        return properties.stringPropertyNames()
                 .stream()
-                .filter(name -> name.trim().startsWith(parentPrefix))
-                .forEach(name -> childProperties.put(name.substring(name.indexOf('.') + 1).trim(),
-                        properties.getProperty(name).trim()));
-        return childProperties;
+                .filter(name -> name.trim().startsWith(start))
+                .collect(Collectors.toMap(name -> name.substring(start.length()).trim(),
+                        name -> properties.getProperty(name).trim()));
     }
 
     /**
-     * @param type       the properties value whose key is used as parent prefix
+     * @param type       the properties value whose keys are each used as a parent key prefix
      * @param properties search source
-     * @return properties group each member of which is a set of properties having a unique key prefix of the specified
+     * @return a group whose every member is a set of properties entries having a common key prefix of the specified
      *         type
      */
-    public static List<Map<String, String>> getPropertiesGroupOfType(String type, Properties properties) {
-        List<String> typeKeys = new ArrayList<>();
-        properties.stringPropertyNames()
+    public static Set<Map<String, String>> getPropertiesGroupOfType(String type, Properties properties) {
+        return properties.stringPropertyNames()
                 .stream()
                 .filter(name -> properties.getProperty(name).trim().equals(type))
-                .forEach(typeKeys::add);
-        List<Map<String, String>> propertiesGroup = new ArrayList<>();
-        Collections.sort(typeKeys);
-        typeKeys.forEach(k -> propertiesGroup.add(getChildProperties(k, properties)));
-        return propertiesGroup;
+                .map(name -> getChildProperties(name, properties))
+                .collect(Collectors.toSet());
     }
 }

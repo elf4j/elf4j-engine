@@ -38,18 +38,16 @@ import java.util.Map;
 /**
  *
  */
-public class ConsoleWriter implements LogWriter {
+public class StandardStreamsWriter implements LogWriter {
     private static final Level DEFAULT_MINIMUM_LEVEL = Level.TRACE;
     private static final OutStreamType DEFAULT_OUT_STREAM = OutStreamType.STDOUT;
     private static final String DEFAULT_PATTERN =
             "{timestamp:yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ} {level} {class} - {message}";
-    private static final PrintStream ERR = new PrintStream(new BufferedOutputStream(System.err));
-    private static final PrintStream OUT = new PrintStream(new BufferedOutputStream(System.out));
     private final LogPattern logPattern;
     private final Level minimumLevel;
     private final OutStreamType outStreamType;
 
-    private ConsoleWriter(Level minimumLevel, GroupLogPattern logPattern, OutStreamType outStreamType) {
+    private StandardStreamsWriter(Level minimumLevel, GroupLogPattern logPattern, OutStreamType outStreamType) {
         this.logPattern = logPattern;
         this.minimumLevel = minimumLevel;
         this.outStreamType = outStreamType;
@@ -58,8 +56,10 @@ public class ConsoleWriter implements LogWriter {
     /**
      * @return default writer
      */
-    public static ConsoleWriter defaultWriter() {
-        return new ConsoleWriter(DEFAULT_MINIMUM_LEVEL, GroupLogPattern.from(DEFAULT_PATTERN), DEFAULT_OUT_STREAM);
+    public static StandardStreamsWriter defaultWriter() {
+        return new StandardStreamsWriter(DEFAULT_MINIMUM_LEVEL,
+                GroupLogPattern.from(DEFAULT_PATTERN),
+                DEFAULT_OUT_STREAM);
     }
 
     /**
@@ -67,22 +67,12 @@ public class ConsoleWriter implements LogWriter {
      * @param outStream     out stream type, either stdout or stderr
      * @return console writer per the specified configuration
      */
-    public static ConsoleWriter from(Map<String, String> configuration, @Nullable String outStream) {
+    public static StandardStreamsWriter from(Map<String, String> configuration, @Nullable String outStream) {
         String level = configuration.get("level");
         String pattern = configuration.get("pattern");
-        return new ConsoleWriter(level == null ? DEFAULT_MINIMUM_LEVEL : Level.valueOf(level.toUpperCase()),
+        return new StandardStreamsWriter(level == null ? DEFAULT_MINIMUM_LEVEL : Level.valueOf(level.toUpperCase()),
                 GroupLogPattern.from(pattern == null ? DEFAULT_PATTERN : pattern),
                 outStream == null ? DEFAULT_OUT_STREAM : OutStreamType.valueOf(outStream.trim().toUpperCase()));
-    }
-
-    private static void flushErr(StringBuilder logTextBuilder) {
-        ERR.println(logTextBuilder);
-        ERR.flush();
-    }
-
-    private static void flushOut(StringBuilder logTextBuilder) {
-        OUT.println(logTextBuilder);
-        OUT.flush();
     }
 
     @Override
@@ -99,10 +89,10 @@ public class ConsoleWriter implements LogWriter {
         logPattern.render(logEntry, logTextBuilder);
         switch (this.outStreamType) {
             case STDOUT:
-                flushOut(logTextBuilder);
+                BufferedStandardOutputStream.flushOut(logTextBuilder);
                 return;
             case STDERR:
-                flushErr(logTextBuilder);
+                BufferedStandardOutputStream.flushErr(logTextBuilder);
                 return;
             default:
                 throw new IllegalArgumentException("Unsupported out stream type: " + this.outStreamType);
@@ -122,5 +112,20 @@ public class ConsoleWriter implements LogWriter {
     enum OutStreamType {
         STDOUT,
         STDERR
+    }
+
+    private static class BufferedStandardOutputStream {
+        private static final PrintStream ERR = new PrintStream(new BufferedOutputStream(System.err), false);
+        private static final PrintStream OUT = new PrintStream(new BufferedOutputStream(System.out), false);
+
+        static synchronized void flushErr(Object o) {
+            ERR.println(o);
+            ERR.flush();
+        }
+
+        static synchronized void flushOut(Object o) {
+            OUT.println(o);
+            OUT.flush();
+        }
     }
 }

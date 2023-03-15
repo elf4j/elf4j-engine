@@ -31,7 +31,7 @@
 
     <groupId>io.github.elf4j</groupId>
     <artifactId>elf4j-impl-core</artifactId>
-    <version>0.4.0</version>
+    <version>0.5.0</version>
     <packaging>jar</packaging>
     <name>elf4j-impl-core</name>
     <description>Native logging service provider implementation of ELF4J (Easy Logging Facade For Java)
@@ -90,13 +90,13 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.1.1</version>
+            <version>5.2.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.1.1</version>
+            <version>5.2.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -113,13 +113,13 @@
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
-            <version>3.0.0</version>
+            <version>4.2.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility-proxy</artifactId>
-            <version>3.0.0</version>
+            <version>3.1.6</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

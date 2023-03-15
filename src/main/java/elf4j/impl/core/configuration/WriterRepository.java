@@ -25,9 +25,9 @@
 
 package elf4j.impl.core.configuration;
 
-import elf4j.impl.core.writer.ConsoleWriter;
 import elf4j.impl.core.writer.GroupLogWriter;
 import elf4j.impl.core.writer.LogWriter;
+import elf4j.impl.core.writer.StandardStreamsWriter;
 
 import java.util.Properties;
 
@@ -35,7 +35,7 @@ import java.util.Properties;
  *
  */
 public class WriterRepository {
-    private static final LogWriter DEFAULT_WRITER = ConsoleWriter.defaultWriter();
+    private static final LogWriter DEFAULT_WRITER = StandardStreamsWriter.defaultWriter();
     private final LogWriter logServiceWriter;
 
     /**

@@ -27,7 +27,10 @@ package elf4j.impl.core.writer;
 
 import elf4j.impl.core.util.PropertiesUtils;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -36,15 +39,14 @@ public enum LogWriterType {
     /**
      *
      */
-    CONSOLE {
+    StandardStreams {
         @Override
-        List<LogWriter> parseLogWriters(Properties properties) {
-            List<Map<String, String>> configurationGroup =
-                    PropertiesUtils.getPropertiesGroupOfType("console", properties);
-            List<LogWriter> consoleWriters = new ArrayList<>();
-            configurationGroup.forEach(configuration -> consoleWriters.add(ConsoleWriter.from(configuration,
-                    properties.getProperty("console.out.stream"))));
-            return consoleWriters;
+        Set<LogWriter> parseLogWriters(Properties properties) {
+            return PropertiesUtils.getPropertiesGroupOfType("stream", properties)
+                    .stream()
+                    .map(consoleWriterConfiguration -> StandardStreamsWriter.from(consoleWriterConfiguration,
+                            properties.getProperty("stream.type")))
+                    .collect(Collectors.toSet());
         }
     };
 
@@ -52,11 +54,12 @@ public enum LogWriterType {
      * @param properties configuration source
      * @return all writers parsed from the specified properties
      */
-    public static List<LogWriter> parseAllLogWriters(Properties properties) {
-        List<LogWriter> logWriters = new ArrayList<>();
-        EnumSet.allOf(LogWriterType.class).forEach(type -> logWriters.addAll(type.parseLogWriters(properties)));
-        return logWriters;
+    public static Set<LogWriter> parseAllLogWriters(Properties properties) {
+        return EnumSet.allOf(LogWriterType.class)
+                .stream()
+                .flatMap(type -> type.parseLogWriters(properties).stream())
+                .collect(Collectors.toSet());
     }
 
-    abstract List<LogWriter> parseLogWriters(Properties properties);
+    abstract Set<LogWriter> parseLogWriters(Properties properties);
 }

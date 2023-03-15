@@ -28,20 +28,20 @@ package elf4j.impl.core.writer;
 import elf4j.Level;
 import elf4j.impl.core.service.LogEntry;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  *
  */
 public class GroupLogWriter implements LogWriter {
-    private final List<LogWriter> writers;
+    private final Set<LogWriter> writers;
     private Level minimumLevel;
     private Boolean includeCallerDetail;
     private Boolean includeCallerThread;
 
-    private GroupLogWriter(List<LogWriter> writers) {
+    private GroupLogWriter(Set<LogWriter> writers) {
         this.writers = writers;
     }
 
@@ -66,7 +66,7 @@ public class GroupLogWriter implements LogWriter {
 
     @Override
     public void write(LogEntry logEntry) {
-        writers.forEach(writer -> writer.write(logEntry));
+        writers.parallelStream().forEach(writer -> writer.write(logEntry));
     }
 
     @Override
