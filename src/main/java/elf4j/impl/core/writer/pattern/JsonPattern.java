@@ -48,9 +48,9 @@ import java.util.stream.Collectors;
 public class JsonPattern implements LogPattern {
     private static final String CALLER_DETAIL = "caller-detail";
     private static final String CALLER_THREAD = "caller-thread";
-    private static final String MINIFY = "minify";
+    private static final String PRETTY = "pretty";
     private static final Set<String> DISPLAY_OPTIONS =
-            Arrays.stream(new String[] { CALLER_THREAD, CALLER_DETAIL, MINIFY }).collect(Collectors.toSet());
+            Arrays.stream(new String[] { CALLER_THREAD, CALLER_DETAIL, PRETTY }).collect(Collectors.toSet());
     boolean includeCallerThread;
     boolean includeCallerDetail;
     Gson gson;
@@ -65,11 +65,7 @@ public class JsonPattern implements LogPattern {
         }
         Optional<String> patternOption = LogPattern.getPatternOption(pattern);
         if (!patternOption.isPresent()) {
-            return JsonPattern.builder()
-                    .includeCallerThread(false)
-                    .includeCallerDetail(false)
-                    .gson(new GsonBuilder().setPrettyPrinting().create())
-                    .build();
+            return JsonPattern.builder().includeCallerThread(false).includeCallerDetail(false).gson(new Gson()).build();
         }
         Set<String> options =
                 Arrays.stream(patternOption.get().split(",")).map(String::trim).collect(Collectors.toSet());
@@ -79,7 +75,7 @@ public class JsonPattern implements LogPattern {
         return JsonPattern.builder()
                 .includeCallerThread(options.contains(CALLER_THREAD))
                 .includeCallerDetail(options.contains(CALLER_DETAIL))
-                .gson(options.contains(MINIFY) ? new Gson() : new GsonBuilder().setPrettyPrinting().create())
+                .gson(options.contains(PRETTY) ? new GsonBuilder().setPrettyPrinting().create() : new Gson())
                 .build();
     }
 
