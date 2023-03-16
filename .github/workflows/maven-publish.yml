@@ -21,7 +21,7 @@ jobs:
         gpg-private-key: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
 #         gpg-passphrase: ""
     - name: Publish to OSSRH for Maven Central
-      run: mvn --batch-mode deploy -Prelease -Darguments=-Dgpg.passphrase=""
+      run: mvn --batch-mode deploy -Prelease -Dgpg.passphrase=
       env:
         MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
