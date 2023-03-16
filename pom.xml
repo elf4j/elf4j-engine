@@ -218,10 +218,10 @@
                                 </goals>
                                 <configuration>
                                     <passphrase></passphrase>
-<!--                                    <gpgArguments>-->
-<!--                                        <arg>&#45;&#45;pinentry-mode</arg>-->
-<!--                                        <arg>loopback</arg>-->
-<!--                                    </gpgArguments>-->
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
                                 </configuration>
                             </execution>
                         </executions>
