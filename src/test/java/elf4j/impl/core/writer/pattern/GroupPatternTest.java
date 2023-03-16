@@ -46,14 +46,14 @@ class GroupPatternTest {
         @Mock LogPattern mockPattern2;
         @Mock LogEntry stubLogEntry;
 
-        GroupLogPattern groupLogPatternEntry;
+        GroupPattern groupPatternEntry;
 
         @Test
         void dispatchAll() {
-            groupLogPatternEntry = new GroupLogPattern(Arrays.asList(mockPattern2, mockPattern));
+            groupPatternEntry = new GroupPattern(Arrays.asList(mockPattern2, mockPattern));
             StringBuilder stringBuilder = new StringBuilder();
 
-            groupLogPatternEntry.render(stubLogEntry, stringBuilder);
+            groupPatternEntry.render(stubLogEntry, stringBuilder);
 
             InOrder inOrder = inOrder(mockPattern, mockPattern2);
             then(mockPattern2).should(inOrder).render(stubLogEntry, stringBuilder);

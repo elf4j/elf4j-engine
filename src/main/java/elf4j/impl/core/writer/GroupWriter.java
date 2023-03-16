@@ -35,13 +35,13 @@ import java.util.Set;
 /**
  *
  */
-public class GroupLogWriter implements LogWriter {
+public class GroupWriter implements LogWriter {
     private final Set<LogWriter> writers;
     private Level minimumLevel;
     private Boolean includeCallerDetail;
     private Boolean includeCallerThread;
 
-    private GroupLogWriter(Set<LogWriter> writers) {
+    private GroupWriter(Set<LogWriter> writers) {
         this.writers = writers;
     }
 
@@ -49,8 +49,8 @@ public class GroupLogWriter implements LogWriter {
      * @param properties configuration of all the writers
      * @return the composite writer containing all writers configured in the specified properties
      */
-    public static GroupLogWriter from(Properties properties) {
-        return new GroupLogWriter(LogWriterType.parseAllLogWriters(properties));
+    public static GroupWriter from(Properties properties) {
+        return new GroupWriter(LogWriterType.parseAllLogWriters(properties));
     }
 
     @Override
