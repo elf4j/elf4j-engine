@@ -33,7 +33,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
- * Composite of individual patterns to form the entire layout pattern
+ * Composite of individual patterns forming the entire layout pattern
  */
 @Value
 public class GroupPattern implements LogPattern {
