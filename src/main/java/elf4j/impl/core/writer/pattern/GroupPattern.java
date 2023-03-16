@@ -36,7 +36,7 @@ import java.util.List;
  * Composite of individual patterns to form the entire layout pattern
  */
 @Value
-public class GroupLogPattern implements LogPattern {
+public class GroupPattern implements LogPattern {
     List<LogPattern> logPatternEntries;
 
     /**
@@ -44,8 +44,8 @@ public class GroupLogPattern implements LogPattern {
      * @return composite pattern object for the entire log entry's output layout
      */
     @Nonnull
-    public static GroupLogPattern from(@NonNull String pattern) {
-        return new GroupLogPattern(LogPatternType.parseAllPatternsOrThrow(pattern));
+    public static GroupPattern from(@NonNull String pattern) {
+        return new GroupPattern(LogPatternType.parseAllPatternsOrThrow(pattern));
     }
 
     @Override

@@ -27,7 +27,7 @@ package elf4j.impl.core.writer;
 
 import elf4j.Level;
 import elf4j.impl.core.service.LogEntry;
-import elf4j.impl.core.writer.pattern.GroupLogPattern;
+import elf4j.impl.core.writer.pattern.GroupPattern;
 import elf4j.impl.core.writer.pattern.LogPattern;
 
 import javax.annotation.Nullable;
@@ -47,7 +47,7 @@ public class StandardStreamsWriter implements LogWriter {
     private final Level minimumLevel;
     private final OutStreamType outStreamType;
 
-    private StandardStreamsWriter(Level minimumLevel, GroupLogPattern logPattern, OutStreamType outStreamType) {
+    private StandardStreamsWriter(Level minimumLevel, GroupPattern logPattern, OutStreamType outStreamType) {
         this.logPattern = logPattern;
         this.minimumLevel = minimumLevel;
         this.outStreamType = outStreamType;
@@ -57,9 +57,7 @@ public class StandardStreamsWriter implements LogWriter {
      * @return default writer
      */
     public static StandardStreamsWriter defaultWriter() {
-        return new StandardStreamsWriter(DEFAULT_MINIMUM_LEVEL,
-                GroupLogPattern.from(DEFAULT_PATTERN),
-                DEFAULT_OUT_STREAM);
+        return new StandardStreamsWriter(DEFAULT_MINIMUM_LEVEL, GroupPattern.from(DEFAULT_PATTERN), DEFAULT_OUT_STREAM);
     }
 
     /**
@@ -71,7 +69,7 @@ public class StandardStreamsWriter implements LogWriter {
         String level = configuration.get("level");
         String pattern = configuration.get("pattern");
         return new StandardStreamsWriter(level == null ? DEFAULT_MINIMUM_LEVEL : Level.valueOf(level.toUpperCase()),
-                GroupLogPattern.from(pattern == null ? DEFAULT_PATTERN : pattern),
+                GroupPattern.from(pattern == null ? DEFAULT_PATTERN : pattern),
                 outStream == null ? DEFAULT_OUT_STREAM : OutStreamType.valueOf(outStream.trim().toUpperCase()));
     }
 

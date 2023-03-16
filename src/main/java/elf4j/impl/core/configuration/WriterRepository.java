@@ -25,7 +25,7 @@
 
 package elf4j.impl.core.configuration;
 
-import elf4j.impl.core.writer.GroupLogWriter;
+import elf4j.impl.core.writer.GroupWriter;
 import elf4j.impl.core.writer.LogWriter;
 import elf4j.impl.core.writer.StandardStreamsWriter;
 
@@ -42,7 +42,7 @@ public class WriterRepository {
      * @param properties configuration from which to build the writer repo
      */
     public WriterRepository(Properties properties) {
-        GroupLogWriter fromProperties = GroupLogWriter.from(properties);
+        GroupWriter fromProperties = GroupWriter.from(properties);
         this.logServiceWriter = fromProperties.isEmpty() ? DEFAULT_WRITER : fromProperties;
     }
 
