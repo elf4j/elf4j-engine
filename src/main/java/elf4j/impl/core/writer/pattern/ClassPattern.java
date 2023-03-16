@@ -45,7 +45,7 @@ public class ClassPattern implements LogPattern {
      */
     @Nonnull
     public static ClassPattern from(@NonNull String pattern) {
-        if (!LogPatternType.CLASS.isTargetTypeOf(pattern)) {
+        if (!PatternType.CLASS.isTargetTypeOf(pattern)) {
             throw new IllegalArgumentException("pattern: " + pattern);
         }
         return new ClassPattern(LogPattern.getPatternOption(pattern)

@@ -50,7 +50,7 @@ public class GroupWriter implements LogWriter {
      * @return the composite writer containing all writers configured in the specified properties
      */
     public static GroupWriter from(Properties properties) {
-        return new GroupWriter(LogWriterType.parseAllLogWriters(properties));
+        return new GroupWriter(WriterType.parseAllLogWriters(properties));
     }
 
     @Override

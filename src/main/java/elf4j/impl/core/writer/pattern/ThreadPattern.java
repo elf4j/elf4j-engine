@@ -45,7 +45,7 @@ public class ThreadPattern implements LogPattern {
      */
     @Nonnull
     public static ThreadPattern from(@NonNull String pattern) {
-        if (!LogPatternType.THREAD.isTargetTypeOf(pattern)) {
+        if (!PatternType.THREAD.isTargetTypeOf(pattern)) {
             throw new IllegalArgumentException("pattern: " + pattern);
         }
         return new ThreadPattern(LogPattern.getPatternOption(pattern)

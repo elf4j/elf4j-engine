@@ -60,7 +60,7 @@ public class JsonPattern implements LogPattern {
      * @return converted pattern object
      */
     public static JsonPattern from(@NonNull String pattern) {
-        if (!LogPatternType.JSON.isTargetTypeOf(pattern)) {
+        if (!PatternType.JSON.isTargetTypeOf(pattern)) {
             throw new IllegalArgumentException("pattern: " + pattern);
         }
         Optional<String> patternOption = LogPattern.getPatternOption(pattern);

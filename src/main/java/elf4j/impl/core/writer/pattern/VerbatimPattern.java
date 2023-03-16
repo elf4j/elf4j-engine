@@ -44,11 +44,11 @@ public class VerbatimPattern implements LogPattern {
      */
     @Nonnull
     public static VerbatimPattern from(String pattern) {
-        if (!LogPatternType.VERBATIM.isTargetTypeOf(pattern)) {
+        if (!PatternType.VERBATIM.isTargetTypeOf(pattern)) {
             throw new IllegalArgumentException(String.format(
                     "pattern '%s' looks to be targeted at another known pattern type than %s",
                     pattern,
-                    LogPatternType.VERBATIM));
+                    PatternType.VERBATIM));
         }
         return new VerbatimPattern(pattern);
     }

@@ -42,7 +42,7 @@ public class MethodPattern implements LogPattern {
      */
     @Nonnull
     public static MethodPattern from(String pattern) {
-        if (!LogPatternType.METHOD.isTargetTypeOf(pattern)) {
+        if (!PatternType.METHOD.isTargetTypeOf(pattern)) {
             throw new IllegalArgumentException("pattern: " + pattern);
         }
         return new MethodPattern();

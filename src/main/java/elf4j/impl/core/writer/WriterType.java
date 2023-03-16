@@ -35,11 +35,11 @@ import java.util.stream.Collectors;
 /**
  *
  */
-public enum LogWriterType {
+public enum WriterType {
     /**
      *
      */
-    StandardStreams {
+    STANDARD_STREAMS {
         @Override
         Set<LogWriter> parseLogWriters(Properties properties) {
             return PropertiesUtils.getPropertiesGroupOfType("stream", properties)
@@ -55,7 +55,7 @@ public enum LogWriterType {
      * @return all writers parsed from the specified properties
      */
     public static Set<LogWriter> parseAllLogWriters(Properties properties) {
-        return EnumSet.allOf(LogWriterType.class)
+        return EnumSet.allOf(WriterType.class)
                 .stream()
                 .flatMap(type -> type.parseLogWriters(properties).stream())
                 .collect(Collectors.toSet());

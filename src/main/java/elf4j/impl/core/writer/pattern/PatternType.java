@@ -33,7 +33,7 @@ import java.util.Objects;
 /**
  *
  */
-public enum LogPatternType {
+public enum PatternType {
     /**
      *
      */
@@ -174,12 +174,12 @@ public enum LogPatternType {
                 iPattern = pattern.substring(i, iEnd);
                 i = iEnd;
             }
-            logPatterns.add(LogPatternType.parsePatternOrThrow(iPattern));
+            logPatterns.add(PatternType.parsePatternOrThrow(iPattern));
         }
         return logPatterns;
     }
 
-    private static boolean isPatternOfType(LogPatternType targetPatternType, String pattern) {
+    private static boolean isPatternOfType(PatternType targetPatternType, String pattern) {
         if (targetPatternType == VERBATIM) {
             return EnumSet.complementOf(EnumSet.of(VERBATIM)).stream().noneMatch(type -> type.isTargetTypeOf(pattern));
         }
@@ -187,7 +187,7 @@ public enum LogPatternType {
     }
 
     private static LogPattern parsePatternOrThrow(String pattern) {
-        return EnumSet.allOf(LogPatternType.class)
+        return EnumSet.allOf(PatternType.class)
                 .stream()
                 .map(type -> type.parsePattern(pattern))
                 .filter(Objects::nonNull)

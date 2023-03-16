@@ -49,7 +49,7 @@ public class TimestampPattern implements LogPattern {
      */
     @Nonnull
     public static TimestampPattern from(@NonNull String pattern) {
-        if (!LogPatternType.TIMESTAMP.isTargetTypeOf(pattern)) {
+        if (!PatternType.TIMESTAMP.isTargetTypeOf(pattern)) {
             throw new IllegalArgumentException("pattern: " + pattern);
         }
         DateTimeFormatter dateTimeFormatter = LogPattern.getPatternOption(pattern)

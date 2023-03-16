@@ -42,7 +42,7 @@ public class MessageAndExceptionPattern implements LogPattern {
      */
     @Nonnull
     public static MessageAndExceptionPattern from(String pattern) {
-        if (!LogPatternType.MESSAGE.isTargetTypeOf(pattern)) {
+        if (!PatternType.MESSAGE.isTargetTypeOf(pattern)) {
             throw new IllegalArgumentException("pattern text: " + pattern);
         }
         return new MessageAndExceptionPattern();
