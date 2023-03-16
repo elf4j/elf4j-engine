@@ -62,15 +62,15 @@ public class StandardStreamsWriter implements LogWriter {
 
     /**
      * @param configuration properties map to make a console writer
-     * @param outStream     out stream type, either stdout or stderr
+     * @param outStreamType out stream type, either stdout or stderr
      * @return console writer per the specified configuration
      */
-    public static StandardStreamsWriter from(Map<String, String> configuration, @Nullable String outStream) {
+    public static StandardStreamsWriter from(Map<String, String> configuration, @Nullable String outStreamType) {
         String level = configuration.get("level");
         String pattern = configuration.get("pattern");
         return new StandardStreamsWriter(level == null ? DEFAULT_MINIMUM_LEVEL : Level.valueOf(level.toUpperCase()),
                 GroupPattern.from(pattern == null ? DEFAULT_PATTERN : pattern),
-                outStream == null ? DEFAULT_OUT_STREAM : OutStreamType.valueOf(outStream.trim().toUpperCase()));
+                outStreamType == null ? DEFAULT_OUT_STREAM : OutStreamType.valueOf(outStreamType.trim().toUpperCase()));
     }
 
     @Override
