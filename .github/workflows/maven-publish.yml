@@ -1,20 +1,16 @@
 # This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
 # For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
 
-name: Maven Package
+name: OSSRH Maven Central Deploy
 
 on:
   release:
     types: [created]
 
 jobs:
-  build:
-
+  publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
+    environment: ossrh
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 11
@@ -22,13 +18,14 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
-        settings-path: ${{ github.workspace }} # location for the settings.xml file
-
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
-
-    - name: Publish to GitHub Packages Apache Maven
-      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+        server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD
+        gpg-private-key: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
+        gpg-passphrase: ""
+    - name: Publish to OSSRH for Maven Central
+      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml -P release
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+        MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+        MAVEN_GPG_PASSPHRASE: ""
