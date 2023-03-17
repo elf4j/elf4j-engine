@@ -36,17 +36,16 @@ import java.util.stream.Collectors;
  *
  */
 public enum WriterType {
+
     /**
-     *
+     * Type of writer that only output to standard streams
      */
-    STANDARD_STREAMS {
+    STANDARD {
         @Override
         Set<LogWriter> parseWriters(Properties properties) {
-            String writerOutStreamType = properties.getProperty("stream.type");
-            return PropertiesUtils.getPropertiesGroupOfType("stream", properties)
+            return PropertiesUtils.getPropertiesGroupOfType(STANDARD.name().toLowerCase(), properties)
                     .stream()
-                    .map(streamWriterConfiguration -> StandardStreamsWriter.from(streamWriterConfiguration,
-                            writerOutStreamType))
+                    .map(StandardStreamsWriter::from)
                     .collect(Collectors.toSet());
         }
     };

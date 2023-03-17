@@ -27,6 +27,7 @@ package elf4j.impl.core.configuration;
 
 import elf4j.Level;
 import elf4j.impl.core.NativeLogger;
+import elf4j.impl.core.util.InternalLogger;
 import elf4j.impl.core.writer.LogWriter;
 import lombok.NonNull;
 
@@ -92,7 +93,7 @@ public class DefaultServiceConfiguration implements ServiceConfiguration {
     private void setRepositories(@NonNull Properties properties) {
         this.noop = Boolean.parseBoolean(properties.getProperty("noop"));
         if (this.noop) {
-            System.err.println("ELF4J status: No-op per configuration");
+            InternalLogger.log(Level.WARN, "No-op per configuration");
         }
         this.levelRepository = new LevelRepository(properties);
         this.writerRepository = new WriterRepository(properties);

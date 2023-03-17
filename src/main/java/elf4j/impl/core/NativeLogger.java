@@ -35,30 +35,40 @@ import lombok.Value;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- *
+ * Instances of this class are thread-safe, and can be used as class, instance, or local variables. It is recommended,
+ * however, to use class variables for instances that are returned by the static factory method
+ * {@link Logger#instance()}, as those instances are more expensive to create. Other instances returned by the
+ * fluent-style factory methods, such as {@link Logger#atError()}, are inexpensive to create and can be used (and
+ * discarded) in-line or as convenient.
  */
 @ThreadSafe
 @Value
 public class NativeLogger implements Logger {
     /**
-     * Taken from the same name of this logger's "owner class" - the logging service client class that created this
-     * logger instance via the service access API. The owner class is usually also the same as the "caller class" - the
-     * logging service client class that calls the logging service API methods of this instance. In rare and
-     * unrecommended scenarios, the owner class can be different from the caller class i.e. the owner class could pass a
-     * reference of this logger instance out to a different/caller class. Once set, though, the name of the logger will
-     * not change even when the owner class is different from the caller class.
+     * Name of this logger's "owner class" - the logging service client class that first requested for this logger
+     * instance via the {@link Logger#instance()} service access method. The owner class is usually the same as the
+     * "caller class" - the client class that calls the service interface methods, such as {@link Logger#log(Object)}.
+     * <p></p>
+     * In rare and not-recommended scenarios, the owner class can be different from the caller class: e.g. the owner
+     * class could pass a reference of this logger instance out to a different/caller class. Once set, though, the value
+     * of this field will never change even when the owner class is different from the caller.
+     * <p></p>
+     * In general, this native ELF4J implementation assumes owner and caller class to be the same.
      */
-    @NonNull String name;
+    @NonNull String ownerClassName;
     @NonNull Level level;
     @EqualsAndHashCode.Exclude @NonNull LogService logService;
 
     /**
-     * @param name       logger name, same as that of the owner class that created this logger instance
-     * @param level      severity level of this logger instance
-     * @param logService service delegate to do the logging
+     * Constructor only meant to be used by {@link NativeLoggerFactory} and this class itself
+     *
+     * @param ownerClassName name of the owner class that requested this instance via the {@link Logger#instance()}
+     *                       method
+     * @param level          severity level of this logger instance
+     * @param logService     service delegate to do the logging
      */
-    public NativeLogger(@NonNull String name, @NonNull Level level, @NonNull LogService logService) {
-        this.name = name;
+    public NativeLogger(@NonNull String ownerClassName, @NonNull Level level, @NonNull LogService logService) {
+        this.ownerClassName = ownerClassName;
         this.level = level;
         this.logService = logService;
     }
@@ -128,7 +138,7 @@ public class NativeLogger implements Logger {
      * @return logger instance of the same name, with the specified level
      */
     public NativeLogger atLevel(Level level) {
-        return this.level == level ? this : new NativeLogger(this.name, level, logService);
+        return this.level == level ? this : new NativeLogger(this.ownerClassName, level, logService);
     }
 
     private void service(Throwable exception, Object message, Object[] args) {

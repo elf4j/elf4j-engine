@@ -59,7 +59,7 @@ class NativeLoggerFactoryTest {
 
             NativeLogger logger = nativeLoggerFactory.logger();
 
-            assertSame(this.getClass().getName(), logger.getName());
+            assertSame(this.getClass().getName(), logger.getOwnerClassName());
         }
 
         @Test

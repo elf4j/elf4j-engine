@@ -67,7 +67,7 @@ public class LevelRepository {
      * @return configured min output level for the specified logger
      */
     public Level getLoggerMinimumLevel(NativeLogger nativeLogger) {
-        String callerClassName = nativeLogger.getName();
+        String callerClassName = nativeLogger.getOwnerClassName();
         int rootPackageLength = callerClassName.indexOf('.');
         if (rootPackageLength == -1) {
             rootPackageLength = callerClassName.length();

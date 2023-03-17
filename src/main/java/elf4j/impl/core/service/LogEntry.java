@@ -79,7 +79,7 @@ public class LogEntry {
      * @return the name of the application client class calling the logging method of this logger instance
      */
     public String getCallerClassName() {
-        return callerFrame == null ? nativeLogger.getName() : callerFrame.getClassName();
+        return callerFrame == null ? nativeLogger.getOwnerClassName() : callerFrame.getClassName();
     }
 
     /**
@@ -95,10 +95,10 @@ public class LogEntry {
     @Value
     @Builder
     public static class StackTraceFrame {
-        String className;
-        String methodName;
+        @NonNull String className;
+        @NonNull String methodName;
         int lineNumber;
-        String fileName;
+        @NonNull String fileName;
     }
 
     /**
@@ -107,7 +107,7 @@ public class LogEntry {
     @Value
     @Builder
     public static class ThreadInformation {
-        String name;
+        @NonNull String name;
         long id;
     }
 }
