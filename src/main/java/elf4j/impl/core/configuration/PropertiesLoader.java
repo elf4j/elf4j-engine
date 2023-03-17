@@ -25,6 +25,9 @@
 
 package elf4j.impl.core.configuration;
 
+import elf4j.Level;
+import elf4j.impl.core.util.InternalLogger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -53,7 +56,7 @@ public class PropertiesLoader {
         if (customPropertiesLocation == null) {
             propertiesInputStream = fromDefaultPropertiesLocation();
             if (propertiesInputStream == null) {
-                System.err.println("ELF4J status: No configuration file located");
+                InternalLogger.log(Level.WARN, "No configuration file located");
                 properties.setProperty("noop", "true");
                 return properties;
             }

@@ -25,6 +25,8 @@
 
 package elf4j.impl.core.configuration;
 
+import elf4j.Level;
+import elf4j.impl.core.util.InternalLogger;
 import elf4j.impl.core.writer.GroupWriter;
 import elf4j.impl.core.writer.LogWriter;
 import elf4j.impl.core.writer.StandardStreamsWriter;
@@ -43,7 +45,17 @@ public class WriterRepository {
      */
     public WriterRepository(Properties properties) {
         GroupWriter groupWriter = GroupWriter.from(properties);
-        this.logServiceWriter = groupWriter.isEmpty() ? DEFAULT_WRITER : groupWriter;
+        if (groupWriter.isEmpty()) {
+            InternalLogger.log(Level.WARN,
+                    String.format("No writer found in configuration %s, using default writer %s",
+                            properties,
+                            DEFAULT_WRITER));
+            this.logServiceWriter = DEFAULT_WRITER;
+            return;
+        }
+        InternalLogger.log(Level.INFO,
+                String.format("Service writer %s found in configuration %s", groupWriter, properties));
+        this.logServiceWriter = groupWriter;
     }
 
     LogWriter getLogServiceWriter() {

@@ -61,7 +61,7 @@ class NativeLoggerTest {
             NativeLogger warn = info.atWarn();
 
             assertNotSame(warn, info);
-            assertEquals(info.getName(), warn.getName());
+            assertEquals(info.getOwnerClassName(), warn.getOwnerClassName());
             assertEquals(WARN, warn.getLevel());
         }
 

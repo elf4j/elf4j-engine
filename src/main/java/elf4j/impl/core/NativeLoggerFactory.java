@@ -65,6 +65,11 @@ public class NativeLoggerFactory implements LoggerFactory {
         this.logService = logService;
     }
 
+    /**
+     * A bit heavy as it uses stack trace to locate the client class (owner class) requesting the Logger instance.
+     *
+     * @return new instance of {@link NativeLogger}
+     */
     @Override
     public NativeLogger logger() {
         return new NativeLogger(StackTraceUtils.callerOf(this.loggingServiceAccessInterface).getClassName(),

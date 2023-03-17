@@ -5,6 +5,7 @@
 The Java library portion of [elf4j-impl](https://github.com/elf4j/elf4j-impl), where this library will be packaged via
 the Java [Service Provider Framework](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) mechanism
 to make a native logging service provider implementation of the [ELF4J](https://github.com/elf4j/) (Easy Logging Facade
-for Java) SPI.
+for Java) SPI. See [elf4j-impl](https://github.com/elf4j/elf4j-impl) for description.
 
-See [elf4j-impl](https://github.com/elf4j/elf4j-impl) for description.
+Although directly implementing the [ELF4J](https://github.com/elf4j/elf4j) API, this POJO library is designed for ease
+of adaptation to serve as the engine of any logging API.

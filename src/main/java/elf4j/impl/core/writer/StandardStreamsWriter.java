@@ -30,7 +30,6 @@ import elf4j.impl.core.service.LogEntry;
 import elf4j.impl.core.writer.pattern.GroupPattern;
 import elf4j.impl.core.writer.pattern.LogPattern;
 
-import javax.annotation.Nullable;
 import java.io.BufferedOutputStream;
 import java.io.PrintStream;
 import java.util.Map;
@@ -62,12 +61,12 @@ public class StandardStreamsWriter implements LogWriter {
 
     /**
      * @param configuration properties map to make a console writer
-     * @param outStreamType out stream type, either stdout or stderr
      * @return console writer per the specified configuration
      */
-    public static StandardStreamsWriter from(Map<String, String> configuration, @Nullable String outStreamType) {
+    public static StandardStreamsWriter from(Map<String, String> configuration) {
         String level = configuration.get("level");
         String pattern = configuration.get("pattern");
+        String outStreamType = configuration.get("stream");
         return new StandardStreamsWriter(level == null ? DEFAULT_MINIMUM_LEVEL : Level.valueOf(level.toUpperCase()),
                 GroupPattern.from(pattern == null ? DEFAULT_PATTERN : pattern),
                 outStreamType == null ? DEFAULT_OUT_STREAM : OutStreamType.valueOf(outStreamType.trim().toUpperCase()));

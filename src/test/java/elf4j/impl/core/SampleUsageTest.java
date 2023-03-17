@@ -32,10 +32,10 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Supplier;
 
 class SampleUsageTest {
+    static Logger logger = Logger.instance();
+
     @Nested
     class plainText {
-        Logger logger = Logger.instance();
-
         @Test
         void declarationsAndLevels() {
             logger.log(
@@ -60,7 +60,7 @@ class SampleUsageTest {
 
     @Nested
     class textWithArguments {
-        Logger info = Logger.instance().atInfo();
+        Logger info = logger.atInfo();
 
         @Test
         void lazyAndEagerArgumentsCanBeMixed() {
@@ -76,15 +76,14 @@ class SampleUsageTest {
 
     @Nested
     class throwable {
-        Logger logger = Logger.instance();
-
         @Test
         void asTheFirstArgument() {
             Exception exception = new Exception("Exception message");
-            logger.atWarn().log(exception);
-            logger.atError()
+            logger.atError().log(exception);
+            logger.atError().log(exception, "Optional log message");
+            logger.atInfo()
                     .log(exception,
-                            "Exception is always the first argument to a logging method. The {} message and arguments that follow work the same way {}.",
+                            "Exception is always the first argument to a logging method. The {} log message and following arguments work the same way {}.",
                             "optional",
                             (Supplier) () -> "as usual");
         }
