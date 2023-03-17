@@ -174,7 +174,7 @@ enum PatternType {
                 iPattern = pattern.substring(i, iEnd);
                 i = iEnd;
             }
-            logPatterns.add(parsePattern(iPattern));
+            logPatterns.add(parsePatternSegment(iPattern));
         }
         return logPatterns;
     }
@@ -186,7 +186,7 @@ enum PatternType {
         return patternType.name().equalsIgnoreCase(pattern.split(":", 2)[0].trim());
     }
 
-    private static LogPattern parsePattern(String pattern) {
+    private static LogPattern parsePatternSegment(String pattern) {
         return EnumSet.allOf(PatternType.class)
                 .stream()
                 .filter(type -> type.isTargetTypeOf(pattern))
