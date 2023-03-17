@@ -48,7 +48,7 @@ class DefaultServiceConfigurationTest {
     @Nested
     class isEnabled {
         @Test
-        void loadFromReposOnlyOnce() {
+        void cacheLoadFromReposOnlyOnce() {
             DefaultServiceConfiguration defaultLoggingConfiguration =
                     new DefaultServiceConfiguration(mockLevelRepository, mockWriterRepository);
             NativeLogger nativeLogger = new NativeLogger("test.owner.class.Name", Level.OFF, mockLogService);

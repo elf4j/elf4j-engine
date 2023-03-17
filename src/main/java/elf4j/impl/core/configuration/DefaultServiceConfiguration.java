@@ -49,16 +49,12 @@ public class DefaultServiceConfiguration implements ServiceConfiguration {
      *
      */
     public DefaultServiceConfiguration() {
-        this(new PropertiesLoader());
-    }
-
-    DefaultServiceConfiguration(PropertiesLoader propertiesLoader) {
-        this.propertiesLoader = propertiesLoader;
-        setRepositories(propertiesLoader.load());
+        this.propertiesLoader = new PropertiesLoader();
+        setRepositories(this.propertiesLoader.load());
     }
 
     DefaultServiceConfiguration(LevelRepository levelRepository, WriterRepository writerRepository) {
-        this(new PropertiesLoader());
+        this.propertiesLoader = new PropertiesLoader();
         this.levelRepository = levelRepository;
         this.writerRepository = writerRepository;
     }
@@ -87,11 +83,10 @@ public class DefaultServiceConfiguration implements ServiceConfiguration {
     }
 
     private boolean loadLoggerConfigurationCache(NativeLogger nativeLogger) {
-        Level loggerMinimumLevel = levelRepository.getLoggerMinimumLevel(nativeLogger);
+        Level loggerConfigurationMinimumLevel = levelRepository.getLoggerMinimumLevel(nativeLogger);
         Level logServiceWriterMinimumLevel = writerRepository.getLogServiceWriter().getMinimumLevel();
-        int effectiveMinimumLevelOrdinal =
-                Math.max(loggerMinimumLevel.ordinal(), logServiceWriterMinimumLevel.ordinal());
-        return nativeLogger.getLevel().ordinal() >= effectiveMinimumLevelOrdinal;
+        return nativeLogger.getLevel().ordinal() >= Math.max(loggerConfigurationMinimumLevel.ordinal(),
+                logServiceWriterMinimumLevel.ordinal());
     }
 
     private void setRepositories(@NonNull Properties properties) {
