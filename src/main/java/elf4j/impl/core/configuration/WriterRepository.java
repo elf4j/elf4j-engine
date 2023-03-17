@@ -42,8 +42,8 @@ public class WriterRepository {
      * @param properties configuration from which to build the writer repo
      */
     public WriterRepository(Properties properties) {
-        GroupWriter fromProperties = GroupWriter.from(properties);
-        this.logServiceWriter = fromProperties.isEmpty() ? DEFAULT_WRITER : fromProperties;
+        GroupWriter groupWriter = GroupWriter.from(properties);
+        this.logServiceWriter = groupWriter.isEmpty() ? DEFAULT_WRITER : groupWriter;
     }
 
     LogWriter getLogServiceWriter() {

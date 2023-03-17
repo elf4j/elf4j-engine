@@ -41,7 +41,7 @@ public enum WriterType {
      */
     STANDARD_STREAMS {
         @Override
-        Set<LogWriter> parseLogWriters(Properties properties) {
+        Set<LogWriter> parseWriters(Properties properties) {
             String writerOutStreamType = properties.getProperty("stream.type");
             return PropertiesUtils.getPropertiesGroupOfType("stream", properties)
                     .stream()
@@ -55,12 +55,12 @@ public enum WriterType {
      * @param properties configuration source
      * @return all writers parsed from the specified properties
      */
-    public static Set<LogWriter> parseAllLogWriters(Properties properties) {
+    public static Set<LogWriter> parseAllWriters(Properties properties) {
         return EnumSet.allOf(WriterType.class)
                 .stream()
-                .flatMap(type -> type.parseLogWriters(properties).stream())
+                .flatMap(type -> type.parseWriters(properties).stream())
                 .collect(Collectors.toSet());
     }
 
-    abstract Set<LogWriter> parseLogWriters(Properties properties);
+    abstract Set<LogWriter> parseWriters(Properties properties);
 }

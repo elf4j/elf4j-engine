@@ -92,6 +92,13 @@ public class StandardStreamsWriter implements LogWriter {
             case STDERR:
                 BufferedStandardOutputStream.flushErr(logTextBuilder);
                 return;
+            case AUTO:
+                if (logEntry.getNativeLogger().getLevel().ordinal() < Level.WARN.ordinal()) {
+                    BufferedStandardOutputStream.flushOut(logTextBuilder);
+                } else {
+                    BufferedStandardOutputStream.flushErr(logTextBuilder);
+                }
+                return;
             default:
                 throw new IllegalArgumentException("Unsupported out stream type: " + this.outStreamType);
         }
@@ -109,7 +116,8 @@ public class StandardStreamsWriter implements LogWriter {
 
     enum OutStreamType {
         STDOUT,
-        STDERR
+        STDERR,
+        AUTO
     }
 
     private static class BufferedStandardOutputStream {
