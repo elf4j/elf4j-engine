@@ -31,7 +31,7 @@
 
     <groupId>io.github.elf4j</groupId>
     <artifactId>elf4j-impl-core</artifactId>
-    <version>0.6.0</version>
+    <version>0.6.1</version>
     <packaging>jar</packaging>
     <name>elf4j-impl-core</name>
     <description>Native logging service provider implementation of ELF4J (Easy Logging Facade For Java)
@@ -68,7 +68,7 @@
         <dependency>
             <groupId>io.github.elf4j</groupId>
             <artifactId>elf4j</artifactId>
-            <version>2.0.5</version>
+            <version>2.0.6</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
