@@ -61,9 +61,10 @@ public class MessageAndExceptionPattern implements LogPattern {
     @Override
     public void render(LogEntry logEntry, StringBuilder logTextBuilder) {
         logTextBuilder.append(logEntry.getResolvedMessage());
-        if (logEntry.getException() == null) {
+        Throwable t = logEntry.getException();
+        if (t == null) {
             return;
         }
-        logTextBuilder.append(System.lineSeparator()).append(StackTraceUtils.stackTraceTextOf(logEntry.getException()));
+        logTextBuilder.append(System.lineSeparator()).append(StackTraceUtils.stackTraceTextOf(t));
     }
 }

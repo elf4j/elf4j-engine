@@ -45,7 +45,7 @@ public class GroupPattern implements LogPattern {
      */
     @Nonnull
     public static GroupPattern from(@NonNull String pattern) {
-        return new GroupPattern(PatternType.parseAllPatternsOrThrow(pattern));
+        return new GroupPattern(PatternType.parsePatternGroup(pattern));
     }
 
     @Override

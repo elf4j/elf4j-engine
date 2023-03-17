@@ -28,19 +28,18 @@ package elf4j.impl.core.writer.pattern;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Objects;
 
 /**
  *
  */
-public enum PatternType {
+enum PatternType {
     /**
      *
      */
     TIMESTAMP {
         @Override
-        LogPattern parsePattern(String pattern) {
-            return this.isTargetTypeOf(pattern) ? TimestampPattern.from(pattern) : null;
+        LogPattern translate(String pattern) {
+            return TimestampPattern.from(pattern);
         }
 
         @Override
@@ -58,8 +57,8 @@ public enum PatternType {
         }
 
         @Override
-        LogPattern parsePattern(String pattern) {
-            return this.isTargetTypeOf(pattern) ? LevelPattern.from(pattern) : null;
+        LogPattern translate(String pattern) {
+            return LevelPattern.from(pattern);
         }
     },
     /**
@@ -72,8 +71,8 @@ public enum PatternType {
         }
 
         @Override
-        LogPattern parsePattern(String pattern) {
-            return this.isTargetTypeOf(pattern) ? ThreadPattern.from(pattern) : null;
+        LogPattern translate(String pattern) {
+            return ThreadPattern.from(pattern);
         }
     },
     /**
@@ -81,13 +80,13 @@ public enum PatternType {
      */
     CLASS {
         @Override
-        public boolean isTargetTypeOf(String pattern) {
+        boolean isTargetTypeOf(String pattern) {
             return isPatternOfType(this, pattern);
         }
 
         @Override
-        LogPattern parsePattern(String pattern) {
-            return this.isTargetTypeOf(pattern) ? ClassPattern.from(pattern) : null;
+        LogPattern translate(String pattern) {
+            return ClassPattern.from(pattern);
         }
     },
     /**
@@ -95,13 +94,13 @@ public enum PatternType {
      */
     METHOD {
         @Override
-        public boolean isTargetTypeOf(String pattern) {
+        boolean isTargetTypeOf(String pattern) {
             return isPatternOfType(this, pattern);
         }
 
         @Override
-        LogPattern parsePattern(String pattern) {
-            return this.isTargetTypeOf(pattern) ? MethodPattern.from(pattern) : null;
+        LogPattern translate(String pattern) {
+            return MethodPattern.from(pattern);
         }
     },
     /**
@@ -109,13 +108,13 @@ public enum PatternType {
      */
     MESSAGE {
         @Override
-        public boolean isTargetTypeOf(String pattern) {
+        boolean isTargetTypeOf(String pattern) {
             return isPatternOfType(this, pattern);
         }
 
         @Override
-        LogPattern parsePattern(String pattern) {
-            return this.isTargetTypeOf(pattern) ? MessageAndExceptionPattern.from(pattern) : null;
+        LogPattern translate(String pattern) {
+            return MessageAndExceptionPattern.from(pattern);
         }
     },
     /**
@@ -123,13 +122,13 @@ public enum PatternType {
      */
     JSON {
         @Override
-        public boolean isTargetTypeOf(String pattern) {
+        boolean isTargetTypeOf(String pattern) {
             return isPatternOfType(this, pattern);
         }
 
         @Override
-        LogPattern parsePattern(String pattern) {
-            return this.isTargetTypeOf(pattern) ? JsonPattern.from(pattern) : null;
+        LogPattern translate(String pattern) {
+            return JsonPattern.from(pattern);
         }
     },
     /**
@@ -137,21 +136,22 @@ public enum PatternType {
      */
     VERBATIM {
         @Override
-        public boolean isTargetTypeOf(String pattern) {
+        boolean isTargetTypeOf(String pattern) {
             return isPatternOfType(this, pattern);
         }
 
         @Override
-        LogPattern parsePattern(String pattern) {
-            return this.isTargetTypeOf(pattern) ? VerbatimPattern.from(pattern) : null;
+        LogPattern translate(String pattern) {
+            return VerbatimPattern.from(pattern);
         }
     };
+    private static final EnumSet<PatternType> PREDEFINED_PATTERN_TYPES = EnumSet.complementOf(EnumSet.of(VERBATIM));
 
     /**
      * @param pattern entire layout pattern text of a writer, including one or more individual pattern segments
      * @return ordered list of individual patterns forming the entire layout pattern of the writer
      */
-    public static List<LogPattern> parseAllPatternsOrThrow(String pattern) {
+    static List<LogPattern> parsePatternGroup(String pattern) {
         List<LogPattern> logPatterns = new ArrayList<>();
         int length = pattern.length();
         int i = 0;
@@ -174,32 +174,32 @@ public enum PatternType {
                 iPattern = pattern.substring(i, iEnd);
                 i = iEnd;
             }
-            logPatterns.add(PatternType.parsePatternOrThrow(iPattern));
+            logPatterns.add(parsePattern(iPattern));
         }
         return logPatterns;
     }
 
-    private static boolean isPatternOfType(PatternType targetPatternType, String pattern) {
-        if (targetPatternType == VERBATIM) {
-            return EnumSet.complementOf(EnumSet.of(VERBATIM)).stream().noneMatch(type -> type.isTargetTypeOf(pattern));
+    private static boolean isPatternOfType(PatternType patternType, String pattern) {
+        if (patternType == VERBATIM) {
+            return PREDEFINED_PATTERN_TYPES.stream().noneMatch(type -> type.isTargetTypeOf(pattern));
         }
-        return targetPatternType.name().equalsIgnoreCase(pattern.split(":", 2)[0].trim());
+        return patternType.name().equalsIgnoreCase(pattern.split(":", 2)[0].trim());
     }
 
-    private static LogPattern parsePatternOrThrow(String pattern) {
+    private static LogPattern parsePattern(String pattern) {
         return EnumSet.allOf(PatternType.class)
                 .stream()
-                .map(type -> type.parsePattern(pattern))
-                .filter(Objects::nonNull)
+                .filter(type -> type.isTargetTypeOf(pattern))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("pattern: '" + pattern + "' not parsable"));
+                .orElseThrow(() -> new IllegalArgumentException("pattern: '" + pattern + "' not parsable"))
+                .translate(pattern);
     }
 
     /**
      * @param pattern text configuration of an individual pattern segment
      * @return true if this pattern type is the target type of the specified pattern text
      */
-    public abstract boolean isTargetTypeOf(String pattern);
+    abstract boolean isTargetTypeOf(String pattern);
 
-    abstract LogPattern parsePattern(String pattern);
+    abstract LogPattern translate(String pattern);
 }
