@@ -95,7 +95,7 @@ public class DefaultServiceConfiguration implements ServiceConfiguration {
         if (this.noop) {
             InternalLogger.log(Level.WARN, "No-op per configuration");
         }
-        this.levelRepository = new LevelRepository(properties);
-        this.writerRepository = new WriterRepository(properties);
+        this.levelRepository = LevelRepository.from(properties);
+        this.writerRepository = WriterRepository.from(properties);
     }
 }

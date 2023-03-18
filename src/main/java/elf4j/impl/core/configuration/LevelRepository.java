@@ -27,65 +27,61 @@ package elf4j.impl.core.configuration;
 
 import elf4j.Level;
 import elf4j.impl.core.NativeLogger;
+import lombok.NonNull;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
  */
 public class LevelRepository {
     private static final Level DEFAULT_LOGGER_MINIMUM_LEVEL = Level.TRACE;
-    final Map<String, Level> loggerMinimumLevels = new HashMap<>();
+    private static final String ROOT_CLASS_NAME_SPACE = "";
+    private final Map<String, Level> callerClassNameSpaceMinimumLevels;
+    /**
+     * Longest first
+     */
+    private final List<String> sortedCallerClassNameSpaces;
+
+    private LevelRepository(@NonNull Map<String, Level> callerClassNameSpaceMinimumLevels) {
+        this.callerClassNameSpaceMinimumLevels = callerClassNameSpaceMinimumLevels;
+        this.sortedCallerClassNameSpaces = callerClassNameSpaceMinimumLevels.keySet()
+                .stream()
+                .sorted(Comparator.comparingInt(String::length).reversed())
+                .collect(Collectors.toList());
+    }
 
     /**
      * @param properties configuration source of all minimum output levels for loggers
      */
-    public LevelRepository(Properties properties) {
-        properties.stringPropertyNames().forEach(name -> {
-            if (name.trim().startsWith("level")) {
-                String[] nameSegments = name.split("@");
-                switch (nameSegments.length) {
-                    case 1:
-                        loggerMinimumLevels.put("",
-                                Level.valueOf(properties.getProperty("level").trim().toUpperCase()));
-                        break;
-                    case 2:
-                        loggerMinimumLevels.put(nameSegments[1].trim(),
-                                Level.valueOf(properties.getProperty(name).trim().toUpperCase()));
-                        break;
-                    default:
-                        throw new IllegalArgumentException("level key: " + name);
-                }
-            }
-        });
+    @NonNull
+    public static LevelRepository from(@NonNull Properties properties) {
+        Map<String, Level> callerClassNameSpaceMinimumLevels = new HashMap<>();
+        getAsLevel("level", properties).ifPresent(level -> callerClassNameSpaceMinimumLevels.put(ROOT_CLASS_NAME_SPACE,
+                level));
+        callerClassNameSpaceMinimumLevels.putAll(properties.stringPropertyNames()
+                .stream()
+                .filter(name -> name.trim().startsWith("level@"))
+                .collect(Collectors.toMap(name -> name.split("@", 2)[1].trim(),
+                        name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
+        return new LevelRepository(callerClassNameSpaceMinimumLevels);
+    }
+
+    private static Optional<Level> getAsLevel(String levelKey, @NonNull Properties properties) {
+        String levelValue = properties.getProperty(levelKey);
+        return levelValue == null ? Optional.empty() : Optional.of(Level.valueOf(levelValue.trim().toUpperCase()));
     }
 
     /**
      * @param nativeLogger to search for configured minimum output level
-     * @return configured min output level for the specified logger
+     * @return configured min output level for the specified logger, or the default level if not configured
      */
     public Level getLoggerMinimumLevel(NativeLogger nativeLogger) {
-        String callerClassName = nativeLogger.getOwnerClassName();
-        int rootPackageLength = callerClassName.indexOf('.');
-        if (rootPackageLength == -1) {
-            rootPackageLength = callerClassName.length();
-        }
-        while (callerClassName.length() >= rootPackageLength) {
-            if (loggerMinimumLevels.containsKey(callerClassName)) {
-                return loggerMinimumLevels.get(callerClassName);
-            }
-            if (callerClassName.length() == rootPackageLength) {
-                break;
-            }
-            int end = callerClassName.lastIndexOf('.');
-            if (end == -1) {
-                end = callerClassName.length();
-            }
-            callerClassName = callerClassName.substring(0, end);
-        }
-        Level configuredRootLevel = loggerMinimumLevels.get("");
-        return configuredRootLevel == null ? DEFAULT_LOGGER_MINIMUM_LEVEL : configuredRootLevel;
+        return this.sortedCallerClassNameSpaces.stream()
+                .filter(classNameSpace -> nativeLogger.getOwnerClassName().startsWith(classNameSpace))
+                .findFirst()
+                .map(this.callerClassNameSpaceMinimumLevels::get)
+                .orElse(DEFAULT_LOGGER_MINIMUM_LEVEL);
     }
 }
