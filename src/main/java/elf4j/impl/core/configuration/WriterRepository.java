@@ -30,6 +30,7 @@ import elf4j.impl.core.util.InternalLogger;
 import elf4j.impl.core.writer.GroupWriter;
 import elf4j.impl.core.writer.LogWriter;
 import elf4j.impl.core.writer.StandardStreamsWriter;
+import lombok.NonNull;
 
 import java.util.Properties;
 
@@ -40,22 +41,25 @@ public class WriterRepository {
     private static final LogWriter DEFAULT_WRITER = StandardStreamsWriter.defaultWriter();
     private final LogWriter logServiceWriter;
 
+    private WriterRepository(LogWriter logServiceWriter) {
+        this.logServiceWriter = logServiceWriter;
+    }
+
     /**
      * @param properties configuration from which to build the writer repo
      */
-    public WriterRepository(Properties properties) {
+    public static WriterRepository from(@NonNull Properties properties) {
         GroupWriter groupWriter = GroupWriter.from(properties);
-        if (groupWriter.isEmpty()) {
-            InternalLogger.log(Level.WARN,
-                    String.format("No writer found in configuration %s, using default writer %s",
-                            properties,
-                            DEFAULT_WRITER));
-            this.logServiceWriter = DEFAULT_WRITER;
-            return;
+        if (!groupWriter.isEmpty()) {
+            InternalLogger.log(Level.INFO,
+                    String.format("Service writer %s obtained from configuration %s", groupWriter, properties));
+            return new WriterRepository(groupWriter);
         }
-        InternalLogger.log(Level.INFO,
-                String.format("Service writer %s found in configuration %s", groupWriter, properties));
-        this.logServiceWriter = groupWriter;
+        InternalLogger.log(Level.WARN,
+                String.format("No writer found in configuration %s, using default service writer %s",
+                        properties,
+                        DEFAULT_WRITER));
+        return new WriterRepository(DEFAULT_WRITER);
     }
 
     LogWriter getLogServiceWriter() {
