@@ -41,7 +41,7 @@ public class WriterRepository {
     private static final LogWriter DEFAULT_WRITER = StandardStreamsWriter.defaultWriter();
     private final LogWriter logServiceWriter;
 
-    public WriterRepository(LogWriter logServiceWriter) {
+    private WriterRepository(LogWriter logServiceWriter) {
         this.logServiceWriter = logServiceWriter;
     }
 
