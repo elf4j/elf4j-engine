@@ -1,4 +1,4 @@
-name: OSSRH Maven Central Deploy
+name: Publish Artifact
 
 on:
   release:
