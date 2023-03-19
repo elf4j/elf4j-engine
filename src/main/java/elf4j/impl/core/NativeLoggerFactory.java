@@ -48,8 +48,8 @@ public class NativeLoggerFactory implements LoggerFactory {
      * calls the static factory method {@link Logger#instance()} to gain access to a logger instance. The client will
      * then use the logger instance to invoke logging services such as the {@link Logger#log} methods.
      * <p></p>
-     * If this library is used as the engine of another logging API implementation, then this access class would be the
-     * class from that API that the client calls to gain access to that API's logging service.
+     * If this library is used as the engine of another logging API, then this access class would be the class from that
+     * API that the client calls to gain access to that API's logging service.
      */
     @NonNull private final Class<?> serviceAccessClass;
     @NonNull private final LogService logService;
