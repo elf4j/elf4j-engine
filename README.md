@@ -8,5 +8,5 @@ make a native logging service provider implementation of the [ELF4J](https://git
 Java) SPI. See [elf4j-impl](https://github.com/elf4j/elf4j-impl) for descriptions.
 
 While directly implementing the [ELF4J](https://github.com/elf4j/elf4j) API, this is also a stand-alone Java logging
-engine. It is designed to be adaptable to service other logging API, for example, as
+engine. It is designed to be adaptable to service other logging APIs, for example, as
 a [logging engine for SLF4J](https://github.com/elf4j/slf4j-elf4j).
