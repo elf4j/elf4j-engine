@@ -75,7 +75,7 @@ public class DefaultLogService implements LogService {
 
     @Override
     public void log(NativeLogger nativeLogger,
-            Class<?> loggingServiceInterface,
+            Class<?> serviceInterfaceClass,
             Throwable exception,
             Object message,
             Object[] args) {
@@ -85,7 +85,7 @@ public class DefaultLogService implements LogService {
         LogEntry.LogEntryBuilder logEntryBuilder =
                 LogEntry.builder().nativeLogger(nativeLogger).exception(exception).message(message).arguments(args);
         if (this.includeCallerDetail()) {
-            logEntryBuilder.callerFrame(StackTraceUtils.callerOf(Objects.requireNonNull(loggingServiceInterface)));
+            logEntryBuilder.callerFrame(StackTraceUtils.callerOf(Objects.requireNonNull(serviceInterfaceClass)));
         }
         if (this.includeCallerThread()) {
             Thread callerThread = Thread.currentThread();

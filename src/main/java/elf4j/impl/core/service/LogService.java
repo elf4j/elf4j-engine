@@ -39,16 +39,20 @@ public interface LogService extends PerformanceSensitive {
     boolean isEnabled(NativeLogger nativeLogger);
 
     /**
-     * @param nativeLogger            the serviced logger
-     * @param loggingServiceInterface runtime logging service class that the client calls directly to issue the log. For
-     *                                native ELF4J service, it is always the {@link NativeLogger} class; may be a
-     *                                different class if this core library is used to service other logging API.
-     * @param exception               to log
-     * @param message                 to log, can have argument placeholders
-     * @param args                    to replace the placeholders in the message
+     * @param nativeLogger          the serviced logger
+     * @param serviceInterfaceClass The concrete logging service (logger) implementation class that the client calls
+     *                              directly at runtime to issue the log. For the native ELF4J service implementation,
+     *                              this is always the {@link NativeLogger} class; may be a different class if this core
+     *                              library is used to service other logging API. The real-time caller of this class,
+     *                              therefore, is the logging service's "caller class" whose details, such as method and
+     *                              line number, may need to be resolved by walking the runtime calling stack trace if
+     *                              such details are required per configuration.
+     * @param exception             to log
+     * @param message               to log, can have argument placeholders
+     * @param args                  to replace the placeholders in the message
      */
     void log(NativeLogger nativeLogger,
-            Class<?> loggingServiceInterface,
+            Class<?> serviceInterfaceClass,
             Throwable exception,
             Object message,
             Object[] args);
