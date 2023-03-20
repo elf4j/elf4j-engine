@@ -114,9 +114,7 @@ public class StandardStreamsWriter implements LogWriter {
     }
 
     enum OutStreamType {
-        STDOUT,
-        STDERR,
-        AUTO
+        STDOUT, STDERR, AUTO
     }
 
     private static class BufferedStandardOutputStream {

@@ -70,7 +70,6 @@ public class ThreadPattern implements LogPattern {
     }
 
     enum DisplayOption {
-        ID,
-        NAME
+        ID, NAME
     }
 }
