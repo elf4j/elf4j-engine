@@ -38,15 +38,15 @@ import java.util.stream.Collectors;
 public class LevelRepository {
     private static final Level DEFAULT_LOGGER_MINIMUM_LEVEL = Level.TRACE;
     private static final String ROOT_CLASS_NAME_SPACE = "";
-    private final Map<String, Level> callerClassNameSpaceMinimumLevels;
+    private final Map<String, Level> configuredLevels;
     /**
      * Longest first
      */
     private final List<String> sortedCallerClassNameSpaces;
 
-    private LevelRepository(@NonNull Map<String, Level> callerClassNameSpaceMinimumLevels) {
-        this.callerClassNameSpaceMinimumLevels = callerClassNameSpaceMinimumLevels;
-        this.sortedCallerClassNameSpaces = callerClassNameSpaceMinimumLevels.keySet()
+    private LevelRepository(@NonNull Map<String, Level> configuredLevels) {
+        this.configuredLevels = configuredLevels;
+        this.sortedCallerClassNameSpaces = configuredLevels.keySet()
                 .stream()
                 .sorted(Comparator.comparingInt(String::length).reversed())
                 .collect(Collectors.toList());
@@ -57,15 +57,14 @@ public class LevelRepository {
      */
     @NonNull
     public static LevelRepository from(@NonNull Properties properties) {
-        Map<String, Level> callerClassNameSpaceMinimumLevels = new HashMap<>();
-        getAsLevel("level", properties).ifPresent(level -> callerClassNameSpaceMinimumLevels.put(ROOT_CLASS_NAME_SPACE,
-                level));
-        callerClassNameSpaceMinimumLevels.putAll(properties.stringPropertyNames()
+        Map<String, Level> configuredLevels = new HashMap<>();
+        getAsLevel("level", properties).ifPresent(level -> configuredLevels.put(ROOT_CLASS_NAME_SPACE, level));
+        configuredLevels.putAll(properties.stringPropertyNames()
                 .stream()
                 .filter(name -> name.trim().startsWith("level@"))
                 .collect(Collectors.toMap(name -> name.split("@", 2)[1].trim(),
                         name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
-        return new LevelRepository(callerClassNameSpaceMinimumLevels);
+        return new LevelRepository(configuredLevels);
     }
 
     private static Optional<Level> getAsLevel(String levelKey, @NonNull Properties properties) {
@@ -81,7 +80,7 @@ public class LevelRepository {
         return this.sortedCallerClassNameSpaces.stream()
                 .filter(classNameSpace -> nativeLogger.getOwnerClassName().startsWith(classNameSpace))
                 .findFirst()
-                .map(this.callerClassNameSpaceMinimumLevels::get)
+                .map(this.configuredLevels::get)
                 .orElse(DEFAULT_LOGGER_MINIMUM_LEVEL);
     }
 }
