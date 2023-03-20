@@ -48,7 +48,7 @@ public class WriterRepository {
     /**
      * @param properties configuration from which to build the writer repo
      */
-    public static WriterRepository from(@NonNull Properties properties) {
+    static WriterRepository from(@NonNull Properties properties) {
         GroupWriter groupWriter = GroupWriter.from(properties);
         if (!groupWriter.isEmpty()) {
             InternalLogger.log(Level.INFO,

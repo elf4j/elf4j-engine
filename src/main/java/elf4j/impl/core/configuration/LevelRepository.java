@@ -56,7 +56,7 @@ public class LevelRepository {
      * @param properties configuration source of all minimum output levels for loggers
      */
     @NonNull
-    public static LevelRepository from(@NonNull Properties properties) {
+    static LevelRepository from(@NonNull Properties properties) {
         Map<String, Level> configuredLevels = new HashMap<>();
         getAsLevel("level", properties).ifPresent(level -> configuredLevels.put(ROOT_CLASS_NAME_SPACE, level));
         configuredLevels.putAll(properties.stringPropertyNames()
