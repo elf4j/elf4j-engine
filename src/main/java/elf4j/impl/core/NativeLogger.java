@@ -33,6 +33,11 @@ import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Instances of this class are thread-safe, and can be used as class, instance, or local variables. It is recommended,
@@ -44,6 +49,9 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 @Value
 public class NativeLogger implements Logger {
+    private static final Map<Level, Map<String, NativeLogger>> NATIVE_LOGGERS =
+            EnumSet.allOf(Level.class).stream().collect(Collectors.toMap(Function.identity(), l -> new HashMap<>()));
+
     /**
      * Name of this logger's "owner class" - the logging service client class that first requested for this logger
      * instance via the {@link Logger#instance()} service access method. The owner class is usually the same as the
@@ -138,7 +146,9 @@ public class NativeLogger implements Logger {
      * @return logger instance of the same name, with the specified level
      */
     public NativeLogger atLevel(Level level) {
-        return this.level == level ? this : new NativeLogger(this.ownerClassName, level, logService);
+        return this.level == level ? this : NATIVE_LOGGERS.get(level)
+                .computeIfAbsent(this.ownerClassName,
+                        k -> new NativeLogger(this.ownerClassName, level, this.logService));
     }
 
     private void service(Throwable exception, Object message, Object[] args) {

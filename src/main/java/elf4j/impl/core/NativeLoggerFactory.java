@@ -33,6 +33,9 @@ import elf4j.impl.core.util.StackTraceUtils;
 import elf4j.spi.LoggerFactory;
 import lombok.NonNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  */
@@ -40,6 +43,7 @@ public class NativeLoggerFactory implements LoggerFactory {
     private static final Level DEFAULT_LOGGER_SEVERITY_LEVEL = Level.TRACE;
     private static final Class<Logger> DEFAULT_LOGGING_SERVICE_ACCESS_CLASS = Logger.class;
     @NonNull private final Level defaultLoggerLevel;
+    private final Map<String, NativeLogger> nativeLoggers = new HashMap<>();
     /**
      * The class that the API client uses to initiate access and request for a logger instance. The client caller class
      * of this class will be the "owner class" of the logger instances this factory produces.
@@ -83,8 +87,7 @@ public class NativeLoggerFactory implements LoggerFactory {
      */
     @Override
     public NativeLogger logger() {
-        return new NativeLogger(StackTraceUtils.callerOf(this.serviceAccessClass).getClassName(),
-                defaultLoggerLevel,
-                logService);
+        return this.nativeLoggers.computeIfAbsent(StackTraceUtils.callerOf(this.serviceAccessClass).getClassName(),
+                ownerClassName -> new NativeLogger(ownerClassName, defaultLoggerLevel, logService));
     }
 }
