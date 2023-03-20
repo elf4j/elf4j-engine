@@ -143,7 +143,7 @@ public class NativeLogger implements Logger {
 
     /**
      * @param level of the returned logger instance
-     * @return logger instance of the same name, with the specified level
+     * @return logger instance of the same owner class name, with the specified level
      */
     public NativeLogger atLevel(Level level) {
         return this.level == level ? this : NATIVE_LOGGERS.get(level)
