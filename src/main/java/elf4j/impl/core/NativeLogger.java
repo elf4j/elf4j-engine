@@ -37,20 +37,20 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Instances of this class are thread-safe, and can be used as class, instance, or local variables. It is recommended,
- * however, to use class variables for instances that are returned by the static factory method
- * {@link Logger#instance()}, as those instances are more expensive to create. Other instances returned by the
- * fluent-style factory methods, such as {@link Logger#atError()}, are inexpensive to create and can be used (and
- * discarded) in-line or as convenient.
+ * however, to use class variables for instances returned by the static factory method {@link Logger#instance()}, as
+ * those instances are more expensive to create. Other instances returned by the fluent-style factory methods, such as
+ * {@link Logger#atLevel}, are inexpensive to create and can be used (and discarded) in-line or as convenient.
  */
 @ThreadSafe
 @Value
 public class NativeLogger implements Logger {
     private static final Map<Level, Map<String, NativeLogger>> NATIVE_LOGGERS =
-            EnumSet.allOf(Level.class).stream().collect(Collectors.toMap(Function.identity(), l -> new HashMap<>()));
+            EnumSet.allOf(Level.class).stream().collect(toMap(Function.identity(), l -> new HashMap<>()));
 
     /**
      * Name of this logger's "owner class" - the logging service client class that first requested for this logger
@@ -82,33 +82,9 @@ public class NativeLogger implements Logger {
     }
 
     @Override
-    public NativeLogger atDebug() {
-        return atLevel(Level.DEBUG);
-    }
-
-    @Override
-    public NativeLogger atError() {
-        return atLevel(Level.ERROR);
-    }
-
-    @Override
-    public NativeLogger atInfo() {
-        return atLevel(Level.INFO);
-    }
-
-    @Override
-    public NativeLogger atTrace() {
-        return atLevel(Level.TRACE);
-    }
-
-    @Override
-    public NativeLogger atWarn() {
-        return atLevel(Level.WARN);
-    }
-
-    @Override
-    public @NonNull Level getLevel() {
-        return this.level;
+    public NativeLogger atLevel(Level level) {
+        return this.level == level ? this : NATIVE_LOGGERS.get(level)
+                .computeIfAbsent(this.ownerClassName, k -> new NativeLogger(k, level, this.logService));
     }
 
     @Override
@@ -139,16 +115,6 @@ public class NativeLogger implements Logger {
     @Override
     public void log(Throwable t, String message, Object... args) {
         this.service(t, message, args);
-    }
-
-    /**
-     * @param level of the returned logger instance
-     * @return logger instance of the same owner class name, with the specified level
-     */
-    public NativeLogger atLevel(Level level) {
-        return this.level == level ? this : NATIVE_LOGGERS.get(level)
-                .computeIfAbsent(this.ownerClassName,
-                        k -> new NativeLogger(this.ownerClassName, level, this.logService));
     }
 
     private void service(Throwable exception, Object message, Object[] args) {

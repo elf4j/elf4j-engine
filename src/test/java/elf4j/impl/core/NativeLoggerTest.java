@@ -57,8 +57,8 @@ class NativeLoggerTest {
     class atLevels {
         @Test
         void instanceForDifferentLevel() {
-            NativeLogger info = nativeLogger.atInfo();
-            NativeLogger warn = info.atWarn();
+            NativeLogger info = (NativeLogger) nativeLogger.atInfo();
+            NativeLogger warn = (NativeLogger) info.atWarn();
 
             assertNotSame(warn, info);
             assertEquals(info.getOwnerClassName(), warn.getOwnerClassName());
@@ -67,11 +67,11 @@ class NativeLoggerTest {
 
         @Test
         void instanceForSameLevel() {
-            NativeLogger trace = nativeLogger.atTrace();
-            NativeLogger debug = nativeLogger.atDebug();
-            NativeLogger info = nativeLogger.atInfo();
-            NativeLogger warn = nativeLogger.atWarn();
-            NativeLogger error = nativeLogger.atError();
+            NativeLogger trace = (NativeLogger) nativeLogger.atTrace();
+            NativeLogger debug = (NativeLogger) nativeLogger.atDebug();
+            NativeLogger info = (NativeLogger) nativeLogger.atInfo();
+            NativeLogger warn = (NativeLogger) nativeLogger.atWarn();
+            NativeLogger error = (NativeLogger) nativeLogger.atError();
 
             assertSame(trace, trace.atTrace());
             assertSame(debug, debug.atDebug());
