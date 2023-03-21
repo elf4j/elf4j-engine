@@ -111,7 +111,7 @@ public class JsonPatternSegment implements LogPattern {
         String message;
         String exception;
 
-        static JsonLogEntry from(LogEntry logEntry, JsonPatternSegment jsonPatternSegment) {
+        static JsonLogEntry from(@NonNull LogEntry logEntry, @NonNull JsonPatternSegment jsonPatternSegment) {
             return JsonLogEntry.builder()
                     .timestamp(DATE_TIME_FORMATTER.format(logEntry.getTimestamp()))
                     .callerClass(jsonPatternSegment.includeCallerDetail ? null : logEntry.getCallerClassName())

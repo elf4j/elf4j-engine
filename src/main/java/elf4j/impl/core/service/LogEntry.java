@@ -52,7 +52,7 @@ public class LogEntry {
     @Nullable StackTraceFrame callerFrame;
     @Nullable ThreadInformation callerThread;
 
-    private static String resolve(Object msg, Object[] arguments) {
+    private static @NonNull String resolve(Object msg, Object[] arguments) {
         String message = Objects.toString(supply(msg), "");
         int messageLength = message.length();
         StringBuilder builder = new StringBuilder(messageLength + ADDITIONAL_STRING_BUILDER_CAPACITY);
@@ -98,7 +98,7 @@ public class LogEntry {
         @NonNull String className;
         @NonNull String methodName;
         int lineNumber;
-        @NonNull String fileName;
+        String fileName;
     }
 
     /**

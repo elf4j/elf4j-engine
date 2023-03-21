@@ -29,7 +29,9 @@ import elf4j.Level;
 import elf4j.impl.core.service.LogEntry;
 import elf4j.impl.core.writer.pattern.LogPattern;
 import elf4j.impl.core.writer.pattern.PatternSegmentGroup;
+import lombok.NonNull;
 
+import javax.annotation.Nonnull;
 import java.io.BufferedOutputStream;
 import java.io.PrintStream;
 import java.util.Map;
@@ -55,7 +57,7 @@ public class StandardStreamsWriter implements LogWriter {
     /**
      * @return default writer
      */
-    public static StandardStreamsWriter defaultWriter() {
+    public static @Nonnull StandardStreamsWriter defaultWriter() {
         return new StandardStreamsWriter(DEFAULT_MINIMUM_LEVEL,
                 PatternSegmentGroup.from(DEFAULT_PATTERN),
                 DEFAULT_OUT_STREAM);
@@ -65,7 +67,7 @@ public class StandardStreamsWriter implements LogWriter {
      * @param configuration properties map to make a console writer
      * @return console writer per the specified configuration
      */
-    public static StandardStreamsWriter from(Map<String, String> configuration) {
+    public static @NonNull StandardStreamsWriter from(@NonNull Map<String, String> configuration) {
         String level = configuration.get("level");
         String pattern = configuration.get("pattern");
         String outStreamType = configuration.get("stream");
@@ -80,7 +82,7 @@ public class StandardStreamsWriter implements LogWriter {
     }
 
     @Override
-    public void write(LogEntry logEntry) {
+    public void write(@NonNull LogEntry logEntry) {
         if (this.minimumLevel.ordinal() > logEntry.getNativeLogger().getLevel().ordinal()) {
             return;
         }

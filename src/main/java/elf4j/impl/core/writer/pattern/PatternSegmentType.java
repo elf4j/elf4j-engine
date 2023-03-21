@@ -169,7 +169,7 @@ enum PatternSegmentType {
      *                final log message.
      * @return ordered list of individual patterns forming the entire layout pattern of the writer
      */
-    static List<LogPattern> parsePatternSegments(@NonNull String pattern) {
+    static @NonNull List<LogPattern> parsePatternSegments(@NonNull String pattern) {
         if (pattern.trim().isEmpty()) {
             throw new IllegalArgumentException("Unexpected blank pattern");
         }

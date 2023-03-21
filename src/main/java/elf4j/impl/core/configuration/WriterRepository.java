@@ -32,6 +32,7 @@ import elf4j.impl.core.writer.LogWriter;
 import elf4j.impl.core.writer.StandardStreamsWriter;
 import lombok.NonNull;
 
+import javax.annotation.Nonnull;
 import java.util.Properties;
 
 /**
@@ -48,7 +49,7 @@ public class WriterRepository {
     /**
      * @param properties configuration from which to build the writer repo
      */
-    static WriterRepository from(@NonNull Properties properties) {
+    static @Nonnull WriterRepository from(@NonNull Properties properties) {
         GroupWriter groupWriter = GroupWriter.from(properties);
         if (!groupWriter.isEmpty()) {
             InternalLogger.log(Level.INFO,

@@ -25,6 +25,8 @@
 
 package elf4j.impl.core.util;
 
+import lombok.NonNull;
+
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -44,7 +46,7 @@ public class PropertiesUtils {
      * @return all properties entries whose original keys start with the specified prefix. The prefix is removed from
      *         the keys of the returned entries.
      */
-    public static Map<String, String> getChildProperties(String prefix, Properties properties) {
+    public static Map<String, String> getChildProperties(String prefix, @NonNull Properties properties) {
         final String start = prefix + '.';
         return properties.stringPropertyNames()
                 .stream()
@@ -59,7 +61,7 @@ public class PropertiesUtils {
      * @return a group whose every member is a set of properties entries having a common key prefix of the specified
      *         type
      */
-    public static Set<Map<String, String>> getPropertiesGroupOfType(String type, Properties properties) {
+    public static Set<Map<String, String>> getPropertiesGroupOfType(String type, @NonNull Properties properties) {
         return properties.stringPropertyNames()
                 .stream()
                 .filter(name -> properties.getProperty(name).trim().equals(type))

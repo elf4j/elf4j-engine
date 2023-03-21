@@ -64,7 +64,7 @@ public class ThreadPatternSegment implements LogPattern {
     }
 
     @Override
-    public void render(LogEntry logEntry, StringBuilder logTextBuilder) {
+    public void render(@NonNull LogEntry logEntry, @NonNull StringBuilder logTextBuilder) {
         LogEntry.ThreadInformation callerThread = Objects.requireNonNull(logEntry.getCallerThread());
         logTextBuilder.append(threadDisplayOption == DisplayOption.ID ? callerThread.getId() : callerThread.getName());
     }

@@ -73,7 +73,7 @@ public class StackTraceUtils {
      * @param throwable to extract stack trace text from
      * @return stack trace text of the specified throwable
      */
-    public static String stackTraceTextOf(Throwable throwable) {
+    public static String stackTraceTextOf(@NonNull Throwable throwable) {
         try (StringWriter stringWriter = new StringWriter(); PrintWriter printWriter = new PrintWriter(stringWriter)) {
             throwable.printStackTrace(printWriter);
             return stringWriter.toString();
