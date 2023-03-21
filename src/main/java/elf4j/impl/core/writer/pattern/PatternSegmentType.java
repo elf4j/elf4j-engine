@@ -163,13 +163,17 @@ enum PatternSegmentType {
 
     /**
      * @param pattern entire layout pattern text of a writer, including one or more individual pattern segments.
-     *                Predefined pattern segments are those between curly braces - e.g. {timestamp}, {level}, or {json}
-     *                - that extract and render specific log data to form the final log message. Undefined pattern
-     *                texts, either in or outside curly braces, are to be rendered verbatim in the final log message.
+     *                Predefined pattern segment texts in curly braces - e.g. {timestamp}, {level}, or {json} - will be
+     *                parsed into pattern segment objects who extract and render specific log data to form the final log
+     *                message. Undefined pattern texts, in or outside curly braces, are to be rendered verbatim in the
+     *                final log message.
      * @return ordered list of individual patterns forming the entire layout pattern of the writer
      */
     static List<LogPattern> parsePatternSegments(String pattern) {
         List<LogPattern> logPatterns = new ArrayList<>();
+        if (pattern == null || pattern.trim().isEmpty()) {
+            return logPatterns;
+        }
         final int length = pattern.length();
         int i = 0;
         while (i < length) {
@@ -177,12 +181,22 @@ enum PatternSegmentType {
             String segment;
             if (pattern.charAt(i) == '{') {
                 j = pattern.indexOf('}', i);
-                segment = (j == -1) ? pattern.substring(i, length) : pattern.substring(i + 1, j);
-                i = j + 1;
+                if (j != -1) {
+                    segment = pattern.substring(i + 1, j);
+                    i = j + 1;
+                } else {
+                    segment = pattern.substring(i, length);
+                    i = length;
+                }
             } else {
                 j = pattern.indexOf('{', i);
-                segment = (j == -1) ? pattern.substring(i, length) : pattern.substring(i, j);
-                i = j;
+                if (j != -1) {
+                    segment = pattern.substring(i, j);
+                    i = j;
+                } else {
+                    segment = pattern.substring(i, length);
+                    i = length;
+                }
             }
             logPatterns.add(parsePatternSegment(segment));
         }
