@@ -163,9 +163,9 @@ enum PatternSegmentType {
 
     /**
      * @param pattern entire layout pattern text of a writer, including one or more individual pattern segments.
-     *                Predefined pattern segments are those between curly braces e.g. {timestamp}, {level}, or {json}
-     *                that extract and render specific log data to compose the final log message. Pattern text outside
-     *                curly brace pairs are to be rendered verbatim in the final log message.
+     *                Predefined pattern segments are those between curly braces - e.g. {timestamp}, {level}, or {json}
+     *                - that extract and render specific log data to form the final log message. Undefined pattern texts
+     *                outside curly braces are to be rendered verbatim in the final log message.
      * @return ordered list of individual patterns forming the entire layout pattern of the writer
      */
     static List<LogPattern> parsePatternSegments(String pattern) {
