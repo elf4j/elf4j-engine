@@ -30,35 +30,27 @@ import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 /**
  *
  */
 @Value
-public class TimestampPattern implements LogPattern {
-    private static final DateTimeFormatter DEFAULT_TIMESTAMP_FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
-    private static final ZoneId DEFAULT_TIMESTAMP_ZONE = ZoneId.systemDefault();
-    DateTimeFormatter dateTimeFormatter;
+public class ThreadPatternSegment implements LogPattern {
+    @NonNull ThreadPatternSegment.DisplayOption threadDisplayOption;
 
     /**
-     * @param pattern text pattern to convert
-     * @return converted pattern object
+     * @param patternSegment text pattern segment to convert
+     * @return the thread pattern segment converted from the specified text
      */
     @Nonnull
-    public static TimestampPattern from(@NonNull String pattern) {
-        if (!PatternType.TIMESTAMP.isTargetTypeOf(pattern)) {
-            throw new IllegalArgumentException("pattern: " + pattern);
+    public static ThreadPatternSegment from(@NonNull String patternSegment) {
+        if (!PatternSegmentType.THREAD.isTargetTypeOf(patternSegment)) {
+            throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
-        DateTimeFormatter dateTimeFormatter = LogPattern.getPatternOption(pattern)
-                .map(DateTimeFormatter::ofPattern)
-                .orElse(DEFAULT_TIMESTAMP_FORMATTER);
-        if (dateTimeFormatter.getZone() == null) {
-            dateTimeFormatter = dateTimeFormatter.withZone(DEFAULT_TIMESTAMP_ZONE);
-        }
-        return new TimestampPattern(dateTimeFormatter);
+        return new ThreadPatternSegment(PatternSegmentType.getPatternSegmentOption(patternSegment)
+                .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
+                .orElse(DisplayOption.NAME));
     }
 
     @Override
@@ -68,11 +60,16 @@ public class TimestampPattern implements LogPattern {
 
     @Override
     public boolean includeCallerThread() {
-        return false;
+        return true;
     }
 
     @Override
     public void render(LogEntry logEntry, StringBuilder logTextBuilder) {
-        logTextBuilder.append(dateTimeFormatter.format(logEntry.getTimestamp()));
+        LogEntry.ThreadInformation callerThread = Objects.requireNonNull(logEntry.getCallerThread());
+        logTextBuilder.append(threadDisplayOption == DisplayOption.ID ? callerThread.getId() : callerThread.getName());
+    }
+
+    enum DisplayOption {
+        ID, NAME
     }
 }

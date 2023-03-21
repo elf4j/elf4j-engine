@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
-class JsonPatternTest {
+class JsonPatternSegmentTest {
     @Mock LogService stubLogService;
     LogEntry mockLogEntry;
     String mockMessage = "testLogMessage {}";
@@ -54,7 +54,7 @@ class JsonPatternTest {
                         .id(Thread.currentThread().getId())
                         .build())
                 .callerFrame(LogEntry.StackTraceFrame.builder()
-                        .className(JsonPattern.class.getName())
+                        .className(JsonPatternSegment.class.getName())
                         .methodName("testMethod")
                         .lineNumber(42)
                         .fileName("testFileName")
@@ -69,46 +69,46 @@ class JsonPatternTest {
     class from {
         @Test
         void noPatternOptionDefaults() {
-            JsonPattern jsonPattern = JsonPattern.from("json");
+            JsonPatternSegment jsonPatternSegment = JsonPatternSegment.from("json");
 
-            assertFalse(jsonPattern.includeCallerThread());
-            assertFalse(jsonPattern.includeCallerDetail());
+            assertFalse(jsonPatternSegment.includeCallerThread());
+            assertFalse(jsonPatternSegment.includeCallerDetail());
         }
 
         @Test
         void includeCallerOption() {
-            JsonPattern jsonPattern = JsonPattern.from("json:caller-detail");
+            JsonPatternSegment jsonPatternSegment = JsonPatternSegment.from("json:caller-detail");
 
-            assertFalse(jsonPattern.includeCallerThread());
-            assertTrue(jsonPattern.includeCallerDetail());
+            assertFalse(jsonPatternSegment.includeCallerThread());
+            assertTrue(jsonPatternSegment.includeCallerDetail());
         }
 
         @Test
         void includeThreadOption() {
-            JsonPattern jsonPattern = JsonPattern.from("json:caller-thread");
+            JsonPatternSegment jsonPatternSegment = JsonPatternSegment.from("json:caller-thread");
 
-            assertTrue(jsonPattern.includeCallerThread());
-            assertFalse(jsonPattern.includeCallerDetail());
+            assertTrue(jsonPatternSegment.includeCallerThread());
+            assertFalse(jsonPatternSegment.includeCallerDetail());
         }
 
         @Test
         void includeCallerAndThreadOptions() {
-            JsonPattern jsonPattern = JsonPattern.from("json:caller-thread,caller-detail");
+            JsonPatternSegment jsonPatternSegment = JsonPatternSegment.from("json:caller-thread,caller-detail");
 
-            assertTrue(jsonPattern.includeCallerThread());
-            assertTrue(jsonPattern.includeCallerDetail());
+            assertTrue(jsonPatternSegment.includeCallerThread());
+            assertTrue(jsonPatternSegment.includeCallerDetail());
         }
     }
 
     @Nested
     class render {
-        JsonPattern jsonPattern = JsonPattern.from("json");
+        JsonPatternSegment jsonPatternSegment = JsonPatternSegment.from("json");
 
         @Test
         void resolveMessage() {
             StringBuilder layout = new StringBuilder();
 
-            jsonPattern.render(mockLogEntry, layout);
+            jsonPatternSegment.render(mockLogEntry, layout);
             String rendered = layout.toString();
 
             assertFalse(rendered.contains("testLogMessage {}"));

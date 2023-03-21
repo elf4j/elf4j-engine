@@ -26,45 +26,38 @@
 package elf4j.impl.core.writer.pattern;
 
 import elf4j.impl.core.service.LogEntry;
-import lombok.NonNull;
-import lombok.Value;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.annotation.Nonnull;
+import java.util.Arrays;
 
-/**
- *
- */
-@Value
-public class VerbatimPattern implements LogPattern {
-    @NonNull String text;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.inOrder;
 
-    /**
-     * @param pattern text pattern to convert
-     * @return converted pattern object
-     */
-    @Nonnull
-    public static VerbatimPattern from(String pattern) {
-        if (!PatternType.VERBATIM.isTargetTypeOf(pattern)) {
-            throw new IllegalArgumentException(String.format(
-                    "pattern '%s' looks to be targeted at another known pattern type than %s",
-                    pattern,
-                    PatternType.VERBATIM));
+@ExtendWith(MockitoExtension.class)
+class PatternSegmentGroupTest {
+    @Nested
+    class render {
+        @Mock LogPattern mockPattern;
+        @Mock LogPattern mockPattern2;
+        @Mock LogEntry stubLogEntry;
+
+        PatternSegmentGroup patternSegmentGroupEntry;
+
+        @Test
+        void dispatchAll() {
+            patternSegmentGroupEntry = new PatternSegmentGroup(Arrays.asList(mockPattern2, mockPattern));
+            StringBuilder stringBuilder = new StringBuilder();
+
+            patternSegmentGroupEntry.render(stubLogEntry, stringBuilder);
+
+            InOrder inOrder = inOrder(mockPattern, mockPattern2);
+            then(mockPattern2).should(inOrder).render(stubLogEntry, stringBuilder);
+            then(mockPattern).should(inOrder).render(stubLogEntry, stringBuilder);
         }
-        return new VerbatimPattern(pattern);
-    }
-
-    @Override
-    public boolean includeCallerDetail() {
-        return false;
-    }
-
-    @Override
-    public boolean includeCallerThread() {
-        return false;
-    }
-
-    @Override
-    public void render(LogEntry logEntry, StringBuilder logTextBuilder) {
-        logTextBuilder.append(text);
     }
 }

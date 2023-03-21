@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
-class MessageAndExceptionPatternTest {
+class MessageAndExceptionPatternSegmentTest {
     @Mock LogService stubLogService;
     LogEntry mockLogEntry;
     String mockMessage = "testLogMessage {}";
@@ -56,7 +56,7 @@ class MessageAndExceptionPatternTest {
                         .id(Thread.currentThread().getId())
                         .build())
                 .callerFrame(LogEntry.StackTraceFrame.builder()
-                        .className(JsonPattern.class.getName())
+                        .className(JsonPatternSegment.class.getName())
                         .methodName("testMethod")
                         .lineNumber(42)
                         .fileName("testFileName")
@@ -71,7 +71,8 @@ class MessageAndExceptionPatternTest {
     class from {
         @Test
         void errorOnInvalidPatternText() {
-            assertThrows(IllegalArgumentException.class, () -> MessageAndExceptionPattern.from("badPatternText"));
+            assertThrows(IllegalArgumentException.class,
+                    () -> MessageAndExceptionPatternSegment.from("badPatternText"));
         }
     }
 
@@ -79,10 +80,11 @@ class MessageAndExceptionPatternTest {
     class render {
         @Test
         void includeBothMessageAndException() {
-            MessageAndExceptionPattern messageAndExceptionPattern = MessageAndExceptionPattern.from("message");
+            MessageAndExceptionPatternSegment messageAndExceptionPatternSegment =
+                    MessageAndExceptionPatternSegment.from("message");
             StringBuilder logText = new StringBuilder();
 
-            messageAndExceptionPattern.render(mockLogEntry, logText);
+            messageAndExceptionPatternSegment.render(mockLogEntry, logText);
             String rendered = logText.toString();
 
             assertTrue(rendered.contains(mockLogEntry.getResolvedMessage()));

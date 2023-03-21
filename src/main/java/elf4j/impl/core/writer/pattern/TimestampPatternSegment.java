@@ -30,31 +30,35 @@ import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 /**
  *
  */
 @Value
-public class LevelPattern implements LogPattern {
-    private static final int DISPLAY_LENGTH_UNSET = -1;
-    int displayLength;
-
-    private LevelPattern(int displayLength) {
-        this.displayLength = displayLength;
-    }
+public class TimestampPatternSegment implements LogPattern {
+    private static final DateTimeFormatter DEFAULT_TIMESTAMP_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
+    private static final ZoneId DEFAULT_TIMESTAMP_ZONE = ZoneId.systemDefault();
+    DateTimeFormatter dateTimeFormatter;
 
     /**
-     * @param pattern to convert
-     * @return converted pattern object
+     * @param patternSegment text pattern segment to convert
+     * @return converted pattern segment object
      */
     @Nonnull
-    public static LevelPattern from(@NonNull String pattern) {
-        if (!PatternType.LEVEL.isTargetTypeOf(pattern)) {
-            throw new IllegalArgumentException("pattern: " + pattern);
+    public static TimestampPatternSegment from(@NonNull String patternSegment) {
+        if (!PatternSegmentType.TIMESTAMP.isTargetTypeOf(patternSegment)) {
+            throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
-        return new LevelPattern(LogPattern.getPatternOption(pattern)
-                .map(Integer::parseInt)
-                .orElse(DISPLAY_LENGTH_UNSET));
+        DateTimeFormatter dateTimeFormatter = PatternSegmentType.getPatternSegmentOption(patternSegment)
+                .map(DateTimeFormatter::ofPattern)
+                .orElse(DEFAULT_TIMESTAMP_FORMATTER);
+        if (dateTimeFormatter.getZone() == null) {
+            dateTimeFormatter = dateTimeFormatter.withZone(DEFAULT_TIMESTAMP_ZONE);
+        }
+        return new TimestampPatternSegment(dateTimeFormatter);
     }
 
     @Override
@@ -69,14 +73,6 @@ public class LevelPattern implements LogPattern {
 
     @Override
     public void render(LogEntry logEntry, StringBuilder logTextBuilder) {
-        String level = logEntry.getNativeLogger().getLevel().name();
-        if (displayLength == DISPLAY_LENGTH_UNSET) {
-            logTextBuilder.append(level);
-            return;
-        }
-        char[] levelChars = level.toCharArray();
-        for (int i = 0; i < displayLength; i++) {
-            logTextBuilder.append(i < levelChars.length ? levelChars[i] : ' ');
-        }
+        logTextBuilder.append(dateTimeFormatter.format(logEntry.getTimestamp()));
     }
 }

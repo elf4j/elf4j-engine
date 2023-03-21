@@ -26,31 +26,26 @@
 package elf4j.impl.core.writer.pattern;
 
 import elf4j.impl.core.service.LogEntry;
-import lombok.NonNull;
+import elf4j.impl.core.util.StackTraceUtils;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
 /**
  *
  */
 @Value
-public class ThreadPattern implements LogPattern {
-    @NonNull ThreadPattern.DisplayOption threadDisplayOption;
-
+public class MessageAndExceptionPatternSegment implements LogPattern {
     /**
-     * @param pattern text pattern to convert
-     * @return the thread pattern converted from the specified text
+     * @param patternSegment text segment to convert
+     * @return converted patternSegment object
      */
     @Nonnull
-    public static ThreadPattern from(@NonNull String pattern) {
-        if (!PatternType.THREAD.isTargetTypeOf(pattern)) {
-            throw new IllegalArgumentException("pattern: " + pattern);
+    public static MessageAndExceptionPatternSegment from(String patternSegment) {
+        if (!PatternSegmentType.MESSAGE.isTargetTypeOf(patternSegment)) {
+            throw new IllegalArgumentException("patternSegment text: " + patternSegment);
         }
-        return new ThreadPattern(LogPattern.getPatternOption(pattern)
-                .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
-                .orElse(DisplayOption.NAME));
+        return new MessageAndExceptionPatternSegment();
     }
 
     @Override
@@ -60,16 +55,16 @@ public class ThreadPattern implements LogPattern {
 
     @Override
     public boolean includeCallerThread() {
-        return true;
+        return false;
     }
 
     @Override
     public void render(LogEntry logEntry, StringBuilder logTextBuilder) {
-        LogEntry.ThreadInformation callerThread = Objects.requireNonNull(logEntry.getCallerThread());
-        logTextBuilder.append(threadDisplayOption == DisplayOption.ID ? callerThread.getId() : callerThread.getName());
-    }
-
-    enum DisplayOption {
-        ID, NAME
+        logTextBuilder.append(logEntry.getResolvedMessage());
+        Throwable t = logEntry.getException();
+        if (t == null) {
+            return;
+        }
+        logTextBuilder.append(System.lineSeparator()).append(StackTraceUtils.stackTraceTextOf(t));
     }
 }

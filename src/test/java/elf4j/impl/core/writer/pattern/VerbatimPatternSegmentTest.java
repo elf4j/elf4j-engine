@@ -26,40 +26,30 @@
 package elf4j.impl.core.writer.pattern;
 
 import elf4j.impl.core.service.LogEntry;
-import lombok.Value;
+import org.junit.jupiter.api.Test;
 
-import javax.annotation.Nonnull;
-import java.util.Objects;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
-/**
- *
- */
-@Value
-public class MethodPattern implements LogPattern {
-    /**
-     * @param pattern text segment to convert
-     * @return converted pattern object
-     */
-    @Nonnull
-    public static MethodPattern from(String pattern) {
-        if (!PatternType.METHOD.isTargetTypeOf(pattern)) {
-            throw new IllegalArgumentException("pattern: " + pattern);
-        }
-        return new MethodPattern();
+class VerbatimPatternSegmentTest {
+
+    @Test
+    void appendPatternTextAsIs() {
+        LogEntry mockEntry = mock(LogEntry.class);
+        String verbatimTextToAppend = "text";
+        String inputLogText = "inputLogText";
+        StringBuilder logTextBuilder = new StringBuilder(inputLogText);
+
+        new VerbatimPatternSegment(verbatimTextToAppend).render(mockEntry, logTextBuilder);
+
+        verifyNoInteractions(mockEntry);
+        assertEquals(inputLogText + verbatimTextToAppend, logTextBuilder.toString());
     }
 
-    @Override
-    public boolean includeCallerDetail() {
-        return true;
-    }
-
-    @Override
-    public boolean includeCallerThread() {
-        return false;
-    }
-
-    @Override
-    public void render(LogEntry logEntry, StringBuilder logTextBuilder) {
-        logTextBuilder.append(Objects.requireNonNull(logEntry.getCallerFrame()).getMethodName());
+    @Test
+    void errorOnPatternIntendedForAnotherLogPatternType() {
+        assertThrows(IllegalArgumentException.class, () -> VerbatimPatternSegment.from("thread:name"));
     }
 }
