@@ -148,7 +148,8 @@ enum PatternSegmentType {
             return VerbatimPatternSegment.from(patternSegment);
         }
     };
-    private static final EnumSet<PatternSegmentType> PREDEFINED_PATTERN_TYPES =
+    private static final EnumSet<PatternSegmentType> PATTERN_SEGMENT_TYPES = EnumSet.allOf(PatternSegmentType.class);
+    private static final EnumSet<PatternSegmentType> PREDEFINED_PATTERN_SEGMENT_TYPES =
             EnumSet.complementOf(EnumSet.of(VERBATIM));
 
     /**
@@ -205,14 +206,13 @@ enum PatternSegmentType {
 
     private static boolean isPatternSegmentOfType(PatternSegmentType patternSegmentType, String patternSegment) {
         if (patternSegmentType == VERBATIM) {
-            return PREDEFINED_PATTERN_TYPES.stream().noneMatch(type -> type.isTargetTypeOf(patternSegment));
+            return PREDEFINED_PATTERN_SEGMENT_TYPES.stream().noneMatch(type -> type.isTargetTypeOf(patternSegment));
         }
         return patternSegmentType.name().equalsIgnoreCase(patternSegment.split(":", 2)[0].trim());
     }
 
     private static LogPattern parsePatternSegment(String patternSegment) {
-        return EnumSet.allOf(PatternSegmentType.class)
-                .stream()
+        return PATTERN_SEGMENT_TYPES.stream()
                 .filter(type -> type.isTargetTypeOf(patternSegment))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(

@@ -50,13 +50,14 @@ public enum WriterType {
         }
     };
 
+    private static final EnumSet<WriterType> WRITER_TYPES = EnumSet.allOf(WriterType.class);
+
     /**
      * @param properties configuration source
      * @return all writers parsed from the specified properties
      */
     public static Set<LogWriter> parseAllWriters(Properties properties) {
-        return EnumSet.allOf(WriterType.class)
-                .stream()
+        return WRITER_TYPES.stream()
                 .flatMap(type -> type.parseWriters(properties).stream())
                 .collect(Collectors.toSet());
     }
