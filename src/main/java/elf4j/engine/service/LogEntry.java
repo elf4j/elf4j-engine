@@ -54,6 +54,9 @@ public class LogEntry {
 
     private static @NonNull String resolve(Object msg, Object[] arguments) {
         String message = Objects.toString(supply(msg), "");
+        if (arguments == null || arguments.length == 0) {
+            return message;
+        }
         int messageLength = message.length();
         StringBuilder builder = new StringBuilder(messageLength + ADDITIONAL_STRING_BUILDER_CAPACITY);
         int i = 0;
