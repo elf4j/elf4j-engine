@@ -35,20 +35,20 @@ import javax.annotation.Nonnull;
  *
  */
 @Value
-public class ClassPattern implements LogPattern {
+public class ClassPatternSegment implements LogPattern {
     private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.FULL;
     @NonNull DisplayOption classDisplayOption;
 
     /**
-     * @param pattern text pattern to convert
-     * @return converted pattern object
+     * @param patternSegment text patternSegment to convert
+     * @return converted patternSegment object
      */
     @Nonnull
-    public static ClassPattern from(@NonNull String pattern) {
-        if (!PatternType.CLASS.isTargetTypeOf(pattern)) {
-            throw new IllegalArgumentException("pattern: " + pattern);
+    public static ClassPatternSegment from(@NonNull String patternSegment) {
+        if (!PatternSegmentType.CLASS.isTargetTypeOf(patternSegment)) {
+            throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
-        return new ClassPattern(LogPattern.getPatternOption(pattern)
+        return new ClassPatternSegment(PatternSegmentType.getPatternSegmentOption(patternSegment)
                 .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
                 .orElse(DEFAULT_DISPLAY_OPTION));
     }

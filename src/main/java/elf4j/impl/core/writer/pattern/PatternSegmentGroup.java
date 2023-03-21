@@ -36,7 +36,7 @@ import java.util.List;
  * Composite of individual patterns forming the entire layout pattern
  */
 @Value
-public class GroupPattern implements LogPattern {
+public class PatternSegmentGroup implements LogPattern {
     List<LogPattern> logPatternEntries;
 
     /**
@@ -44,8 +44,8 @@ public class GroupPattern implements LogPattern {
      * @return composite pattern object for the entire log entry's output layout
      */
     @Nonnull
-    public static GroupPattern from(@NonNull String pattern) {
-        return new GroupPattern(PatternType.parsePatternGroup(pattern));
+    public static PatternSegmentGroup from(@NonNull String pattern) {
+        return new PatternSegmentGroup(PatternSegmentType.parsePatternSegments(pattern));
     }
 
     @Override

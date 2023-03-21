@@ -26,7 +26,7 @@
 package elf4j.impl.core.writer.pattern;
 
 import elf4j.impl.core.service.LogEntry;
-import elf4j.impl.core.util.StackTraceUtils;
+import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
@@ -35,17 +35,26 @@ import javax.annotation.Nonnull;
  *
  */
 @Value
-public class MessageAndExceptionPattern implements LogPattern {
+public class LevelPatternSegment implements LogPattern {
+    private static final int DISPLAY_LENGTH_UNSET = -1;
+    int displayLength;
+
+    private LevelPatternSegment(int displayLength) {
+        this.displayLength = displayLength;
+    }
+
     /**
-     * @param pattern text segment to convert
-     * @return converted pattern object
+     * @param patternSegment to convert
+     * @return converted patternSegment object
      */
     @Nonnull
-    public static MessageAndExceptionPattern from(String pattern) {
-        if (!PatternType.MESSAGE.isTargetTypeOf(pattern)) {
-            throw new IllegalArgumentException("pattern text: " + pattern);
+    public static LevelPatternSegment from(@NonNull String patternSegment) {
+        if (!PatternSegmentType.LEVEL.isTargetTypeOf(patternSegment)) {
+            throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
-        return new MessageAndExceptionPattern();
+        return new LevelPatternSegment(PatternSegmentType.getPatternSegmentOption(patternSegment)
+                .map(Integer::parseInt)
+                .orElse(DISPLAY_LENGTH_UNSET));
     }
 
     @Override
@@ -60,11 +69,14 @@ public class MessageAndExceptionPattern implements LogPattern {
 
     @Override
     public void render(LogEntry logEntry, StringBuilder logTextBuilder) {
-        logTextBuilder.append(logEntry.getResolvedMessage());
-        Throwable t = logEntry.getException();
-        if (t == null) {
+        String level = logEntry.getNativeLogger().getLevel().name();
+        if (displayLength == DISPLAY_LENGTH_UNSET) {
+            logTextBuilder.append(level);
             return;
         }
-        logTextBuilder.append(System.lineSeparator()).append(StackTraceUtils.stackTraceTextOf(t));
+        char[] levelChars = level.toCharArray();
+        for (int i = 0; i < displayLength; i++) {
+            logTextBuilder.append(i < levelChars.length ? levelChars[i] : ' ');
+        }
     }
 }
