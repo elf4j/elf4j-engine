@@ -4,7 +4,7 @@
 
 Java portion of the [elf4j-impl](https://github.com/elf4j/elf4j-impl), where this is packaged via the
 Java [Service Provider Framework](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) mechanism to
-make a native log service provider implementation of the [ELF4J](https://github.com/elf4j/) (Easy Logging Facade for
+make a native implementation of the [ELF4J](https://github.com/elf4j/) (Easy Logging Facade for
 Java) API and SPI. See [elf4j-impl](https://github.com/elf4j/elf4j-impl) for descriptions.
 
 While directly implementing the [ELF4J](https://github.com/elf4j/elf4j) interfaces, this is also a stand-alone Java logging
