@@ -206,6 +206,10 @@ enum PatternSegmentType {
                 .translate(patternSegment);
     }
 
+    /**
+     * @param patternSegment text to translate
+     * @return pattern segment object of the specified text
+     */
     abstract LogPattern translate(String patternSegment);
 
     /**
