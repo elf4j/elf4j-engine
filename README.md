@@ -7,7 +7,7 @@ Java [Service Provider Framework](https://docs.oracle.com/javase/8/docs/api/java
 make a complete and native implementation of the [ELF4J](https://github.com/elf4j/) (Easy Logging Facade for
 Java) API and SPI. See [elf4j-impl](https://github.com/elf4j/elf4j-impl) for descriptions.
 
-While directly implementing the [ELF4J](https://github.com/elf4j/elf4j) interfaces, this is also a stand-alone Java logging
-engine. It is designed to be adaptable to service other logging APIs, for example, as a logging engine
+While directly implementing the [ELF4J](https://github.com/elf4j/elf4j) interfaces, this is also a stand-alone Java
+logging engine. It is designed to be adaptable to service other logging APIs, for example, as a logging engine
 for [SLF4J](https://github.com/elf4j/slf4j-elf4j) or Java Platform Logging
 API ([JPL](https://github.com/elf4j/jpl-elf4j)) (System.Logger).
