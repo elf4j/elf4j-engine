@@ -1,13 +1,17 @@
-# elf4j-impl-core
+# elf4j-engine
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.elf4j/elf4j-impl-core.svg?label=Maven%20Central)](https://central.sonatype.com/search?smo=true&q=pkg%253Amaven%252Fio.github.elf4j%252Felf4j-impl-core)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.elf4j/elf4j-engine.svg?label=Maven%20Central)](https://central.sonatype.com/search?smo=true&q=pkg%253Amaven%252Fio.github.elf4j%252Felf4j-engine)
 
-Java portion of the [elf4j-impl](https://github.com/elf4j/elf4j-impl), where this is packaged via the
+A Java log engine directly implementing the [ELF4J](https://github.com/elf4j/elf4j) (Easy Logging Facade for Java ) API.
+
+Naturally, this engine is packaged by [elf4j-provider](https://github.com/elf4j/elf4j-provider) via the
 Java [Service Provider Framework](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) mechanism to
-make a complete and native implementation of the [ELF4J](https://github.com/elf4j/) (Easy Logging Facade for
-Java) API and SPI. See [elf4j-impl](https://github.com/elf4j/elf4j-impl) for descriptions.
+make a complete and native logging _service provider_ of the [ELF4J](https://github.com/elf4j/) logging facade.
 
-While directly implementing the [ELF4J](https://github.com/elf4j/elf4j) interfaces, this is also a stand-alone Java
-logging engine. It is designed to be adaptable to service other logging APIs, for example, as a logging engine
-for [SLF4J](https://github.com/elf4j/slf4j-elf4j) or Java Platform Logging
-API ([JPL](https://github.com/elf4j/jpl-elf4j)) (System.Logger).
+See [elf4j-provider](https://github.com/elf4j/elf4j-provider) for features and usage descriptions.
+
+Meanwhile, this is also a stand-alone Java log engine. It is designed to be adaptable for servicing other Java logging
+APIs. For example, it is a log engine for the [SLF4J](https://www.slf4j.org/) API as
+in [slf4j-elf4j](https://github.com/elf4j/slf4j-elf4j), and for the Java Platform
+Logging ([JPL](https://openjdk.org/jeps/264)) API introduced since Java 9 as
+in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).

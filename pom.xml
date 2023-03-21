@@ -30,14 +30,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.elf4j</groupId>
-    <artifactId>elf4j-impl-core</artifactId>
+    <artifactId>elf4j-engine</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
-    <name>elf4j-impl-core</name>
-    <description>Native logging service provider implementation of ELF4J (Easy Logging Facade For Java)
+    <name>elf4j-engine</name>
+    <description>A stand-aline Java log engine implementing the ELF4J (Easy Logging Facade for Java) API
     </description>
 
-    <url>https://github.com/elf4j/elf4j-impl-core</url>
+    <url>https://github.com/elf4j/elf4j-engine</url>
     <licenses>
         <license>
             <name>MIT License</name>
@@ -45,12 +45,12 @@
         </license>
     </licenses>
     <scm>
-        <url>https://github.com/elf4j/elf4j-impl-core/tree/main</url>
+        <url>https://github.com/elf4j/elf4j-engine/tree/main</url>
         <connection>
-            scm:git:git://github.com:elf4j/elf4j-impl-core.git
+            scm:git:git://github.com:elf4j/elf4j-engine.git
         </connection>
         <developerConnection>
-            scm:git:ssh://github.com:elf4j/elf4j-impl-core.git
+            scm:git:ssh://github.com:elf4j/elf4j-engine.git
         </developerConnection>
     </scm>
     <developers>
