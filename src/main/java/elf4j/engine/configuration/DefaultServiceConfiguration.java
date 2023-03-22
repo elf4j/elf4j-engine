@@ -27,8 +27,8 @@ package elf4j.engine.configuration;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
-import elf4j.engine.util.InternalLogger;
 import elf4j.engine.writer.LogWriter;
+import elf4j.util.InternalLogger;
 import lombok.NonNull;
 
 import javax.annotation.Nullable;
@@ -91,9 +91,10 @@ public class DefaultServiceConfiguration implements ServiceConfiguration {
     }
 
     private void setRepositories(@NonNull Properties properties) {
+        InternalLogger.INSTANCE.log(Level.INFO, "Configuration properties: " + properties);
         this.noop = Boolean.parseBoolean(properties.getProperty("noop"));
         if (this.noop) {
-            InternalLogger.log(Level.WARN, "No-op per configuration");
+            InternalLogger.INSTANCE.log(Level.WARN, "No-op per configuration");
         }
         this.levelRepository = LevelRepository.from(properties);
         this.writerRepository = WriterRepository.from(properties);

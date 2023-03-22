@@ -101,7 +101,7 @@ public class LogEntry {
         @NonNull String className;
         @NonNull String methodName;
         int lineNumber;
-        String fileName;
+        @Nullable String fileName;
     }
 
     /**

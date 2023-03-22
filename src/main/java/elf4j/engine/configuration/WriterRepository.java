@@ -26,10 +26,10 @@
 package elf4j.engine.configuration;
 
 import elf4j.Level;
-import elf4j.engine.util.InternalLogger;
 import elf4j.engine.writer.GroupWriter;
 import elf4j.engine.writer.LogWriter;
 import elf4j.engine.writer.StandardStreamsWriter;
+import elf4j.util.InternalLogger;
 import lombok.NonNull;
 
 import javax.annotation.Nonnull;
@@ -52,13 +52,11 @@ public class WriterRepository {
     static @Nonnull WriterRepository from(@NonNull Properties properties) {
         GroupWriter groupWriter = GroupWriter.from(properties);
         if (!groupWriter.isEmpty()) {
-            InternalLogger.log(Level.INFO,
-                    String.format("Service writer %s obtained from configuration %s", groupWriter, properties));
+            InternalLogger.INSTANCE.log(Level.INFO, String.format("Configured service writer: %s", groupWriter));
             return new WriterRepository(groupWriter);
         }
-        InternalLogger.log(Level.WARN,
-                String.format("No writer found in configuration %s, using default service writer %s",
-                        properties,
+        InternalLogger.INSTANCE.log(Level.WARN,
+                String.format("No service writer obtained from configuration, falling back to default writer: %s",
                         DEFAULT_WRITER));
         return new WriterRepository(DEFAULT_WRITER);
     }
