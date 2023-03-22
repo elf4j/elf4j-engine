@@ -31,10 +31,10 @@
 
     <groupId>io.github.elf4j</groupId>
     <artifactId>elf4j-engine</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
     <name>elf4j-engine</name>
-    <description>A stand-aline Java log engine implementing the ELF4J (Easy Logging Facade for Java) API</description>
+    <description>A stand-alone Java log engine implementing the ELF4J (Easy Logging Facade for Java) API</description>
 
     <url>https://github.com/elf4j/elf4j-engine</url>
     <licenses>
