@@ -12,6 +12,6 @@ See [elf4j-provider](https://github.com/elf4j/elf4j-provider) for the engine's f
 
 Meanwhile, this is also a stand-alone log engine, designed to be adaptable for servicing other Java logging APIs. For
 example, it is a log engine for the [SLF4J](https://www.slf4j.org/) API, as
-in [slf4j-elf4j](https://github.com/elf4j/slf4j-elf4j); and for the Java Platform
+in [slf4j-elf4j](https://github.com/elf4j/slf4j-elf4j); or for the Java Platform
 Logging ([JPL](https://openjdk.org/jeps/264)) API introduced since Java 9, as
 in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
