@@ -1,6 +1,6 @@
 # elf4j-engine
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.elf4j/elf4j-engine.svg?label=Maven%20Central)](https://central.sonatype.com/search?smo=true&q=pkg%253Amaven%252Fio.github.elf4j%252Felf4j-engine)
+![Maven Central](https://img.shields.io/maven-central/v/io.github.elf4j/elf4j-engine?label=Maven%20Central)
 
 A Java log engine implementing the [ELF4J](https://github.com/elf4j/elf4j) (Easy Logging Facade for Java ) API.
 
