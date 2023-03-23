@@ -32,6 +32,7 @@ import elf4j.engine.writer.pattern.PatternSegmentGroup;
 import lombok.NonNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.BufferedOutputStream;
 import java.io.PrintStream;
 import java.util.Map;
@@ -64,16 +65,27 @@ public class StandardStreamsWriter implements LogWriter {
     }
 
     /**
-     * @param configuration properties map to make a console writer
+     * @param configuration                properties map to make a console writer
+     * @param defaultOutStreamTypeOverride override of global default out stream type for standard writers.
+     *                                     Writer-specific type, if present, takes precedence over global level. If no
+     *                                     out stream type configured on either global or writer level, default to
+     *                                     stdout.
      * @return console writer per the specified configuration
      */
-    public static @NonNull StandardStreamsWriter from(@NonNull Map<String, String> configuration) {
+    public static @NonNull StandardStreamsWriter from(@NonNull Map<String, String> configuration,
+            @Nullable String defaultOutStreamTypeOverride) {
         String level = configuration.get("level");
         String pattern = configuration.get("pattern");
-        String outStreamType = configuration.get("stream");
+        String writerOutStreamType = configuration.get("stream");
+        if (writerOutStreamType == null) {
+            writerOutStreamType = defaultOutStreamTypeOverride;
+        }
+        if (writerOutStreamType == null) {
+            writerOutStreamType = DEFAULT_OUT_STREAM.name();
+        }
         return new StandardStreamsWriter(level == null ? DEFAULT_MINIMUM_LEVEL : Level.valueOf(level.toUpperCase()),
                 PatternSegmentGroup.from(pattern == null ? DEFAULT_PATTERN : pattern),
-                outStreamType == null ? DEFAULT_OUT_STREAM : OutStreamType.valueOf(outStreamType.trim().toUpperCase()));
+                OutStreamType.valueOf(writerOutStreamType.trim().toUpperCase()));
     }
 
     @Override
