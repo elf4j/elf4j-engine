@@ -66,6 +66,6 @@ public class MessageAndExceptionPatternSegment implements LogPattern {
         if (t == null) {
             return;
         }
-        logTextBuilder.append(System.lineSeparator()).append(StackTraceUtils.stackTraceTextOf(t));
+        logTextBuilder.append(System.lineSeparator()).append(StackTraceUtils.getTraceAsBuffer(t));
     }
 }

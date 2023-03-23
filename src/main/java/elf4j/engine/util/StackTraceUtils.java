@@ -28,10 +28,8 @@ package elf4j.engine.util;
 import elf4j.engine.service.LogEntry;
 import lombok.NonNull;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UncheckedIOException;
 import java.util.NoSuchElementException;
 
 /**
@@ -73,12 +71,11 @@ public class StackTraceUtils {
      * @param throwable to extract stack trace text from
      * @return stack trace text of the specified throwable
      */
-    public static String stackTraceTextOf(@NonNull Throwable throwable) {
-        try (StringWriter stringWriter = new StringWriter(); PrintWriter printWriter = new PrintWriter(stringWriter)) {
+    public static StringBuffer getTraceAsBuffer(@NonNull Throwable throwable) {
+        StringWriter stringWriter = new StringWriter();
+        try (PrintWriter printWriter = new PrintWriter(stringWriter)) {
             throwable.printStackTrace(printWriter);
-            return stringWriter.toString();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            return stringWriter.getBuffer();
         }
     }
 }

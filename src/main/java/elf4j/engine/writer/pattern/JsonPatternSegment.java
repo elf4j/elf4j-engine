@@ -109,7 +109,7 @@ public class JsonPatternSegment implements LogPattern {
         String callerClass;
         LogEntry.StackTraceFrame callerDetail;
         String message;
-        String exception;
+        CharSequence exception;
 
         static JsonLogEntry from(@NonNull LogEntry logEntry, @NonNull JsonPatternSegment jsonPatternSegment) {
             return JsonLogEntry.builder()
@@ -120,7 +120,7 @@ public class JsonPatternSegment implements LogPattern {
                     .callerDetail(jsonPatternSegment.includeCallerDetail ? logEntry.getCallerFrame() : null)
                     .message(logEntry.getResolvedMessage())
                     .exception(logEntry.getException() == null ? null :
-                            StackTraceUtils.stackTraceTextOf(logEntry.getException()))
+                            StackTraceUtils.getTraceAsBuffer(logEntry.getException()))
                     .build();
         }
     }
