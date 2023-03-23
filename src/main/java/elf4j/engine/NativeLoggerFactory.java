@@ -41,7 +41,7 @@ import java.util.Map;
  */
 public class NativeLoggerFactory implements LoggerFactory {
     private static final Level DEFAULT_LOGGER_SEVERITY_LEVEL = Level.TRACE;
-    private static final Class<Logger> DEFAULT_LOGGING_SERVICE_ACCESS_CLASS = Logger.class;
+    private static final Class<?> LOGGING_SERVICE_ACCESS_CLASS = Logger.class;
     @NonNull private final Level defaultLoggerLevel;
     private final Map<String, NativeLogger> nativeLoggers = new HashMap<>();
     /**
@@ -62,7 +62,7 @@ public class NativeLoggerFactory implements LoggerFactory {
      * Default constructor required by {@link java.util.ServiceLoader}
      */
     public NativeLoggerFactory() {
-        this(DEFAULT_LOGGING_SERVICE_ACCESS_CLASS);
+        this(LOGGING_SERVICE_ACCESS_CLASS);
     }
 
     /**
