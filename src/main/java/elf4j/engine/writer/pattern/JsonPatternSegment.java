@@ -25,17 +25,14 @@
 
 package elf4j.engine.writer.pattern;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import elf4j.engine.service.LogEntry;
+import elf4j.engine.util.StackTraceUtils;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.UncheckedIOException;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -56,7 +53,7 @@ public class JsonPatternSegment implements LogPattern {
             Arrays.stream(new String[] { CALLER_THREAD, CALLER_DETAIL, PRETTY }).collect(Collectors.toSet());
     boolean includeCallerThread;
     boolean includeCallerDetail;
-    ObjectMapper objectMapper;
+    Gson gson;
 
     /**
      * @param patternSegment to convert
@@ -67,13 +64,11 @@ public class JsonPatternSegment implements LogPattern {
             throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
         Optional<String> patternOption = PatternSegmentType.getPatternSegmentOption(patternSegment);
-        ObjectMapper objectMapper = new ObjectMapper().disable(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
         if (!patternOption.isPresent()) {
             return JsonPatternSegment.builder()
                     .includeCallerThread(false)
                     .includeCallerDetail(false)
-                    .objectMapper(objectMapper)
+                    .gson(new Gson())
                     .build();
         }
         Set<String> options =
@@ -84,8 +79,7 @@ public class JsonPatternSegment implements LogPattern {
         return JsonPatternSegment.builder()
                 .includeCallerThread(options.contains(CALLER_THREAD))
                 .includeCallerDetail(options.contains(CALLER_DETAIL))
-                .objectMapper(options.contains(PRETTY) ? objectMapper.enable(SerializationFeature.INDENT_OUTPUT) :
-                        objectMapper)
+                .gson(options.contains(PRETTY) ? new GsonBuilder().setPrettyPrinting().create() : new Gson())
                 .build();
     }
 
@@ -101,13 +95,7 @@ public class JsonPatternSegment implements LogPattern {
 
     @Override
     public void render(LogEntry logEntry, StringBuilder logTextBuilder) {
-        StringWriter stringWriter = new StringWriter();
-        try {
-            objectMapper.writeValue(stringWriter, JsonLogEntry.from(logEntry, this));
-            logTextBuilder.append(stringWriter.getBuffer());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        gson.toJson(JsonLogEntry.from(logEntry, this), logTextBuilder);
     }
 
     @Value
@@ -121,7 +109,7 @@ public class JsonPatternSegment implements LogPattern {
         String callerClass;
         LogEntry.StackTraceFrame callerDetail;
         String message;
-        Throwable exception;
+        CharSequence exception;
 
         static JsonLogEntry from(@NonNull LogEntry logEntry, @NonNull JsonPatternSegment jsonPatternSegment) {
             return JsonLogEntry.builder()
@@ -131,7 +119,8 @@ public class JsonPatternSegment implements LogPattern {
                     .callerThread(jsonPatternSegment.includeCallerThread ? logEntry.getCallerThread() : null)
                     .callerDetail(jsonPatternSegment.includeCallerDetail ? logEntry.getCallerFrame() : null)
                     .message(logEntry.getResolvedMessage())
-                    .exception(logEntry.getException())
+                    .exception(logEntry.getException() == null ? null :
+                            StackTraceUtils.getTraceAsBuffer(logEntry.getException()))
                     .build();
         }
     }
