@@ -26,13 +26,13 @@
 package elf4j.engine.configuration;
 
 import elf4j.Level;
-import elf4j.engine.writer.GroupWriter;
 import elf4j.engine.writer.LogWriter;
 import elf4j.engine.writer.StandardStreamsWriter;
+import elf4j.engine.writer.WriterGroup;
 import elf4j.util.InternalLogger;
-import lombok.NonNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Properties;
 
 /**
@@ -49,14 +49,21 @@ public class WriterRepository {
     /**
      * @param properties configuration from which to build the writer repo
      */
-    static @Nonnull WriterRepository from(@NonNull Properties properties) {
-        GroupWriter groupWriter = GroupWriter.from(properties);
-        if (!groupWriter.isEmpty()) {
-            InternalLogger.INSTANCE.log(Level.INFO, String.format("Configured service writer: %s", groupWriter));
-            return new WriterRepository(groupWriter);
+    static @Nonnull WriterRepository from(@Nullable Properties properties) {
+        if (properties == null) {
+            InternalLogger.INSTANCE.log(Level.INFO,
+                    String.format("No configuration properties, falling back to default writer: %s", DEFAULT_WRITER));
+            return new WriterRepository(DEFAULT_WRITER);
+        }
+        WriterGroup writerGroup = WriterGroup.from(properties);
+        if (writerGroup.size() > 0) {
+            InternalLogger.INSTANCE.log(Level.INFO,
+                    String.format("Configured in-service writers: %s", writerGroup.size()));
+            return new WriterRepository(writerGroup);
         }
         InternalLogger.INSTANCE.log(Level.WARN,
-                String.format("No service writer obtained from configuration, falling back to default writer: %s",
+                String.format("No service writer obtained from configuration: %s, falling back to default writer: %s",
+                        properties,
                         DEFAULT_WRITER));
         return new WriterRepository(DEFAULT_WRITER);
     }

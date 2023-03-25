@@ -27,6 +27,8 @@ package elf4j.engine.writer;
 
 import elf4j.Level;
 import elf4j.engine.service.LogEntry;
+import lombok.NonNull;
+import lombok.ToString;
 
 import java.util.NoSuchElementException;
 import java.util.Properties;
@@ -35,13 +37,13 @@ import java.util.Set;
 /**
  *
  */
-public class GroupWriter implements LogWriter {
+public class WriterGroup implements LogWriter {
     private final Set<LogWriter> writers;
     private Level minimumLevel;
-    private Boolean includeCallerDetail;
-    private Boolean includeCallerThread;
+    @ToString.Exclude private Boolean includeCallerDetail;
+    @ToString.Exclude private Boolean includeCallerThread;
 
-    private GroupWriter(Set<LogWriter> writers) {
+    private WriterGroup(Set<LogWriter> writers) {
         this.writers = writers;
     }
 
@@ -49,8 +51,8 @@ public class GroupWriter implements LogWriter {
      * @param properties configuration of all the writers
      * @return the composite writer containing all writers configured in the specified properties
      */
-    public static GroupWriter from(Properties properties) {
-        return new GroupWriter(WriterType.parseAllWriters(properties));
+    public static WriterGroup from(@NonNull Properties properties) {
+        return new WriterGroup(WriterType.parseAllWriters(properties));
     }
 
     @Override
@@ -86,9 +88,9 @@ public class GroupWriter implements LogWriter {
     }
 
     /**
-     * @return true if no writer is configured
+     * @return number of writers in group
      */
-    public boolean isEmpty() {
-        return writers.isEmpty();
+    public int size() {
+        return writers.size();
     }
 }

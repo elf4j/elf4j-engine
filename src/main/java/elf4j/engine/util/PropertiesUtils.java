@@ -27,9 +27,9 @@ package elf4j.engine.util;
 
 import lombok.NonNull;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -61,11 +61,11 @@ public class PropertiesUtils {
      * @return a group whose every member is a set of properties entries having a common key prefix of the specified
      *         type
      */
-    public static Set<Map<String, String>> getPropertiesGroupOfType(String type, @NonNull Properties properties) {
+    public static List<Map<String, String>> getPropertiesGroupOfType(String type, @NonNull Properties properties) {
         return properties.stringPropertyNames()
                 .stream()
                 .filter(name -> properties.getProperty(name).trim().equals(type))
                 .map(name -> getChildProperties(name, properties))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 }

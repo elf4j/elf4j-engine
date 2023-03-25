@@ -40,18 +40,18 @@ import java.util.Properties;
 @EqualsAndHashCode
 public class DefaultLogService implements LogService {
     private final ServiceConfiguration serviceConfiguration;
-    @EqualsAndHashCode.Exclude private final WriterThreadProvider writerThreadProvider;
+    @EqualsAndHashCode.Exclude private final WriterThread writerThread;
 
     /**
      *
      */
     public DefaultLogService() {
-        this(ServiceConfigurationHolder.INSTANCE, new WriterThreadProvider());
+        this(ServiceConfigurationHolder.INSTANCE, new WriterThread());
     }
 
-    DefaultLogService(ServiceConfiguration serviceConfiguration, WriterThreadProvider writerThreadProvider) {
+    DefaultLogService(ServiceConfiguration serviceConfiguration, WriterThread writerThread) {
         this.serviceConfiguration = serviceConfiguration;
-        this.writerThreadProvider = writerThreadProvider;
+        this.writerThread = writerThread;
     }
 
     static void refreshConfiguration(Properties properties) {
@@ -91,8 +91,7 @@ public class DefaultLogService implements LogService {
             Thread callerThread = Thread.currentThread();
             logEntryBuilder.callerThread(new LogEntry.ThreadInformation(callerThread.getName(), callerThread.getId()));
         }
-        writerThreadProvider.getWriterThread()
-                .execute(() -> serviceConfiguration.getLogServiceWriter().write(logEntryBuilder.build()));
+        writerThread.get().execute(() -> serviceConfiguration.getLogServiceWriter().write(logEntryBuilder.build()));
     }
 
     private static class ServiceConfigurationHolder {

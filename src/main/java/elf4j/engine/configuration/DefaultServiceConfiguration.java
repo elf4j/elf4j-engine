@@ -29,7 +29,7 @@ import elf4j.Level;
 import elf4j.engine.NativeLogger;
 import elf4j.engine.writer.LogWriter;
 import elf4j.util.InternalLogger;
-import lombok.NonNull;
+import lombok.ToString;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  *
  */
+@ToString
 public class DefaultServiceConfiguration implements ServiceConfiguration {
     private final Map<NativeLogger, Boolean> loggerConfigurationCache = new ConcurrentHashMap<>();
     private final PropertiesLoader propertiesLoader;
@@ -75,11 +76,7 @@ public class DefaultServiceConfiguration implements ServiceConfiguration {
 
     @Override
     public void refresh(@Nullable Properties properties) {
-        Properties refreshed = this.propertiesLoader.load();
-        if (properties != null) {
-            refreshed.putAll(properties);
-        }
-        setRepositories(refreshed);
+        setRepositories(properties != null ? properties : this.propertiesLoader.load());
         this.loggerConfigurationCache.clear();
     }
 
@@ -90,9 +87,9 @@ public class DefaultServiceConfiguration implements ServiceConfiguration {
                 logServiceWriterMinimumLevel.ordinal());
     }
 
-    private void setRepositories(@NonNull Properties properties) {
+    private void setRepositories(@Nullable Properties properties) {
         InternalLogger.INSTANCE.log(Level.INFO, "Configuration properties: " + properties);
-        this.noop = Boolean.parseBoolean(properties.getProperty("noop"));
+        this.noop = properties == null || Boolean.parseBoolean(properties.getProperty("noop"));
         if (this.noop) {
             InternalLogger.INSTANCE.log(Level.WARN, "No-op per configuration");
         }

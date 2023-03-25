@@ -28,6 +28,7 @@ package elf4j.engine.configuration;
 import elf4j.Level;
 import elf4j.util.InternalLogger;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -49,6 +50,7 @@ public class PropertiesLoader {
     /**
      * @return configuration properties loaded from either the default or specified location
      */
+    @Nullable
     public Properties load() {
         Properties properties = new Properties();
         InputStream propertiesInputStream;
@@ -57,8 +59,7 @@ public class PropertiesLoader {
             propertiesInputStream = fromDefaultPropertiesLocation();
             if (propertiesInputStream == null) {
                 InternalLogger.INSTANCE.log(Level.WARN, "No configuration file located");
-                properties.setProperty("noop", "true");
-                return properties;
+                return null;
             }
         } else {
             propertiesInputStream = getClass().getResourceAsStream(customPropertiesLocation);

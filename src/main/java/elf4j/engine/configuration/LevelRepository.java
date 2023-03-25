@@ -30,6 +30,7 @@ import elf4j.engine.NativeLogger;
 import elf4j.util.InternalLogger;
 import lombok.NonNull;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,15 +58,18 @@ public class LevelRepository {
      * @param properties configuration source of all minimum output levels for loggers
      */
     @NonNull
-    static LevelRepository from(@NonNull Properties properties) {
+    static LevelRepository from(@Nullable Properties properties) {
         Map<String, Level> configuredLevels = new HashMap<>();
+        if (properties == null) {
+            return new LevelRepository(configuredLevels);
+        }
         getAsLevel("level", properties).ifPresent(level -> configuredLevels.put(ROOT_CLASS_NAME_SPACE, level));
         configuredLevels.putAll(properties.stringPropertyNames()
                 .stream()
                 .filter(name -> name.trim().startsWith("level@"))
                 .collect(Collectors.toMap(name -> name.split("@", 2)[1].trim(),
                         name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
-        InternalLogger.INSTANCE.log(Level.INFO, "Configured levels: " + configuredLevels);
+        InternalLogger.INSTANCE.log(Level.INFO, "Configured output levels: " + configuredLevels);
         return new LevelRepository(configuredLevels);
     }
 

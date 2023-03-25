@@ -30,6 +30,7 @@ import elf4j.engine.service.LogEntry;
 import elf4j.engine.writer.pattern.LogPattern;
 import elf4j.engine.writer.pattern.PatternSegmentGroup;
 import lombok.NonNull;
+import lombok.ToString;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,6 +41,7 @@ import java.util.Map;
 /**
  *
  */
+@ToString
 public class StandardStreamsWriter implements LogWriter {
     private static final Level DEFAULT_MINIMUM_LEVEL = Level.TRACE;
     private static final OutStreamType DEFAULT_OUT_STREAM = OutStreamType.STDOUT;

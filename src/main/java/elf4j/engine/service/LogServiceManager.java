@@ -25,19 +25,34 @@
 
 package elf4j.engine.service;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.Properties;
 
 /**
  *
  */
-public class WriterThreadProvider {
-    private static final Executor WRITER_THREAD = Executors.newSingleThreadExecutor();
+public class LogServiceManager {
+    private LogServiceManager() {
+    }
 
     /**
-     * @return thread executor to service the writers asynchronously
+     *
      */
-    public Executor getWriterThread() {
-        return WRITER_THREAD;
+    public static void refreshConfiguration() {
+        refreshConfiguration(null);
+    }
+
+    /**
+     * @param properties overriding properties for the new configuration, in addition to the reloaded properties from
+     *                   the configuration file
+     */
+    public static void refreshConfiguration(Properties properties) {
+        DefaultLogService.refreshConfiguration(properties);
+    }
+
+    /**
+     *
+     */
+    public static void shutdown() {
+        WriterThread.shutdown();
     }
 }

@@ -31,6 +31,7 @@ import elf4j.engine.service.LogEntry;
 import elf4j.engine.util.StackTraceUtils;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.Value;
 
 import java.time.ZoneId;
@@ -53,7 +54,7 @@ public class JsonPatternSegment implements LogPattern {
             Arrays.stream(new String[] { CALLER_THREAD, CALLER_DETAIL, PRETTY }).collect(Collectors.toSet());
     boolean includeCallerThread;
     boolean includeCallerDetail;
-    Gson gson;
+    @ToString.Exclude Gson gson;
 
     /**
      * @param patternSegment to convert

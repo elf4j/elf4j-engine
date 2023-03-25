@@ -43,7 +43,7 @@ public class NativeLoggerFactory implements LoggerFactory {
     /**
      * Default to TRACE for this native implementation
      */
-    private static final Level DEFAULT_LOGGER_SEVERITY_LEVEL = Level.TRACE;
+    private static final Level DEFAULT_LOGGER_SEVERITY_LEVEL = Level.INFO;
     private static final Class<?> LOGGING_SERVICE_ACCESS_CLASS = Logger.class;
     /**
      * Made injectable for extensions other than this native ELF4J implementation
