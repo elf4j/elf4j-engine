@@ -26,12 +26,21 @@
 package elf4j.engine;
 
 import elf4j.Logger;
+import elf4j.engine.util.MoreAwaitility;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class IntegrationTest {
+    @AfterEach
+    void afterEach() {
+        MoreAwaitility.await(Duration.ofMillis(500));
+    }
+
     @Nested
     class defaultLogger {
         @Test

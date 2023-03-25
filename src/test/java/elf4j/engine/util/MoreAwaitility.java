@@ -21,6 +21,6 @@ public class MoreAwaitility {
     public static void await(@NonNull Duration duration) {
         AtomicBoolean resume = new AtomicBoolean(false);
         delayer.schedule(() -> resume.set(true), duration.toMillis(), TimeUnit.MILLISECONDS);
-        Awaitility.await().atLeast(duration).until(resume::get);
+        Awaitility.await().atLeast(duration.dividedBy(2)).untilTrue(resume);
     }
 }
