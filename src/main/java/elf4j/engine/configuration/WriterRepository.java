@@ -51,20 +51,15 @@ public class WriterRepository {
      */
     static @Nonnull WriterRepository from(@Nullable Properties properties) {
         if (properties == null) {
-            InternalLogger.INSTANCE.log(Level.INFO,
-                    String.format("No configuration properties, falling back to default writer: %s", DEFAULT_WRITER));
+            InternalLogger.INSTANCE.log(Level.INFO, "No configuration, taking default writer");
             return new WriterRepository(DEFAULT_WRITER);
         }
         WriterGroup writerGroup = WriterGroup.from(properties);
         if (writerGroup.size() > 0) {
-            InternalLogger.INSTANCE.log(Level.INFO,
-                    String.format("Configured in-service writers: %s", writerGroup.size()));
+            InternalLogger.INSTANCE.log(Level.INFO, "Configured writers: " + writerGroup.size());
             return new WriterRepository(writerGroup);
         }
-        InternalLogger.INSTANCE.log(Level.WARN,
-                String.format("No service writer obtained from configuration: %s, falling back to default writer: %s",
-                        properties,
-                        DEFAULT_WRITER));
+        InternalLogger.INSTANCE.log(Level.WARN, "No writer configured, falling back to default writer");
         return new WriterRepository(DEFAULT_WRITER);
     }
 

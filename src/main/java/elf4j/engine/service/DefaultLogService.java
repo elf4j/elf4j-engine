@@ -26,8 +26,8 @@
 package elf4j.engine.service;
 
 import elf4j.engine.NativeLogger;
-import elf4j.engine.configuration.DefaultServiceConfiguration;
-import elf4j.engine.configuration.ServiceConfiguration;
+import elf4j.engine.configuration.DefaultLogServiceConfiguration;
+import elf4j.engine.configuration.LogServiceConfiguration;
 import elf4j.engine.util.StackTraceUtils;
 import lombok.EqualsAndHashCode;
 
@@ -39,7 +39,7 @@ import java.util.Properties;
  */
 @EqualsAndHashCode
 public class DefaultLogService implements LogService {
-    private final ServiceConfiguration serviceConfiguration;
+    private final LogServiceConfiguration logServiceConfiguration;
     @EqualsAndHashCode.Exclude private final WriterThread writerThread;
 
     /**
@@ -49,8 +49,8 @@ public class DefaultLogService implements LogService {
         this(ServiceConfigurationHolder.INSTANCE, new WriterThread());
     }
 
-    DefaultLogService(ServiceConfiguration serviceConfiguration, WriterThread writerThread) {
-        this.serviceConfiguration = serviceConfiguration;
+    DefaultLogService(LogServiceConfiguration logServiceConfiguration, WriterThread writerThread) {
+        this.logServiceConfiguration = logServiceConfiguration;
         this.writerThread = writerThread;
     }
 
@@ -60,17 +60,17 @@ public class DefaultLogService implements LogService {
 
     @Override
     public boolean includeCallerDetail() {
-        return this.serviceConfiguration.getLogServiceWriter().includeCallerDetail();
+        return this.logServiceConfiguration.getLogServiceWriter().includeCallerDetail();
     }
 
     @Override
     public boolean includeCallerThread() {
-        return this.serviceConfiguration.getLogServiceWriter().includeCallerThread();
+        return this.logServiceConfiguration.getLogServiceWriter().includeCallerThread();
     }
 
     @Override
     public boolean isEnabled(NativeLogger nativeLogger) {
-        return serviceConfiguration.isEnabled(nativeLogger);
+        return logServiceConfiguration.isEnabled(nativeLogger);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class DefaultLogService implements LogService {
             Throwable exception,
             Object message,
             Object[] args) {
-        if (!serviceConfiguration.isEnabled(nativeLogger)) {
+        if (!logServiceConfiguration.isEnabled(nativeLogger)) {
             return;
         }
         LogEntry.LogEntryBuilder logEntryBuilder =
@@ -91,10 +91,10 @@ public class DefaultLogService implements LogService {
             Thread callerThread = Thread.currentThread();
             logEntryBuilder.callerThread(new LogEntry.ThreadInformation(callerThread.getName(), callerThread.getId()));
         }
-        writerThread.get().execute(() -> serviceConfiguration.getLogServiceWriter().write(logEntryBuilder.build()));
+        writerThread.get().execute(() -> logServiceConfiguration.getLogServiceWriter().write(logEntryBuilder.build()));
     }
 
     private static class ServiceConfigurationHolder {
-        private static final ServiceConfiguration INSTANCE = new DefaultServiceConfiguration();
+        private static final LogServiceConfiguration INSTANCE = new DefaultLogServiceConfiguration();
     }
 }

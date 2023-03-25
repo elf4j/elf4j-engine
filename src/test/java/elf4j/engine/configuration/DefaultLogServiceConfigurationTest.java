@@ -29,18 +29,23 @@ import elf4j.Level;
 import elf4j.engine.NativeLogger;
 import elf4j.engine.service.LogService;
 import elf4j.engine.writer.LogWriter;
+import elf4j.engine.writer.StandardStreamsWriter;
+import elf4j.engine.writer.WriterGroup;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Properties;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
-class DefaultServiceConfigurationTest {
-    @Mock LevelRepository mockLevelRepository;
+class DefaultLogServiceConfigurationTest {
+    @Mock CallerLevelRepository mockCallerLevelRepository;
     @Mock WriterRepository mockWriterRepository;
     @Mock LogWriter stubLogWriter;
     @Mock LogService mockLogService;
@@ -49,22 +54,43 @@ class DefaultServiceConfigurationTest {
     class isEnabled {
         @Test
         void cacheLoadFromReposOnlyOnce() {
-            DefaultServiceConfiguration defaultLoggingConfiguration =
-                    new DefaultServiceConfiguration(mockLevelRepository, mockWriterRepository);
+            DefaultLogServiceConfiguration defaultLoggingConfiguration =
+                    new DefaultLogServiceConfiguration(mockCallerLevelRepository, mockWriterRepository);
             NativeLogger nativeLogger = new NativeLogger("test.owner.class.Name", Level.OFF, mockLogService);
             given(mockWriterRepository.getLogServiceWriter()).willReturn(stubLogWriter);
-            given(stubLogWriter.getMinimumLevel()).willReturn(Level.TRACE);
-            given(mockLevelRepository.getLoggerMinimumLevel(nativeLogger)).willReturn(Level.TRACE);
+            given(stubLogWriter.getMinimumOutputLevel()).willReturn(Level.TRACE);
+            given(mockCallerLevelRepository.getMinimumOutputLevel(nativeLogger)).willReturn(Level.TRACE);
 
             defaultLoggingConfiguration.isEnabled(nativeLogger);
 
             then(mockWriterRepository).should().getLogServiceWriter();
-            then(mockLevelRepository).should().getLoggerMinimumLevel(nativeLogger);
+            then(mockCallerLevelRepository).should().getMinimumOutputLevel(nativeLogger);
 
             defaultLoggingConfiguration.isEnabled(nativeLogger);
 
             then(mockWriterRepository).shouldHaveNoMoreInteractions();
-            then(mockLevelRepository).shouldHaveNoMoreInteractions();
+            then(mockCallerLevelRepository).shouldHaveNoMoreInteractions();
+        }
+    }
+
+    @Nested
+    class refresh {
+        @Test
+        void reload() {
+            DefaultLogServiceConfiguration defaultServiceConfiguration = new DefaultLogServiceConfiguration();
+
+            defaultServiceConfiguration.refresh(null);
+
+            assertTrue(defaultServiceConfiguration.getLogServiceWriter() instanceof WriterGroup);
+        }
+
+        @Test
+        void replace() {
+            DefaultLogServiceConfiguration defaultServiceConfiguration = new DefaultLogServiceConfiguration();
+
+            defaultServiceConfiguration.refresh(new Properties());
+
+            assertTrue(defaultServiceConfiguration.getLogServiceWriter() instanceof StandardStreamsWriter);
         }
     }
 }

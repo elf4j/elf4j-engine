@@ -40,24 +40,24 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  */
 @ToString
-public class DefaultServiceConfiguration implements ServiceConfiguration {
+public class DefaultLogServiceConfiguration implements LogServiceConfiguration {
     private final Map<NativeLogger, Boolean> loggerConfigurationCache = new ConcurrentHashMap<>();
     private final PropertiesLoader propertiesLoader;
     private boolean noop;
-    private LevelRepository levelRepository;
+    private CallerLevelRepository callerLevelRepository;
     private WriterRepository writerRepository;
 
     /**
      *
      */
-    public DefaultServiceConfiguration() {
+    public DefaultLogServiceConfiguration() {
         this.propertiesLoader = new PropertiesLoader();
         setRepositories(this.propertiesLoader.load());
     }
 
-    DefaultServiceConfiguration(LevelRepository levelRepository, WriterRepository writerRepository) {
+    DefaultLogServiceConfiguration(CallerLevelRepository callerLevelRepository, WriterRepository writerRepository) {
         this.propertiesLoader = new PropertiesLoader();
-        this.levelRepository = levelRepository;
+        this.callerLevelRepository = callerLevelRepository;
         this.writerRepository = writerRepository;
     }
 
@@ -81,10 +81,11 @@ public class DefaultServiceConfiguration implements ServiceConfiguration {
     }
 
     private boolean loadLoggerConfigurationCache(NativeLogger nativeLogger) {
-        Level loggerConfigurationMinimumLevel = levelRepository.getLoggerMinimumLevel(nativeLogger);
-        Level logServiceWriterMinimumLevel = writerRepository.getLogServiceWriter().getMinimumLevel();
-        return nativeLogger.getLevel().ordinal() >= Math.max(loggerConfigurationMinimumLevel.ordinal(),
-                logServiceWriterMinimumLevel.ordinal());
+        Level callerMinimumOutputLevel = callerLevelRepository.getMinimumOutputLevel(nativeLogger);
+        Level writerMinimumOutputLevel = writerRepository.getLogServiceWriter().getMinimumOutputLevel();
+        Level loggerLevel = nativeLogger.getLevel();
+        return loggerLevel.compareTo(callerMinimumOutputLevel) >= 0
+                && loggerLevel.compareTo(writerMinimumOutputLevel) >= 0;
     }
 
     private void setRepositories(@Nullable Properties properties) {
@@ -93,7 +94,7 @@ public class DefaultServiceConfiguration implements ServiceConfiguration {
         if (this.noop) {
             InternalLogger.INSTANCE.log(Level.WARN, "No-op per configuration");
         }
-        this.levelRepository = LevelRepository.from(properties);
+        this.callerLevelRepository = CallerLevelRepository.from(properties);
         this.writerRepository = WriterRepository.from(properties);
     }
 }

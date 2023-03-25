@@ -44,11 +44,10 @@ public enum WriterType {
     STANDARD {
         @Override
         Set<LogWriter> parseWriters(@NonNull Properties properties) {
-            String defaultOutStreamTypeOverride = properties.getProperty("standard.stream");
+            String defaultOutStreamType = properties.getProperty("standard.stream");
             return PropertiesUtils.getPropertiesGroupOfType(STANDARD.name().toLowerCase(), properties)
                     .stream()
-                    .map(writerConfiguration -> StandardStreamsWriter.from(writerConfiguration,
-                            defaultOutStreamTypeOverride))
+                    .map(writerConfiguration -> StandardStreamsWriter.from(writerConfiguration, defaultOutStreamType))
                     .collect(Collectors.toSet());
         }
     };

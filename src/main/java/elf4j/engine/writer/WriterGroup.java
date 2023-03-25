@@ -56,10 +56,10 @@ public class WriterGroup implements LogWriter {
     }
 
     @Override
-    public Level getMinimumLevel() {
+    public Level getMinimumOutputLevel() {
         if (minimumLevel == null) {
             minimumLevel = Level.values()[writers.stream()
-                    .mapToInt(writer -> writer.getMinimumLevel().ordinal())
+                    .mapToInt(writer -> writer.getMinimumOutputLevel().ordinal())
                     .min()
                     .orElseThrow(NoSuchElementException::new)];
         }

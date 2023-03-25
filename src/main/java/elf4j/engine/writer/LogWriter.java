@@ -36,7 +36,7 @@ public interface LogWriter extends PerformanceSensitive {
     /**
      * @return the minimum level above which this writer will write
      */
-    Level getMinimumLevel();
+    Level getMinimumOutputLevel();
 
     /**
      * @param logEntry the log data entry to write out

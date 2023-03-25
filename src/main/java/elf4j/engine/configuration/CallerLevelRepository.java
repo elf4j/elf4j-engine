@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
 /**
  *
  */
-public class LevelRepository {
-    private static final Level DEFAULT_LOGGER_MINIMUM_LEVEL = Level.TRACE;
+public class CallerLevelRepository {
+    private static final Level DEFAULT_CALLER_MINIMUM_OUTPUT_LEVEL = Level.TRACE;
     private static final String ROOT_CLASS_NAME_SPACE = "";
     private final Map<String, Level> configuredLevels;
     /**
@@ -46,7 +46,7 @@ public class LevelRepository {
      */
     private final List<String> sortedCallerClassNameSpaces;
 
-    private LevelRepository(@NonNull Map<String, Level> configuredLevels) {
+    private CallerLevelRepository(@NonNull Map<String, Level> configuredLevels) {
         this.configuredLevels = configuredLevels;
         this.sortedCallerClassNameSpaces = configuredLevels.keySet()
                 .stream()
@@ -55,13 +55,14 @@ public class LevelRepository {
     }
 
     /**
-     * @param properties configuration source of all minimum output levels for loggers
+     * @param properties configuration source of all minimum output levels for caller classes
      */
     @NonNull
-    static LevelRepository from(@Nullable Properties properties) {
+    static CallerLevelRepository from(@Nullable Properties properties) {
         Map<String, Level> configuredLevels = new HashMap<>();
         if (properties == null) {
-            return new LevelRepository(configuredLevels);
+            InternalLogger.INSTANCE.log(Level.INFO, "No configuration, taking default minimum output level");
+            return new CallerLevelRepository(configuredLevels);
         }
         getAsLevel("level", properties).ifPresent(level -> configuredLevels.put(ROOT_CLASS_NAME_SPACE, level));
         configuredLevels.putAll(properties.stringPropertyNames()
@@ -70,7 +71,7 @@ public class LevelRepository {
                 .collect(Collectors.toMap(name -> name.split("@", 2)[1].trim(),
                         name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
         InternalLogger.INSTANCE.log(Level.INFO, "Configured output levels: " + configuredLevels);
-        return new LevelRepository(configuredLevels);
+        return new CallerLevelRepository(configuredLevels);
     }
 
     private static Optional<Level> getAsLevel(String levelKey, @NonNull Properties properties) {
@@ -80,13 +81,14 @@ public class LevelRepository {
 
     /**
      * @param nativeLogger to search for configured minimum output level
-     * @return configured min output level for the specified logger, or the default level if not configured
+     * @return configured min output level for the specified logger's caller class, or the default level if not
+     *         configured
      */
-    public Level getLoggerMinimumLevel(NativeLogger nativeLogger) {
+    public Level getMinimumOutputLevel(NativeLogger nativeLogger) {
         return this.sortedCallerClassNameSpaces.stream()
                 .filter(classNameSpace -> nativeLogger.getOwnerClassName().startsWith(classNameSpace))
                 .findFirst()
                 .map(this.configuredLevels::get)
-                .orElse(DEFAULT_LOGGER_MINIMUM_LEVEL);
+                .orElse(DEFAULT_CALLER_MINIMUM_OUTPUT_LEVEL);
     }
 }

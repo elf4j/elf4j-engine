@@ -44,7 +44,7 @@ import java.util.Map;
 @ToString
 public class StandardStreamsWriter implements LogWriter {
     private static final Level DEFAULT_MINIMUM_LEVEL = Level.TRACE;
-    private static final OutStreamType DEFAULT_OUT_STREAM = OutStreamType.STDOUT;
+    private static final OutStreamType DEFAULT_WRITER_OUT_STREAM = OutStreamType.STDOUT;
     private static final String DEFAULT_PATTERN =
             "{timestamp:yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ} {level} {class} - {message}";
     private final LogPattern logPattern;
@@ -63,27 +63,26 @@ public class StandardStreamsWriter implements LogWriter {
     public static @Nonnull StandardStreamsWriter defaultWriter() {
         return new StandardStreamsWriter(DEFAULT_MINIMUM_LEVEL,
                 PatternSegmentGroup.from(DEFAULT_PATTERN),
-                DEFAULT_OUT_STREAM);
+                DEFAULT_WRITER_OUT_STREAM);
     }
 
     /**
-     * @param configuration                properties map to make a console writer
-     * @param defaultOutStreamTypeOverride override of global default out stream type for standard writers.
-     *                                     Writer-specific type, if present, takes precedence over global level. If no
-     *                                     out stream type configured on either global or writer level, default to
-     *                                     stdout.
+     * @param configuration        properties map to make a console writer
+     * @param defaultOutStreamType override of global default out stream type for standard writers. Writer-specific
+     *                             type, if present, takes precedence over global level. If no out stream type
+     *                             configured on either global or writer level, default to stdout.
      * @return console writer per the specified configuration
      */
     public static @NonNull StandardStreamsWriter from(@NonNull Map<String, String> configuration,
-            @Nullable String defaultOutStreamTypeOverride) {
+            @Nullable String defaultOutStreamType) {
         String level = configuration.get("level");
         String pattern = configuration.get("pattern");
         String writerOutStreamType = configuration.get("stream");
         if (writerOutStreamType == null) {
-            writerOutStreamType = defaultOutStreamTypeOverride;
+            writerOutStreamType = defaultOutStreamType;
         }
         if (writerOutStreamType == null) {
-            writerOutStreamType = DEFAULT_OUT_STREAM.name();
+            writerOutStreamType = DEFAULT_WRITER_OUT_STREAM.name();
         }
         return new StandardStreamsWriter(level == null ? DEFAULT_MINIMUM_LEVEL : Level.valueOf(level.toUpperCase()),
                 PatternSegmentGroup.from(pattern == null ? DEFAULT_PATTERN : pattern),
@@ -91,7 +90,7 @@ public class StandardStreamsWriter implements LogWriter {
     }
 
     @Override
-    public Level getMinimumLevel() {
+    public Level getMinimumOutputLevel() {
         return minimumLevel;
     }
 
