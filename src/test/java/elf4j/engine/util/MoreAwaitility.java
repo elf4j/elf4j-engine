@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class MoreAwaitility {
     private static final ScheduledExecutorService delayer =
             Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() + 1, r -> {
-                Thread daemonThread = new Thread(r, "more-block-util-thread" + UUID.randomUUID());
+                Thread daemonThread = new Thread(r, "more-awaitility-util-thread" + UUID.randomUUID());
                 daemonThread.setDaemon(true);
                 return daemonThread;
             });
