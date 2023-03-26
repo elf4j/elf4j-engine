@@ -33,6 +33,11 @@ import elf4j.engine.writer.PerformanceSensitive;
  */
 public interface LogService extends PerformanceSensitive {
     /**
+     * @return true if no logging service should be performed
+     */
+    boolean isNoop();
+
+    /**
      * @param nativeLogger to check for enablement
      * @return true if the logger's level is at or above configured minimum
      */

@@ -69,7 +69,7 @@ public class StackTraceUtils {
 
     /**
      * @param throwable to extract stack trace text from
-     * @return stack trace text of the specified throwable
+     * @return stack trace buffer as the specified throwable prints it
      */
     public static StringBuffer getTraceAsBuffer(@NonNull Throwable throwable) {
         StringWriter stringWriter = new StringWriter();

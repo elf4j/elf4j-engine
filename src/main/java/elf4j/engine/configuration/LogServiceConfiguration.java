@@ -36,6 +36,11 @@ import java.util.Properties;
  */
 public interface LogServiceConfiguration {
     /**
+     * @return true if no-op
+     */
+    boolean isNoop();
+
+    /**
      * @return the top level (group) writer for the log service, may contain multiple individual writers.
      */
     LogWriter getLogServiceWriter();
