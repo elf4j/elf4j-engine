@@ -19,6 +19,13 @@ public class MoreAwaitility {
             });
 
     public static void await(@NonNull Duration duration) {
+        await(duration, null);
+    }
+
+    public static void await(@NonNull Duration duration, String message) {
+        if (message != null) {
+            System.out.println(message + " - blocking for " + duration);
+        }
         AtomicBoolean resume = new AtomicBoolean(false);
         delayer.schedule(() -> resume.set(true), duration.toMillis(), TimeUnit.MILLISECONDS);
         Awaitility.await().untilTrue(resume);

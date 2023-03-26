@@ -2,7 +2,9 @@ package elf4j.engine;
 
 import elf4j.Logger;
 import elf4j.engine.service.LogServiceManager;
+import elf4j.engine.util.MoreAwaitility;
 
+import java.time.Duration;
 import java.util.function.Supplier;
 
 public class Main {
@@ -49,6 +51,7 @@ public class Main {
                 .atInfo()
                 .log("Not a practical example but the severity level is INFO");
 
+        MoreAwaitility.await(Duration.ofMillis(200), "Making sure console streams show up");
         LogServiceManager.shutdown();
     }
 }
