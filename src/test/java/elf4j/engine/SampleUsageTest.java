@@ -39,7 +39,7 @@ class SampleUsageTest {
 
     @AfterEach
     void afterEach() {
-        MoreAwaitility.await(Duration.ofMillis(500));
+        MoreAwaitility.block(Duration.ofMillis(500));
     }
 
     @Nested

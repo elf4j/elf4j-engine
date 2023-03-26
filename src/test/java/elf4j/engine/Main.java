@@ -51,7 +51,7 @@ public class Main {
                 .atInfo()
                 .log("Not a practical example but the severity level is INFO");
 
-        MoreAwaitility.await(Duration.ofMillis(200), "Making sure console streams show up");
+        MoreAwaitility.block(Duration.ofMillis(200), "Making sure console streams show up");
         LogServiceManager.shutdown();
     }
 }

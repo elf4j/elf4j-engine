@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class IntegrationTest {
     @AfterEach
     void afterEach() {
-        MoreAwaitility.await(Duration.ofMillis(500));
+        MoreAwaitility.block(Duration.ofMillis(500));
     }
 
     @Nested
