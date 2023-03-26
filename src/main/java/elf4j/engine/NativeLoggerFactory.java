@@ -95,7 +95,7 @@ public class NativeLoggerFactory implements LoggerFactory {
     @Override
     public Logger logger() {
         if (this.logService.isNoop()) {
-            return NoopLogger.INFO;
+            return NoopLogger.OFF.atLevel(defaultLoggerLevel);
         }
         return this.nativeLoggers.computeIfAbsent(StackTraceUtils.callerOf(this.serviceAccessClass).getClassName(),
                 ownerClassName -> new NativeLogger(ownerClassName, defaultLoggerLevel, logService));

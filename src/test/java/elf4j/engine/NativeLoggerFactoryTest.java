@@ -80,7 +80,7 @@ class NativeLoggerFactoryTest {
             given(mockLogService.isNoop()).willReturn(true);
             Class<?> stubLoggerAccessInterface = NativeLoggerFactory.class;
             NativeLoggerFactory nativeLoggerFactory =
-                    new NativeLoggerFactory(Level.ERROR, stubLoggerAccessInterface, mockLogService);
+                    new NativeLoggerFactory(Level.INFO, stubLoggerAccessInterface, mockLogService);
 
             Logger logger = nativeLoggerFactory.logger();
 
