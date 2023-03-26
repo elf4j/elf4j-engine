@@ -33,6 +33,8 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Objects;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  *
@@ -46,7 +48,7 @@ public class DefaultLogService implements LogService {
      *
      */
     public DefaultLogService() {
-        this(ServiceConfigurationHolder.INSTANCE, new WriterThread());
+        this(ServiceConfigurationHolder.INSTANCE, WriterThreadHolder.INSTANCE);
     }
 
     DefaultLogService(LogServiceConfiguration logServiceConfiguration, WriterThread writerThread) {
@@ -56,6 +58,10 @@ public class DefaultLogService implements LogService {
 
     static void refreshConfiguration(Properties properties) {
         ServiceConfigurationHolder.INSTANCE.refresh(properties);
+    }
+
+    static void shutdown() {
+        WriterThreadHolder.INSTANCE.shutdown();
     }
 
     @Override
@@ -91,10 +97,17 @@ public class DefaultLogService implements LogService {
             Thread callerThread = Thread.currentThread();
             logEntryBuilder.callerThread(new LogEntry.ThreadInformation(callerThread.getName(), callerThread.getId()));
         }
-        writerThread.get().execute(() -> logServiceConfiguration.getLogServiceWriter().write(logEntryBuilder.build()));
+        writerThread.execute(() -> logServiceConfiguration.getLogServiceWriter().write(logEntryBuilder.build()));
     }
 
     private static class ServiceConfigurationHolder {
         private static final LogServiceConfiguration INSTANCE = new DefaultLogServiceConfiguration();
+    }
+
+    private static class WriterThreadHolder {
+        private static final ExecutorService SINGLE_THREAD_EXECUTOR =
+                Executors.newSingleThreadExecutor(r -> new Thread(r, "elf4j-engine-writer-thread"));
+        private static final ExecutorServiceWriterThread INSTANCE =
+                new ExecutorServiceWriterThread(SINGLE_THREAD_EXECUTOR);
     }
 }

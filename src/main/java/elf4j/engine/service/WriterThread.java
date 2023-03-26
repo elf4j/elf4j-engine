@@ -26,24 +26,13 @@
 package elf4j.engine.service;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  *
  */
-public class WriterThread {
-    private static final ExecutorService SINGLE_THREAD_EXECUTOR =
-            Executors.newSingleThreadExecutor(r -> new Thread(r, "elf4j-engine-writer-thread"));
-
-    static void shutdown() {
-        SINGLE_THREAD_EXECUTOR.shutdown();
-    }
-
+public interface WriterThread extends Executor {
     /**
-     * @return thread executor to service the writers asynchronously
+     *
      */
-    public Executor get() {
-        return SINGLE_THREAD_EXECUTOR;
-    }
+    void shutdown();
 }

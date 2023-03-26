@@ -25,34 +25,30 @@
 
 package elf4j.engine.service;
 
-import java.util.Properties;
+import lombok.NonNull;
+
+import java.util.concurrent.ExecutorService;
 
 /**
  *
  */
-public class LogServiceManager {
-    private LogServiceManager() {
-    }
+public class ExecutorServiceWriterThread implements WriterThread {
+    private final ExecutorService executorService;
 
     /**
-     *
+     * @param executorService service delegate
      */
-    public static void refreshConfiguration() {
-        refreshConfiguration(null);
+    public ExecutorServiceWriterThread(ExecutorService executorService) {
+        this.executorService = executorService;
     }
 
-    /**
-     * @param properties overriding properties for the new configuration, in addition to the reloaded properties from
-     *                   the configuration file
-     */
-    public static void refreshConfiguration(Properties properties) {
-        DefaultLogService.refreshConfiguration(properties);
+    @Override
+    public void shutdown() {
+        this.executorService.shutdown();
     }
 
-    /**
-     *
-     */
-    public static void shutdown() {
-        DefaultLogService.shutdown();
+    @Override
+    public void execute(@NonNull Runnable command) {
+        this.executorService.execute(command);
     }
 }
