@@ -31,7 +31,6 @@ import elf4j.engine.service.DefaultLogService;
 import elf4j.engine.service.LogService;
 import elf4j.engine.util.StackTraceUtils;
 import elf4j.spi.LoggerFactory;
-import elf4j.util.NoopLogger;
 import lombok.NonNull;
 
 import java.util.HashMap;
@@ -93,10 +92,7 @@ public class NativeLoggerFactory implements LoggerFactory {
      * @return new instance of {@link NativeLogger}
      */
     @Override
-    public Logger logger() {
-        if (this.logService.isNoop()) {
-            return NoopLogger.OFF.atLevel(this.defaultLoggerLevel);
-        }
+    public NativeLogger logger() {
         return this.nativeLoggers.computeIfAbsent(StackTraceUtils.callerOf(this.serviceAccessClass).getClassName(),
                 ownerClassName -> new NativeLogger(ownerClassName, this.defaultLoggerLevel, this.logService));
     }

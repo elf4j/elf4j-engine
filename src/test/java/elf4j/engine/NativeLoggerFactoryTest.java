@@ -26,17 +26,15 @@
 package elf4j.engine;
 
 import elf4j.Level;
-import elf4j.Logger;
 import elf4j.engine.service.LogService;
-import elf4j.util.NoopLogger;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 @ExtendWith(MockitoExtension.class)
 class NativeLoggerFactoryTest {
@@ -59,7 +57,7 @@ class NativeLoggerFactoryTest {
             NativeLoggerFactory nativeLoggerFactory =
                     new NativeLoggerFactory(Level.ERROR, mockLoggerInterface, mockLogService);
 
-            NativeLogger logger = (NativeLogger) nativeLoggerFactory.logger();
+            NativeLogger logger = nativeLoggerFactory.logger();
 
             assertSame(this.getClass().getName(), logger.getOwnerClassName());
         }
@@ -70,22 +68,9 @@ class NativeLoggerFactoryTest {
             NativeLoggerFactory nativeLoggerFactory =
                     new NativeLoggerFactory(Level.ERROR, stubLoggerAccessInterface, mockLogService);
 
-            NativeLogger nativeLogger = (NativeLogger) nativeLoggerFactory.logger();
+            NativeLogger nativeLogger = nativeLoggerFactory.logger();
 
             assertEquals(mockLogService, nativeLogger.getLogService());
-        }
-
-        @Test
-        void noop() {
-            given(mockLogService.isNoop()).willReturn(true);
-            Class<?> stubLoggerAccessInterface = NativeLoggerFactory.class;
-            NativeLoggerFactory nativeLoggerFactory =
-                    new NativeLoggerFactory(Level.INFO, stubLoggerAccessInterface, mockLogService);
-
-            Logger logger = nativeLoggerFactory.logger();
-
-            assertTrue(logger instanceof NoopLogger);
-            assertEquals(Level.INFO, logger.getLevel());
         }
     }
 }
