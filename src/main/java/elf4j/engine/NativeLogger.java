@@ -70,10 +70,12 @@ public class NativeLogger implements Logger {
     /**
      * Constructor only meant to be used by {@link NativeLoggerFactory} and this class itself
      *
-     * @param ownerClassName name of the owner class that requested this instance via the {@link Logger#instance()}
-     *                       method
-     * @param level          severity level of this logger instance
-     * @param logService     service delegate to do the logging
+     * @param ownerClassName
+     *         name of the owner class that requested this instance via the {@link Logger#instance()} method
+     * @param level
+     *         severity level of this logger instance
+     * @param logService
+     *         service delegate to do the logging
      */
     public NativeLogger(@NonNull String ownerClassName, @NonNull Level level, @NonNull LogService logService) {
         this.ownerClassName = ownerClassName;

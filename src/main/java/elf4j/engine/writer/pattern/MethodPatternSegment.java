@@ -38,7 +38,8 @@ import java.util.Objects;
 @Value
 public class MethodPatternSegment implements LogPattern {
     /**
-     * @param patternSegment text segment to convert
+     * @param patternSegment
+     *         text segment to convert
      * @return converted patternSegment object
      */
     @Nonnull

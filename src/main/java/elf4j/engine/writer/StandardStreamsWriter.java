@@ -67,10 +67,12 @@ public class StandardStreamsWriter implements LogWriter {
     }
 
     /**
-     * @param configuration        properties map to make a console writer
-     * @param defaultOutStreamType override of global default out stream type for standard writers. Writer-specific
-     *                             type, if present, takes precedence over global level. If no out stream type
-     *                             configured on either global or writer level, default to stdout.
+     * @param configuration
+     *         properties map to make a console writer
+     * @param defaultOutStreamType
+     *         override of global default out stream type for standard writers. Writer-specific type, if present, takes
+     *         precedence over global level. If no out stream type configured on either global or writer level, default
+     *         to stdout.
      * @return console writer per the specified configuration
      */
     public static @NonNull StandardStreamsWriter from(@NonNull Map<String, String> configuration,

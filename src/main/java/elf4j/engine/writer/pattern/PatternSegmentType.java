@@ -153,8 +153,8 @@ enum PatternSegmentType {
             EnumSet.complementOf(EnumSet.of(VERBATIM));
 
     /**
-     * @param patternSegment entire text of an individual pattern segment, including pattern segment name and possibly
-     *                       options
+     * @param patternSegment
+     *         entire text of an individual pattern segment, including pattern segment name and possibly options
      * @return the option portion of the pattern segment text if present; otherwise, empty Optional
      */
     static Optional<String> getPatternSegmentOption(@NonNull String patternSegment) {
@@ -163,11 +163,11 @@ enum PatternSegmentType {
     }
 
     /**
-     * @param pattern entire layout pattern text of a writer, including one or more individual pattern segments.
-     *                Predefined pattern segment texts in curly braces - e.g. {timestamp}, {level}, or {json} - will be
-     *                parsed into pattern segment objects who extract and render specific log data to form the final log
-     *                message. Undefined pattern texts, in or outside curly braces, are to be rendered verbatim in the
-     *                final log message.
+     * @param pattern
+     *         entire layout pattern text of a writer, including one or more individual pattern segments. Predefined
+     *         pattern segment texts in curly braces - e.g. {timestamp}, {level}, or {json} - will be parsed into
+     *         pattern segment objects who extract and render specific log data to form the final log message. Undefined
+     *         pattern texts, in or outside curly braces, are to be rendered verbatim in the final log message.
      * @return ordered list of individual patterns forming the entire layout pattern of the writer
      */
     static @NonNull List<LogPattern> parsePatternSegments(@NonNull String pattern) {
@@ -221,13 +221,15 @@ enum PatternSegmentType {
     }
 
     /**
-     * @param patternSegment text to translate
+     * @param patternSegment
+     *         text to translate
      * @return pattern segment object of the specified text
      */
     abstract LogPattern translate(String patternSegment);
 
     /**
-     * @param patternSegment text configuration of an individual pattern segment
+     * @param patternSegment
+     *         text configuration of an individual pattern segment
      * @return true if this pattern segment type is the target type of the specified pattern segment text
      */
     abstract boolean isTargetTypeOf(String patternSegment);

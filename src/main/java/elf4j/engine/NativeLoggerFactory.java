@@ -72,7 +72,8 @@ public class NativeLoggerFactory implements LoggerFactory {
     }
 
     /**
-     * @param serviceAccessClass the class that the API client uses to obtain access to a logger instance
+     * @param serviceAccessClass
+     *         the class that the API client uses to obtain access to a logger instance
      */
     public NativeLoggerFactory(@NonNull Class<?> serviceAccessClass) {
         this(DEFAULT_LOGGER_SEVERITY_LEVEL, serviceAccessClass, new DefaultLogService());

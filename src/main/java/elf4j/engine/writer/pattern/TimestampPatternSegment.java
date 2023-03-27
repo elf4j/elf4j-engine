@@ -44,7 +44,8 @@ public class TimestampPatternSegment implements LogPattern {
     DateTimeFormatter dateTimeFormatter;
 
     /**
-     * @param patternSegment text pattern segment to convert
+     * @param patternSegment
+     *         text pattern segment to convert
      * @return converted pattern segment object
      */
     @Nonnull

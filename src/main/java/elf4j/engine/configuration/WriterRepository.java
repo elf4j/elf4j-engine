@@ -47,7 +47,8 @@ public class WriterRepository {
     }
 
     /**
-     * @param properties configuration from which to build the writer repo
+     * @param properties
+     *         configuration from which to build the writer repo
      */
     static @Nonnull WriterRepository from(@Nullable Properties properties) {
         if (properties == null) {

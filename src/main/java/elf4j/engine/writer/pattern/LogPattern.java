@@ -37,8 +37,10 @@ public interface LogPattern extends PerformanceSensitive {
      * From the log entry, renders the data of interest particular to this log pattern instance, and appends the result
      * to the text builder
      *
-     * @param logEntry the overall log data entry to render
-     * @param target   the overall logging text aggregator
+     * @param logEntry
+     *         the overall log data entry to render
+     * @param target
+     *         the overall logging text aggregator
      */
     void render(LogEntry logEntry, StringBuilder target);
 }

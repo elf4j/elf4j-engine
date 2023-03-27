@@ -55,7 +55,8 @@ public class CallerLevelRepository {
     }
 
     /**
-     * @param properties configuration source of all minimum output levels for caller classes
+     * @param properties
+     *         configuration source of all minimum output levels for caller classes
      */
     @NonNull
     static CallerLevelRepository from(@Nullable Properties properties) {
@@ -80,7 +81,8 @@ public class CallerLevelRepository {
     }
 
     /**
-     * @param nativeLogger to search for configured minimum output level
+     * @param nativeLogger
+     *         to search for configured minimum output level
      * @return configured min output level for the specified logger's caller class, or the default level if not
      *         configured
      */

@@ -40,7 +40,8 @@ public class ClassPatternSegment implements LogPattern {
     @NonNull DisplayOption classDisplayOption;
 
     /**
-     * @param patternSegment text patternSegment to convert
+     * @param patternSegment
+     *         text patternSegment to convert
      * @return converted patternSegment object
      */
     @Nonnull

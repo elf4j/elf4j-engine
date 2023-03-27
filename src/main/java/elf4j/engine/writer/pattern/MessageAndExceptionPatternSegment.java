@@ -38,7 +38,8 @@ import javax.annotation.Nonnull;
 @Value
 public class MessageAndExceptionPatternSegment implements LogPattern {
     /**
-     * @param patternSegment text segment to convert
+     * @param patternSegment
+     *         text segment to convert
      * @return converted patternSegment object
      */
     @Nonnull

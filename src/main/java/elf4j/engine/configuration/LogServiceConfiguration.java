@@ -41,16 +41,18 @@ public interface LogServiceConfiguration {
     LogWriter getLogServiceWriter();
 
     /**
-     * @param nativeLogger the logger to check for enablement against configuration
+     * @param nativeLogger
+     *         the logger to check for enablement against configuration
      * @return true if the specified logger's level is at or above the configured minimum output level of both the
      *         writer and that configured for the logger's caller/owner class; otherwise, false.
      */
     boolean isEnabled(NativeLogger nativeLogger);
 
     /**
-     * @param properties used to refresh the logging configuration. If <code>null</code>, only properties reloaded from
-     *                   the configuration file will be used. Otherwise, the specified properties will replace all
-     *                   current properties and configuration file is ignored.
+     * @param properties
+     *         used to refresh the logging configuration. If <code>null</code>, only properties reloaded from the
+     *         configuration file will be used. Otherwise, the specified properties will replace all current properties
+     *         and configuration file is ignored.
      */
     void refresh(@Nullable Properties properties);
 }

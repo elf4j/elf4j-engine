@@ -106,7 +106,8 @@ public class DefaultLogService implements LogService {
         private final ExecutorService executorService;
 
         /**
-         * @param executorService service delegate
+         * @param executorService
+         *         service delegate
          */
         public ExecutorServiceWriterThread(ExecutorService executorService) {
             this.executorService = executorService;

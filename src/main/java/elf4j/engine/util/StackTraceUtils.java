@@ -40,7 +40,8 @@ public class StackTraceUtils {
     }
 
     /**
-     * @param calleeClass whose caller is being searched for
+     * @param calleeClass
+     *         whose caller is being searched for
      * @return immediate caller frame of the specified callee class
      */
     public static LogEntry.StackTraceFrame callerOf(@NonNull Class<?> calleeClass) {
@@ -68,7 +69,8 @@ public class StackTraceUtils {
     }
 
     /**
-     * @param throwable to extract stack trace text from
+     * @param throwable
+     *         to extract stack trace text from
      * @return stack trace buffer as the specified throwable prints it
      */
     public static StringBuffer getTraceAsBuffer(@NonNull Throwable throwable) {

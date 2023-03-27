@@ -57,7 +57,8 @@ public class JsonPatternSegment implements LogPattern {
     @ToString.Exclude Gson gson;
 
     /**
-     * @param patternSegment to convert
+     * @param patternSegment
+     *         to convert
      * @return converted patternSegment object
      */
     public static JsonPatternSegment from(@NonNull String patternSegment) {

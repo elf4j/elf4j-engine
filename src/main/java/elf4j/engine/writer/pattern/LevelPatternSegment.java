@@ -44,7 +44,8 @@ public class LevelPatternSegment implements LogPattern {
     }
 
     /**
-     * @param patternSegment to convert
+     * @param patternSegment
+     *         to convert
      * @return converted patternSegment object
      */
     @Nonnull

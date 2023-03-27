@@ -40,7 +40,8 @@ public class ThreadPatternSegment implements LogPattern {
     @NonNull ThreadPatternSegment.DisplayOption threadDisplayOption;
 
     /**
-     * @param patternSegment text pattern segment to convert
+     * @param patternSegment
+     *         text pattern segment to convert
      * @return the thread pattern segment converted from the specified text
      */
     @Nonnull

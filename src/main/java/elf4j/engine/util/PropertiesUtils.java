@@ -41,8 +41,10 @@ public class PropertiesUtils {
     }
 
     /**
-     * @param prefix     key prefix to search for
-     * @param properties search source
+     * @param prefix
+     *         key prefix to search for
+     * @param properties
+     *         search source
      * @return all properties entries whose original keys start with the specified prefix. The prefix is removed from
      *         the keys of the returned entries.
      */
@@ -56,8 +58,10 @@ public class PropertiesUtils {
     }
 
     /**
-     * @param type       the properties value whose keys are each used as a parent key prefix
-     * @param properties search source
+     * @param type
+     *         the properties value whose keys are each used as a parent key prefix
+     * @param properties
+     *         search source
      * @return a group whose every member is a set of properties entries having a common key prefix of the specified
      *         type
      */

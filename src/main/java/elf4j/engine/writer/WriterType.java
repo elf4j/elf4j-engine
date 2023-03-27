@@ -55,7 +55,8 @@ public enum WriterType {
     private static final EnumSet<WriterType> WRITER_TYPES = EnumSet.allOf(WriterType.class);
 
     /**
-     * @param properties configuration source
+     * @param properties
+     *         configuration source
      * @return all writers parsed from the specified properties
      */
     public static Set<LogWriter> parseAllWriters(@NonNull Properties properties) {

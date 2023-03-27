@@ -42,8 +42,9 @@ public class LogServiceManager {
     }
 
     /**
-     * @param properties overriding properties for the new configuration, in addition to the reloaded properties from
-     *                   the configuration file
+     * @param properties
+     *         overriding properties for the new configuration, in addition to the reloaded properties from the
+     *         configuration file
      */
     public static void refreshConfiguration(Properties properties) {
         DefaultLogService.refreshConfiguration(properties);

@@ -40,7 +40,8 @@ public class PatternSegmentGroup implements LogPattern {
     List<LogPattern> logPatternEntries;
 
     /**
-     * @param pattern entire layout pattern text from configuration
+     * @param pattern
+     *         entire layout pattern text from configuration
      * @return composite pattern object for the entire log entry's output layout
      */
     @Nonnull

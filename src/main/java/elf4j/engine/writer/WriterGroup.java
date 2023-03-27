@@ -48,7 +48,8 @@ public class WriterGroup implements LogWriter {
     }
 
     /**
-     * @param properties configuration of all the writers
+     * @param properties
+     *         configuration of all the writers
      * @return the composite writer containing all writers configured in the specified properties
      */
     public static WriterGroup from(@NonNull Properties properties) {

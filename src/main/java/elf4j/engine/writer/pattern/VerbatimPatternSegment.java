@@ -39,7 +39,8 @@ public class VerbatimPatternSegment implements LogPattern {
     @NonNull String text;
 
     /**
-     * @param patternSegment text pattern segment to convert
+     * @param patternSegment
+     *         text pattern segment to convert
      * @return converted pattern segment object
      */
     @Nonnull
