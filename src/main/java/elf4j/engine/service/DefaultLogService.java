@@ -29,7 +29,6 @@ import elf4j.engine.NativeLogger;
 import elf4j.engine.configuration.DefaultLogServiceConfiguration;
 import elf4j.engine.configuration.LogServiceConfiguration;
 import elf4j.engine.util.StackTraceUtils;
-import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
 import java.util.Objects;
@@ -40,10 +39,9 @@ import java.util.concurrent.Executors;
 /**
  *
  */
-@EqualsAndHashCode
 public class DefaultLogService implements LogService {
     private final LogServiceConfiguration logServiceConfiguration;
-    @EqualsAndHashCode.Exclude private final WriterThread writerThread;
+    private final WriterThread writerThread;
 
     /**
      *

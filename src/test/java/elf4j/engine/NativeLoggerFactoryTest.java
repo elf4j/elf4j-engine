@@ -70,7 +70,7 @@ class NativeLoggerFactoryTest {
 
             NativeLogger nativeLogger = nativeLoggerFactory.logger();
 
-            assertEquals(mockLogService, nativeLogger.getLogService());
+            assertSame(mockLogService, nativeLogger.getLogService());
         }
     }
 }
