@@ -96,7 +96,7 @@ public class StandardStreamsWriter implements LogWriter {
 
     @Override
     public void write(@NonNull LogEntry logEntry) {
-        if (this.minimumLevel.ordinal() > logEntry.getNativeLogger().getLevel().ordinal()) {
+        if (logEntry.getNativeLogger().getLevel().compareTo(this.minimumLevel) < 0) {
             return;
         }
         StringBuilder logTextBuilder = new StringBuilder();
