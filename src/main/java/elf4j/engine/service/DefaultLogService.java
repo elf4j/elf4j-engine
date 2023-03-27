@@ -30,6 +30,7 @@ import elf4j.engine.configuration.DefaultLogServiceConfiguration;
 import elf4j.engine.configuration.LogServiceConfiguration;
 import elf4j.engine.util.StackTraceUtils;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 
 import java.util.Objects;
 import java.util.Properties;
@@ -103,6 +104,30 @@ public class DefaultLogService implements LogService {
             logEntryBuilder.callerThread(new LogEntry.ThreadInformation(callerThread.getName(), callerThread.getId()));
         }
         writerThread.execute(() -> logServiceConfiguration.getLogServiceWriter().write(logEntryBuilder.build()));
+    }
+
+    /**
+     *
+     */
+    private static class ExecutorServiceWriterThread implements WriterThread {
+        private final ExecutorService executorService;
+
+        /**
+         * @param executorService service delegate
+         */
+        public ExecutorServiceWriterThread(ExecutorService executorService) {
+            this.executorService = executorService;
+        }
+
+        @Override
+        public void shutdown() {
+            this.executorService.shutdown();
+        }
+
+        @Override
+        public void execute(@NonNull Runnable command) {
+            this.executorService.execute(command);
+        }
     }
 
     private static class ServiceConfigurationHolder {

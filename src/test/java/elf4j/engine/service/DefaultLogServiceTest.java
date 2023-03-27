@@ -62,7 +62,7 @@ class DefaultLogServiceTest {
         NativeLogger stubLogger;
         DefaultLogService logService;
         @Mock LogServiceConfiguration mockLogServiceConfiguration;
-        @Mock ExecutorServiceWriterThread mockWriterThread;
+        @Mock WriterThread mockWriterThread;
 
         @Test
         void delegateToConfiguration() {
