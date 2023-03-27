@@ -52,26 +52,26 @@ public class LogEntry {
     @Nullable StackTraceFrame callerFrame;
     @Nullable ThreadInformation callerThread;
 
-    private static @NonNull String resolve(Object msg, Object[] arguments) {
+    private static @NonNull CharSequence resolve(Object msg, Object[] arguments) {
         String message = Objects.toString(supply(msg), "");
         if (arguments == null || arguments.length == 0) {
             return message;
         }
         int messageLength = message.length();
-        StringBuilder builder = new StringBuilder(messageLength + ADDITIONAL_STRING_BUILDER_CAPACITY);
+        StringBuilder resolved = new StringBuilder(messageLength + ADDITIONAL_STRING_BUILDER_CAPACITY);
         int i = 0;
         int j = 0;
         while (i < messageLength) {
             char character = message.charAt(i);
             if (character == '{' && ((i + 1) < messageLength && message.charAt(i + 1) == '}') && j < arguments.length) {
-                builder.append(supply(arguments[j++]));
+                resolved.append(supply(arguments[j++]));
                 i += 2;
             } else {
-                builder.append(character);
+                resolved.append(character);
                 i += 1;
             }
         }
-        return builder.toString();
+        return resolved;
     }
 
     private static Object supply(Object o) {
@@ -88,7 +88,7 @@ public class LogEntry {
     /**
      * @return log message text with all placeholder arguments resolved and replaced by final values
      */
-    public String getResolvedMessage() {
+    public CharSequence getResolvedMessage() {
         return resolve(this.message, this.arguments);
     }
 

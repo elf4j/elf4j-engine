@@ -104,17 +104,19 @@ public class JsonPatternSegment implements LogPattern {
     static class JsonLogEntry {
         static final DateTimeFormatter DATE_TIME_FORMATTER =
                 DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.systemDefault());
-        String timestamp;
+        CharSequence timestamp;
         String level;
         LogEntry.ThreadInformation callerThread;
         String callerClass;
         LogEntry.StackTraceFrame callerDetail;
-        String message;
+        CharSequence message;
         CharSequence exception;
 
         static JsonLogEntry from(@NonNull LogEntry logEntry, @NonNull JsonPatternSegment jsonPatternSegment) {
+            StringBuilder timestamp = new StringBuilder(35);
+            DATE_TIME_FORMATTER.formatTo(logEntry.getTimestamp(), timestamp);
             return JsonLogEntry.builder()
-                    .timestamp(DATE_TIME_FORMATTER.format(logEntry.getTimestamp()))
+                    .timestamp(timestamp)
                     .callerClass(jsonPatternSegment.includeCallerDetail ? null : logEntry.getCallerClassName())
                     .level(logEntry.getNativeLogger().getLevel().name())
                     .callerThread(jsonPatternSegment.includeCallerThread ? logEntry.getCallerThread() : null)
