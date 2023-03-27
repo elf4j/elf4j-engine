@@ -74,11 +74,6 @@ public class DefaultLogService implements LogService {
     }
 
     @Override
-    public boolean isNoop() {
-        return logServiceConfiguration.isNoop();
-    }
-
-    @Override
     public boolean isEnabled(NativeLogger nativeLogger) {
         return logServiceConfiguration.isEnabled(nativeLogger);
     }

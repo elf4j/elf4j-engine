@@ -62,11 +62,6 @@ public class DefaultLogServiceConfiguration implements LogServiceConfiguration {
     }
 
     @Override
-    public boolean isNoop() {
-        return this.noop;
-    }
-
-    @Override
     public LogWriter getLogServiceWriter() {
         return writerRepository.getLogServiceWriter();
     }
