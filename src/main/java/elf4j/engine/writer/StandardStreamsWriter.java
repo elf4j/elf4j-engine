@@ -109,7 +109,7 @@ public class StandardStreamsWriter implements LogWriter {
                 BufferedStandardOutputStream.flushErr(logTextBuilder);
                 return;
             case AUTO:
-                if (logEntry.getNativeLogger().getLevel().ordinal() < Level.WARN.ordinal()) {
+                if (logEntry.getNativeLogger().getLevel().compareTo(Level.WARN) < 0) {
                     BufferedStandardOutputStream.flushOut(logTextBuilder);
                 } else {
                     BufferedStandardOutputStream.flushErr(logTextBuilder);
