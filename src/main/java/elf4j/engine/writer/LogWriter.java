@@ -34,7 +34,7 @@ import elf4j.engine.service.LogEntry;
 public interface LogWriter extends PerformanceSensitive {
 
     /**
-     * @return the minimum level above which this writer will write
+     * @return the minimum output level of this writer
      */
     Level getMinimumOutputLevel();
 

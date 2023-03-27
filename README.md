@@ -7,7 +7,6 @@ A Java log engine implementing the [ELF4J](https://github.com/elf4j/elf4j) (Easy
 Naturally, this engine is packaged by [elf4j-provider](https://github.com/elf4j/elf4j-provider) via the
 Java [Service Provider Framework](https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html) mechanism to
 make a complete and native logging _service provider_ of the [ELF4J](https://github.com/elf4j/) logging facade.
-
 See [elf4j-provider](https://github.com/elf4j/elf4j-provider) for the engine's features and usage descriptions.
 
 Meanwhile, this is also a stand-alone log engine, designed to be adaptable for servicing other Java logging APIs. For
