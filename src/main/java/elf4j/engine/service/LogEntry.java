@@ -73,7 +73,7 @@ public class LogEntry {
         return resolved;
     }
 
-    private static Object supply(Object o) {
+    private static @Nullable Object supply(@Nullable Object o) {
         return o instanceof Supplier<?> ? ((Supplier<?>) o).get() : o;
     }
 

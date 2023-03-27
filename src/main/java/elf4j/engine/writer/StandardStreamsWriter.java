@@ -99,20 +99,20 @@ public class StandardStreamsWriter implements LogWriter {
         if (logEntry.getNativeLogger().getLevel().compareTo(this.minimumLevel) < 0) {
             return;
         }
-        StringBuilder logTextBuilder = new StringBuilder();
-        logPattern.render(logEntry, logTextBuilder);
+        StringBuilder target = new StringBuilder();
+        logPattern.render(logEntry, target);
         switch (this.outStreamType) {
             case STDOUT:
-                BufferedStandardOutputStream.flushOut(logTextBuilder);
+                BufferedStandardOutputStream.flushOut(target);
                 return;
             case STDERR:
-                BufferedStandardOutputStream.flushErr(logTextBuilder);
+                BufferedStandardOutputStream.flushErr(target);
                 return;
             case AUTO:
                 if (logEntry.getNativeLogger().getLevel().compareTo(Level.WARN) < 0) {
-                    BufferedStandardOutputStream.flushOut(logTextBuilder);
+                    BufferedStandardOutputStream.flushOut(target);
                 } else {
-                    BufferedStandardOutputStream.flushErr(logTextBuilder);
+                    BufferedStandardOutputStream.flushErr(target);
                 }
                 return;
             default:

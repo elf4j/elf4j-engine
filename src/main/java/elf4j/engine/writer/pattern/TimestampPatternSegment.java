@@ -72,7 +72,7 @@ public class TimestampPatternSegment implements LogPattern {
     }
 
     @Override
-    public void render(@NonNull LogEntry logEntry, @NonNull StringBuilder logTextBuilder) {
-        logTextBuilder.append(dateTimeFormatter.format(logEntry.getTimestamp()));
+    public void render(@NonNull LogEntry logEntry, @NonNull StringBuilder target) {
+        target.append(dateTimeFormatter.format(logEntry.getTimestamp()));
     }
 }

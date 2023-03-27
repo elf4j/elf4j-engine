@@ -64,22 +64,22 @@ public class ClassPatternSegment implements LogPattern {
     }
 
     @Override
-    public void render(@NonNull LogEntry logEntry, StringBuilder logTextBuilder) {
+    public void render(@NonNull LogEntry logEntry, StringBuilder target) {
         String fullName = logEntry.getCallerClassName();
         switch (classDisplayOption) {
             case FULL:
-                logTextBuilder.append(fullName);
+                target.append(fullName);
                 return;
             case SIMPLE:
-                logTextBuilder.append(fullName.substring(fullName.lastIndexOf('.') + 1));
+                target.append(fullName.substring(fullName.lastIndexOf('.') + 1));
                 return;
             case COMPRESSED: {
                 String[] tokens = fullName.split("\\.");
                 String simpleName = tokens[tokens.length - 1];
                 for (int i = 0; i < tokens.length - 1; i++) {
-                    logTextBuilder.append(tokens[i].charAt(0)).append('.');
+                    target.append(tokens[i].charAt(0)).append('.');
                 }
-                logTextBuilder.append(simpleName);
+                target.append(simpleName);
                 return;
             }
             default:
