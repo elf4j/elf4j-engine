@@ -14,6 +14,8 @@ in [slf4j-elf4j](https://github.com/elf4j/slf4j-elf4j); or for the Java Platform
 Logging ([JPL](https://openjdk.org/jeps/264)) API introduced since Java 9, as
 in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
 
-## Features and Configurations
+## Features and Configuration
 
-See [elf4j-provider](https://github.com/elf4j/elf4j-provider) for descriptions.
+See [elf4j-provider](https://github.com/elf4j/elf4j-provider)
+for [features](https://github.com/elf4j/elf4j-provider#features)
+and [configuration](https://github.com/elf4j/elf4j-provider#configuration).
