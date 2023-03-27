@@ -41,7 +41,6 @@ import java.util.function.Supplier;
  */
 @Value
 @Builder
-@EqualsAndHashCode
 public class LogEntry {
     private static final int ADDITIONAL_STRING_BUILDER_CAPACITY = 32;
     @NonNull NativeLogger nativeLogger;
