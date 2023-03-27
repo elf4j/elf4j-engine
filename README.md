@@ -16,8 +16,10 @@ in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
 
 ## Features and Configuration
 
-See [ELF4J](https://github.com/elf4j/elf4j#logging-service-interface-and-access-api) for general
-API [sample usage](https://github.com/elf4j/elf4j#use-it---for-logging-service-api-clients),
-and [elf4j-provider](https://github.com/elf4j/elf4j-provider) for this log
-engine implementation's [features](https://github.com/elf4j/elf4j-provider#features)
+For using ELF4J as a logging facade API, see
+ELF4J's [API description](https://github.com/elf4j/elf4j#logging-service-interface-and-access-api)
+and [sample usage](https://github.com/elf4j/elf4j#use-it---for-logging-service-api-clients).
+
+For more details of using this as the runtime log engine, see [elf4j-provider](https://github.com/elf4j/elf4j-provider)
+on [features](https://github.com/elf4j/elf4j-provider#features)
 and [configuration](https://github.com/elf4j/elf4j-provider#configuration).
