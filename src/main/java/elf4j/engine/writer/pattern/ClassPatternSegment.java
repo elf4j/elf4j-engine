@@ -54,9 +54,14 @@ public class ClassPatternSegment implements LogPattern {
                 .orElse(DEFAULT_DISPLAY_OPTION));
     }
 
+    /**
+     * @return <code>false</code> assuming the logger's owner class is the same as the caller class. Therefore, unlike
+     *         the {@link MethodPatternSegment}, it does not take a stack trace walk to locate the caller class - the
+     *         owner class is taken instead.
+     */
     @Override
     public boolean includeCallerDetail() {
-        return true;
+        return false;
     }
 
     @Override

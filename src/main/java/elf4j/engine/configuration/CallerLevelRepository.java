@@ -81,9 +81,11 @@ public class CallerLevelRepository {
     }
 
     /**
+     * Assuming the owner and caller class of the specified logger is the same
+     *
      * @param nativeLogger
      *         to search for configured minimum output level
-     * @return configured min output level for the specified logger's caller class, or the default level if not
+     * @return configured min output level for the specified logger's caller/owner class, or the default level if not
      *         configured
      */
     public Level getMinimumOutputLevel(NativeLogger nativeLogger) {
