@@ -56,11 +56,11 @@ public class NativeLogger implements Logger {
      * Name of this logger's "owner class" - the logging service client class that first requested for this logger
      * instance via the {@link Logger#instance()} service access method. The owner class is usually the same as the
      * "caller class" - the client class that calls the service interface methods such as {@link Logger#log(Object)}.
-     * <p></p>
+     * <p>
      * In rare and not-recommended scenarios, the owner class can be different from the caller class: e.g. the owner
      * class could pass a reference of this logger instance out to a different/caller class. Once set, though, the value
      * of this field will never change even when the owner class is different from the caller class.
-     * <p></p>
+     * <p>
      * To reduce the runtime frequency of having to walk the call stack in order to locate the caller class, this native
      * ELF4J implementation assumes the owner and caller class to be one and the same. Thus walking the calling stack
      * trace is needed only when more caller details (e.g. method name, file name, line number) than just the caller
