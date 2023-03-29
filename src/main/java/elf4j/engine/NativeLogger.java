@@ -61,10 +61,10 @@ public class NativeLogger implements Logger {
      * class could pass a reference of this logger instance out to a different/caller class. Once set, though, the value
      * of this field will never change even when the owner class is different from the caller class.
      * <p>
-     * To reduce the runtime frequency of having to walk the call stack in order to locate the caller class, this native
-     * ELF4J implementation assumes the owner and caller class to be one and the same. Thus walking the calling stack
-     * trace is needed only when more caller details (e.g. method name, file name, line number) than just the caller
-     * class name are required by the output configuration.
+     * To reduce the runtime frequency of walking the call stack in order to locate the caller class, this native ELF4J
+     * implementation assumes the owner and caller class to be one and the same. Thus walking the calling stack trace is
+     * needed only when more caller details (e.g. method name, file name, line number) than just the caller class name
+     * are required by the output configuration.
      */
     @NonNull String ownerClassName;
     @NonNull Level level;
