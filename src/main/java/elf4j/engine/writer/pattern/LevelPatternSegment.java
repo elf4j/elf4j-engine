@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
  */
 @Value
 public class LevelPatternSegment implements LogPattern {
-    private static final int DISPLAY_LENGTH_UNSET = -1;
+    private static final int UNSPECIFIED = -1;
     int displayLength;
 
     private LevelPatternSegment(int displayLength) {
@@ -55,7 +55,7 @@ public class LevelPatternSegment implements LogPattern {
         }
         return new LevelPatternSegment(PatternSegmentType.getPatternSegmentOption(patternSegment)
                 .map(Integer::parseInt)
-                .orElse(DISPLAY_LENGTH_UNSET));
+                .orElse(UNSPECIFIED));
     }
 
     @Override
@@ -71,7 +71,7 @@ public class LevelPatternSegment implements LogPattern {
     @Override
     public void render(@NonNull LogEntry logEntry, StringBuilder target) {
         String level = logEntry.getNativeLogger().getLevel().name();
-        if (displayLength == DISPLAY_LENGTH_UNSET) {
+        if (displayLength == UNSPECIFIED) {
             target.append(level);
             return;
         }
