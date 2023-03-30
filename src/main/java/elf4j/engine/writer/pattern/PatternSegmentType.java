@@ -178,15 +178,15 @@ enum PatternSegmentType {
         final int length = pattern.length();
         int i = 0;
         while (i < length) {
-            int j;
             String segment;
+            int j;
             if (pattern.charAt(i) == '{') {
                 j = pattern.indexOf('}', i);
                 if (j != -1) {
                     segment = pattern.substring(i + 1, j);
                     i = j + 1;
                 } else {
-                    segment = pattern.substring(i, length);
+                    segment = pattern.substring(i);
                     i = length;
                 }
             } else {
@@ -195,7 +195,7 @@ enum PatternSegmentType {
                     segment = pattern.substring(i, j);
                     i = j;
                 } else {
-                    segment = pattern.substring(i, length);
+                    segment = pattern.substring(i);
                     i = length;
                 }
             }
