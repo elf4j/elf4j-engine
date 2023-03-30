@@ -30,36 +30,32 @@ import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 /**
  *
  */
 @Value
-public class TimestampPatternSegment implements LogPattern {
-    private static final DateTimeFormatter DEFAULT_TIMESTAMP_FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-    private static final ZoneId DEFAULT_TIMESTAMP_ZONE = ZoneId.systemDefault();
-    DateTimeFormatter dateTimeFormatter;
+public class LevelPattern implements LogPattern {
+    private static final int UNSPECIFIED = -1;
+    int displayLength;
+
+    private LevelPattern(int displayLength) {
+        this.displayLength = displayLength;
+    }
 
     /**
      * @param patternSegment
-     *         text pattern segment to convert
-     * @return converted pattern segment object
+     *         to convert
+     * @return converted patternSegment object
      */
     @Nonnull
-    public static TimestampPatternSegment from(@NonNull String patternSegment) {
-        if (!PatternSegmentType.TIMESTAMP.isTargetTypeOf(patternSegment)) {
+    public static LevelPattern from(@NonNull String patternSegment) {
+        if (!PatternType.LEVEL.isTargetTypeOf(patternSegment)) {
             throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
-        DateTimeFormatter dateTimeFormatter = PatternSegmentType.getPatternSegmentOption(patternSegment)
-                .map(DateTimeFormatter::ofPattern)
-                .orElse(DEFAULT_TIMESTAMP_FORMATTER);
-        if (dateTimeFormatter.getZone() == null) {
-            dateTimeFormatter = dateTimeFormatter.withZone(DEFAULT_TIMESTAMP_ZONE);
-        }
-        return new TimestampPatternSegment(dateTimeFormatter);
+        return new LevelPattern(PatternType.getPatternSegmentOption(patternSegment)
+                .map(Integer::parseInt)
+                .orElse(UNSPECIFIED));
     }
 
     @Override
@@ -73,7 +69,15 @@ public class TimestampPatternSegment implements LogPattern {
     }
 
     @Override
-    public void renderTo(@NonNull LogEntry logEntry, @NonNull StringBuilder target) {
-        dateTimeFormatter.formatTo(logEntry.getTimestamp(), target);
+    public void renderTo(@NonNull LogEntry logEntry, StringBuilder target) {
+        String level = logEntry.getNativeLogger().getLevel().name();
+        if (displayLength == UNSPECIFIED) {
+            target.append(level);
+            return;
+        }
+        char[] levelChars = level.toCharArray();
+        for (int i = 0; i < displayLength; i++) {
+            target.append(i < levelChars.length ? levelChars[i] : ' ');
+        }
     }
 }

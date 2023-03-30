@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  */
 @Value
 @Builder
-public class JsonPatternSegment implements LogPattern {
+public class JsonPattern implements LogPattern {
     private static final String CALLER_DETAIL = "caller-detail";
     private static final String CALLER_THREAD = "caller-thread";
     private static final String PRETTY = "pretty";
@@ -61,24 +61,20 @@ public class JsonPatternSegment implements LogPattern {
      *         to convert
      * @return converted patternSegment object
      */
-    public static JsonPatternSegment from(@NonNull String patternSegment) {
-        if (!PatternSegmentType.JSON.isTargetTypeOf(patternSegment)) {
+    public static JsonPattern from(@NonNull String patternSegment) {
+        if (!PatternType.JSON.isTargetTypeOf(patternSegment)) {
             throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
-        Optional<String> patternOption = PatternSegmentType.getPatternSegmentOption(patternSegment);
+        Optional<String> patternOption = PatternType.getPatternSegmentOption(patternSegment);
         if (!patternOption.isPresent()) {
-            return JsonPatternSegment.builder()
-                    .includeCallerThread(false)
-                    .includeCallerDetail(false)
-                    .gson(new Gson())
-                    .build();
+            return JsonPattern.builder().includeCallerThread(false).includeCallerDetail(false).gson(new Gson()).build();
         }
         Set<String> options =
                 Arrays.stream(patternOption.get().split(",")).map(String::trim).collect(Collectors.toSet());
         if (!DISPLAY_OPTIONS.containsAll(options)) {
             throw new IllegalArgumentException("Invalid JSON display option inside: " + options);
         }
-        return JsonPatternSegment.builder()
+        return JsonPattern.builder()
                 .includeCallerThread(options.contains(CALLER_THREAD))
                 .includeCallerDetail(options.contains(CALLER_DETAIL))
                 .gson(options.contains(PRETTY) ? new GsonBuilder().setPrettyPrinting().create() : new Gson())
@@ -113,15 +109,15 @@ public class JsonPatternSegment implements LogPattern {
         CharSequence message;
         CharSequence exception;
 
-        static JsonLogEntry from(@NonNull LogEntry logEntry, @NonNull JsonPatternSegment jsonPatternSegment) {
+        static JsonLogEntry from(@NonNull LogEntry logEntry, @NonNull JsonPattern jsonPattern) {
             StringBuilder timestamp = new StringBuilder(35);
             DATE_TIME_FORMATTER.formatTo(logEntry.getTimestamp(), timestamp);
             return JsonLogEntry.builder()
                     .timestamp(timestamp)
-                    .callerClass(jsonPatternSegment.includeCallerDetail ? null : logEntry.getCallerClassName())
+                    .callerClass(jsonPattern.includeCallerDetail ? null : logEntry.getCallerClassName())
                     .level(logEntry.getNativeLogger().getLevel().name())
-                    .callerThread(jsonPatternSegment.includeCallerThread ? logEntry.getCallerThread() : null)
-                    .callerDetail(jsonPatternSegment.includeCallerDetail ? logEntry.getCallerFrame() : null)
+                    .callerThread(jsonPattern.includeCallerThread ? logEntry.getCallerThread() : null)
+                    .callerDetail(jsonPattern.includeCallerDetail ? logEntry.getCallerFrame() : null)
                     .message(logEntry.getResolvedMessage())
                     .exception(logEntry.getException() == null ? null :
                             StackTraceUtils.getTraceAsBuffer(logEntry.getException()))

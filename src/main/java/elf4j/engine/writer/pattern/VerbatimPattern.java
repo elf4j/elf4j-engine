@@ -26,7 +26,6 @@
 package elf4j.engine.writer.pattern;
 
 import elf4j.engine.service.LogEntry;
-import elf4j.engine.util.StackTraceUtils;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -36,18 +35,23 @@ import javax.annotation.Nonnull;
  *
  */
 @Value
-public class MessageAndExceptionPatternSegment implements LogPattern {
+public class VerbatimPattern implements LogPattern {
+    @NonNull String text;
+
     /**
      * @param patternSegment
-     *         text segment to convert
-     * @return converted patternSegment object
+     *         text pattern segment to convert
+     * @return converted pattern segment object
      */
     @Nonnull
-    public static MessageAndExceptionPatternSegment from(String patternSegment) {
-        if (!PatternSegmentType.MESSAGE.isTargetTypeOf(patternSegment)) {
-            throw new IllegalArgumentException("patternSegment text: " + patternSegment);
+    public static VerbatimPattern from(String patternSegment) {
+        if (!PatternType.VERBATIM.isTargetTypeOf(patternSegment)) {
+            throw new IllegalArgumentException(String.format(
+                    "patternSegment '%s' looks to be targeted at another known patternSegment type than %s",
+                    patternSegment,
+                    PatternType.VERBATIM));
         }
-        return new MessageAndExceptionPatternSegment();
+        return new VerbatimPattern(patternSegment);
     }
 
     @Override
@@ -61,12 +65,7 @@ public class MessageAndExceptionPatternSegment implements LogPattern {
     }
 
     @Override
-    public void renderTo(@NonNull LogEntry logEntry, @NonNull StringBuilder target) {
-        target.append(logEntry.getResolvedMessage());
-        Throwable t = logEntry.getException();
-        if (t == null) {
-            return;
-        }
-        target.append(System.lineSeparator()).append(StackTraceUtils.getTraceAsBuffer(t));
+    public void renderTo(LogEntry logEntry, @NonNull StringBuilder target) {
+        target.append(text);
     }
 }

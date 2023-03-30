@@ -26,38 +26,42 @@
 package elf4j.engine.writer.pattern;
 
 import elf4j.engine.service.LogEntry;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import lombok.NonNull;
+import lombok.Value;
 
-import java.util.Arrays;
+import javax.annotation.Nonnull;
+import java.util.Objects;
 
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.inOrder;
-
-@ExtendWith(MockitoExtension.class)
-class PatternSegmentGroupTest {
-    @Nested
-    class render {
-        @Mock LogPattern mockPattern;
-        @Mock LogPattern mockPattern2;
-        @Mock LogEntry stubLogEntry;
-
-        PatternSegmentGroup patternSegmentGroupEntry;
-
-        @Test
-        void dispatchAll() {
-            patternSegmentGroupEntry = new PatternSegmentGroup(Arrays.asList(mockPattern2, mockPattern));
-            StringBuilder stringBuilder = new StringBuilder();
-
-            patternSegmentGroupEntry.renderTo(stubLogEntry, stringBuilder);
-
-            InOrder inOrder = inOrder(mockPattern, mockPattern2);
-            then(mockPattern2).should(inOrder).renderTo(stubLogEntry, stringBuilder);
-            then(mockPattern).should(inOrder).renderTo(stubLogEntry, stringBuilder);
+/**
+ *
+ */
+@Value
+public class LineNumberPattern implements LogPattern {
+    /**
+     * @param patternSegment
+     *         text segment to convert
+     * @return converted patternSegment object
+     */
+    @Nonnull
+    public static LineNumberPattern from(String patternSegment) {
+        if (!PatternType.LINENUMBER.isTargetTypeOf(patternSegment)) {
+            throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
+        return new LineNumberPattern();
+    }
+
+    @Override
+    public boolean includeCallerDetail() {
+        return true;
+    }
+
+    @Override
+    public boolean includeCallerThread() {
+        return false;
+    }
+
+    @Override
+    public void renderTo(@NonNull LogEntry logEntry, @NonNull StringBuilder target) {
+        target.append(Objects.requireNonNull(logEntry.getCallerFrame()).getLineNumber());
     }
 }

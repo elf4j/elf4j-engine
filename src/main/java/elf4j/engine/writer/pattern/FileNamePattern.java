@@ -36,41 +36,32 @@ import java.util.Objects;
  *
  */
 @Value
-public class ThreadPatternSegment implements LogPattern {
-    @NonNull ThreadPatternSegment.DisplayOption threadDisplayOption;
-
+public class FileNamePattern implements LogPattern {
     /**
      * @param patternSegment
-     *         text pattern segment to convert
-     * @return the thread pattern segment converted from the specified text
+     *         text segment to convert
+     * @return converted patternSegment object
      */
     @Nonnull
-    public static ThreadPatternSegment from(@NonNull String patternSegment) {
-        if (!PatternSegmentType.THREAD.isTargetTypeOf(patternSegment)) {
+    public static FileNamePattern from(String patternSegment) {
+        if (!PatternType.FILENAME.isTargetTypeOf(patternSegment)) {
             throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
-        return new ThreadPatternSegment(PatternSegmentType.getPatternSegmentOption(patternSegment)
-                .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
-                .orElse(DisplayOption.NAME));
+        return new FileNamePattern();
     }
 
     @Override
     public boolean includeCallerDetail() {
-        return false;
-    }
-
-    @Override
-    public boolean includeCallerThread() {
         return true;
     }
 
     @Override
-    public void renderTo(@NonNull LogEntry logEntry, @NonNull StringBuilder target) {
-        LogEntry.ThreadInformation callerThread = Objects.requireNonNull(logEntry.getCallerThread());
-        target.append(threadDisplayOption == DisplayOption.ID ? callerThread.getId() : callerThread.getName());
+    public boolean includeCallerThread() {
+        return false;
     }
 
-    enum DisplayOption {
-        ID, NAME
+    @Override
+    public void renderTo(@NonNull LogEntry logEntry, @NonNull StringBuilder target) {
+        target.append(Objects.requireNonNull(logEntry.getCallerFrame()).getFileName());
     }
 }

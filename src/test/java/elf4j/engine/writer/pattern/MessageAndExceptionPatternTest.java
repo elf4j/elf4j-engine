@@ -36,14 +36,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
-class JsonPatternSegmentTest {
+class MessageAndExceptionPatternTest {
     @Mock LogService stubLogService;
     LogEntry mockLogEntry;
     String mockMessage = "testLogMessage {}";
+    Object[] mockArgs = new Object[] { "testArg1" };
+    Exception mockException = new Exception("testExceptionMessage");
 
     @BeforeEach
     void beforeEach() {
@@ -54,65 +56,37 @@ class JsonPatternSegmentTest {
                         .id(Thread.currentThread().getId())
                         .build())
                 .callerFrame(LogEntry.StackTraceFrame.builder()
-                        .className(JsonPatternSegment.class.getName())
+                        .className(JsonPattern.class.getName())
                         .methodName("testMethod")
                         .lineNumber(42)
                         .fileName("testFileName")
                         .build())
                 .message(mockMessage)
-                .arguments(new Object[] { "testArg1" })
-                .exception(new Exception("testExceptionMessage"))
+                .arguments(mockArgs)
+                .exception(mockException)
                 .build();
     }
 
     @Nested
     class from {
         @Test
-        void noPatternOptionDefaults() {
-            JsonPatternSegment jsonPatternSegment = JsonPatternSegment.from("json");
-
-            assertFalse(jsonPatternSegment.includeCallerThread());
-            assertFalse(jsonPatternSegment.includeCallerDetail());
-        }
-
-        @Test
-        void includeCallerOption() {
-            JsonPatternSegment jsonPatternSegment = JsonPatternSegment.from("json:caller-detail");
-
-            assertFalse(jsonPatternSegment.includeCallerThread());
-            assertTrue(jsonPatternSegment.includeCallerDetail());
-        }
-
-        @Test
-        void includeThreadOption() {
-            JsonPatternSegment jsonPatternSegment = JsonPatternSegment.from("json:caller-thread");
-
-            assertTrue(jsonPatternSegment.includeCallerThread());
-            assertFalse(jsonPatternSegment.includeCallerDetail());
-        }
-
-        @Test
-        void includeCallerAndThreadOptions() {
-            JsonPatternSegment jsonPatternSegment = JsonPatternSegment.from("json:caller-thread,caller-detail");
-
-            assertTrue(jsonPatternSegment.includeCallerThread());
-            assertTrue(jsonPatternSegment.includeCallerDetail());
+        void errorOnInvalidPatternText() {
+            assertThrows(IllegalArgumentException.class, () -> MessageAndExceptionPattern.from("badPatternText"));
         }
     }
 
     @Nested
     class render {
-        JsonPatternSegment jsonPatternSegment = JsonPatternSegment.from("json");
-
         @Test
-        void resolveMessage() {
-            StringBuilder layout = new StringBuilder();
+        void includeBothMessageAndException() {
+            MessageAndExceptionPattern messageAndExceptionPattern = MessageAndExceptionPattern.from("message");
+            StringBuilder logText = new StringBuilder();
 
-            jsonPatternSegment.renderTo(mockLogEntry, layout);
-            String rendered = layout.toString();
+            messageAndExceptionPattern.renderTo(mockLogEntry, logText);
+            String rendered = logText.toString();
 
-            assertFalse(rendered.contains("testLogMessage {}"));
             assertTrue(rendered.contains(mockLogEntry.getResolvedMessage()));
+            assertTrue(rendered.contains(mockException.getMessage()));
         }
     }
 }

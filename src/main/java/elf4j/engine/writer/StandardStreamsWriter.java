@@ -28,7 +28,7 @@ package elf4j.engine.writer;
 import elf4j.Level;
 import elf4j.engine.service.LogEntry;
 import elf4j.engine.writer.pattern.LogPattern;
-import elf4j.engine.writer.pattern.PatternSegmentGroup;
+import elf4j.engine.writer.pattern.PatternGroup;
 import lombok.NonNull;
 import lombok.ToString;
 
@@ -51,7 +51,7 @@ public class StandardStreamsWriter implements LogWriter {
     private final Level minimumLevel;
     private final OutStreamType outStreamType;
 
-    private StandardStreamsWriter(Level minimumLevel, PatternSegmentGroup logPattern, OutStreamType outStreamType) {
+    private StandardStreamsWriter(Level minimumLevel, PatternGroup logPattern, OutStreamType outStreamType) {
         this.logPattern = logPattern;
         this.minimumLevel = minimumLevel;
         this.outStreamType = outStreamType;
@@ -62,7 +62,7 @@ public class StandardStreamsWriter implements LogWriter {
      */
     public static @Nonnull StandardStreamsWriter defaultWriter() {
         return new StandardStreamsWriter(DEFAULT_MINIMUM_LEVEL,
-                PatternSegmentGroup.from(DEFAULT_PATTERN),
+                PatternGroup.from(DEFAULT_PATTERN),
                 DEFAULT_WRITER_OUT_STREAM);
     }
 
@@ -87,7 +87,7 @@ public class StandardStreamsWriter implements LogWriter {
             writerOutStreamType = DEFAULT_WRITER_OUT_STREAM.name();
         }
         return new StandardStreamsWriter(level == null ? DEFAULT_MINIMUM_LEVEL : Level.valueOf(level.toUpperCase()),
-                PatternSegmentGroup.from(pattern == null ? DEFAULT_PATTERN : pattern),
+                PatternGroup.from(pattern == null ? DEFAULT_PATTERN : pattern),
                 OutStreamType.valueOf(writerOutStreamType.trim().toUpperCase()));
     }
 

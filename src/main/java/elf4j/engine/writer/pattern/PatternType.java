@@ -35,19 +35,19 @@ import java.util.Optional;
 /**
  *
  */
-enum PatternSegmentType {
+enum PatternType {
     /**
      *
      */
     TIMESTAMP {
         @Override
         LogPattern translate(String patternSegment) {
-            return TimestampPatternSegment.from(patternSegment);
+            return TimestampPattern.from(patternSegment);
         }
 
         @Override
         public boolean isTargetTypeOf(String patternSegment) {
-            return isPatternSegmentOfType(this, patternSegment);
+            return isPatternOfType(this, patternSegment);
         }
     },
     /**
@@ -56,12 +56,12 @@ enum PatternSegmentType {
     LEVEL {
         @Override
         public boolean isTargetTypeOf(String patternSegment) {
-            return isPatternSegmentOfType(this, patternSegment);
+            return isPatternOfType(this, patternSegment);
         }
 
         @Override
         LogPattern translate(String patternSegment) {
-            return LevelPatternSegment.from(patternSegment);
+            return LevelPattern.from(patternSegment);
         }
     },
     /**
@@ -70,12 +70,12 @@ enum PatternSegmentType {
     THREAD {
         @Override
         public boolean isTargetTypeOf(String patternSegment) {
-            return isPatternSegmentOfType(this, patternSegment);
+            return isPatternOfType(this, patternSegment);
         }
 
         @Override
         LogPattern translate(String patternSegment) {
-            return ThreadPatternSegment.from(patternSegment);
+            return ThreadPattern.from(patternSegment);
         }
     },
     /**
@@ -84,12 +84,12 @@ enum PatternSegmentType {
     CLASS {
         @Override
         boolean isTargetTypeOf(String patternSegment) {
-            return isPatternSegmentOfType(this, patternSegment);
+            return isPatternOfType(this, patternSegment);
         }
 
         @Override
         LogPattern translate(String patternSegment) {
-            return ClassPatternSegment.from(patternSegment);
+            return ClassPattern.from(patternSegment);
         }
     },
     /**
@@ -98,32 +98,32 @@ enum PatternSegmentType {
     METHOD {
         @Override
         boolean isTargetTypeOf(String patternSegment) {
-            return isPatternSegmentOfType(this, patternSegment);
+            return isPatternOfType(this, patternSegment);
         }
 
         @Override
         LogPattern translate(String patternSegment) {
-            return MethodPatternSegment.from(patternSegment);
+            return MethodPattern.from(patternSegment);
         }
     }, FILENAME {
         @Override
         boolean isTargetTypeOf(String patternSegment) {
-            return isPatternSegmentOfType(this, patternSegment);
+            return isPatternOfType(this, patternSegment);
         }
 
         @Override
         LogPattern translate(String patternSegment) {
-            return FileNamePatternSegment.from(patternSegment);
+            return FileNamePattern.from(patternSegment);
         }
     }, LINENUMBER {
         @Override
         boolean isTargetTypeOf(String patternSegment) {
-            return isPatternSegmentOfType(this, patternSegment);
+            return isPatternOfType(this, patternSegment);
         }
 
         @Override
         LogPattern translate(String patternSegment) {
-            return LineNumberPatternSegment.from(patternSegment);
+            return LineNumberPattern.from(patternSegment);
         }
     },
 
@@ -133,12 +133,12 @@ enum PatternSegmentType {
     MESSAGE {
         @Override
         boolean isTargetTypeOf(String patternSegment) {
-            return isPatternSegmentOfType(this, patternSegment);
+            return isPatternOfType(this, patternSegment);
         }
 
         @Override
         LogPattern translate(String patternSegment) {
-            return MessageAndExceptionPatternSegment.from(patternSegment);
+            return MessageAndExceptionPattern.from(patternSegment);
         }
     },
     /**
@@ -147,12 +147,12 @@ enum PatternSegmentType {
     JSON {
         @Override
         boolean isTargetTypeOf(String patternSegment) {
-            return isPatternSegmentOfType(this, patternSegment);
+            return isPatternOfType(this, patternSegment);
         }
 
         @Override
         LogPattern translate(String patternSegment) {
-            return JsonPatternSegment.from(patternSegment);
+            return JsonPattern.from(patternSegment);
         }
     },
     /**
@@ -161,17 +161,16 @@ enum PatternSegmentType {
     VERBATIM {
         @Override
         boolean isTargetTypeOf(String patternSegment) {
-            return isPatternSegmentOfType(this, patternSegment);
+            return isPatternOfType(this, patternSegment);
         }
 
         @Override
         LogPattern translate(String patternSegment) {
-            return VerbatimPatternSegment.from(patternSegment);
+            return VerbatimPattern.from(patternSegment);
         }
     };
-    private static final EnumSet<PatternSegmentType> PATTERN_SEGMENT_TYPES = EnumSet.allOf(PatternSegmentType.class);
-    private static final EnumSet<PatternSegmentType> PREDEFINED_PATTERN_SEGMENT_TYPES =
-            EnumSet.complementOf(EnumSet.of(VERBATIM));
+    private static final EnumSet<PatternType> PATTERN_TYPES = EnumSet.allOf(PatternType.class);
+    private static final EnumSet<PatternType> PREDEFINED_PATTERN_TYPES = EnumSet.complementOf(EnumSet.of(VERBATIM));
 
     /**
      * @param patternSegment
@@ -225,15 +224,15 @@ enum PatternSegmentType {
         return logPatterns;
     }
 
-    private static boolean isPatternSegmentOfType(PatternSegmentType patternSegmentType, String patternSegment) {
-        if (patternSegmentType == VERBATIM) {
-            return PREDEFINED_PATTERN_SEGMENT_TYPES.stream().noneMatch(type -> type.isTargetTypeOf(patternSegment));
+    private static boolean isPatternOfType(PatternType patternType, String patternSegment) {
+        if (patternType == VERBATIM) {
+            return PREDEFINED_PATTERN_TYPES.stream().noneMatch(type -> type.isTargetTypeOf(patternSegment));
         }
-        return patternSegmentType.name().equalsIgnoreCase(patternSegment.split(":", 2)[0].trim());
+        return patternType.name().equalsIgnoreCase(patternSegment.split(":", 2)[0].trim());
     }
 
     private static LogPattern parsePatternSegment(String patternSegment) {
-        return PATTERN_SEGMENT_TYPES.stream()
+        return PATTERN_TYPES.stream()
                 .filter(type -> type.isTargetTypeOf(patternSegment))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(

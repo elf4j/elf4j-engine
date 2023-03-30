@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
  *
  */
 @Value
-public class ClassPatternSegment implements LogPattern {
+public class ClassPattern implements LogPattern {
     private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.FULL;
     @NonNull DisplayOption classDisplayOption;
 
@@ -45,19 +45,19 @@ public class ClassPatternSegment implements LogPattern {
      * @return converted patternSegment object
      */
     @Nonnull
-    public static ClassPatternSegment from(@NonNull String patternSegment) {
-        if (!PatternSegmentType.CLASS.isTargetTypeOf(patternSegment)) {
+    public static ClassPattern from(@NonNull String patternSegment) {
+        if (!PatternType.CLASS.isTargetTypeOf(patternSegment)) {
             throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
-        return new ClassPatternSegment(PatternSegmentType.getPatternSegmentOption(patternSegment)
+        return new ClassPattern(PatternType.getPatternSegmentOption(patternSegment)
                 .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
                 .orElse(DEFAULT_DISPLAY_OPTION));
     }
 
     /**
      * @return <code>false</code> assuming the logger's owner class is the same as the caller class. Therefore, unlike
-     *         the {@link MethodPatternSegment}, it does not take a stack trace walk to locate the caller class - the
-     *         owner class is taken instead.
+     *         the {@link MethodPattern}, it does not take a stack trace walk to locate the caller class - the owner
+     *         class is taken instead.
      */
     @Override
     public boolean includeCallerDetail() {

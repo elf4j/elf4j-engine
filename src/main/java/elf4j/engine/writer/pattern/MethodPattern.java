@@ -30,37 +30,29 @@ import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 /**
  *
  */
 @Value
-public class LevelPatternSegment implements LogPattern {
-    private static final int UNSPECIFIED = -1;
-    int displayLength;
-
-    private LevelPatternSegment(int displayLength) {
-        this.displayLength = displayLength;
-    }
-
+public class MethodPattern implements LogPattern {
     /**
      * @param patternSegment
-     *         to convert
+     *         text segment to convert
      * @return converted patternSegment object
      */
     @Nonnull
-    public static LevelPatternSegment from(@NonNull String patternSegment) {
-        if (!PatternSegmentType.LEVEL.isTargetTypeOf(patternSegment)) {
+    public static MethodPattern from(String patternSegment) {
+        if (!PatternType.METHOD.isTargetTypeOf(patternSegment)) {
             throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
-        return new LevelPatternSegment(PatternSegmentType.getPatternSegmentOption(patternSegment)
-                .map(Integer::parseInt)
-                .orElse(UNSPECIFIED));
+        return new MethodPattern();
     }
 
     @Override
     public boolean includeCallerDetail() {
-        return false;
+        return true;
     }
 
     @Override
@@ -69,15 +61,7 @@ public class LevelPatternSegment implements LogPattern {
     }
 
     @Override
-    public void renderTo(@NonNull LogEntry logEntry, StringBuilder target) {
-        String level = logEntry.getNativeLogger().getLevel().name();
-        if (displayLength == UNSPECIFIED) {
-            target.append(level);
-            return;
-        }
-        char[] levelChars = level.toCharArray();
-        for (int i = 0; i < displayLength; i++) {
-            target.append(i < levelChars.length ? levelChars[i] : ' ');
-        }
+    public void renderTo(@NonNull LogEntry logEntry, @NonNull StringBuilder target) {
+        target.append(Objects.requireNonNull(logEntry.getCallerFrame()).getMethodName());
     }
 }

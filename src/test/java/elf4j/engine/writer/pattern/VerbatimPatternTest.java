@@ -26,42 +26,30 @@
 package elf4j.engine.writer.pattern;
 
 import elf4j.engine.service.LogEntry;
-import lombok.NonNull;
-import lombok.Value;
+import org.junit.jupiter.api.Test;
 
-import javax.annotation.Nonnull;
-import java.util.Objects;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
-/**
- *
- */
-@Value
-public class MethodPatternSegment implements LogPattern {
-    /**
-     * @param patternSegment
-     *         text segment to convert
-     * @return converted patternSegment object
-     */
-    @Nonnull
-    public static MethodPatternSegment from(String patternSegment) {
-        if (!PatternSegmentType.METHOD.isTargetTypeOf(patternSegment)) {
-            throw new IllegalArgumentException("patternSegment: " + patternSegment);
-        }
-        return new MethodPatternSegment();
+class VerbatimPatternTest {
+
+    @Test
+    void appendPatternTextAsIs() {
+        LogEntry mockEntry = mock(LogEntry.class);
+        String verbatimTextToAppend = "text";
+        String inputLogText = "inputLogText";
+        StringBuilder logTextBuilder = new StringBuilder(inputLogText);
+
+        new VerbatimPattern(verbatimTextToAppend).renderTo(mockEntry, logTextBuilder);
+
+        verifyNoInteractions(mockEntry);
+        assertEquals(inputLogText + verbatimTextToAppend, logTextBuilder.toString());
     }
 
-    @Override
-    public boolean includeCallerDetail() {
-        return true;
-    }
-
-    @Override
-    public boolean includeCallerThread() {
-        return false;
-    }
-
-    @Override
-    public void renderTo(@NonNull LogEntry logEntry, @NonNull StringBuilder target) {
-        target.append(Objects.requireNonNull(logEntry.getCallerFrame()).getMethodName());
+    @Test
+    void errorOnPatternIntendedForAnotherLogPatternType() {
+        assertThrows(IllegalArgumentException.class, () -> VerbatimPattern.from("thread:name"));
     }
 }

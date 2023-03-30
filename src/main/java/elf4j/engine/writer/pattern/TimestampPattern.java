@@ -30,39 +30,50 @@ import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
-import java.util.List;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 /**
- * Composite of individual patterns forming the entire layout pattern
+ *
  */
 @Value
-public class PatternSegmentGroup implements LogPattern {
-    List<LogPattern> logPatternEntries;
+public class TimestampPattern implements LogPattern {
+    private static final DateTimeFormatter DEFAULT_TIMESTAMP_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+    private static final ZoneId DEFAULT_TIMESTAMP_ZONE = ZoneId.systemDefault();
+    DateTimeFormatter dateTimeFormatter;
 
     /**
-     * @param pattern
-     *         entire layout pattern text from configuration
-     * @return composite pattern object for the entire log entry's output layout
+     * @param patternSegment
+     *         text pattern segment to convert
+     * @return converted pattern segment object
      */
     @Nonnull
-    public static PatternSegmentGroup from(@NonNull String pattern) {
-        return new PatternSegmentGroup(PatternSegmentType.parsePatternSegments(pattern));
+    public static TimestampPattern from(@NonNull String patternSegment) {
+        if (!PatternType.TIMESTAMP.isTargetTypeOf(patternSegment)) {
+            throw new IllegalArgumentException("patternSegment: " + patternSegment);
+        }
+        DateTimeFormatter dateTimeFormatter = PatternType.getPatternSegmentOption(patternSegment)
+                .map(DateTimeFormatter::ofPattern)
+                .orElse(DEFAULT_TIMESTAMP_FORMATTER);
+        if (dateTimeFormatter.getZone() == null) {
+            dateTimeFormatter = dateTimeFormatter.withZone(DEFAULT_TIMESTAMP_ZONE);
+        }
+        return new TimestampPattern(dateTimeFormatter);
     }
 
     @Override
     public boolean includeCallerDetail() {
-        return logPatternEntries.stream().anyMatch(LogPattern::includeCallerDetail);
+        return false;
     }
 
     @Override
     public boolean includeCallerThread() {
-        return logPatternEntries.stream().anyMatch(LogPattern::includeCallerThread);
+        return false;
     }
 
     @Override
-    public void renderTo(LogEntry logEntry, StringBuilder target) {
-        for (LogPattern pattern : logPatternEntries) {
-            pattern.renderTo(logEntry, target);
-        }
+    public void renderTo(@NonNull LogEntry logEntry, @NonNull StringBuilder target) {
+        dateTimeFormatter.formatTo(logEntry.getTimestamp(), target);
     }
 }

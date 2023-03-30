@@ -30,42 +30,39 @@ import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
- *
+ * Composite of individual patterns forming the entire layout pattern
  */
 @Value
-public class VerbatimPatternSegment implements LogPattern {
-    @NonNull String text;
+public class PatternGroup implements LogPattern {
+    List<LogPattern> patterns;
 
     /**
-     * @param patternSegment
-     *         text pattern segment to convert
-     * @return converted pattern segment object
+     * @param pattern
+     *         entire layout pattern text from configuration
+     * @return composite pattern object for the entire log entry's output layout
      */
     @Nonnull
-    public static VerbatimPatternSegment from(String patternSegment) {
-        if (!PatternSegmentType.VERBATIM.isTargetTypeOf(patternSegment)) {
-            throw new IllegalArgumentException(String.format(
-                    "patternSegment '%s' looks to be targeted at another known patternSegment type than %s",
-                    patternSegment,
-                    PatternSegmentType.VERBATIM));
-        }
-        return new VerbatimPatternSegment(patternSegment);
+    public static PatternGroup from(@NonNull String pattern) {
+        return new PatternGroup(PatternType.parsePatternSegments(pattern));
     }
 
     @Override
     public boolean includeCallerDetail() {
-        return false;
+        return patterns.stream().anyMatch(LogPattern::includeCallerDetail);
     }
 
     @Override
     public boolean includeCallerThread() {
-        return false;
+        return patterns.stream().anyMatch(LogPattern::includeCallerThread);
     }
 
     @Override
-    public void renderTo(LogEntry logEntry, @NonNull StringBuilder target) {
-        target.append(text);
+    public void renderTo(LogEntry logEntry, StringBuilder target) {
+        for (LogPattern pattern : patterns) {
+            pattern.renderTo(logEntry, target);
+        }
     }
 }

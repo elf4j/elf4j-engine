@@ -26,33 +26,33 @@
 package elf4j.engine.writer.pattern;
 
 import elf4j.engine.service.LogEntry;
+import elf4j.engine.util.StackTraceUtils;
 import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
 /**
  *
  */
 @Value
-public class LineNumberPatternSegment implements LogPattern {
+public class MessageAndExceptionPattern implements LogPattern {
     /**
      * @param patternSegment
      *         text segment to convert
      * @return converted patternSegment object
      */
     @Nonnull
-    public static LineNumberPatternSegment from(String patternSegment) {
-        if (!PatternSegmentType.LINENUMBER.isTargetTypeOf(patternSegment)) {
-            throw new IllegalArgumentException("patternSegment: " + patternSegment);
+    public static MessageAndExceptionPattern from(String patternSegment) {
+        if (!PatternType.MESSAGE.isTargetTypeOf(patternSegment)) {
+            throw new IllegalArgumentException("patternSegment text: " + patternSegment);
         }
-        return new LineNumberPatternSegment();
+        return new MessageAndExceptionPattern();
     }
 
     @Override
     public boolean includeCallerDetail() {
-        return true;
+        return false;
     }
 
     @Override
@@ -62,6 +62,11 @@ public class LineNumberPatternSegment implements LogPattern {
 
     @Override
     public void renderTo(@NonNull LogEntry logEntry, @NonNull StringBuilder target) {
-        target.append(Objects.requireNonNull(logEntry.getCallerFrame()).getLineNumber());
+        target.append(logEntry.getResolvedMessage());
+        Throwable t = logEntry.getException();
+        if (t == null) {
+            return;
+        }
+        target.append(System.lineSeparator()).append(StackTraceUtils.getTraceAsBuffer(t));
     }
 }

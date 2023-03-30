@@ -26,30 +26,38 @@
 package elf4j.engine.writer.pattern;
 
 import elf4j.engine.service.LogEntry;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoInteractions;
+import java.util.Arrays;
 
-class VerbatimPatternSegmentTest {
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.inOrder;
 
-    @Test
-    void appendPatternTextAsIs() {
-        LogEntry mockEntry = mock(LogEntry.class);
-        String verbatimTextToAppend = "text";
-        String inputLogText = "inputLogText";
-        StringBuilder logTextBuilder = new StringBuilder(inputLogText);
+@ExtendWith(MockitoExtension.class)
+class PatternGroupTest {
+    @Nested
+    class render {
+        @Mock LogPattern mockPattern;
+        @Mock LogPattern mockPattern2;
+        @Mock LogEntry stubLogEntry;
 
-        new VerbatimPatternSegment(verbatimTextToAppend).renderTo(mockEntry, logTextBuilder);
+        PatternGroup patternGroupEntry;
 
-        verifyNoInteractions(mockEntry);
-        assertEquals(inputLogText + verbatimTextToAppend, logTextBuilder.toString());
-    }
+        @Test
+        void dispatchAll() {
+            patternGroupEntry = new PatternGroup(Arrays.asList(mockPattern2, mockPattern));
+            StringBuilder stringBuilder = new StringBuilder();
 
-    @Test
-    void errorOnPatternIntendedForAnotherLogPatternType() {
-        assertThrows(IllegalArgumentException.class, () -> VerbatimPatternSegment.from("thread:name"));
+            patternGroupEntry.renderTo(stubLogEntry, stringBuilder);
+
+            InOrder inOrder = inOrder(mockPattern, mockPattern2);
+            then(mockPattern2).should(inOrder).renderTo(stubLogEntry, stringBuilder);
+            then(mockPattern).should(inOrder).renderTo(stubLogEntry, stringBuilder);
+        }
     }
 }
