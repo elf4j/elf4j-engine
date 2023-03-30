@@ -39,6 +39,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Properties;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -63,7 +64,7 @@ class DefaultLogServiceConfigurationTest {
 
             defaultLoggingConfiguration.isEnabled(nativeLogger);
 
-            then(mockWriterRepository).should().getLogServiceWriter();
+            assertSame(stubLogWriter, mockWriterRepository.getLogServiceWriter());
             then(mockCallerLevelRepository).should().getMinimumOutputLevel(nativeLogger);
 
             defaultLoggingConfiguration.isEnabled(nativeLogger);

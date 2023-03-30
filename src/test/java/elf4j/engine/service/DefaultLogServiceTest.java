@@ -37,6 +37,8 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Objects;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -107,7 +109,8 @@ class DefaultLogServiceTest {
             logService.log(stubLogger, this.getClass(), null, null, null);
 
             then(mockLogWriter).should().write(captorLogEntry.capture());
-            assertEquals(Thread.currentThread().getName(), captorLogEntry.getValue().getCallerThread().getName());
+            assertEquals(Thread.currentThread().getName(),
+                    Objects.requireNonNull(captorLogEntry.getValue().getCallerThread()).getName());
             assertEquals(Thread.currentThread().getId(), captorLogEntry.getValue().getCallerThread().getId());
         }
 
