@@ -27,7 +27,6 @@ package elf4j.engine.service;
 
 import elf4j.engine.NativeLogger;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -37,14 +36,14 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- *
+ * Source content data to be rendered to a final log message
  */
 @Value
 @Builder
 public class LogEntry {
     private static final int ADDITIONAL_STRING_BUILDER_CAPACITY = 32;
     @NonNull NativeLogger nativeLogger;
-    @EqualsAndHashCode.Exclude Instant timestamp = Instant.now();
+    @NonNull Instant timestamp = Instant.now();
     @Nullable Object message;
     @Nullable Object[] arguments;
     @Nullable Throwable exception;
