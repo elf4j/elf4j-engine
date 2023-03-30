@@ -105,7 +105,28 @@ enum PatternSegmentType {
         LogPattern translate(String patternSegment) {
             return MethodPatternSegment.from(patternSegment);
         }
+    }, FILENAME {
+        @Override
+        boolean isTargetTypeOf(String patternSegment) {
+            return isPatternSegmentOfType(this, patternSegment);
+        }
+
+        @Override
+        LogPattern translate(String patternSegment) {
+            return FileNamePatternSegment.from(patternSegment);
+        }
+    }, LINENUMBER {
+        @Override
+        boolean isTargetTypeOf(String patternSegment) {
+            return isPatternSegmentOfType(this, patternSegment);
+        }
+
+        @Override
+        LogPattern translate(String patternSegment) {
+            return LineNumberPatternSegment.from(patternSegment);
+        }
     },
+
     /**
      *
      */
@@ -222,15 +243,15 @@ enum PatternSegmentType {
 
     /**
      * @param patternSegment
-     *         text to translate
-     * @return pattern segment object of the specified text
-     */
-    abstract LogPattern translate(String patternSegment);
-
-    /**
-     * @param patternSegment
      *         text configuration of an individual pattern segment
      * @return true if this pattern segment type is the target type of the specified pattern segment text
      */
     abstract boolean isTargetTypeOf(String patternSegment);
+
+    /**
+     * @param patternSegment
+     *         text to translate
+     * @return pattern segment object of the specified text
+     */
+    abstract LogPattern translate(String patternSegment);
 }
