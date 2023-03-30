@@ -62,9 +62,9 @@ public class NativeLogger implements Logger {
      * of this field will never change even when the owner class is different from the caller class.
      * <p>
      * To reduce the runtime frequency of walking the call stack in order to locate the caller class, this native ELF4J
-     * implementation assumes the owner and caller class to be one and the same. Thus walking the calling stack trace is
-     * needed only when more caller details (e.g. method name, file name, line number) than just the caller class name
-     * are required by the output configuration.
+     * implementation assumes the owner and caller class to be one and the same. Thus, for logging output that requires
+     * just the caller class name, this field will be used in liu of checking the stack trace; i.e. the stack trace
+     * walking is needed only when more caller details (e.g. method name, file name, line number) are required.
      */
     @NonNull String ownerClassName;
     @NonNull Level level;
