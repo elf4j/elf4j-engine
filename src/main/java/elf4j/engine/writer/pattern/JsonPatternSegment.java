@@ -96,7 +96,7 @@ public class JsonPatternSegment implements LogPattern {
     }
 
     @Override
-    public void render(LogEntry logEntry, StringBuilder target) {
+    public void renderTo(LogEntry logEntry, StringBuilder target) {
         gson.toJson(JsonLogEntry.from(logEntry, this), target);
     }
 

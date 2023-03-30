@@ -65,7 +65,7 @@ public class VerbatimPatternSegment implements LogPattern {
     }
 
     @Override
-    public void render(LogEntry logEntry, @NonNull StringBuilder target) {
+    public void renderTo(LogEntry logEntry, @NonNull StringBuilder target) {
         target.append(text);
     }
 }

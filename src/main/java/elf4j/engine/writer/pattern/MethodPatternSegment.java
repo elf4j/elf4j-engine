@@ -61,7 +61,7 @@ public class MethodPatternSegment implements LogPattern {
     }
 
     @Override
-    public void render(@NonNull LogEntry logEntry, @NonNull StringBuilder target) {
+    public void renderTo(@NonNull LogEntry logEntry, @NonNull StringBuilder target) {
         target.append(Objects.requireNonNull(logEntry.getCallerFrame()).getMethodName());
     }
 }

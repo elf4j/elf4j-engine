@@ -60,9 +60,9 @@ public class PatternSegmentGroup implements LogPattern {
     }
 
     @Override
-    public void render(LogEntry logEntry, StringBuilder target) {
+    public void renderTo(LogEntry logEntry, StringBuilder target) {
         for (LogPattern pattern : logPatternEntries) {
-            pattern.render(logEntry, target);
+            pattern.renderTo(logEntry, target);
         }
     }
 }

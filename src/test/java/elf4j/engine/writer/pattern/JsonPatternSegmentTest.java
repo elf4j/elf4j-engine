@@ -108,7 +108,7 @@ class JsonPatternSegmentTest {
         void resolveMessage() {
             StringBuilder layout = new StringBuilder();
 
-            jsonPatternSegment.render(mockLogEntry, layout);
+            jsonPatternSegment.renderTo(mockLogEntry, layout);
             String rendered = layout.toString();
 
             assertFalse(rendered.contains("testLogMessage {}"));

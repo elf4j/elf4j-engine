@@ -42,7 +42,7 @@ class VerbatimPatternSegmentTest {
         String inputLogText = "inputLogText";
         StringBuilder logTextBuilder = new StringBuilder(inputLogText);
 
-        new VerbatimPatternSegment(verbatimTextToAppend).render(mockEntry, logTextBuilder);
+        new VerbatimPatternSegment(verbatimTextToAppend).renderTo(mockEntry, logTextBuilder);
 
         verifyNoInteractions(mockEntry);
         assertEquals(inputLogText + verbatimTextToAppend, logTextBuilder.toString());

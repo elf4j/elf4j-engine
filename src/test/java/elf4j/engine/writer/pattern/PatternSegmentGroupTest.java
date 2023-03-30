@@ -53,11 +53,11 @@ class PatternSegmentGroupTest {
             patternSegmentGroupEntry = new PatternSegmentGroup(Arrays.asList(mockPattern2, mockPattern));
             StringBuilder stringBuilder = new StringBuilder();
 
-            patternSegmentGroupEntry.render(stubLogEntry, stringBuilder);
+            patternSegmentGroupEntry.renderTo(stubLogEntry, stringBuilder);
 
             InOrder inOrder = inOrder(mockPattern, mockPattern2);
-            then(mockPattern2).should(inOrder).render(stubLogEntry, stringBuilder);
-            then(mockPattern).should(inOrder).render(stubLogEntry, stringBuilder);
+            then(mockPattern2).should(inOrder).renderTo(stubLogEntry, stringBuilder);
+            then(mockPattern).should(inOrder).renderTo(stubLogEntry, stringBuilder);
         }
     }
 }

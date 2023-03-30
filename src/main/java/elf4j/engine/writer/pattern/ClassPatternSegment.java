@@ -70,7 +70,7 @@ public class ClassPatternSegment implements LogPattern {
     }
 
     @Override
-    public void render(@NonNull LogEntry logEntry, StringBuilder target) {
+    public void renderTo(@NonNull LogEntry logEntry, StringBuilder target) {
         String fullName = logEntry.getCallerClassName();
         switch (classDisplayOption) {
             case FULL:

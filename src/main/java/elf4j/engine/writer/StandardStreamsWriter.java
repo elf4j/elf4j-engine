@@ -102,7 +102,7 @@ public class StandardStreamsWriter implements LogWriter {
             return;
         }
         StringBuilder target = new StringBuilder();
-        logPattern.render(logEntry, target);
+        logPattern.renderTo(logEntry, target);
         switch (this.outStreamType) {
             case STDOUT:
                 BufferedStandardOutputStream.flushOut(target);

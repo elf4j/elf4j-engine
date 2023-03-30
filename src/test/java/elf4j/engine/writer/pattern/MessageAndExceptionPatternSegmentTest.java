@@ -84,7 +84,7 @@ class MessageAndExceptionPatternSegmentTest {
                     MessageAndExceptionPatternSegment.from("message");
             StringBuilder logText = new StringBuilder();
 
-            messageAndExceptionPatternSegment.render(mockLogEntry, logText);
+            messageAndExceptionPatternSegment.renderTo(mockLogEntry, logText);
             String rendered = logText.toString();
 
             assertTrue(rendered.contains(mockLogEntry.getResolvedMessage()));

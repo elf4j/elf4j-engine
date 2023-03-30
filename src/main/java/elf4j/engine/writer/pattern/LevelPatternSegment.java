@@ -69,7 +69,7 @@ public class LevelPatternSegment implements LogPattern {
     }
 
     @Override
-    public void render(@NonNull LogEntry logEntry, StringBuilder target) {
+    public void renderTo(@NonNull LogEntry logEntry, StringBuilder target) {
         String level = logEntry.getNativeLogger().getLevel().name();
         if (displayLength == UNSPECIFIED) {
             target.append(level);
