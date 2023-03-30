@@ -10,15 +10,15 @@ make a complete and native logging _service provider_ of the [ELF4J](https://git
 
 Meanwhile, this is also a stand-alone log engine, designed to be adaptable for servicing other Java logging APIs. For
 example, it is a log engine for the [SLF4J](https://www.slf4j.org/) API, as
-in [slf4j-elf4j](https://github.com/elf4j/slf4j-elf4j); or for the Java Platform
+in [slf4j-elf4j](https://github.com/elf4j/slf4j-elf4j); it is also a log engine for the Java Platform
 Logging ([JPL](https://openjdk.org/jeps/264)) API introduced since Java 9, as
 in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
 
 ## Features and Configuration
 
 For using ELF4J as a logging facade API, see
-ELF4J's [API description](https://github.com/elf4j/elf4j#logging-service-interface-and-access-api)
-and [sample usage](https://github.com/elf4j/elf4j#use-it---for-logging-service-api-clients).
+ELF4J's [API description](https://github.com/elf4j/elf4j#log-service-interface-and-access-api)
+and [sample usage](https://github.com/elf4j/elf4j#use-it---for-log-service-api-clients).
 
 For more details of using this as the runtime log engine, see [elf4j-provider](https://github.com/elf4j/elf4j-provider)
 on [features](https://github.com/elf4j/elf4j-provider#features)
