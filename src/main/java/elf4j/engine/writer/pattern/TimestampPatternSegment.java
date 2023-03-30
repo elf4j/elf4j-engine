@@ -39,7 +39,7 @@ import java.time.format.DateTimeFormatter;
 @Value
 public class TimestampPatternSegment implements LogPattern {
     private static final DateTimeFormatter DEFAULT_TIMESTAMP_FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
     private static final ZoneId DEFAULT_TIMESTAMP_ZONE = ZoneId.systemDefault();
     DateTimeFormatter dateTimeFormatter;
 
