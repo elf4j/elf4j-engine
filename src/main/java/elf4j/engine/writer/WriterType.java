@@ -29,8 +29,8 @@ import elf4j.engine.util.PropertiesUtils;
 import lombok.NonNull;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -43,12 +43,12 @@ public enum WriterType {
      */
     STANDARD {
         @Override
-        Set<LogWriter> parseWriters(@NonNull Properties properties) {
+        List<LogWriter> parseWriters(@NonNull Properties properties) {
             String defaultOutStreamType = properties.getProperty("standard.stream");
             return PropertiesUtils.getPropertiesGroupOfType(STANDARD.name().toLowerCase(), properties)
                     .stream()
                     .map(writerConfiguration -> StandardStreamsWriter.from(writerConfiguration, defaultOutStreamType))
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
         }
     };
 
@@ -59,11 +59,11 @@ public enum WriterType {
      *         configuration source
      * @return all writers parsed from the specified properties
      */
-    public static Set<LogWriter> parseAllWriters(@NonNull Properties properties) {
+    public static List<LogWriter> parseAllWriters(@NonNull Properties properties) {
         return WRITER_TYPES.stream()
                 .flatMap(type -> type.parseWriters(properties).stream())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
-    abstract Set<LogWriter> parseWriters(Properties properties);
+    abstract List<LogWriter> parseWriters(Properties properties);
 }

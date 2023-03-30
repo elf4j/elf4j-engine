@@ -30,20 +30,20 @@ import elf4j.engine.service.LogEntry;
 import lombok.NonNull;
 import lombok.ToString;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  *
  */
 public class WriterGroup implements LogWriter {
-    private final Set<LogWriter> writers;
+    private final List<LogWriter> writers;
     private Level minimumLevel;
     @ToString.Exclude private Boolean includeCallerDetail;
     @ToString.Exclude private Boolean includeCallerThread;
 
-    private WriterGroup(Set<LogWriter> writers) {
+    private WriterGroup(List<LogWriter> writers) {
         this.writers = writers;
     }
 
