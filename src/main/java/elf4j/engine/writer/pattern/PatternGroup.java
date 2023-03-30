@@ -46,7 +46,7 @@ public class PatternGroup implements LogPattern {
      */
     @Nonnull
     public static PatternGroup from(@NonNull String pattern) {
-        return new PatternGroup(PatternType.parsePatternSegments(pattern));
+        return new PatternGroup(PatternType.parsePatterns(pattern));
     }
 
     @Override

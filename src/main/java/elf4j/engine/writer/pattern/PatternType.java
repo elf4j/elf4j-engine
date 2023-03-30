@@ -190,7 +190,7 @@ enum PatternType {
      *         pattern texts, in or outside curly braces, are to be rendered verbatim in the final log message.
      * @return ordered list of individual patterns forming the entire layout pattern of the writer
      */
-    static @NonNull List<LogPattern> parsePatternSegments(@NonNull String pattern) {
+    static @NonNull List<LogPattern> parsePatterns(@NonNull String pattern) {
         if (pattern.trim().isEmpty()) {
             throw new IllegalArgumentException("Unexpected blank pattern");
         }
@@ -219,7 +219,7 @@ enum PatternType {
                     i = length;
                 }
             }
-            logPatterns.add(parsePatternSegment(segment));
+            logPatterns.add(parsePattern(segment));
         }
         return logPatterns;
     }
@@ -231,7 +231,7 @@ enum PatternType {
         return patternType.name().equalsIgnoreCase(patternSegment.split(":", 2)[0].trim());
     }
 
-    private static LogPattern parsePatternSegment(String patternSegment) {
+    private static LogPattern parsePattern(String patternSegment) {
         return PATTERN_TYPES.stream()
                 .filter(type -> type.isTargetTypeOf(patternSegment))
                 .findFirst()
