@@ -23,25 +23,14 @@
  *
  */
 
-package elf4j.engine.configuration;
-
-import elf4j.engine.NativeLogger;
-import elf4j.engine.writer.LogWriter;
+package elf4j.engine.service;
 
 /**
  *
  */
-public interface LogServiceConfiguration {
+public interface Stoppable {
     /**
-     * @return the top level (group) writer for the log service, may contain multiple individual writers.
+     *
      */
-    LogWriter getLogServiceWriter();
-
-    /**
-     * @param nativeLogger
-     *         the logger to check for enablement against configuration
-     * @return true if the specified logger's level is at or above the configured minimum output level of both the
-     *         writer and that configured for the logger's caller/owner class; otherwise, false.
-     */
-    boolean isEnabled(NativeLogger nativeLogger);
+    void stop();
 }

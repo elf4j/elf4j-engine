@@ -27,6 +27,7 @@ package elf4j.engine.configuration;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
+import elf4j.engine.service.LogServiceManager;
 import elf4j.engine.writer.LogWriter;
 import elf4j.util.InternalLogger;
 import lombok.ToString;
@@ -40,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  */
 @ToString
-public class DefaultLogServiceConfiguration implements LogServiceConfiguration {
+public class RefreshableLogServiceConfiguration implements LogServiceConfiguration, Refreshable {
     private final Map<NativeLogger, Boolean> loggerConfigurationCache = new ConcurrentHashMap<>();
     private final PropertiesLoader propertiesLoader;
     private boolean noop;
@@ -50,12 +51,13 @@ public class DefaultLogServiceConfiguration implements LogServiceConfiguration {
     /**
      *
      */
-    public DefaultLogServiceConfiguration() {
+    public RefreshableLogServiceConfiguration() {
         this.propertiesLoader = new PropertiesLoader();
         setRepositories(this.propertiesLoader.load());
+        LogServiceManager.INSTANCE.register(this);
     }
 
-    DefaultLogServiceConfiguration(CallerLevelRepository callerLevelRepository, WriterRepository writerRepository) {
+    RefreshableLogServiceConfiguration(CallerLevelRepository callerLevelRepository, WriterRepository writerRepository) {
         this.propertiesLoader = new PropertiesLoader();
         this.callerLevelRepository = callerLevelRepository;
         this.writerRepository = writerRepository;

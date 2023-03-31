@@ -26,41 +26,33 @@
 package elf4j.engine.service;
 
 import elf4j.engine.NativeLogger;
-import elf4j.engine.configuration.DefaultLogServiceConfiguration;
 import elf4j.engine.configuration.LogServiceConfiguration;
+import elf4j.engine.configuration.RefreshableLogServiceConfiguration;
 import elf4j.engine.util.StackTraceUtils;
 import lombok.NonNull;
 
 import java.util.Objects;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  *
  */
-public class DefaultLogService implements LogService {
+public class StoppableLogService implements LogService, Stoppable {
     private final LogServiceConfiguration logServiceConfiguration;
     private final WriterThread writerThread;
 
     /**
      *
      */
-    public DefaultLogService() {
+    public StoppableLogService() {
         this(ServiceConfigurationHolder.INSTANCE, WriterThreadHolder.INSTANCE);
     }
 
-    DefaultLogService(LogServiceConfiguration logServiceConfiguration, WriterThread writerThread) {
+    StoppableLogService(LogServiceConfiguration logServiceConfiguration, WriterThread writerThread) {
         this.logServiceConfiguration = logServiceConfiguration;
         this.writerThread = writerThread;
-    }
-
-    static void refreshConfiguration(Properties properties) {
-        ServiceConfigurationHolder.INSTANCE.refresh(properties);
-    }
-
-    static void shutdown() {
-        WriterThreadHolder.INSTANCE.shutdown();
+        LogServiceManager.INSTANCE.register(this);
     }
 
     @Override
@@ -99,6 +91,11 @@ public class DefaultLogService implements LogService {
         writerThread.execute(() -> logServiceConfiguration.getLogServiceWriter().write(logEntryBuilder.build()));
     }
 
+    @Override
+    public void stop() {
+        this.writerThread.shutdown();
+    }
+
     /**
      *
      */
@@ -125,7 +122,7 @@ public class DefaultLogService implements LogService {
     }
 
     private static class ServiceConfigurationHolder {
-        private static final LogServiceConfiguration INSTANCE = new DefaultLogServiceConfiguration();
+        private static final LogServiceConfiguration INSTANCE = new RefreshableLogServiceConfiguration();
     }
 
     private static class WriterThreadHolder {

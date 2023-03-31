@@ -25,23 +25,25 @@
 
 package elf4j.engine.configuration;
 
-import elf4j.engine.NativeLogger;
-import elf4j.engine.writer.LogWriter;
+import javax.annotation.Nullable;
+import java.util.Properties;
 
 /**
  *
  */
-public interface LogServiceConfiguration {
+public interface Refreshable {
     /**
-     * @return the top level (group) writer for the log service, may contain multiple individual writers.
+     * @param properties
+     *         used to refresh the logging configuration. If <code>null</code>, only properties reloaded from the
+     *         configuration file will be used. Otherwise, the specified properties will replace all current properties
+     *         and configuration file is ignored.
      */
-    LogWriter getLogServiceWriter();
+    void refresh(@Nullable Properties properties);
 
     /**
-     * @param nativeLogger
-     *         the logger to check for enablement against configuration
-     * @return true if the specified logger's level is at or above the configured minimum output level of both the
-     *         writer and that configured for the logger's caller/owner class; otherwise, false.
+     * reloads from original source of properties
      */
-    boolean isEnabled(NativeLogger nativeLogger);
+    default void refresh() {
+        this.refresh(null);
+    }
 }

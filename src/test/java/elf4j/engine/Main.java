@@ -77,6 +77,6 @@ public class Main {
                 .log("Not a practical example but the severity level is INFO");
 
         MoreAwaitility.block(Duration.ofMillis(200), "Making sure console streams show up");
-        LogServiceManager.shutdown();
+        LogServiceManager.INSTANCE.shutdownAll();
     }
 }

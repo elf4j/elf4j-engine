@@ -45,7 +45,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
-class DefaultLogServiceConfigurationTest {
+class StoppableLogServiceConfigurationTest {
     @Mock CallerLevelRepository mockCallerLevelRepository;
     @Mock WriterRepository mockWriterRepository;
     @Mock LogWriter stubLogWriter;
@@ -55,19 +55,19 @@ class DefaultLogServiceConfigurationTest {
     class isEnabled {
         @Test
         void cacheLoadFromReposOnlyOnce() {
-            DefaultLogServiceConfiguration defaultLoggingConfiguration =
-                    new DefaultLogServiceConfiguration(mockCallerLevelRepository, mockWriterRepository);
+            RefreshableLogServiceConfiguration refreshableLogServiceConfiguration =
+                    new RefreshableLogServiceConfiguration(mockCallerLevelRepository, mockWriterRepository);
             NativeLogger nativeLogger = new NativeLogger("test.owner.class.Name", Level.OFF, mockLogService);
             given(mockWriterRepository.getLogServiceWriter()).willReturn(stubLogWriter);
             given(stubLogWriter.getMinimumOutputLevel()).willReturn(Level.TRACE);
             given(mockCallerLevelRepository.getMinimumOutputLevel(nativeLogger)).willReturn(Level.TRACE);
 
-            defaultLoggingConfiguration.isEnabled(nativeLogger);
+            refreshableLogServiceConfiguration.isEnabled(nativeLogger);
 
             assertSame(stubLogWriter, mockWriterRepository.getLogServiceWriter());
             then(mockCallerLevelRepository).should().getMinimumOutputLevel(nativeLogger);
 
-            defaultLoggingConfiguration.isEnabled(nativeLogger);
+            refreshableLogServiceConfiguration.isEnabled(nativeLogger);
 
             then(mockWriterRepository).shouldHaveNoMoreInteractions();
             then(mockCallerLevelRepository).shouldHaveNoMoreInteractions();
@@ -78,20 +78,22 @@ class DefaultLogServiceConfigurationTest {
     class refresh {
         @Test
         void reload() {
-            DefaultLogServiceConfiguration defaultServiceConfiguration = new DefaultLogServiceConfiguration();
+            RefreshableLogServiceConfiguration refreshableLogServiceConfiguration =
+                    new RefreshableLogServiceConfiguration();
 
-            defaultServiceConfiguration.refresh(null);
+            refreshableLogServiceConfiguration.refresh(null);
 
-            assertTrue(defaultServiceConfiguration.getLogServiceWriter() instanceof WriterGroup);
+            assertTrue(refreshableLogServiceConfiguration.getLogServiceWriter() instanceof WriterGroup);
         }
 
         @Test
         void replace() {
-            DefaultLogServiceConfiguration defaultServiceConfiguration = new DefaultLogServiceConfiguration();
+            RefreshableLogServiceConfiguration refreshableLogServiceConfiguration =
+                    new RefreshableLogServiceConfiguration();
 
-            defaultServiceConfiguration.refresh(new Properties());
+            refreshableLogServiceConfiguration.refresh(new Properties());
 
-            assertTrue(defaultServiceConfiguration.getLogServiceWriter() instanceof StandardStreamsWriter);
+            assertTrue(refreshableLogServiceConfiguration.getLogServiceWriter() instanceof StandardStreamsWriter);
         }
     }
 }

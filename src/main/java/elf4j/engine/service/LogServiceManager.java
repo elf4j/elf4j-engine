@@ -25,35 +25,60 @@
 
 package elf4j.engine.service;
 
+import elf4j.engine.configuration.Refreshable;
+
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  *
  */
-public class LogServiceManager {
-    private LogServiceManager() {
-    }
-
+public enum LogServiceManager {
     /**
      *
      */
-    public static void refreshConfiguration() {
-        refreshConfiguration(null);
+    INSTANCE;
+
+    private final Set<Refreshable> refreshables = new HashSet<>();
+    private final Set<Stoppable> stoppables = new HashSet<>();
+
+    /**
+     * @param refreshable
+     *         added to be accessible for management
+     */
+    public void register(Refreshable refreshable) {
+        this.refreshables.add(refreshable);
+    }
+
+    /**
+     * @param stoppable
+     *         added to be accessible for management
+     */
+    public void register(Stoppable stoppable) {
+        this.stoppables.add(stoppable);
+    }
+
+    /**
+     * reloads properties source for each refreshable
+     */
+    public void refreshAll() {
+        refreshables.forEach(Refreshable::refresh);
     }
 
     /**
      * @param properties
-     *         overriding properties for the new configuration, in addition to the reloaded properties from the
-     *         configuration file
+     *         if non-null, replaces current configuration with the specified properties, instead of reloading from the
+     *         original properties source; otherwise, reloads the original properties source for each refreshable.
      */
-    public static void refreshConfiguration(Properties properties) {
-        DefaultLogService.refreshConfiguration(properties);
+    public void refreshAll(Properties properties) {
+        refreshables.forEach(refreshable -> refreshable.refresh(properties));
     }
 
     /**
      *
      */
-    public static void shutdown() {
-        DefaultLogService.shutdown();
+    public void shutdownAll() {
+        stoppables.forEach(Stoppable::stop);
     }
 }
