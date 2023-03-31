@@ -20,5 +20,5 @@ ELF4J's [API description](https://github.com/elf4j/elf4j#log-service-interface-a
 and [sample usage](https://github.com/elf4j/elf4j#use-it---for-log-service-api-clients).
 
 For details of using this as a runtime log engine, see [elf4j-provider](https://github.com/elf4j/elf4j-provider)
-for [features](https://github.com/elf4j/elf4j-provider#features), [usage](https://github.com/elf4j/elf4j-provider#usage) 
+for [features](https://github.com/elf4j/elf4j-provider#features)
 and [configuration](https://github.com/elf4j/elf4j-provider#configuration).
