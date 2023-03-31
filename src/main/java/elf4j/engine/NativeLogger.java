@@ -44,8 +44,7 @@ import static java.util.stream.Collectors.toMap;
  * Instances of this class are thread-safe, and can be used as static, instance, or local variables. For instances
  * returned by the static factory method {@link Logger#instance()}, however, it is recommended to use static variables
  * as those instances are more expensive to create. Other instances returned by the fluent-style instance factory
- * methods, such as {@link Logger#atLevel}, are inexpensive to create and can be used (and discarded) in-line or as
- * convenient.
+ * methods, such as {@link Logger#atLevel}, are inexpensive to create and use/discard at the program's convenience.
  */
 @ThreadSafe
 @Value
