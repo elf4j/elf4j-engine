@@ -13,7 +13,7 @@ in [slf4j-elf4j](https://github.com/elf4j/slf4j-elf4j); it is also a log engine 
 Logging ([JPL](https://openjdk.org/jeps/264)) API introduced since Java 9, as
 in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
 
-## Features and Configuration
+## Features, Usage, and Configuration
 
 For using ELF4J as a logging facade API, see
 ELF4J's [API description](https://github.com/elf4j/elf4j#log-service-interface-and-access-api)
