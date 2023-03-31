@@ -177,7 +177,7 @@ enum PatternType {
      *         entire text of an individual pattern segment, including pattern segment name and possibly options
      * @return the option portion of the pattern segment text if present; otherwise, empty Optional
      */
-    static Optional<String> getPatternSegmentOption(@NonNull String patternSegment) {
+    static Optional<String> getPatternDisplayOption(@NonNull String patternSegment) {
         String[] elements = patternSegment.split(":", 2);
         return elements.length == 1 ? Optional.empty() : Optional.of(elements[1].trim());
     }

@@ -53,7 +53,7 @@ public class TimestampPattern implements LogPattern {
         if (!PatternType.TIMESTAMP.isTargetTypeOf(patternSegment)) {
             throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
-        DateTimeFormatter dateTimeFormatter = PatternType.getPatternSegmentOption(patternSegment)
+        DateTimeFormatter dateTimeFormatter = PatternType.getPatternDisplayOption(patternSegment)
                 .map(DateTimeFormatter::ofPattern)
                 .orElse(DEFAULT_TIMESTAMP_FORMATTER);
         if (dateTimeFormatter.getZone() == null) {

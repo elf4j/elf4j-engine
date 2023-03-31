@@ -49,7 +49,7 @@ public class ClassPattern implements LogPattern {
         if (!PatternType.CLASS.isTargetTypeOf(patternSegment)) {
             throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
-        return new ClassPattern(PatternType.getPatternSegmentOption(patternSegment)
+        return new ClassPattern(PatternType.getPatternDisplayOption(patternSegment)
                 .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
                 .orElse(DEFAULT_DISPLAY_OPTION));
     }

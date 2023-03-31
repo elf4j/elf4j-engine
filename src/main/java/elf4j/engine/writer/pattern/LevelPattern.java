@@ -53,7 +53,7 @@ public class LevelPattern implements LogPattern {
         if (!PatternType.LEVEL.isTargetTypeOf(patternSegment)) {
             throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
-        return new LevelPattern(PatternType.getPatternSegmentOption(patternSegment)
+        return new LevelPattern(PatternType.getPatternDisplayOption(patternSegment)
                 .map(Integer::parseInt)
                 .orElse(UNSPECIFIED));
     }

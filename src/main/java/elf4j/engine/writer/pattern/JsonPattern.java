@@ -65,12 +65,12 @@ public class JsonPattern implements LogPattern {
         if (!PatternType.JSON.isTargetTypeOf(patternSegment)) {
             throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
-        Optional<String> patternOption = PatternType.getPatternSegmentOption(patternSegment);
-        if (!patternOption.isPresent()) {
+        Optional<String> displayOption = PatternType.getPatternDisplayOption(patternSegment);
+        if (!displayOption.isPresent()) {
             return JsonPattern.builder().includeCallerThread(false).includeCallerDetail(false).gson(new Gson()).build();
         }
         Set<String> options =
-                Arrays.stream(patternOption.get().split(",")).map(String::trim).collect(Collectors.toSet());
+                Arrays.stream(displayOption.get().split(",")).map(String::trim).collect(Collectors.toSet());
         if (!DISPLAY_OPTIONS.containsAll(options)) {
             throw new IllegalArgumentException("Invalid JSON display option inside: " + options);
         }

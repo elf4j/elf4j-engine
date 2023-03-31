@@ -49,7 +49,7 @@ public class ThreadPattern implements LogPattern {
         if (!PatternType.THREAD.isTargetTypeOf(patternSegment)) {
             throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
-        return new ThreadPattern(PatternType.getPatternSegmentOption(patternSegment)
+        return new ThreadPattern(PatternType.getPatternDisplayOption(patternSegment)
                 .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
                 .orElse(DisplayOption.NAME));
     }
