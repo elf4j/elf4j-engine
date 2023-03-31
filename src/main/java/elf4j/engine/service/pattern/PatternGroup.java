@@ -23,35 +23,46 @@
  *
  */
 
-package elf4j.engine;
+package elf4j.engine.service.pattern;
 
-import elf4j.Logger;
-import elf4j.engine.service.util.MoreAwaitility;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import elf4j.engine.service.LogEntry;
+import lombok.NonNull;
+import lombok.Value;
 
-import java.time.Duration;
+import javax.annotation.Nonnull;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+/**
+ * Composite of individual patterns forming the entire layout pattern
+ */
+@Value
+public class PatternGroup implements LogPattern {
+    List<LogPattern> patterns;
 
-class IntegrationTest {
-    @AfterEach
-    void afterEach() {
-        MoreAwaitility.block(Duration.ofMillis(500));
+    /**
+     * @param pattern
+     *         entire layout pattern text from configuration
+     * @return composite pattern object for the entire log entry's output layout
+     */
+    @Nonnull
+    public static PatternGroup from(@NonNull String pattern) {
+        return new PatternGroup(PatternType.parsePatterns(pattern));
     }
 
-    @Nested
-    class defaultLogger {
-        @Test
-        void hey() {
-            Logger logger = Logger.instance();
+    @Override
+    public boolean includeCallerDetail() {
+        return patterns.stream().anyMatch(LogPattern::includeCallerDetail);
+    }
 
-            logger.atInfo().log("Hello, world!");
-            Exception issue = new Exception("Test ex message");
-            logger.atWarn().log(issue, "Testing issue '{}' in {}", issue, this.getClass());
+    @Override
+    public boolean includeCallerThread() {
+        return patterns.stream().anyMatch(LogPattern::includeCallerThread);
+    }
 
-            assertEquals(this.getClass().getName(), ((NativeLogger) logger).getOwnerClassName());
+    @Override
+    public void renderTo(LogEntry logEntry, StringBuilder target) {
+        for (LogPattern pattern : patterns) {
+            pattern.renderTo(logEntry, target);
         }
     }
 }

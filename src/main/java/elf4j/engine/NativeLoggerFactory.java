@@ -29,7 +29,7 @@ import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.service.LogService;
 import elf4j.engine.service.StoppableLogService;
-import elf4j.engine.util.StackTraceUtils;
+import elf4j.engine.service.util.StackTraceUtils;
 import elf4j.spi.LoggerFactory;
 import lombok.NonNull;
 

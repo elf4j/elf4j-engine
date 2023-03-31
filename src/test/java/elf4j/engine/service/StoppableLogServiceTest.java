@@ -27,8 +27,8 @@ package elf4j.engine.service;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
-import elf4j.engine.configuration.LogServiceConfiguration;
-import elf4j.engine.writer.LogWriter;
+import elf4j.engine.service.configuration.LogServiceConfiguration;
+import elf4j.engine.service.writer.LogWriter;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

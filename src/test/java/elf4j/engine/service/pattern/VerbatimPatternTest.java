@@ -23,35 +23,33 @@
  *
  */
 
-package elf4j.engine;
+package elf4j.engine.service.pattern;
 
-import elf4j.Logger;
-import elf4j.engine.service.util.MoreAwaitility;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Nested;
+import elf4j.engine.service.LogEntry;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
-class IntegrationTest {
-    @AfterEach
-    void afterEach() {
-        MoreAwaitility.block(Duration.ofMillis(500));
+class VerbatimPatternTest {
+
+    @Test
+    void appendPatternTextAsIs() {
+        LogEntry mockEntry = mock(LogEntry.class);
+        String verbatimTextToAppend = "text";
+        String inputLogText = "inputLogText";
+        StringBuilder logTextBuilder = new StringBuilder(inputLogText);
+
+        new VerbatimPattern(verbatimTextToAppend).renderTo(mockEntry, logTextBuilder);
+
+        verifyNoInteractions(mockEntry);
+        assertEquals(inputLogText + verbatimTextToAppend, logTextBuilder.toString());
     }
 
-    @Nested
-    class defaultLogger {
-        @Test
-        void hey() {
-            Logger logger = Logger.instance();
-
-            logger.atInfo().log("Hello, world!");
-            Exception issue = new Exception("Test ex message");
-            logger.atWarn().log(issue, "Testing issue '{}' in {}", issue, this.getClass());
-
-            assertEquals(this.getClass().getName(), ((NativeLogger) logger).getOwnerClassName());
-        }
+    @Test
+    void errorOnPatternIntendedForAnotherLogPatternType() {
+        assertThrows(IllegalArgumentException.class, () -> VerbatimPattern.from("thread:name"));
     }
 }

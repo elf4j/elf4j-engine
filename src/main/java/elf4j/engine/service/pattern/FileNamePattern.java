@@ -23,35 +23,45 @@
  *
  */
 
-package elf4j.engine;
+package elf4j.engine.service.pattern;
 
-import elf4j.Logger;
-import elf4j.engine.service.util.MoreAwaitility;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import elf4j.engine.service.LogEntry;
+import lombok.NonNull;
+import lombok.Value;
 
-import java.time.Duration;
+import javax.annotation.Nonnull;
+import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-class IntegrationTest {
-    @AfterEach
-    void afterEach() {
-        MoreAwaitility.block(Duration.ofMillis(500));
+/**
+ *
+ */
+@Value
+public class FileNamePattern implements LogPattern {
+    /**
+     * @param patternSegment
+     *         text segment to convert
+     * @return converted patternSegment object
+     */
+    @Nonnull
+    public static FileNamePattern from(String patternSegment) {
+        if (!PatternType.FILENAME.isTargetTypeOf(patternSegment)) {
+            throw new IllegalArgumentException("patternSegment: " + patternSegment);
+        }
+        return new FileNamePattern();
     }
 
-    @Nested
-    class defaultLogger {
-        @Test
-        void hey() {
-            Logger logger = Logger.instance();
+    @Override
+    public boolean includeCallerDetail() {
+        return true;
+    }
 
-            logger.atInfo().log("Hello, world!");
-            Exception issue = new Exception("Test ex message");
-            logger.atWarn().log(issue, "Testing issue '{}' in {}", issue, this.getClass());
+    @Override
+    public boolean includeCallerThread() {
+        return false;
+    }
 
-            assertEquals(this.getClass().getName(), ((NativeLogger) logger).getOwnerClassName());
-        }
+    @Override
+    public void renderTo(@NonNull LogEntry logEntry, @NonNull StringBuilder target) {
+        target.append(Objects.requireNonNull(logEntry.getCallerFrame()).getFileName());
     }
 }

@@ -23,35 +23,24 @@
  *
  */
 
-package elf4j.engine;
+package elf4j.engine.service.pattern;
 
-import elf4j.Logger;
-import elf4j.engine.service.util.MoreAwaitility;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.writer.PerformanceSensitive;
 
-import java.time.Duration;
+/**
+ *
+ */
+public interface LogPattern extends PerformanceSensitive {
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-class IntegrationTest {
-    @AfterEach
-    void afterEach() {
-        MoreAwaitility.block(Duration.ofMillis(500));
-    }
-
-    @Nested
-    class defaultLogger {
-        @Test
-        void hey() {
-            Logger logger = Logger.instance();
-
-            logger.atInfo().log("Hello, world!");
-            Exception issue = new Exception("Test ex message");
-            logger.atWarn().log(issue, "Testing issue '{}' in {}", issue, this.getClass());
-
-            assertEquals(this.getClass().getName(), ((NativeLogger) logger).getOwnerClassName());
-        }
-    }
+    /**
+     * Extracts the content of particular interest to this log pattern instance from the specified log entry, and
+     * appends the result to the specified target aggregator of the final log message
+     *
+     * @param logEntry
+     *         entire log content data source to render
+     * @param target
+     *         logging text aggregator of the final log message
+     */
+    void renderTo(LogEntry logEntry, StringBuilder target);
 }

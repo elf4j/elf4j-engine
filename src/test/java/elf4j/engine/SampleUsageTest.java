@@ -26,7 +26,7 @@
 package elf4j.engine;
 
 import elf4j.Logger;
-import elf4j.engine.util.MoreAwaitility;
+import elf4j.engine.service.util.MoreAwaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

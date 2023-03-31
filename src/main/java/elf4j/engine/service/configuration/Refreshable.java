@@ -23,35 +23,27 @@
  *
  */
 
-package elf4j.engine;
+package elf4j.engine.service.configuration;
 
-import elf4j.Logger;
-import elf4j.engine.service.util.MoreAwaitility;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import javax.annotation.Nullable;
+import java.util.Properties;
 
-import java.time.Duration;
+/**
+ *
+ */
+public interface Refreshable {
+    /**
+     * @param properties
+     *         used to refresh the logging configuration. If <code>null</code>, only properties reloaded from the
+     *         configuration file will be used. Otherwise, the specified properties will replace all current properties
+     *         and configuration file is ignored.
+     */
+    void refresh(@Nullable Properties properties);
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-class IntegrationTest {
-    @AfterEach
-    void afterEach() {
-        MoreAwaitility.block(Duration.ofMillis(500));
-    }
-
-    @Nested
-    class defaultLogger {
-        @Test
-        void hey() {
-            Logger logger = Logger.instance();
-
-            logger.atInfo().log("Hello, world!");
-            Exception issue = new Exception("Test ex message");
-            logger.atWarn().log(issue, "Testing issue '{}' in {}", issue, this.getClass());
-
-            assertEquals(this.getClass().getName(), ((NativeLogger) logger).getOwnerClassName());
-        }
+    /**
+     * reloads from original source of properties
+     */
+    default void refresh() {
+        this.refresh(null);
     }
 }

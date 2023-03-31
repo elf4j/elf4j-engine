@@ -26,9 +26,9 @@
 package elf4j.engine.service;
 
 import elf4j.engine.NativeLogger;
-import elf4j.engine.configuration.LogServiceConfiguration;
-import elf4j.engine.configuration.RefreshableLogServiceConfiguration;
-import elf4j.engine.util.StackTraceUtils;
+import elf4j.engine.service.configuration.LogServiceConfiguration;
+import elf4j.engine.service.configuration.RefreshableLogServiceConfiguration;
+import elf4j.engine.service.util.StackTraceUtils;
 import lombok.NonNull;
 
 import java.util.Objects;

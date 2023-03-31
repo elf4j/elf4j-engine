@@ -23,35 +23,19 @@
  *
  */
 
-package elf4j.engine;
+package elf4j.engine.service.writer;
 
-import elf4j.Logger;
-import elf4j.engine.service.util.MoreAwaitility;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+/**
+ *
+ */
+public interface PerformanceSensitive {
+    /**
+     * @return true if log should include caller detail such as method, line number...
+     */
+    boolean includeCallerDetail();
 
-import java.time.Duration;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-class IntegrationTest {
-    @AfterEach
-    void afterEach() {
-        MoreAwaitility.block(Duration.ofMillis(500));
-    }
-
-    @Nested
-    class defaultLogger {
-        @Test
-        void hey() {
-            Logger logger = Logger.instance();
-
-            logger.atInfo().log("Hello, world!");
-            Exception issue = new Exception("Test ex message");
-            logger.atWarn().log(issue, "Testing issue '{}' in {}", issue, this.getClass());
-
-            assertEquals(this.getClass().getName(), ((NativeLogger) logger).getOwnerClassName());
-        }
-    }
+    /**
+     * @return true if log should include call thread information such thread name and id
+     */
+    boolean includeCallerThread();
 }

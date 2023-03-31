@@ -23,35 +23,36 @@
  *
  */
 
-package elf4j.engine;
+package elf4j.engine.service.util;
 
-import elf4j.Logger;
-import elf4j.engine.service.util.MoreAwaitility;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import lombok.NonNull;
+import org.awaitility.Awaitility;
 
 import java.time.Duration;
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+public class MoreAwaitility {
+    private static final ScheduledExecutorService delayer =
+            Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() + 1, r -> {
+                Thread daemonThread = new Thread(r, "more-awaitility-util-thread" + UUID.randomUUID());
+                daemonThread.setDaemon(true);
+                return daemonThread;
+            });
 
-class IntegrationTest {
-    @AfterEach
-    void afterEach() {
-        MoreAwaitility.block(Duration.ofMillis(500));
+    public static void block(@NonNull Duration duration) {
+        block(duration, null);
     }
 
-    @Nested
-    class defaultLogger {
-        @Test
-        void hey() {
-            Logger logger = Logger.instance();
-
-            logger.atInfo().log("Hello, world!");
-            Exception issue = new Exception("Test ex message");
-            logger.atWarn().log(issue, "Testing issue '{}' in {}", issue, this.getClass());
-
-            assertEquals(this.getClass().getName(), ((NativeLogger) logger).getOwnerClassName());
+    public static void block(@NonNull Duration duration, String message) {
+        if (message != null) {
+            System.out.println(message + " - blocking for " + duration);
         }
+        AtomicBoolean resume = new AtomicBoolean(false);
+        delayer.schedule(() -> resume.set(true), duration.toMillis(), TimeUnit.MILLISECONDS);
+        Awaitility.await().untilTrue(resume);
     }
 }

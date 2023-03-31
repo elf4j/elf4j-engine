@@ -27,7 +27,7 @@ package elf4j.engine;
 
 import elf4j.Logger;
 import elf4j.engine.service.LogServiceManager;
-import elf4j.engine.util.MoreAwaitility;
+import elf4j.engine.service.util.MoreAwaitility;
 
 import java.time.Duration;
 import java.util.function.Supplier;

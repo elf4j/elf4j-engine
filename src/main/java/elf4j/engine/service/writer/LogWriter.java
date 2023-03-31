@@ -23,35 +23,24 @@
  *
  */
 
-package elf4j.engine;
+package elf4j.engine.service.writer;
 
-import elf4j.Logger;
-import elf4j.engine.service.util.MoreAwaitility;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import elf4j.Level;
+import elf4j.engine.service.LogEntry;
 
-import java.time.Duration;
+/**
+ *
+ */
+public interface LogWriter extends PerformanceSensitive {
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+    /**
+     * @return the minimum output level of this writer
+     */
+    Level getMinimumOutputLevel();
 
-class IntegrationTest {
-    @AfterEach
-    void afterEach() {
-        MoreAwaitility.block(Duration.ofMillis(500));
-    }
-
-    @Nested
-    class defaultLogger {
-        @Test
-        void hey() {
-            Logger logger = Logger.instance();
-
-            logger.atInfo().log("Hello, world!");
-            Exception issue = new Exception("Test ex message");
-            logger.atWarn().log(issue, "Testing issue '{}' in {}", issue, this.getClass());
-
-            assertEquals(this.getClass().getName(), ((NativeLogger) logger).getOwnerClassName());
-        }
-    }
+    /**
+     * @param logEntry
+     *         the log data entry to write out
+     */
+    void write(LogEntry logEntry);
 }

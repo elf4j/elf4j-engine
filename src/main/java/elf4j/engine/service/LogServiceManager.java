@@ -25,7 +25,7 @@
 
 package elf4j.engine.service;
 
-import elf4j.engine.configuration.Refreshable;
+import elf4j.engine.service.configuration.Refreshable;
 
 import java.util.HashSet;
 import java.util.Properties;

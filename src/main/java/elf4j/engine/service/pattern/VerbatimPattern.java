@@ -23,35 +23,49 @@
  *
  */
 
-package elf4j.engine;
+package elf4j.engine.service.pattern;
 
-import elf4j.Logger;
-import elf4j.engine.service.util.MoreAwaitility;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import elf4j.engine.service.LogEntry;
+import lombok.NonNull;
+import lombok.Value;
 
-import java.time.Duration;
+import javax.annotation.Nonnull;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+/**
+ *
+ */
+@Value
+public class VerbatimPattern implements LogPattern {
+    @NonNull String text;
 
-class IntegrationTest {
-    @AfterEach
-    void afterEach() {
-        MoreAwaitility.block(Duration.ofMillis(500));
+    /**
+     * @param patternSegment
+     *         text pattern segment to convert
+     * @return converted pattern segment object
+     */
+    @Nonnull
+    public static VerbatimPattern from(String patternSegment) {
+        if (!PatternType.VERBATIM.isTargetTypeOf(patternSegment)) {
+            throw new IllegalArgumentException(String.format(
+                    "patternSegment '%s' looks to be targeted at another known patternSegment type than %s",
+                    patternSegment,
+                    PatternType.VERBATIM));
+        }
+        return new VerbatimPattern(patternSegment);
     }
 
-    @Nested
-    class defaultLogger {
-        @Test
-        void hey() {
-            Logger logger = Logger.instance();
+    @Override
+    public boolean includeCallerDetail() {
+        return false;
+    }
 
-            logger.atInfo().log("Hello, world!");
-            Exception issue = new Exception("Test ex message");
-            logger.atWarn().log(issue, "Testing issue '{}' in {}", issue, this.getClass());
+    @Override
+    public boolean includeCallerThread() {
+        return false;
+    }
 
-            assertEquals(this.getClass().getName(), ((NativeLogger) logger).getOwnerClassName());
-        }
+    @Override
+    public void renderTo(LogEntry logEntry, @NonNull StringBuilder target) {
+        target.append(text);
     }
 }

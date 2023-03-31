@@ -23,35 +23,25 @@
  *
  */
 
-package elf4j.engine;
+package elf4j.engine.service.configuration;
 
-import elf4j.Logger;
-import elf4j.engine.service.util.MoreAwaitility;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import elf4j.engine.NativeLogger;
+import elf4j.engine.service.writer.LogWriter;
 
-import java.time.Duration;
+/**
+ *
+ */
+public interface LogServiceConfiguration {
+    /**
+     * @return the top level (group) writer for the log service, may contain multiple individual writers.
+     */
+    LogWriter getLogServiceWriter();
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-class IntegrationTest {
-    @AfterEach
-    void afterEach() {
-        MoreAwaitility.block(Duration.ofMillis(500));
-    }
-
-    @Nested
-    class defaultLogger {
-        @Test
-        void hey() {
-            Logger logger = Logger.instance();
-
-            logger.atInfo().log("Hello, world!");
-            Exception issue = new Exception("Test ex message");
-            logger.atWarn().log(issue, "Testing issue '{}' in {}", issue, this.getClass());
-
-            assertEquals(this.getClass().getName(), ((NativeLogger) logger).getOwnerClassName());
-        }
-    }
+    /**
+     * @param nativeLogger
+     *         the logger to check for enablement against configuration
+     * @return true if the specified logger's level is at or above the configured minimum output level of both the
+     *         writer and that configured for the logger's caller/owner class; otherwise, false.
+     */
+    boolean isEnabled(NativeLogger nativeLogger);
 }

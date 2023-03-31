@@ -23,35 +23,41 @@
  *
  */
 
-package elf4j.engine;
+package elf4j.engine.service.pattern;
 
-import elf4j.Logger;
-import elf4j.engine.service.util.MoreAwaitility;
-import org.junit.jupiter.api.AfterEach;
+import elf4j.engine.service.LogEntry;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Duration;
+import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.inOrder;
 
-class IntegrationTest {
-    @AfterEach
-    void afterEach() {
-        MoreAwaitility.block(Duration.ofMillis(500));
-    }
-
+@ExtendWith(MockitoExtension.class)
+class PatternGroupTest {
     @Nested
-    class defaultLogger {
+    class render {
+        @Mock LogPattern mockPattern;
+        @Mock LogPattern mockPattern2;
+        @Mock LogEntry stubLogEntry;
+
+        PatternGroup patternGroupEntry;
+
         @Test
-        void hey() {
-            Logger logger = Logger.instance();
+        void dispatchAll() {
+            patternGroupEntry = new PatternGroup(Arrays.asList(mockPattern2, mockPattern));
+            StringBuilder stringBuilder = new StringBuilder();
 
-            logger.atInfo().log("Hello, world!");
-            Exception issue = new Exception("Test ex message");
-            logger.atWarn().log(issue, "Testing issue '{}' in {}", issue, this.getClass());
+            patternGroupEntry.renderTo(stubLogEntry, stringBuilder);
 
-            assertEquals(this.getClass().getName(), ((NativeLogger) logger).getOwnerClassName());
+            InOrder inOrder = inOrder(mockPattern, mockPattern2);
+            then(mockPattern2).should(inOrder).renderTo(stubLogEntry, stringBuilder);
+            then(mockPattern).should(inOrder).renderTo(stubLogEntry, stringBuilder);
         }
     }
 }
