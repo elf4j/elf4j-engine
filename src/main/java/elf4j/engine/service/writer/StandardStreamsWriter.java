@@ -45,8 +45,7 @@ import java.util.Map;
 public class StandardStreamsWriter implements LogWriter {
     private static final Level DEFAULT_MINIMUM_LEVEL = Level.TRACE;
     private static final OutStreamType DEFAULT_WRITER_OUT_STREAM = OutStreamType.STDOUT;
-    private static final String DEFAULT_PATTERN =
-            "{timestamp:yyyy-MM-dd'T'HH:mm:ss.SSSXXX} {level} {class} - {message}";
+    private static final String DEFAULT_PATTERN = "{timestamp} {level} {class} - {message}";
     private final LogPattern logPattern;
     private final Level minimumLevel;
     private final OutStreamType outStreamType;
