@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
  */
 @Value
 public class ClassPattern implements LogPattern {
-    private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.FULL;
+    private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.SIMPLE;
     @NonNull DisplayOption classDisplayOption;
 
     /**
