@@ -37,7 +37,7 @@ in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
          Logger info = logger.atInfo();
          info.log("... no matter how you say it");
          Logger warn = info.atWarn();
-         warn.log("Houston, we do {} have a problem but let's do a {}", "NOT", (Supplier) () -> "drill");
+         warn.log("Houston, we do not have {} but let's do {}", "a problem", (Supplier) () -> "a drill");
          Throwable exception = new Exception("This is a drill");
          warn.atError().log(exception);
          logger.atInfo()
@@ -64,7 +64,7 @@ in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
    2023-04-03T18:16:40.766-05:00 INFO Main - Hello, world!
    2023-04-03T18:16:40.770-05:00 INFO Main - It's a beautiful day
    2023-04-03T18:16:40.770-05:00 INFO Main - ... no matter how I say it
-   2023-04-03T18:16:40.770-05:00 WARN Main - Houston, we do NOT have a problem but let's do a drill
+   2023-04-03T18:16:40.770-05:00 WARN Main - Houston, we do not have a problem but let's do a drill
    2023-04-03T18:16:40.770-05:00 ERROR Main - 
    java.lang.Exception: This is a drill
        at elf4j.engine.Main.main(Main.java:45)
@@ -92,7 +92,7 @@ in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
    2023-04-03T18:34:23.814-05:00 INFO  elf4j.engine.Main#main(L39@Main.java) - Hello, world!
    2023-04-03T18:34:23.820-05:00 INFO  elf4j.engine.Main#main(L40@Main.java) - It's a beautiful day
    2023-04-03T18:34:23.821-05:00 INFO  elf4j.engine.Main#main(L42@Main.java) - ... no matter how I say it
-   2023-04-03T18:34:23.821-05:00 WARN  elf4j.engine.Main#main(L44@Main.java) - Houston, we do NOT have a problem but let's do a drill
+   2023-04-03T18:34:23.821-05:00 WARN  elf4j.engine.Main#main(L44@Main.java) - Houston, we do not have a problem but let's do a drill
    2023-04-03T18:34:23.821-05:00 ERROR elf4j.engine.Main#main(L46@Main.java) -
    java.lang.Exception: This is a drill
    at elf4j.engine.Main.main(Main.java:45)
@@ -117,7 +117,7 @@ in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
    {"timestamp":"2023-04-03T18:27:39.2091901-05:00","level":"INFO","callerClass":"elf4j.engine.Main","message":"Hello, world!"}
    {"timestamp":"2023-04-03T18:27:39.2594622-05:00","level":"INFO","callerClass":"elf4j.engine.Main","message":"It\u0027s a beautiful day"}
    {"timestamp":"2023-04-03T18:27:39.2599703-05:00","level":"INFO","callerClass":"elf4j.engine.Main","message":"... no matter how I say it"}
-   {"timestamp":"2023-04-03T18:27:39.2599703-05:00","level":"WARN","callerClass":"elf4j.engine.Main","message":"Houston, we do NOT have a problem but let\u0027s do a drill"}
+   {"timestamp":"2023-04-03T18:27:39.2599703-05:00","level":"WARN","callerClass":"elf4j.engine.Main","message":"Houston, we do not have a problem but let\u0027s do a drill"}
    {"timestamp":"2023-04-03T18:27:39.2604774-05:00","level":"ERROR","callerClass":"elf4j.engine.Main","message":"","exception":"java.lang.Exception: This is a drill\r\n\tat elf4j.engine.Main.main(Main.java:45)\r\n"}
    {"timestamp":"2023-04-03T18:27:39.2614889-05:00","level":"INFO","callerClass":"elf4j.engine.Main","message":"Throwable always comes first, then the optional message and arguments work as usual","exception":"java.lang.Exception: This is a drill\r\n\tat elf4j.engine.Main.main(Main.java:45)\r\n"}
    {"timestamp":"2023-04-03T18:27:39.2619967-05:00","level":"DEBUG","callerClass":"elf4j.engine.Main","message":"Not a practical example but now the severity level is DEBUG"}
