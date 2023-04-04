@@ -88,10 +88,10 @@ in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
    2023-04-03T18:16:40.771-05:00 DEBUG Main - Not a practical example but now the severity level is DEBUG
    ```
    The output is asynchronous and won't block your application's normal workflow.
-4. The output format patterns can be configured by using a Properties file named `elf4j.properties` and placing it in
-   the root of the classpath.
+4. The output format patterns can be configured by using a Properties file named `elf4j.properties`, placed in the root
+   of the classpath.
 
-   e.g. with `elf4j.properties`:
+   e.g. with the `elf4j.properties` file:
 
    ```properties
    writer=standard
@@ -116,7 +116,7 @@ in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
    2023-04-03T18:34:23.821-05:00 DEBUG elf4j.engine.Main#main(L59@Main.java) - Not a practical example but now the severity level is DEBUG
    ```
 
-   With `elf4j.properties`:
+   With the `elf4j.properties` file:
 
    ```properties
    writer=standard
