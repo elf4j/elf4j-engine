@@ -18,11 +18,10 @@ in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
 
 1. Install
 
-   For log service client applications, the elf4j-engine is wrapped as a runtime dependency of elf4j-provider, see
-   installation details [here](https://github.com/elf4j/elf4j-provider#installation).
-
+   For log service client applications, the elf4j-engine is wrapped as a runtime dependency of elf4j-provider. See
+   installation details [here](https://github.com/elf4j/elf4j-provider#installation), and use the latest versions from
+   Maven Central.
 2. Use it for logging in the application:
-
    ```java
    import elf4j.Logger;
    
@@ -57,9 +56,7 @@ in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
    }
    ```
    The `Logger` instance is thread-safe, affording flexible usage.
-
 3. Run that application, the follow output will appear in stdout:
-
    ```
    2023-04-03T18:16:40.766-05:00 INFO Main - Hello, world!
    2023-04-03T18:16:40.770-05:00 INFO Main - It's a beautiful day
@@ -75,7 +72,7 @@ in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
    
    2023-04-03T18:16:40.771-05:00 DEBUG Main - Not a practical example but now the severity level is DEBUG
    ```
-   The output is asynchronous and won't block your application's normal workflow.
+   The output is always asynchronous and won't block the application's normal workflow.
 4. The output format patterns can be configured by using a Properties file named `elf4j.properties`, placed in the root
    of the classpath.
 
