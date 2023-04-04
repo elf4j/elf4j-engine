@@ -70,7 +70,7 @@ in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
    ```
    The `Logger` instance is thread-safe, affording flexible usage.
 
-3. Run that application, follow output appears in stdout:
+3. Run that application, the follow output will appear in stdout:
 
    ```
    2023-04-03T18:16:40.766-05:00 INFO Main - Hello, world!
