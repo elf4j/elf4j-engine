@@ -44,21 +44,11 @@ enum PatternType {
         LogPattern translate(String patternSegment) {
             return TimestampPattern.from(patternSegment);
         }
-
-        @Override
-        public boolean isTargetTypeOf(String patternSegment) {
-            return isPatternOfType(this, patternSegment);
-        }
     },
     /**
      *
      */
     LEVEL {
-        @Override
-        public boolean isTargetTypeOf(String patternSegment) {
-            return isPatternOfType(this, patternSegment);
-        }
-
         @Override
         LogPattern translate(String patternSegment) {
             return LevelPattern.from(patternSegment);
@@ -69,11 +59,6 @@ enum PatternType {
      */
     THREAD {
         @Override
-        public boolean isTargetTypeOf(String patternSegment) {
-            return isPatternOfType(this, patternSegment);
-        }
-
-        @Override
         LogPattern translate(String patternSegment) {
             return ThreadPattern.from(patternSegment);
         }
@@ -82,11 +67,6 @@ enum PatternType {
      *
      */
     CLASS {
-        @Override
-        boolean isTargetTypeOf(String patternSegment) {
-            return isPatternOfType(this, patternSegment);
-        }
-
         @Override
         LogPattern translate(String patternSegment) {
             return ClassPattern.from(patternSegment);
@@ -97,30 +77,15 @@ enum PatternType {
      */
     METHOD {
         @Override
-        boolean isTargetTypeOf(String patternSegment) {
-            return isPatternOfType(this, patternSegment);
-        }
-
-        @Override
         LogPattern translate(String patternSegment) {
             return MethodPattern.from(patternSegment);
         }
     }, FILENAME {
         @Override
-        boolean isTargetTypeOf(String patternSegment) {
-            return isPatternOfType(this, patternSegment);
-        }
-
-        @Override
         LogPattern translate(String patternSegment) {
             return FileNamePattern.from(patternSegment);
         }
     }, LINENUMBER {
-        @Override
-        boolean isTargetTypeOf(String patternSegment) {
-            return isPatternOfType(this, patternSegment);
-        }
-
         @Override
         LogPattern translate(String patternSegment) {
             return LineNumberPattern.from(patternSegment);
@@ -132,11 +97,6 @@ enum PatternType {
      */
     MESSAGE {
         @Override
-        boolean isTargetTypeOf(String patternSegment) {
-            return isPatternOfType(this, patternSegment);
-        }
-
-        @Override
         LogPattern translate(String patternSegment) {
             return MessageAndExceptionPattern.from(patternSegment);
         }
@@ -146,24 +106,24 @@ enum PatternType {
      */
     JSON {
         @Override
-        boolean isTargetTypeOf(String patternSegment) {
-            return isPatternOfType(this, patternSegment);
-        }
-
-        @Override
         LogPattern translate(String patternSegment) {
             return JsonPattern.from(patternSegment);
+        }
+    }, SYSPROP {
+        @Override
+        LogPattern translate(String patternSegment) {
+            return SystemPropertyPattern.from(patternSegment);
+        }
+    }, SYSENV {
+        @Override
+        LogPattern translate(String patternSegment) {
+            return SystemEnvironmentPattern.from(patternSegment);
         }
     },
     /**
      *
      */
     VERBATIM {
-        @Override
-        boolean isTargetTypeOf(String patternSegment) {
-            return isPatternOfType(this, patternSegment);
-        }
-
         @Override
         LogPattern translate(String patternSegment) {
             return VerbatimPattern.from(patternSegment);
@@ -224,28 +184,13 @@ enum PatternType {
         return logPatterns;
     }
 
-    private static boolean isPatternOfType(PatternType patternType, String patternSegment) {
-        if (patternType == VERBATIM) {
-            return PREDEFINED_PATTERN_TYPES.stream().noneMatch(type -> type.isTargetTypeOf(patternSegment));
-        }
-        return patternType.name().equalsIgnoreCase(patternSegment.split(":", 2)[0].trim());
-    }
-
     private static LogPattern parsePattern(String patternSegment) {
         return PATTERN_TYPES.stream()
                 .filter(type -> type.isTargetTypeOf(patternSegment))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "pattern segment: '" + patternSegment + "' not parsable"))
+                .orElseThrow(() -> new IllegalArgumentException("pattern segment: '" + patternSegment + "'"))
                 .translate(patternSegment);
     }
-
-    /**
-     * @param patternSegment
-     *         text configuration of an individual pattern segment
-     * @return true if this pattern segment type is the target type of the specified pattern segment text
-     */
-    abstract boolean isTargetTypeOf(String patternSegment);
 
     /**
      * @param patternSegment
@@ -253,4 +198,16 @@ enum PatternType {
      * @return pattern segment object of the specified text
      */
     abstract LogPattern translate(String patternSegment);
+
+    /**
+     * @param patternSegment
+     *         text configuration of an individual pattern segment
+     * @return true if this pattern segment type is the target type of the specified pattern segment text
+     */
+    boolean isTargetTypeOf(String patternSegment) {
+        if (this == VERBATIM) {
+            return PREDEFINED_PATTERN_TYPES.stream().noneMatch(type -> type.isTargetTypeOf(patternSegment));
+        }
+        return name().equalsIgnoreCase(patternSegment.split(":", 2)[0].trim());
+    }
 }
