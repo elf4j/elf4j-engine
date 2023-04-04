@@ -18,20 +18,8 @@ in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
 
 1. Install
 
-   The elf4j-engine is wrapped as a runtime dependency of elf4j-provider. e.g. with Maven:
-
-    ```html
-    <dependency>
-        <groupId>io.github.elf4j</groupId>
-        <artifactId>elf4j</artifactId>
-        <scope>compile</scope>
-    </dependency>
-    <dependency>
-        <groupId>io.github.elf4j</groupId>
-        <artifactId>elf4j-provider</artifactId>
-        <scope>runtime</scope>
-    </dependency>
-    ```
+   For log service client applications, the elf4j-engine is wrapped as a runtime dependency of elf4j-provider, see
+   installation details [here](https://github.com/elf4j/elf4j-provider#installation).
 
 2. Use it for logging in the application:
 
