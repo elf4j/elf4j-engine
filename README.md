@@ -131,3 +131,8 @@ and [sample usage](https://github.com/elf4j/elf4j#use-it---for-log-service-api-c
 For details of using this as a runtime log engine, see [elf4j-provider](https://github.com/elf4j/elf4j-provider)
 for [features](https://github.com/elf4j/elf4j-provider#features)
 and [configuration](https://github.com/elf4j/elf4j-provider#configuration).
+
+## "The Performance Talk"
+
+It's less about how fast you can fill up the log repository, but more about how fast you can relieve the application
+from logging duty back to its normal workflow.
