@@ -41,7 +41,7 @@ in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
          warn.atError().log(exception);
          logger.atInfo()
                  .log(exception,
-                         "Throwable always comes {}, then the {} message and arguments work {}",
+                         "i.e. Throwable always comes {}, then the {} message and arguments work {}",
                          "first",
                          "optional",
                          (Supplier) () -> "as usual");
