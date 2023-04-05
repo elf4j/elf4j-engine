@@ -103,8 +103,8 @@ public class JsonPattern implements LogPattern {
                 DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.systemDefault());
         CharSequence timestamp;
         String level;
-        LogEntry.ThreadValue callerThread;
         String callerClass;
+        LogEntry.ThreadValue callerThread;
         LogEntry.StackFrameValue callerDetail;
         CharSequence message;
         CharSequence exception;
