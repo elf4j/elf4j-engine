@@ -34,7 +34,7 @@ in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
          logger.log("Hello, world!");
          logger.atInfo().log("It's a beautiful day");
          Logger info = logger.atInfo();
-         info.log("... no matter how you say it");
+         info.log("... no matter on what level you say it");
          Logger warn = info.atWarn();
          warn.log("Houston, we do not have {} but let's do {}", "a problem", (Supplier) () -> "a drill");
          Throwable exception = new Exception("This is a drill");
