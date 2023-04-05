@@ -134,5 +134,5 @@ and [configuration](https://github.com/elf4j/elf4j-provider#configuration).
 
 ## "The Performance Talk"
 
-It's less about how fast you can fill up the log file/repository, and more about how fast you can relieve the
+It's not how fast you can fill up the log file or repository, it's how fast you can relieve the
 application from logging duty back to its normal workflow.
