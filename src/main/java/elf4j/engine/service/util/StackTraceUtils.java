@@ -58,7 +58,7 @@ public class StackTraceUtils {
                 return stackTrace[depth];
             }
         }
-        throw new NoSuchElementException("Caller of class '" + calleeClass + "' not found in call stack");
+        throw new NoSuchElementException("Caller of '" + calleeClass + "' not found in call stack");
     }
 
     /**
