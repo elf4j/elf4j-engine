@@ -103,9 +103,9 @@ public class JsonPattern implements LogPattern {
                 DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.systemDefault());
         CharSequence timestamp;
         String level;
-        LogEntry.ThreadInformation callerThread;
+        LogEntry.ThreadValue callerThread;
         String callerClass;
-        LogEntry.StackTraceFrame callerDetail;
+        LogEntry.StackFrameValue callerDetail;
         CharSequence message;
         CharSequence exception;
 
@@ -117,7 +117,7 @@ public class JsonPattern implements LogPattern {
                     .callerClass(jsonPattern.includeCallerDetail ? null : logEntry.getCallerClassName())
                     .level(logEntry.getNativeLogger().getLevel().name())
                     .callerThread(jsonPattern.includeCallerThread ? logEntry.getCallerThread() : null)
-                    .callerDetail(jsonPattern.includeCallerDetail ? logEntry.getCallerFrame() : null)
+                    .callerDetail(jsonPattern.includeCallerDetail ? logEntry.getCallerDetail() : null)
                     .message(logEntry.getResolvedMessage())
                     .exception(logEntry.getException() == null ? null :
                             StackTraceUtils.getTraceAsBuffer(logEntry.getException()))

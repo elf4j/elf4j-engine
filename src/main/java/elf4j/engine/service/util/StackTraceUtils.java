@@ -25,7 +25,6 @@
 
 package elf4j.engine.service.util;
 
-import elf4j.engine.service.LogEntry;
 import lombok.NonNull;
 
 import java.io.PrintWriter;
@@ -44,7 +43,7 @@ public class StackTraceUtils {
      *         whose caller is being searched for
      * @return immediate caller frame of the specified callee class
      */
-    public static LogEntry.StackTraceFrame callerOf(@NonNull Class<?> calleeClass) {
+    public static StackTraceElement callerOf(@NonNull Class<?> calleeClass) {
         StackTraceElement[] stackTrace = new Throwable().getStackTrace();
         int depth = 0;
         String calleeClassName = calleeClass.getName();
@@ -56,13 +55,7 @@ public class StackTraceUtils {
         }
         for (; depth < stackTrace.length; depth++) {
             if (!stackTrace[depth].getClassName().equals(calleeClassName)) {
-                StackTraceElement stackTraceElement = stackTrace[depth];
-                return LogEntry.StackTraceFrame.builder()
-                        .className(stackTraceElement.getClassName())
-                        .methodName(stackTraceElement.getMethodName())
-                        .lineNumber(stackTraceElement.getLineNumber())
-                        .fileName(stackTraceElement.getFileName())
-                        .build();
+                return stackTrace[depth];
             }
         }
         throw new NoSuchElementException("Caller of class '" + calleeClass + "' not found in call stack");

@@ -42,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(MockitoExtension.class)
 class JsonPatternTest {
     @Mock LogService stubLogService;
+    @Mock StackTraceElement stubStackTraceElement;
     LogEntry mockLogEntry;
     String mockMessage = "testLogMessage {}";
 
@@ -49,16 +50,11 @@ class JsonPatternTest {
     void beforeEach() {
         mockLogEntry = LogEntry.builder()
                 .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, stubLogService))
-                .callerThread(LogEntry.ThreadInformation.builder()
+                .callerThread(LogEntry.ThreadValue.builder()
                         .name(Thread.currentThread().getName())
                         .id(Thread.currentThread().getId())
                         .build())
-                .callerFrame(LogEntry.StackTraceFrame.builder()
-                        .className(JsonPattern.class.getName())
-                        .methodName("testMethod")
-                        .lineNumber(42)
-                        .fileName("testFileName")
-                        .build())
+                .callerFrame(stubStackTraceElement)
                 .message(mockMessage)
                 .arguments(new Object[] { "testArg1" })
                 .exception(new Exception("testExceptionMessage"))

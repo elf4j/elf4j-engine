@@ -86,7 +86,7 @@ public class StoppableLogService implements LogService, Stoppable {
         }
         if (this.includeCallerThread()) {
             Thread callerThread = Thread.currentThread();
-            logEntryBuilder.callerThread(new LogEntry.ThreadInformation(callerThread.getName(), callerThread.getId()));
+            logEntryBuilder.callerThread(new LogEntry.ThreadValue(callerThread.getName(), callerThread.getId()));
         }
         writerThread.execute(() -> logServiceConfiguration.getLogServiceWriter().write(logEntryBuilder.build()));
     }

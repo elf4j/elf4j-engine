@@ -47,8 +47,8 @@ public class LogEntry {
     @Nullable Object message;
     @Nullable Object[] arguments;
     @Nullable Throwable exception;
-    @Nullable StackTraceFrame callerFrame;
-    @Nullable ThreadInformation callerThread;
+    @Nullable StackTraceElement callerFrame;
+    @Nullable ThreadValue callerThread;
 
     private static @NonNull CharSequence resolve(Object msg, Object[] arguments) {
         String message = Objects.toString(supply(msg), "");
@@ -91,11 +91,24 @@ public class LogEntry {
     }
 
     /**
+     * @return POJO version of caller {@link StackTraceElement}
+     */
+    public StackFrameValue getCallerDetail() {
+        Objects.requireNonNull(this.callerFrame);
+        return StackFrameValue.builder()
+                .className(this.callerFrame.getClassName())
+                .fileName(this.callerFrame.getFileName())
+                .methodName(this.callerFrame.getMethodName())
+                .lineNumber(this.callerFrame.getLineNumber())
+                .build();
+    }
+
+    /**
      *
      */
     @Value
     @Builder
-    public static class StackTraceFrame {
+    public static class StackFrameValue {
         @NonNull String className;
         @NonNull String methodName;
         int lineNumber;
@@ -107,7 +120,7 @@ public class LogEntry {
      */
     @Value
     @Builder
-    public static class ThreadInformation {
+    public static class ThreadValue {
         @NonNull String name;
         long id;
     }
