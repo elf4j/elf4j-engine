@@ -139,7 +139,7 @@ class StoppableLogServiceTest {
             logService.log(stubLogger, this.getClass(), null, null, null);
 
             then(mockLogWriter).should().write(captorLogEntry.capture());
-            assertNotNull(captorLogEntry.getValue().getCallerFrame());
+            assertNotNull(captorLogEntry.getValue().getCallerStack());
         }
 
         @Test
@@ -153,7 +153,7 @@ class StoppableLogServiceTest {
             logService.log(stubLogger, this.getClass(), null, null, null);
 
             then(mockLogWriter).should().write(captorLogEntry.capture());
-            assertNull(captorLogEntry.getValue().getCallerFrame());
+            assertNull(captorLogEntry.getValue().getCallerStack());
         }
 
         @Test

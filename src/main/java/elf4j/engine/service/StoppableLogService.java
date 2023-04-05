@@ -28,10 +28,8 @@ package elf4j.engine.service;
 import elf4j.engine.NativeLogger;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.configuration.RefreshableLogServiceConfiguration;
-import elf4j.engine.service.util.StackTraceUtils;
 import lombok.NonNull;
 
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -71,8 +69,8 @@ public class StoppableLogService implements LogService, Stoppable {
     }
 
     @Override
-    public void log(NativeLogger nativeLogger,
-            Class<?> serviceInterfaceClass,
+    public void log(@NonNull NativeLogger nativeLogger,
+            @NonNull Class<?> serviceInterfaceClass,
             Throwable exception,
             Object message,
             Object[] args) {
@@ -82,7 +80,7 @@ public class StoppableLogService implements LogService, Stoppable {
         LogEntry.LogEntryBuilder logEntryBuilder =
                 LogEntry.builder().nativeLogger(nativeLogger).exception(exception).message(message).arguments(args);
         if (this.includeCallerDetail()) {
-            logEntryBuilder.callerFrame(StackTraceUtils.callerOf(Objects.requireNonNull(serviceInterfaceClass)));
+            logEntryBuilder.callerStack(new Throwable().getStackTrace()).serviceInterfaceClass(serviceInterfaceClass);
         }
         if (this.includeCallerThread()) {
             Thread callerThread = Thread.currentThread();

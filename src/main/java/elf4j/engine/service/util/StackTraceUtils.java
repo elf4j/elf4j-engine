@@ -45,6 +45,18 @@ public class StackTraceUtils {
      */
     public static StackTraceElement callerOf(@NonNull Class<?> calleeClass) {
         StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+        return getCallerFrame(calleeClass, stackTrace);
+    }
+
+    /**
+     * @param calleeClass
+     *         whose caller is being searched for
+     * @param stackTrace
+     *         to walk in search for the caller
+     * @return the caller frame in the stack trace
+     */
+    public static StackTraceElement getCallerFrame(@NonNull Class<?> calleeClass,
+            @NonNull StackTraceElement[] stackTrace) {
         int depth = 0;
         String calleeClassName = calleeClass.getName();
         for (; depth < stackTrace.length; depth++) {

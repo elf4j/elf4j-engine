@@ -26,6 +26,7 @@
 package elf4j.engine.service;
 
 import elf4j.engine.NativeLogger;
+import elf4j.engine.service.util.StackTraceUtils;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -47,7 +48,8 @@ public class LogEntry {
     @Nullable Object message;
     @Nullable Object[] arguments;
     @Nullable Throwable exception;
-    @Nullable StackTraceElement callerFrame;
+    @Nullable Class<?> serviceInterfaceClass;
+    @Nullable StackTraceElement[] callerStack;
     @Nullable ThreadValue callerThread;
 
     private static @NonNull CharSequence resolve(Object msg, Object[] arguments) {
@@ -80,7 +82,7 @@ public class LogEntry {
      * @return the name of the application client class calling the logging method of this logger instance
      */
     public String getCallerClassName() {
-        return callerFrame != null ? callerFrame.getClassName() : nativeLogger.getOwnerClassName();
+        return callerStack != null ? getCallerFrame().getClassName() : nativeLogger.getOwnerClassName();
     }
 
     /**
@@ -94,13 +96,18 @@ public class LogEntry {
      * @return POJO version of caller {@link StackTraceElement}
      */
     public StackFrameValue getCallerDetail() {
-        Objects.requireNonNull(this.callerFrame);
+        StackTraceElement callerFrame = getCallerFrame();
         return StackFrameValue.builder()
-                .className(this.callerFrame.getClassName())
-                .fileName(this.callerFrame.getFileName())
-                .methodName(this.callerFrame.getMethodName())
-                .lineNumber(this.callerFrame.getLineNumber())
+                .className(callerFrame.getClassName())
+                .fileName(callerFrame.getFileName())
+                .methodName(callerFrame.getMethodName())
+                .lineNumber(callerFrame.getLineNumber())
                 .build();
+    }
+
+    private StackTraceElement getCallerFrame() {
+        return StackTraceUtils.getCallerFrame(Objects.requireNonNull(this.serviceInterfaceClass),
+                Objects.requireNonNull(this.callerStack));
     }
 
     /**

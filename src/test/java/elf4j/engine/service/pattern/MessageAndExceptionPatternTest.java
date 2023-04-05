@@ -42,7 +42,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(MockitoExtension.class)
 class MessageAndExceptionPatternTest {
     @Mock LogService stubLogService;
-    @Mock StackTraceElement stubStackTraceElement;
     LogEntry mockLogEntry;
     String mockMessage = "testLogMessage {}";
     Object[] mockArgs = new Object[] { "testArg1" };
@@ -56,7 +55,7 @@ class MessageAndExceptionPatternTest {
                         .name(Thread.currentThread().getName())
                         .id(Thread.currentThread().getId())
                         .build())
-                .callerFrame(stubStackTraceElement)
+                .callerStack(new Throwable().getStackTrace())
                 .message(mockMessage)
                 .arguments(mockArgs)
                 .exception(mockException)
