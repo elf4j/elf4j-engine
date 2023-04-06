@@ -47,23 +47,24 @@ public class LogEntry {
     @NonNull Instant timestamp = Instant.now();
     @Nullable Object message;
     @Nullable Object[] arguments;
-    @Nullable Throwable exception;
+    @Nullable Throwable throwable;
     @Nullable Class<?> serviceInterfaceClass;
     @Nullable StackTraceElement[] callerStack;
     @Nullable ThreadValue callerThread;
 
-    private static @NonNull CharSequence resolve(Object msg, Object[] arguments) {
-        String message = Objects.toString(supply(msg), "");
+    private static @NonNull CharSequence resolve(Object message, Object[] arguments) {
+        String suppliedMessage = Objects.toString(supply(message), "");
         if (arguments == null || arguments.length == 0) {
-            return message;
+            return suppliedMessage;
         }
-        int messageLength = message.length();
+        int messageLength = suppliedMessage.length();
         StringBuilder resolved = new StringBuilder(messageLength + ADDITIONAL_STRING_BUILDER_CAPACITY);
         int i = 0;
         int j = 0;
         while (i < messageLength) {
-            char character = message.charAt(i);
-            if (character == '{' && ((i + 1) < messageLength && message.charAt(i + 1) == '}') && j < arguments.length) {
+            char character = suppliedMessage.charAt(i);
+            if (character == '{' && ((i + 1) < messageLength && suppliedMessage.charAt(i + 1) == '}')
+                    && j < arguments.length) {
                 resolved.append(supply(arguments[j++]));
                 i += 2;
             } else {

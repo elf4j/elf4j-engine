@@ -57,7 +57,7 @@ class JsonPatternTest {
                 .serviceInterfaceClass(this.getClass())
                 .message(mockMessage)
                 .arguments(new Object[] { "testArg1" })
-                .exception(new Exception("testExceptionMessage"))
+                .throwable(new Exception("testExceptionMessage"))
                 .build();
     }
 

@@ -71,14 +71,17 @@ public class StoppableLogService implements LogService, Stoppable {
     @Override
     public void log(@NonNull NativeLogger nativeLogger,
             @NonNull Class<?> serviceInterfaceClass,
-            Throwable exception,
+            Throwable throwable,
             Object message,
-            Object[] args) {
+            Object[] arguments) {
         if (!logServiceConfiguration.isEnabled(nativeLogger)) {
             return;
         }
-        LogEntry.LogEntryBuilder logEntryBuilder =
-                LogEntry.builder().nativeLogger(nativeLogger).exception(exception).message(message).arguments(args);
+        LogEntry.LogEntryBuilder logEntryBuilder = LogEntry.builder()
+                .nativeLogger(nativeLogger)
+                .throwable(throwable)
+                .message(message)
+                .arguments(arguments);
         if (this.includeCallerDetail()) {
             logEntryBuilder.callerStack(new Throwable().getStackTrace()).serviceInterfaceClass(serviceInterfaceClass);
         }

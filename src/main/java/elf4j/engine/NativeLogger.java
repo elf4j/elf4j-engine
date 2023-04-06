@@ -103,26 +103,26 @@ public class NativeLogger implements Logger {
     }
 
     @Override
-    public void log(String message, Object... args) {
-        this.service(null, message, args);
+    public void log(String message, Object... arguments) {
+        this.service(null, message, arguments);
     }
 
     @Override
-    public void log(Throwable t) {
-        this.service(t, null, null);
+    public void log(Throwable throwable) {
+        this.service(throwable, null, null);
     }
 
     @Override
-    public void log(Throwable t, Object message) {
-        this.service(t, message, null);
+    public void log(Throwable throwable, Object message) {
+        this.service(throwable, message, null);
     }
 
     @Override
-    public void log(Throwable t, String message, Object... args) {
-        this.service(t, message, args);
+    public void log(Throwable throwable, String message, Object... arguments) {
+        this.service(throwable, message, arguments);
     }
 
-    private void service(Throwable exception, Object message, Object[] args) {
-        this.logService.log(this, NativeLogger.class, exception, message, args);
+    private void service(Throwable throwable, Object message, Object[] arguments) {
+        this.logService.log(this, NativeLogger.class, throwable, message, arguments);
     }
 }

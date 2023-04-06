@@ -58,7 +58,7 @@ class MessageAndExceptionPatternTest {
                 .callerStack(new Throwable().getStackTrace())
                 .message(mockMessage)
                 .arguments(mockArgs)
-                .exception(mockException)
+                .throwable(mockException)
                 .build();
     }
 

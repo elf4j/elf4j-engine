@@ -119,8 +119,8 @@ public class JsonPattern implements LogPattern {
                     .callerThread(jsonPattern.includeCallerThread ? logEntry.getCallerThread() : null)
                     .callerDetail(jsonPattern.includeCallerDetail ? logEntry.getCallerDetail() : null)
                     .message(logEntry.getResolvedMessage())
-                    .exception(logEntry.getException() == null ? null :
-                            StackTraceUtils.getTraceAsBuffer(logEntry.getException()))
+                    .exception(logEntry.getThrowable() == null ? null :
+                            StackTraceUtils.getTraceAsBuffer(logEntry.getThrowable()))
                     .build();
         }
     }

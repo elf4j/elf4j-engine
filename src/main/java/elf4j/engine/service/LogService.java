@@ -49,16 +49,16 @@ public interface LogService extends PerformanceSensitive {
      *         caller of this class, therefore, is the logging service's "caller class" whose details, such as method
      *         and line number, may need to be resolved by walking the runtime calling stack trace if such details are
      *         required per configuration.
-     * @param exception
+     * @param throwable
      *         to log
      * @param message
-     *         to log, can have argument placeholders
-     * @param args
-     *         to replace the placeholders in the message
+     *         to log, can have argument placeholders to be replaced by the values of the specified arguments
+     * @param arguments
+     *         arguments whose values will replace the placeholders in the specified message
      */
     void log(NativeLogger nativeLogger,
             Class<?> serviceInterfaceClass,
-            Throwable exception,
+            Throwable throwable,
             Object message,
-            Object[] args);
+            Object[] arguments);
 }
