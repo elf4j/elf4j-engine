@@ -51,15 +51,13 @@ public class NativeLoggerFactory implements LoggerFactory {
     @NonNull private final Level defaultLoggerLevel;
     private final Map<String, NativeLogger> nativeLoggers = new HashMap<>();
     /**
-     * The class that the API client uses to initiate access and request for a logger instance. The client caller class
-     * of this class will be the "owner class" of the logger instances this factory produces.
+     * The class that the API client calls first to get a logger instance. The client caller class of this class will be
+     * the "owner class" of the logger instances this factory produces.
      * <p></p>
      * For this native implementation, the service access class is the {@link Logger} interface itself as the client
-     * calls the static factory method {@link Logger#instance()} to gain access to a logger instance. The client will
-     * then use the logger instance to invoke logging services such as the {@link Logger#log} methods.
-     * <p></p>
-     * If this library is used as the engine of another logging API, then this access class would be the class from that
-     * API that the client calls to gain access to that API's logging service.
+     * calls the static factory method {@link Logger#instance()} first to get a logger instance. If this library is used
+     * as the engine of another logging API, then this access class would be the class in that API that the client calls
+     * first to get a logger instance of that API.
      */
     @NonNull private final Class<?> serviceAccessClass;
     @NonNull private final LogService logService;
@@ -88,7 +86,8 @@ public class NativeLoggerFactory implements LoggerFactory {
     }
 
     /**
-     * A bit heavy as it uses stack trace to locate the client class (owner class) requesting the Logger instance.
+     * More expensive logger instance creation as it uses stack trace to locate the client class (owner class)
+     * requesting the Logger instance.
      *
      * @return new instance of {@link NativeLogger}
      */

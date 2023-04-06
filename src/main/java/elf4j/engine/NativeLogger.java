@@ -41,11 +41,10 @@ import java.util.function.Function;
 import static java.util.stream.Collectors.toMap;
 
 /**
- * Instances of this class are thread-safe, and can be used as static, instance, or local variables. The instances
- * returned from the static factory method {@link Logger#instance()} are more expensive to create; therefore, it is
- * recommended to store and use such instances as static variables. The instances returned from the
- * fluent-style/instance factory methods (such as {@link Logger#atLevel}) are inexpensive to create, thus suitable to
- * use/discard at the program's convenience.
+ * Any instance of this class is thread-safe; it can be safely used as static, instance, or local variables. However,
+ * instances returned by the static factory method {@link Logger#instance()} are more expensive to create; it is
+ * recommended to use them as static variables. Other instances are less expensive; they are fit to be used as any kind
+ * of variables.
  */
 @ThreadSafe
 @Value
@@ -54,17 +53,17 @@ public class NativeLogger implements Logger {
             EnumSet.allOf(Level.class).stream().collect(toMap(Function.identity(), l -> new HashMap<>()));
 
     /**
-     * Name of this logger's "owner class" - the logging service client class that first requested for this logger
-     * instance via the {@link Logger#instance()} service access method. The owner class is usually the same as the
-     * "caller class" - the client class that calls the service interface methods such as {@link Logger#log(Object)}.
+     * Name of this logger's "owner class" - the logging service client class that first requested this logger instance
+     * via the {@link Logger#instance()} service access method. The owner class is usually the same as the "caller
+     * class" - the client class that calls the service interface methods such as {@link Logger#log(Object)}.
      * <p>
      * In rare and not-recommended scenarios, the owner class can be different from the caller class: e.g. the owner
      * class could pass a reference of this logger instance out to a different/caller class. Once set, though, the value
      * of this field will never change even when the owner class is different from the caller class.
      * <p>
-     * To reduce the runtime frequency of walking the call stack in order to locate the caller class, this native ELF4J
+     * To reduce the frequency of having to walk the call stack in order to locate the caller class, this native ELF4J
      * implementation assumes the owner and caller class to be one and the same. Thus, for logging output that requires
-     * just the caller class name, this field will be used in liu of checking the stack trace; i.e. the stack trace
+     * only the caller class name, this field will be used in liu of checking the stack trace; i.e. the stack trace
      * walking is needed only when more caller details (e.g. method name, file name, line number) are required.
      */
     @NonNull String ownerClassName;
