@@ -57,16 +57,10 @@ public class StackTraceUtils {
      */
     public static StackTraceElement getCallerFrame(@NonNull Class<?> calleeClass,
             @NonNull StackTraceElement[] stackTrace) {
-        int depth = 0;
         String calleeClassName = calleeClass.getName();
-        for (; depth < stackTrace.length; depth++) {
-            if (stackTrace[depth].getClassName().equals(calleeClassName)) {
-                depth++;
-                break;
-            }
-        }
-        for (; depth < stackTrace.length; depth++) {
-            if (!stackTrace[depth].getClassName().equals(calleeClassName)) {
+        for (int depth = 1; depth < stackTrace.length; depth++) {
+            if (calleeClassName.equals(stackTrace[depth - 1].getClassName())
+                    && !calleeClassName.equals(stackTrace[depth].getClassName())) {
                 return stackTrace[depth];
             }
         }
