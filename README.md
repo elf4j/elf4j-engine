@@ -5,22 +5,34 @@
 Asynchronous Java log engine implementing the [ELF4J](https://github.com/elf4j/elf4j) (Easy Logging Facade for Java )
 API.
 
-Naturally, this engine is packaged by [elf4j-provider](https://github.com/elf4j/elf4j-provider) to
-make a native logging _service provider_ of the [ELF4J](https://github.com/elf4j/) logging facade.
+This engine is packaged by [elf4j-provider](https://github.com/elf4j/elf4j-provider) to make a native logging _service
+provider_ of the [ELF4J](https://github.com/elf4j/) logging facade.
 
-Meanwhile, this is also a stand-alone log engine, designed to be adaptable for servicing other Java logging APIs. For
-example, it is a log engine for the [SLF4J](https://www.slf4j.org/) API, as
-in [slf4j-elf4j](https://github.com/elf4j/slf4j-elf4j); it is also a log engine for the Java Platform
-Logging ([JPL](https://openjdk.org/jeps/264)) API introduced since Java 9, as
-in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
+This is also a stand-alone log engine, designed to be adaptable for servicing other Java logging APIs. For example, it
+is a log engine for the [SLF4J](https://www.slf4j.org/) API, as in [slf4j-elf4j](https://github.com/elf4j/slf4j-elf4j);
+it is also a log engine for the Java Platform Logging ([JPL](https://openjdk.org/jeps/264)) API introduced since Java 9,
+as in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
 
 ## Getting Started...
 
 1. Install
 
-   For log service client applications, the elf4j-engine is wrapped as a runtime dependency of elf4j-provider. See
-   installation details [here](https://github.com/elf4j/elf4j-provider#installation), and use the latest versions from
-   Maven Central.
+   ```html
+   ...
+   <dependency>
+      <groupId>io.github.elf4j</groupId>
+      <artifactId>elf4j</artifactId>
+      <scope>compile</scope>
+   </dependency>
+   <dependency>
+      <groupId>io.github.elf4j</groupId>
+      <artifactId>elf4j-provider</artifactId>
+      <scope>runtime</scope>
+   </dependency>
+   ...
+   ```
+   See installation details [here](https://github.com/elf4j/elf4j-provider#installation), and use the latest versions
+   from Maven Central.
 2. Use it for logging in the application:
    ```java
    import elf4j.Logger;
