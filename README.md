@@ -34,11 +34,7 @@ as in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
    See installation details [here](https://github.com/elf4j/elf4j-provider#installation), and use the latest versions
    from Maven Central.
 2. Use it for logging in the application:
-   ```java
-   import elf4j.Logger;
-   
-   import java.util.function.Supplier;
-   
+   ```java 
    class Scratch {
       static Logger logger = Logger.instance();
    
