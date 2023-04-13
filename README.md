@@ -2,16 +2,18 @@
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.elf4j/elf4j-engine.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.elf4j%22%20AND%20a:%22elf4j-engine%22)
 
-Asynchronous Java log engine implementing the [ELF4J](https://github.com/elf4j/elf4j) (Easy Logging Facade for Java )
-API.
+An asynchronous Java log engine.
 
-This engine is packaged by [elf4j-provider](https://github.com/elf4j/elf4j-provider) to make a native logging _service
-provider_ of the [ELF4J](https://github.com/elf4j/) logging facade.
+Implementing the [ELF4J](https://github.com/elf4j/elf4j) (Easy Logging Facade for Java ) API, this is the log engine
+behind [elf4j-provider](https://github.com/elf4j/elf4j-provider) - a native logging _service provider_ of
+the [ELF4J](https://github.com/elf4j/) logging facade.
 
-This is also a stand-alone log engine, designed to be adaptable for servicing other Java logging APIs. For example, it
-is a log engine for the [SLF4J](https://www.slf4j.org/) API, as in [slf4j-elf4j](https://github.com/elf4j/slf4j-elf4j);
-it is also a log engine for the Java Platform Logging ([JPL](https://openjdk.org/jeps/264)) API introduced since Java 9,
-as in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
+A stand-alone log engine in the meantime, it is designed to be adaptable for servicing other Java logging APIs.
+
+* It is a log engine for the [SLF4J](https://www.slf4j.org/) API, as
+  in [slf4j-elf4j](https://github.com/elf4j/slf4j-elf4j).
+* It is also a log engine for the Java Platform Logging ([JPL](https://openjdk.org/jeps/264)) API introduced since Java
+  9, as in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
 
 ## Getting Started...
 
