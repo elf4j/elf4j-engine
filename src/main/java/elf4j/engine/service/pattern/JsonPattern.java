@@ -38,6 +38,7 @@ import lombok.ToString;
 import lombok.Value;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
@@ -63,7 +64,9 @@ public class JsonPattern implements LogPattern {
     boolean includeCallerThread;
     boolean includeCallerDetail;
     boolean prettyPrint;
-    @ToString.Exclude JsonWriter jsonWriter = new DslJson<>(Settings.basicSetup().skipDefaultValues(true)).newWriter();
+    @ToString.Exclude JsonWriter jsonWriter =
+            new DslJson<>(Settings.withRuntime().skipDefaultValues(true).includeServiceLoader()).newWriter();
+    @ToString.Exclude ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
     /**
      * @param patternSegment
@@ -103,38 +106,19 @@ public class JsonPattern implements LogPattern {
     @Override
     public void renderTo(LogEntry logEntry, StringBuilder target) {
         jsonWriter.serializeObject(JsonLogEntry.from(logEntry, this));
-        try (OutputStream targetOut = getOutputStream(target)) {
-            jsonWriter.toStream(targetOut);
+        if (!this.prettyPrint) {
+            target.append(jsonWriter);
+            jsonWriter.reset();
+            return;
+        }
+        try (OutputStream outputStream = new PrettifyOutputStream(byteArrayOutputStream)) {
+            jsonWriter.toStream(outputStream);
+            target.append(byteArrayOutputStream.toString("UTF-8"));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } finally {
             jsonWriter.reset();
-        }
-    }
-
-    @NonNull
-    private OutputStream getOutputStream(StringBuilder target) {
-        AppendingOutputStream appendingOutputStream = new AppendingOutputStream(target);
-        return this.prettyPrint ? new PrettifyOutputStream(appendingOutputStream) : appendingOutputStream;
-    }
-
-    static class AppendingOutputStream extends OutputStream {
-        final Appendable appendable;
-
-        AppendingOutputStream(Appendable appendable) {
-            this.appendable = appendable;
-        }
-
-        @Override
-        public void write(int b) throws IOException {
-            appendable.append((char) b);
-        }
-
-        @Override
-        public void write(byte @NonNull [] b, int off, int len) throws IOException {
-            for (int i = 0; i < len; i++) {
-                appendable.append((char) b[off + i]);
-            }
+            byteArrayOutputStream.reset();
         }
     }
 
@@ -147,8 +131,8 @@ public class JsonPattern implements LogPattern {
         String callerClass;
         LogEntry.ThreadValue callerThread;
         LogEntry.StackFrameValue callerDetail;
-        String message;
-        String exception;
+        CharSequence message;
+        CharSequence exception;
 
         static JsonLogEntry from(@NonNull LogEntry logEntry, @NonNull JsonPattern jsonPattern) {
             return JsonLogEntry.builder()
@@ -157,9 +141,9 @@ public class JsonPattern implements LogPattern {
                     .level(logEntry.getNativeLogger().getLevel().name())
                     .callerThread(jsonPattern.includeCallerThread ? logEntry.getCallerThread() : null)
                     .callerDetail(jsonPattern.includeCallerDetail ? logEntry.getCallerDetail() : null)
-                    .message(logEntry.getResolvedMessage().toString())
+                    .message(logEntry.getResolvedMessage())
                     .exception(logEntry.getThrowable() == null ? null :
-                            StackTraceUtils.getTraceAsBuffer(logEntry.getThrowable()).toString())
+                            StackTraceUtils.getTraceAsBuffer(logEntry.getThrowable()))
                     .build();
         }
     }

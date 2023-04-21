@@ -136,6 +136,12 @@
                         <annotationProcessor>com.dslplatform.json.processor.CompiledJsonAnnotationProcessor
                         </annotationProcessor>
                     </annotationProcessors>
+                    <compilerArguments>
+                        <Adsljson.loglevel>DEBUG</Adsljson.loglevel>
+                        <!--Adsljson.annotation>EXPLICIT</Adsljson.annotation-->
+                        <Adsljson.unknown>ALLOW</Adsljson.unknown>
+                        <!--Adsljson.configuration>com.dslplatform.maven.DslJsonConfiguration</Adsljson.configuration-->
+                    </compilerArguments>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -182,6 +188,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.5.0</version>
+                <configuration>
+                    <sourceFileExcludes>**/_*.java</sourceFileExcludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
