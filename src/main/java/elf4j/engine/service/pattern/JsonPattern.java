@@ -25,8 +25,11 @@
 
 package elf4j.engine.service.pattern;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.dslplatform.json.CompiledJson;
+import com.dslplatform.json.DslJson;
+import com.dslplatform.json.JsonWriter;
+import com.dslplatform.json.PrettifyOutputStream;
+import com.dslplatform.json.runtime.Settings;
 import elf4j.engine.service.LogEntry;
 import elf4j.engine.service.util.StackTraceUtils;
 import lombok.Builder;
@@ -34,8 +37,12 @@ import lombok.NonNull;
 import lombok.ToString;
 import lombok.Value;
 
+import javax.annotation.concurrent.NotThreadSafe;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
@@ -44,6 +51,7 @@ import java.util.stream.Collectors;
 /**
  *
  */
+@NotThreadSafe
 @Value
 @Builder
 public class JsonPattern implements LogPattern {
@@ -54,7 +62,8 @@ public class JsonPattern implements LogPattern {
             Arrays.stream(new String[] { CALLER_THREAD, CALLER_DETAIL, PRETTY }).collect(Collectors.toSet());
     boolean includeCallerThread;
     boolean includeCallerDetail;
-    @ToString.Exclude Gson gson;
+    boolean prettyPrint;
+    @ToString.Exclude JsonWriter jsonWriter = new DslJson<>(Settings.basicSetup().skipDefaultValues(true)).newWriter();
 
     /**
      * @param patternSegment
@@ -67,7 +76,7 @@ public class JsonPattern implements LogPattern {
         }
         Optional<String> displayOption = PatternType.getPatternDisplayOption(patternSegment);
         if (!displayOption.isPresent()) {
-            return JsonPattern.builder().includeCallerThread(false).includeCallerDetail(false).gson(new Gson()).build();
+            return JsonPattern.builder().build();
         }
         Set<String> options =
                 Arrays.stream(displayOption.get().split(",")).map(String::trim).collect(Collectors.toSet());
@@ -77,7 +86,7 @@ public class JsonPattern implements LogPattern {
         return JsonPattern.builder()
                 .includeCallerThread(options.contains(CALLER_THREAD))
                 .includeCallerDetail(options.contains(CALLER_DETAIL))
-                .gson(options.contains(PRETTY) ? new GsonBuilder().setPrettyPrinting().create() : new Gson())
+                .prettyPrint(options.contains(PRETTY))
                 .build();
     }
 
@@ -93,34 +102,64 @@ public class JsonPattern implements LogPattern {
 
     @Override
     public void renderTo(LogEntry logEntry, StringBuilder target) {
-        gson.toJson(JsonLogEntry.from(logEntry, this), target);
+        jsonWriter.serializeObject(JsonLogEntry.from(logEntry, this));
+        try (OutputStream targetOut = getOutputStream(target)) {
+            jsonWriter.toStream(targetOut);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } finally {
+            jsonWriter.reset();
+        }
+    }
+
+    @NonNull
+    private OutputStream getOutputStream(StringBuilder target) {
+        AppendingOutputStream appendingOutputStream = new AppendingOutputStream(target);
+        return this.prettyPrint ? new PrettifyOutputStream(appendingOutputStream) : appendingOutputStream;
+    }
+
+    static class AppendingOutputStream extends OutputStream {
+        final Appendable appendable;
+
+        AppendingOutputStream(Appendable appendable) {
+            this.appendable = appendable;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            appendable.append((char) b);
+        }
+
+        @Override
+        public void write(byte @NonNull [] b, int off, int len) throws IOException {
+            for (int i = 0; i < len; i++) {
+                appendable.append((char) b[off + i]);
+            }
+        }
     }
 
     @Value
     @Builder
+    @CompiledJson
     static class JsonLogEntry {
-        static final DateTimeFormatter DATE_TIME_FORMATTER =
-                DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.systemDefault());
-        CharSequence timestamp;
+        OffsetDateTime timestamp;
         String level;
         String callerClass;
         LogEntry.ThreadValue callerThread;
         LogEntry.StackFrameValue callerDetail;
-        CharSequence message;
-        CharSequence exception;
+        String message;
+        String exception;
 
         static JsonLogEntry from(@NonNull LogEntry logEntry, @NonNull JsonPattern jsonPattern) {
-            StringBuilder timestamp = new StringBuilder(35);
-            DATE_TIME_FORMATTER.formatTo(logEntry.getTimestamp(), timestamp);
             return JsonLogEntry.builder()
-                    .timestamp(timestamp)
+                    .timestamp(OffsetDateTime.ofInstant(logEntry.getTimestamp(), ZoneId.systemDefault()))
                     .callerClass(jsonPattern.includeCallerDetail ? null : logEntry.getCallerClassName())
                     .level(logEntry.getNativeLogger().getLevel().name())
                     .callerThread(jsonPattern.includeCallerThread ? logEntry.getCallerThread() : null)
                     .callerDetail(jsonPattern.includeCallerDetail ? logEntry.getCallerDetail() : null)
-                    .message(logEntry.getResolvedMessage())
+                    .message(logEntry.getResolvedMessage().toString())
                     .exception(logEntry.getThrowable() == null ? null :
-                            StackTraceUtils.getTraceAsBuffer(logEntry.getThrowable()))
+                            StackTraceUtils.getTraceAsBuffer(logEntry.getThrowable()).toString())
                     .build();
         }
     }
