@@ -34,7 +34,6 @@ import lombok.ToString;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.BufferedOutputStream;
 import java.io.PrintStream;
 import java.util.Map;
 
@@ -104,16 +103,16 @@ public class StandardStreamsWriter implements LogWriter {
         logPattern.renderTo(logEntry, target);
         switch (this.outStreamType) {
             case STDOUT:
-                BufferedStandardOutputStream.flushOut(target);
+                AtomicOutput.flushOut(target);
                 return;
             case STDERR:
-                BufferedStandardOutputStream.flushErr(target);
+                AtomicOutput.flushErr(target);
                 return;
             case AUTO:
                 if (logEntry.getNativeLogger().getLevel().compareTo(Level.WARN) < 0) {
-                    BufferedStandardOutputStream.flushOut(target);
+                    AtomicOutput.flushOut(target);
                 } else {
-                    BufferedStandardOutputStream.flushErr(target);
+                    AtomicOutput.flushErr(target);
                 }
                 return;
             default:
@@ -135,17 +134,19 @@ public class StandardStreamsWriter implements LogWriter {
         STDOUT, STDERR, AUTO
     }
 
-    private static class BufferedStandardOutputStream {
-        private static final PrintStream ERR = new PrintStream(new BufferedOutputStream(System.err), false);
-        private static final PrintStream OUT = new PrintStream(new BufferedOutputStream(System.out), false);
+    private static class AtomicOutput {
+        private static final PrintStream ERR = System.err;
+        private static final PrintStream OUT = System.out;
 
         static synchronized void flushErr(Object o) {
             ERR.println(o);
+            // flush in case standard stream is redirected/customized
             ERR.flush();
         }
 
         static synchronized void flushOut(Object o) {
             OUT.println(o);
+            // flush in case standard stream is redirected/customized
             OUT.flush();
         }
     }
