@@ -105,20 +105,18 @@ public class JsonPattern implements LogPattern {
 
     @Override
     public void renderTo(LogEntry logEntry, StringBuilder target) {
+        jsonWriter.reset();
         jsonWriter.serializeObject(JsonLogEntry.from(logEntry, this));
         if (!this.prettyPrint) {
             target.append(jsonWriter);
-            jsonWriter.reset();
             return;
         }
+        byteArrayOutputStream.reset();
         try (OutputStream outputStream = new PrettifyOutputStream(byteArrayOutputStream)) {
             jsonWriter.toStream(outputStream);
             target.append(byteArrayOutputStream.toString("UTF-8"));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-        } finally {
-            jsonWriter.reset();
-            byteArrayOutputStream.reset();
         }
     }
 
