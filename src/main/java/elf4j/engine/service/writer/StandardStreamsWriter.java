@@ -135,19 +135,18 @@ public class StandardStreamsWriter implements LogWriter {
     }
 
     private static class AtomicOutput {
-        private static final PrintStream ERR = System.err;
-        private static final PrintStream OUT = System.out;
-
         static synchronized void flushErr(Object o) {
-            ERR.println(o);
-            // explicit flush in case default standard stream is replaced
-            ERR.flush();
+            PrintStream stderr = System.err;
+            stderr.println(o);
+            /* explicit flush in case default standard stream is replaced */
+            stderr.flush();
         }
 
         static synchronized void flushOut(Object o) {
-            OUT.println(o);
-            // explicit flush in case default standard stream is replaced
-            OUT.flush();
+            PrintStream stdout = System.out;
+            stdout.println(o);
+            /* explicit flush in case default standard stream is replaced */
+            stdout.flush();
         }
     }
 }
