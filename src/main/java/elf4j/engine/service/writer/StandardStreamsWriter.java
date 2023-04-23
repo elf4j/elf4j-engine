@@ -138,14 +138,14 @@ public class StandardStreamsWriter implements LogWriter {
         static synchronized void flushErr(Object o) {
             PrintStream stderr = System.err;
             stderr.println(o);
-            /* explicit flush in case default standard stream is replaced */
+            /* explicit flush in case default standard stream is changed */
             stderr.flush();
         }
 
         static synchronized void flushOut(Object o) {
             PrintStream stdout = System.out;
             stdout.println(o);
-            /* explicit flush in case default standard stream is replaced */
+            /* explicit flush in case default standard stream is changed */
             stdout.flush();
         }
     }
