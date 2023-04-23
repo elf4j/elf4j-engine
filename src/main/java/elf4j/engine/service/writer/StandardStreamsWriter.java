@@ -140,13 +140,13 @@ public class StandardStreamsWriter implements LogWriter {
 
         static synchronized void flushErr(Object o) {
             ERR.println(o);
-            // flush in case standard stream is redirected/customized
+            // explicit flush in case default standard stream is replaced
             ERR.flush();
         }
 
         static synchronized void flushOut(Object o) {
             OUT.println(o);
-            // flush in case standard stream is redirected/customized
+            // explicit flush in case default standard stream is replaced
             OUT.flush();
         }
     }
