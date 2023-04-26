@@ -39,7 +39,6 @@ import java.util.Properties;
  *
  */
 public class WriterRepository {
-    private static final LogWriter DEFAULT_WRITER = StandardStreamsWriter.defaultWriter();
     private final LogWriter logServiceWriter;
 
     private WriterRepository(LogWriter logServiceWriter) {
@@ -53,15 +52,16 @@ public class WriterRepository {
     static @Nonnull WriterRepository from(@Nullable Properties properties) {
         if (properties == null) {
             InternalLogger.INSTANCE.log(Level.INFO, "No configuration, taking default writer");
-            return new WriterRepository(DEFAULT_WRITER);
+            return new WriterRepository(StandardStreamsWriter.fallbackWriter());
         }
         WriterGroup writerGroup = WriterGroup.from(properties);
         if (writerGroup.size() > 0) {
-            InternalLogger.INSTANCE.log(Level.INFO, "Configured writers: " + writerGroup.size());
+            InternalLogger.INSTANCE.log(Level.INFO,
+                    "Writer group of size " + writerGroup.size() + " configured: " + writerGroup);
             return new WriterRepository(writerGroup);
         }
         InternalLogger.INSTANCE.log(Level.WARN, "No writer configured, falling back to default writer");
-        return new WriterRepository(DEFAULT_WRITER);
+        return new WriterRepository(StandardStreamsWriter.defaultWriter(properties));
     }
 
     LogWriter getLogServiceWriter() {

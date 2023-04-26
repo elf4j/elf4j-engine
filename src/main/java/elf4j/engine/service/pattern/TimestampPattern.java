@@ -27,6 +27,7 @@ package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEntry;
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
@@ -41,7 +42,7 @@ public class TimestampPattern implements LogPattern {
     private static final DateTimeFormatter DEFAULT_TIMESTAMP_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
     private static final ZoneId DEFAULT_TIMESTAMP_ZONE = ZoneId.systemDefault();
-    DateTimeFormatter dateTimeFormatter;
+    @ToString.Exclude DateTimeFormatter dateTimeFormatter;
 
     /**
      * @param patternSegment

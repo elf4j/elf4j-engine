@@ -37,6 +37,7 @@ import java.util.Properties;
 /**
  *
  */
+@ToString
 public class WriterGroup implements LogWriter {
     private final List<LogWriter> writers;
     private Level minimumLevel;

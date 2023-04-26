@@ -29,63 +29,86 @@ import elf4j.Level;
 import elf4j.engine.service.LogEntry;
 import elf4j.engine.service.pattern.LogPattern;
 import elf4j.engine.service.pattern.PatternGroup;
+import lombok.Builder;
 import lombok.NonNull;
 import lombok.ToString;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.PrintStream;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  *
  */
+@Builder
 @ToString
 public class StandardStreamsWriter implements LogWriter {
-    private static final Level DEFAULT_MINIMUM_LEVEL = Level.TRACE;
-    private static final OutStreamType DEFAULT_WRITER_OUT_STREAM = OutStreamType.STDOUT;
+    private static final String DEFAULT_MINIMUM_LEVEL = "trace";
     private static final String DEFAULT_PATTERN = "{timestamp} {level} {class} - {message}";
-    private final LogPattern logPattern;
+    private static final String DEFAULT_WRITER_OUT_STREAM = "stdout";
     private final Level minimumLevel;
+    private final LogPattern logPattern;
     private final OutStreamType outStreamType;
-
-    private StandardStreamsWriter(Level minimumLevel, PatternGroup logPattern, OutStreamType outStreamType) {
-        this.logPattern = logPattern;
-        this.minimumLevel = minimumLevel;
-        this.outStreamType = outStreamType;
-    }
 
     /**
      * @return default writer
      */
-    public static @Nonnull StandardStreamsWriter defaultWriter() {
-        return new StandardStreamsWriter(DEFAULT_MINIMUM_LEVEL,
-                PatternGroup.from(DEFAULT_PATTERN),
-                DEFAULT_WRITER_OUT_STREAM);
+    public static @Nonnull StandardStreamsWriter fallbackWriter() {
+        return StandardStreamsWriter.builder()
+                .minimumLevel(Level.TRACE)
+                .logPattern(PatternGroup.from(DEFAULT_PATTERN))
+                .outStreamType(OutStreamType.STDOUT)
+                .build();
     }
 
     /**
-     * @param configuration
+     * @param writerConfiguration
      *         properties map to make a standard-stream writer
-     * @param defaultOutStreamType
-     *         default out stream type for standard writers. Writer-specific type, if present, takes precedence over
-     *         this. If no out stream type configured on either writer or this level, default to stdout.
-     * @return standard-stream writer per the specified configuration
+     * @param properties
+     *         entire logging configuration for global properties lookup
+     * @return a single standard-stream writer per the specified writerConfiguration
      */
-    public static @NonNull StandardStreamsWriter from(@NonNull Map<String, String> configuration,
-            @Nullable String defaultOutStreamType) {
-        String level = configuration.get("level");
-        String pattern = configuration.get("pattern");
-        String writerOutStreamType = configuration.get("stream");
-        if (writerOutStreamType == null) {
-            writerOutStreamType = defaultOutStreamType;
-        }
-        if (writerOutStreamType == null) {
-            writerOutStreamType = DEFAULT_WRITER_OUT_STREAM.name();
-        }
-        return new StandardStreamsWriter(level == null ? DEFAULT_MINIMUM_LEVEL : Level.valueOf(level.toUpperCase()),
-                PatternGroup.from(pattern == null ? DEFAULT_PATTERN : pattern),
-                OutStreamType.valueOf(writerOutStreamType.trim().toUpperCase()));
+    public static @NonNull StandardStreamsWriter from(@NonNull Map<String, String> writerConfiguration,
+            @NonNull Properties properties) {
+        return StandardStreamsWriter.builder()
+                .minimumLevel(Level.valueOf(getWriterConfiguredOrDefault("level",
+                        writerConfiguration,
+                        properties,
+                        DEFAULT_MINIMUM_LEVEL).trim().toUpperCase()))
+                .logPattern(PatternGroup.from(getWriterConfiguredOrDefault("pattern",
+                        writerConfiguration,
+                        properties,
+                        DEFAULT_PATTERN)))
+                .outStreamType(OutStreamType.valueOf(getWriterConfiguredOrDefault("stream",
+                        writerConfiguration,
+                        properties,
+                        DEFAULT_WRITER_OUT_STREAM).trim().toUpperCase()))
+                .build();
+    }
+
+    /**
+     * @param properties
+     *         entire configuration properties
+     * @return default writer when no specific writer is configured
+     */
+    public static StandardStreamsWriter defaultWriter(Properties properties) {
+        return StandardStreamsWriter.builder()
+                .minimumLevel(Level.valueOf(properties.getProperty("level", DEFAULT_MINIMUM_LEVEL)
+                        .trim()
+                        .toUpperCase()))
+                .logPattern(PatternGroup.from(properties.getProperty("pattern", DEFAULT_PATTERN)))
+                .outStreamType(OutStreamType.valueOf(properties.getProperty("stream", DEFAULT_WRITER_OUT_STREAM)
+                        .trim()
+                        .toUpperCase()))
+                .build();
+    }
+
+    private static String getWriterConfiguredOrDefault(String name,
+            Map<String, String> writerConfiguration,
+            Properties properties,
+            String defaultValue) {
+        return writerConfiguration.getOrDefault(name, properties.getProperty(name, defaultValue));
     }
 
     @Override

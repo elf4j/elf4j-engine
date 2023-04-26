@@ -29,14 +29,21 @@ import elf4j.engine.NativeLogger;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.configuration.RefreshableLogServiceConfiguration;
 import lombok.NonNull;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
+import org.awaitility.pollinterval.FixedPollInterval;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.*;
 
 /**
  *
  */
 public class StoppableLogService implements LogService, Stoppable {
+    private static final int BUFFER_SIZE = 2 * 1_000;
+    private static final ConditionFactory await =
+            Awaitility.with().pollInterval(new FixedPollInterval(Duration.of(1, ChronoUnit.MILLIS)));
     private final LogServiceConfiguration logServiceConfiguration;
     private final WriterThread writerThread;
 
@@ -122,14 +129,27 @@ public class StoppableLogService implements LogService, Stoppable {
         }
     }
 
+    static class OverloadHandler implements RejectedExecutionHandler {
+        @Override
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+            await.until(() -> executor.getQueue().remainingCapacity() > BUFFER_SIZE / 2);
+            executor.execute(r);
+        }
+    }
+
     private static class ServiceConfigurationHolder {
         private static final LogServiceConfiguration INSTANCE = new RefreshableLogServiceConfiguration();
     }
 
     private static class WriterThreadHolder {
-        private static final ExecutorService SINGLE_THREAD_EXECUTOR =
-                Executors.newSingleThreadExecutor(r -> new Thread(r, "elf4j-engine-writer-thread"));
         private static final ExecutorServiceWriterThread INSTANCE =
-                new ExecutorServiceWriterThread(SINGLE_THREAD_EXECUTOR);
+                new ExecutorServiceWriterThread(new ThreadPoolExecutor(1,
+                        1,
+                        0L,
+                        TimeUnit.MILLISECONDS,
+                        new LinkedBlockingQueue<>(StoppableLogService.BUFFER_SIZE),
+                        r -> new Thread(r, "elf4j-engine-writer-thread"),
+                        new OverloadHandler()));
     }
 }
+
