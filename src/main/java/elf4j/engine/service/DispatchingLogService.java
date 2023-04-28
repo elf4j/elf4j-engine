@@ -29,35 +29,23 @@ import elf4j.engine.NativeLogger;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.configuration.RefreshableLogServiceConfiguration;
 import lombok.NonNull;
-import org.awaitility.Awaitility;
-import org.awaitility.core.ConditionFactory;
-import org.awaitility.pollinterval.FixedPollInterval;
-
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.concurrent.*;
 
 /**
  *
  */
-public class StoppableLogService implements LogService, Stoppable {
-    private static final int BUFFER_SIZE = 2 * 1_000;
-    private static final ConditionFactory await =
-            Awaitility.with().pollInterval(new FixedPollInterval(Duration.of(1, ChronoUnit.MILLIS)));
+public class DispatchingLogService implements LogService {
+
     private final LogServiceConfiguration logServiceConfiguration;
-    private final WriterThread writerThread;
 
     /**
      *
      */
-    public StoppableLogService() {
-        this(ServiceConfigurationHolder.INSTANCE, WriterThreadHolder.INSTANCE);
+    public DispatchingLogService() {
+        this(ServiceConfigurationHolder.INSTANCE);
     }
 
-    StoppableLogService(LogServiceConfiguration logServiceConfiguration, WriterThread writerThread) {
+    DispatchingLogService(LogServiceConfiguration logServiceConfiguration) {
         this.logServiceConfiguration = logServiceConfiguration;
-        this.writerThread = writerThread;
-        LogServiceManager.INSTANCE.register(this);
     }
 
     @Override
@@ -96,60 +84,11 @@ public class StoppableLogService implements LogService, Stoppable {
             Thread callerThread = Thread.currentThread();
             logEntryBuilder.callerThread(new LogEntry.ThreadValue(callerThread.getName(), callerThread.getId()));
         }
-        writerThread.execute(() -> logServiceConfiguration.getLogServiceWriter().write(logEntryBuilder.build()));
-    }
-
-    @Override
-    public void stop() {
-        this.writerThread.shutdown();
-    }
-
-    /**
-     *
-     */
-    private static class ExecutorServiceWriterThread implements WriterThread {
-        private final ExecutorService executorService;
-
-        /**
-         * @param executorService
-         *         service delegate
-         */
-        public ExecutorServiceWriterThread(ExecutorService executorService) {
-            this.executorService = executorService;
-        }
-
-        @Override
-        public void shutdown() {
-            this.executorService.shutdown();
-        }
-
-        @Override
-        public void execute(@NonNull Runnable command) {
-            this.executorService.execute(command);
-        }
-    }
-
-    static class OverloadHandler implements RejectedExecutionHandler {
-        @Override
-        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            await.until(() -> executor.getQueue().remainingCapacity() > BUFFER_SIZE / 2);
-            executor.execute(r);
-        }
+        this.logServiceConfiguration.getLogServiceWriter().write(logEntryBuilder.build());
     }
 
     private static class ServiceConfigurationHolder {
         private static final LogServiceConfiguration INSTANCE = new RefreshableLogServiceConfiguration();
-    }
-
-    private static class WriterThreadHolder {
-        private static final ExecutorServiceWriterThread INSTANCE =
-                new ExecutorServiceWriterThread(new ThreadPoolExecutor(1,
-                        1,
-                        0L,
-                        TimeUnit.MILLISECONDS,
-                        new LinkedBlockingQueue<>(StoppableLogService.BUFFER_SIZE),
-                        r -> new Thread(r, "elf4j-engine-writer-thread"),
-                        new OverloadHandler()));
     }
 }
 

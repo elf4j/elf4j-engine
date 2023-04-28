@@ -27,8 +27,8 @@ package elf4j.engine;
 
 import elf4j.Level;
 import elf4j.Logger;
+import elf4j.engine.service.DispatchingLogService;
 import elf4j.engine.service.LogService;
-import elf4j.engine.service.StoppableLogService;
 import elf4j.engine.service.util.StackTraceUtils;
 import elf4j.spi.LoggerFactory;
 import lombok.NonNull;
@@ -74,7 +74,7 @@ public class NativeLoggerFactory implements LoggerFactory {
      *         the class that the API client uses to obtain access to a logger instance
      */
     public NativeLoggerFactory(@NonNull Class<?> serviceAccessClass) {
-        this(DEFAULT_LOGGER_SEVERITY_LEVEL, serviceAccessClass, new StoppableLogService());
+        this(DEFAULT_LOGGER_SEVERITY_LEVEL, serviceAccessClass, new DispatchingLogService());
     }
 
     NativeLoggerFactory(@NonNull Level defaultLoggerLevel,

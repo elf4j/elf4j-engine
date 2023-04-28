@@ -83,7 +83,7 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
     }
 
     private boolean loadLoggerConfigurationCache(NativeLogger nativeLogger) {
-        Level callerMinimumOutputLevel = callerLevelRepository.getMinimumOutputLevel(nativeLogger);
+        Level callerMinimumOutputLevel = callerLevelRepository.getCallerMinimumOutputLevel(nativeLogger);
         Level writerMinimumOutputLevel = writerRepository.getLogServiceWriter().getMinimumOutputLevel();
         Level loggerLevel = nativeLogger.getLevel();
         return loggerLevel.compareTo(callerMinimumOutputLevel) >= 0

@@ -59,6 +59,6 @@ public class Main {
                 .log("Not a practical example but now the severity level is DEBUG");
 
         MoreAwaitility.block(Duration.ofMillis(200), "Making sure console streams show up");
-        LogServiceManager.INSTANCE.shutdownAll();
+        LogServiceManager.INSTANCE.stopAll();
     }
 }

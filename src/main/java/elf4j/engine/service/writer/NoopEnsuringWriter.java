@@ -23,13 +23,32 @@
  *
  */
 
-package elf4j.engine.service;
+package elf4j.engine.service.writer;
 
-import java.util.concurrent.Executor;
+import elf4j.Level;
+import elf4j.engine.service.LogEntry;
 
 /**
  *
  */
-public interface WriterThread extends Executor, Stoppable {
+public class NoopEnsuringWriter implements LogWriter {
+    @Override
+    public Level getMinimumOutputLevel() {
+        return Level.OFF;
+    }
 
+    @Override
+    public void write(LogEntry logEntry) {
+        throw new UnsupportedOperationException("Not supported in no-op mode");
+    }
+
+    @Override
+    public boolean includeCallerDetail() {
+        return false;
+    }
+
+    @Override
+    public boolean includeCallerThread() {
+        return false;
+    }
 }

@@ -78,7 +78,7 @@ public enum LogServiceManager {
     /**
      *
      */
-    public void shutdownAll() {
+    public void stopAll() {
         stoppables.forEach(Stoppable::stop);
     }
 }

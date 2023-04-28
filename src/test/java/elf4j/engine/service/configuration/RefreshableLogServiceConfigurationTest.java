@@ -45,7 +45,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
-class StoppableLogServiceConfigurationTest {
+class RefreshableLogServiceConfigurationTest {
     @Mock CallerLevelRepository mockCallerLevelRepository;
     @Mock WriterRepository mockWriterRepository;
     @Mock LogWriter stubLogWriter;
@@ -60,12 +60,12 @@ class StoppableLogServiceConfigurationTest {
             NativeLogger nativeLogger = new NativeLogger("test.owner.class.Name", Level.OFF, mockLogService);
             given(mockWriterRepository.getLogServiceWriter()).willReturn(stubLogWriter);
             given(stubLogWriter.getMinimumOutputLevel()).willReturn(Level.TRACE);
-            given(mockCallerLevelRepository.getMinimumOutputLevel(nativeLogger)).willReturn(Level.TRACE);
+            given(mockCallerLevelRepository.getCallerMinimumOutputLevel(nativeLogger)).willReturn(Level.TRACE);
 
             refreshableLogServiceConfiguration.isEnabled(nativeLogger);
 
             assertSame(stubLogWriter, mockWriterRepository.getLogServiceWriter());
-            then(mockCallerLevelRepository).should().getMinimumOutputLevel(nativeLogger);
+            then(mockCallerLevelRepository).should().getCallerMinimumOutputLevel(nativeLogger);
 
             refreshableLogServiceConfiguration.isEnabled(nativeLogger);
 

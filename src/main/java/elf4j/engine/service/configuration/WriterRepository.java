@@ -27,6 +27,7 @@ package elf4j.engine.service.configuration;
 
 import elf4j.Level;
 import elf4j.engine.service.writer.LogWriter;
+import elf4j.engine.service.writer.NoopEnsuringWriter;
 import elf4j.engine.service.writer.StandardStreamsWriter;
 import elf4j.engine.service.writer.WriterGroup;
 import elf4j.util.InternalLogger;
@@ -51,16 +52,16 @@ public class WriterRepository {
      */
     static @Nonnull WriterRepository from(@Nullable Properties properties) {
         if (properties == null) {
-            InternalLogger.INSTANCE.log(Level.INFO, "No configuration, taking default writer");
-            return new WriterRepository(StandardStreamsWriter.fallbackWriter());
+            InternalLogger.INSTANCE.log(Level.INFO, "No configuration provided, writer ensures no-op");
+            return new WriterRepository(new NoopEnsuringWriter());
         }
         WriterGroup writerGroup = WriterGroup.from(properties);
         if (writerGroup.size() > 0) {
             InternalLogger.INSTANCE.log(Level.INFO,
-                    "Writer group of size " + writerGroup.size() + " configured: " + writerGroup);
+                    "Configured " + writerGroup.size() + " individual writer(s): " + writerGroup);
             return new WriterRepository(writerGroup);
         }
-        InternalLogger.INSTANCE.log(Level.WARN, "No writer configured, falling back to default writer");
+        InternalLogger.INSTANCE.log(Level.INFO, "No individual writer configured, using default");
         return new WriterRepository(StandardStreamsWriter.defaultWriter(properties));
     }
 

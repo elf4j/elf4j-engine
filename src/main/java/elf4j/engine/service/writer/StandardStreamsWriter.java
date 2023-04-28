@@ -26,14 +26,15 @@
 package elf4j.engine.service.writer;
 
 import elf4j.Level;
+import elf4j.engine.service.BoundedBufferWriterThread;
 import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.WriterThread;
 import elf4j.engine.service.pattern.LogPattern;
 import elf4j.engine.service.pattern.PatternGroup;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.ToString;
 
-import javax.annotation.Nonnull;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.Properties;
@@ -47,20 +48,11 @@ public class StandardStreamsWriter implements LogWriter {
     private static final String DEFAULT_MINIMUM_LEVEL = "trace";
     private static final String DEFAULT_PATTERN = "{timestamp} {level} {class} - {message}";
     private static final String DEFAULT_WRITER_OUT_STREAM = "stdout";
+    private static final String DEFAULT_BUFFER_CAPACITY = "250_000";
     private final Level minimumLevel;
     private final LogPattern logPattern;
     private final OutStreamType outStreamType;
-
-    /**
-     * @return default writer
-     */
-    public static @Nonnull StandardStreamsWriter fallbackWriter() {
-        return StandardStreamsWriter.builder()
-                .minimumLevel(Level.TRACE)
-                .logPattern(PatternGroup.from(DEFAULT_PATTERN))
-                .outStreamType(OutStreamType.STDOUT)
-                .build();
-    }
+    private final WriterThread writerThread;
 
     /**
      * @param writerConfiguration
@@ -84,6 +76,10 @@ public class StandardStreamsWriter implements LogWriter {
                         writerConfiguration,
                         properties,
                         DEFAULT_WRITER_OUT_STREAM).trim().toUpperCase()))
+                .writerThread(new BoundedBufferWriterThread(Integer.parseInt(getWriterConfiguredOrDefault("buffer",
+                        writerConfiguration,
+                        properties,
+                        DEFAULT_BUFFER_CAPACITY).replace("_", "").replace(",", ""))))
                 .build();
     }
 
@@ -101,6 +97,8 @@ public class StandardStreamsWriter implements LogWriter {
                 .outStreamType(OutStreamType.valueOf(properties.getProperty("stream", DEFAULT_WRITER_OUT_STREAM)
                         .trim()
                         .toUpperCase()))
+                .writerThread(new BoundedBufferWriterThread(Integer.parseInt(properties.getProperty("buffer",
+                        DEFAULT_BUFFER_CAPACITY).replace("_", "").replace(",", ""))))
                 .build();
     }
 
@@ -118,6 +116,20 @@ public class StandardStreamsWriter implements LogWriter {
 
     @Override
     public void write(@NonNull LogEntry logEntry) {
+        this.writerThread.execute(() -> doWrite(logEntry));
+    }
+
+    @Override
+    public boolean includeCallerDetail() {
+        return logPattern.includeCallerDetail();
+    }
+
+    @Override
+    public boolean includeCallerThread() {
+        return logPattern.includeCallerThread();
+    }
+
+    private void doWrite(@NonNull LogEntry logEntry) {
         if (logEntry.getNativeLogger().getLevel().compareTo(this.minimumLevel) < 0) {
             return;
         }
@@ -140,16 +152,6 @@ public class StandardStreamsWriter implements LogWriter {
             default:
                 throw new IllegalArgumentException("Unsupported out stream type: " + this.outStreamType);
         }
-    }
-
-    @Override
-    public boolean includeCallerDetail() {
-        return logPattern.includeCallerDetail();
-    }
-
-    @Override
-    public boolean includeCallerThread() {
-        return logPattern.includeCallerThread();
     }
 
     enum OutStreamType {

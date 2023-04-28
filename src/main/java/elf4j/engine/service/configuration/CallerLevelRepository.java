@@ -71,7 +71,8 @@ public class CallerLevelRepository {
                 .filter(name -> name.trim().startsWith("level@"))
                 .collect(Collectors.toMap(name -> name.split("@", 2)[1].trim(),
                         name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
-        InternalLogger.INSTANCE.log(Level.INFO, "Configured output levels: " + configuredLevels);
+        InternalLogger.INSTANCE.log(Level.INFO,
+                "Configured " + configuredLevels.size() + " output level(s): " + configuredLevels);
         return new CallerLevelRepository(configuredLevels);
     }
 
@@ -88,7 +89,7 @@ public class CallerLevelRepository {
      * @return configured min output level for the specified logger's caller/owner class, or the default level if not
      *         configured
      */
-    public Level getMinimumOutputLevel(NativeLogger nativeLogger) {
+    public Level getCallerMinimumOutputLevel(NativeLogger nativeLogger) {
         return this.sortedCallerClassNameSpaces.stream()
                 .filter(classNameSpace -> nativeLogger.getOwnerClassName().startsWith(classNameSpace))
                 .findFirst()
