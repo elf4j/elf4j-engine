@@ -37,6 +37,8 @@ import java.util.stream.Collectors;
  */
 public class PropertiesUtils {
 
+    private static final String UNDEFINED_INT = "0";
+
     private PropertiesUtils() {
     }
 
@@ -71,5 +73,16 @@ public class PropertiesUtils {
                 .filter(name -> properties.getProperty(name).trim().equals(type))
                 .map(name -> getChildProperties(name, properties))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * @param name
+     *         full key in properties
+     * @param properties
+     *         to look up in
+     * @return int value in specified properties, default to 0 if missing
+     */
+    public static int getAsInt(String name, @NonNull Properties properties) {
+        return Integer.parseInt(properties.getProperty(name, UNDEFINED_INT).replace("_", "").replace(",", ""));
     }
 }

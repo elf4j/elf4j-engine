@@ -30,6 +30,7 @@ import elf4j.engine.NativeLogger;
 import elf4j.engine.service.BufferingWriterThread;
 import elf4j.engine.service.LogServiceManager;
 import elf4j.engine.service.WriterThread;
+import elf4j.engine.service.util.PropertiesUtils;
 import elf4j.engine.service.writer.BufferedStandardOutput;
 import elf4j.engine.service.writer.LogWriter;
 import elf4j.util.InternalLogger;
@@ -45,7 +46,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @ToString
 public class RefreshableLogServiceConfiguration implements LogServiceConfiguration, Refreshable {
-    private static final String UNDEFINED_INT = "0";
     private final Map<NativeLogger, Boolean> loggerConfigurationCache = new ConcurrentHashMap<>();
     private final PropertiesLoader propertiesLoader;
     private boolean noop;
@@ -117,13 +117,8 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
         }
         this.callerLevelRepository = CallerLevelRepository.from(properties);
         this.writerRepository = WriterRepository.from(properties);
-        this.writerThread =
-                new BufferingWriterThread(Integer.parseInt(properties.getProperty("buffer.front", UNDEFINED_INT)
-                        .replace("_", "")
-                        .replace(",", "")));
+        this.writerThread = new BufferingWriterThread(PropertiesUtils.getAsInt("buffer.front", properties));
         this.standardOutputBufferCapacity =
-                new BufferedStandardOutput(Integer.parseInt(properties.getProperty("buffer.back", UNDEFINED_INT)
-                        .replace("_", "")
-                        .replace(",", "")));
+                new BufferedStandardOutput(PropertiesUtils.getAsInt("buffer.back", properties));
     }
 }
