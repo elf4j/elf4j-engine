@@ -30,7 +30,6 @@ import elf4j.engine.NativeLogger;
 import elf4j.util.InternalLogger;
 import lombok.NonNull;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,12 +58,8 @@ public class CallerLevelRepository {
      *         configuration source of all minimum output levels for caller classes
      */
     @NonNull
-    static CallerLevelRepository from(@Nullable Properties properties) {
+    static CallerLevelRepository from(@NonNull Properties properties) {
         Map<String, Level> configuredLevels = new HashMap<>();
-        if (properties == null) {
-            InternalLogger.INSTANCE.log(Level.INFO, "No configuration, taking default minimum output level");
-            return new CallerLevelRepository(configuredLevels);
-        }
         getAsLevel("level", properties).ifPresent(level -> configuredLevels.put(ROOT_CLASS_NAME_SPACE, level));
         configuredLevels.putAll(properties.stringPropertyNames()
                 .stream()

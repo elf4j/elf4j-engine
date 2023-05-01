@@ -27,7 +27,10 @@ package elf4j.engine.service.configuration;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
+import elf4j.engine.service.BufferringWriterThread;
 import elf4j.engine.service.LogServiceManager;
+import elf4j.engine.service.WriterThread;
+import elf4j.engine.service.writer.BufferedStandardOutput;
 import elf4j.engine.service.writer.LogWriter;
 import elf4j.util.InternalLogger;
 import lombok.ToString;
@@ -42,25 +45,26 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @ToString
 public class RefreshableLogServiceConfiguration implements LogServiceConfiguration, Refreshable {
+    private static final String UNDEFINED_INT = "0";
     private final Map<NativeLogger, Boolean> loggerConfigurationCache = new ConcurrentHashMap<>();
     private final PropertiesLoader propertiesLoader;
     private boolean noop;
     private CallerLevelRepository callerLevelRepository;
     private WriterRepository writerRepository;
+    private WriterThread writerThread;
+    private BufferedStandardOutput standardOutputBufferCapacity;
 
     /**
      *
      */
     public RefreshableLogServiceConfiguration() {
-        this.propertiesLoader = new PropertiesLoader();
-        setRepositories(this.propertiesLoader.load());
-        LogServiceManager.INSTANCE.register(this);
+        this(new FilePropertiesLoader());
     }
 
-    RefreshableLogServiceConfiguration(CallerLevelRepository callerLevelRepository, WriterRepository writerRepository) {
-        this.propertiesLoader = new PropertiesLoader();
-        this.callerLevelRepository = callerLevelRepository;
-        this.writerRepository = writerRepository;
+    RefreshableLogServiceConfiguration(PropertiesLoader propertiesLoader) {
+        this.propertiesLoader = propertiesLoader;
+        parseConfigurations(this.propertiesLoader.load());
+        LogServiceManager.INSTANCE.register(this);
     }
 
     @Override
@@ -77,8 +81,18 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
     }
 
     @Override
+    public WriterThread getWriterThread() {
+        return this.writerThread;
+    }
+
+    @Override
+    public BufferedStandardOutput getSBufferedStandardOutput() {
+        return this.standardOutputBufferCapacity;
+    }
+
+    @Override
     public void refresh(@Nullable Properties properties) {
-        setRepositories(properties != null ? properties : this.propertiesLoader.load());
+        parseConfigurations(properties != null ? properties : this.propertiesLoader.load());
         this.loggerConfigurationCache.clear();
     }
 
@@ -90,13 +104,26 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
                 && loggerLevel.compareTo(writerMinimumOutputLevel) >= 0;
     }
 
-    private void setRepositories(@Nullable Properties properties) {
+    private void parseConfigurations(@Nullable Properties properties) {
         InternalLogger.INSTANCE.log(Level.INFO, "Configuration properties: " + properties);
-        this.noop = properties == null || Boolean.parseBoolean(properties.getProperty("noop"));
+        if (properties == null) {
+            this.noop = true;
+            return;
+        }
+        this.noop = Boolean.parseBoolean(properties.getProperty("noop"));
         if (this.noop) {
             InternalLogger.INSTANCE.log(Level.WARN, "No-op per configuration");
+            return;
         }
         this.callerLevelRepository = CallerLevelRepository.from(properties);
         this.writerRepository = WriterRepository.from(properties);
+        this.writerThread =
+                new BufferringWriterThread(Integer.parseInt(properties.getProperty("buffer.front", UNDEFINED_INT)
+                        .replace("_", "")
+                        .replace(",", "")));
+        this.standardOutputBufferCapacity =
+                new BufferedStandardOutput(Integer.parseInt(properties.getProperty("buffer.back", UNDEFINED_INT)
+                        .replace("_", "")
+                        .replace(",", "")));
     }
 }

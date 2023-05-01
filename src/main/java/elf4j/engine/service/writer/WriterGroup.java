@@ -70,7 +70,7 @@ public class WriterGroup implements LogWriter {
 
     @Override
     public void write(LogEntry logEntry) {
-        writers.forEach(writer -> writer.write(logEntry));
+        writers.parallelStream().forEach(writer -> writer.write(logEntry));
     }
 
     @Override

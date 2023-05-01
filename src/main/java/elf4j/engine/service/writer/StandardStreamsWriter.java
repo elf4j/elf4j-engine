@@ -26,16 +26,16 @@
 package elf4j.engine.service.writer;
 
 import elf4j.Level;
-import elf4j.engine.service.BoundedBufferWriterThread;
 import elf4j.engine.service.LogEntry;
-import elf4j.engine.service.WriterThread;
+import elf4j.engine.service.configuration.LogServiceConfiguration;
+import elf4j.engine.service.configuration.RefreshableLogServiceConfiguration;
 import elf4j.engine.service.pattern.LogPattern;
 import elf4j.engine.service.pattern.PatternGroup;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.ToString;
 
-import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Properties;
 
@@ -48,11 +48,9 @@ public class StandardStreamsWriter implements LogWriter {
     private static final String DEFAULT_MINIMUM_LEVEL = "trace";
     private static final String DEFAULT_PATTERN = "{timestamp} {level} {class} - {message}";
     private static final String DEFAULT_WRITER_OUT_STREAM = "stdout";
-    private static final String DEFAULT_BUFFER_CAPACITY = "250_000";
     private final Level minimumLevel;
     private final LogPattern logPattern;
     private final OutStreamType outStreamType;
-    private final WriterThread writerThread;
 
     /**
      * @param writerConfiguration
@@ -76,10 +74,6 @@ public class StandardStreamsWriter implements LogWriter {
                         writerConfiguration,
                         properties,
                         DEFAULT_WRITER_OUT_STREAM).trim().toUpperCase()))
-                .writerThread(new BoundedBufferWriterThread(Integer.parseInt(getWriterConfiguredOrDefault("buffer",
-                        writerConfiguration,
-                        properties,
-                        DEFAULT_BUFFER_CAPACITY).replace("_", "").replace(",", ""))))
                 .build();
     }
 
@@ -97,8 +91,6 @@ public class StandardStreamsWriter implements LogWriter {
                 .outStreamType(OutStreamType.valueOf(properties.getProperty("stream", DEFAULT_WRITER_OUT_STREAM)
                         .trim()
                         .toUpperCase()))
-                .writerThread(new BoundedBufferWriterThread(Integer.parseInt(properties.getProperty("buffer",
-                        DEFAULT_BUFFER_CAPACITY).replace("_", "").replace(",", ""))))
                 .build();
     }
 
@@ -116,7 +108,30 @@ public class StandardStreamsWriter implements LogWriter {
 
     @Override
     public void write(@NonNull LogEntry logEntry) {
-        this.writerThread.execute(() -> doWrite(logEntry));
+        if (logEntry.getNativeLogger().getLevel().compareTo(this.minimumLevel) < 0) {
+            return;
+        }
+        StringBuilder target = new StringBuilder();
+        logPattern.renderTo(logEntry, target);
+        byte[] bytes = target.append(System.lineSeparator()).toString().getBytes(StandardCharsets.UTF_8);
+        BufferedStandardOutput bufferedStandardOutput = Configuration.INSTANCE.getSBufferedStandardOutput();
+        switch (this.outStreamType) {
+            case STDOUT:
+                bufferedStandardOutput.flushOut(bytes);
+                return;
+            case STDERR:
+                bufferedStandardOutput.flushErr(bytes);
+                return;
+            case AUTO:
+                if (logEntry.getNativeLogger().getLevel().compareTo(Level.WARN) < 0) {
+                    bufferedStandardOutput.flushOut(bytes);
+                } else {
+                    bufferedStandardOutput.flushErr(bytes);
+                }
+                return;
+            default:
+                throw new IllegalArgumentException("Unsupported out stream type: " + this.outStreamType);
+        }
     }
 
     @Override
@@ -129,48 +144,11 @@ public class StandardStreamsWriter implements LogWriter {
         return logPattern.includeCallerThread();
     }
 
-    private void doWrite(@NonNull LogEntry logEntry) {
-        if (logEntry.getNativeLogger().getLevel().compareTo(this.minimumLevel) < 0) {
-            return;
-        }
-        StringBuilder target = new StringBuilder();
-        logPattern.renderTo(logEntry, target);
-        switch (this.outStreamType) {
-            case STDOUT:
-                AtomicOutput.flushOut(target);
-                return;
-            case STDERR:
-                AtomicOutput.flushErr(target);
-                return;
-            case AUTO:
-                if (logEntry.getNativeLogger().getLevel().compareTo(Level.WARN) < 0) {
-                    AtomicOutput.flushOut(target);
-                } else {
-                    AtomicOutput.flushErr(target);
-                }
-                return;
-            default:
-                throw new IllegalArgumentException("Unsupported out stream type: " + this.outStreamType);
-        }
-    }
-
     enum OutStreamType {
         STDOUT, STDERR, AUTO
     }
 
-    private static class AtomicOutput {
-        static synchronized void flushErr(Object o) {
-            PrintStream stderr = System.err;
-            stderr.println(o);
-            /* explicit flush in case default standard stream is changed */
-            stderr.flush();
-        }
-
-        static synchronized void flushOut(Object o) {
-            PrintStream stdout = System.out;
-            stdout.println(o);
-            /* explicit flush in case default standard stream is changed */
-            stdout.flush();
-        }
+    private static class Configuration {
+        static final LogServiceConfiguration INSTANCE = new RefreshableLogServiceConfiguration();
     }
 }

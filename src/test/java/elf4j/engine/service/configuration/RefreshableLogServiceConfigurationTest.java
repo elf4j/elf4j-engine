@@ -25,12 +25,7 @@
 
 package elf4j.engine.service.configuration;
 
-import elf4j.Level;
-import elf4j.engine.NativeLogger;
-import elf4j.engine.service.LogService;
 import elf4j.engine.service.writer.LogWriter;
-import elf4j.engine.service.writer.StandardStreamsWriter;
-import elf4j.engine.service.writer.WriterGroup;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,60 +35,52 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class RefreshableLogServiceConfigurationTest {
-    @Mock CallerLevelRepository mockCallerLevelRepository;
-    @Mock WriterRepository mockWriterRepository;
-    @Mock LogWriter stubLogWriter;
-    @Mock LogService mockLogService;
+    @Mock PropertiesLoader mockPropertiesLoader;
 
     @Nested
     class isEnabled {
+
         @Test
         void cacheLoadFromReposOnlyOnce() {
+            given(mockPropertiesLoader.load()).willReturn(new Properties());
             RefreshableLogServiceConfiguration refreshableLogServiceConfiguration =
-                    new RefreshableLogServiceConfiguration(mockCallerLevelRepository, mockWriterRepository);
-            NativeLogger nativeLogger = new NativeLogger("test.owner.class.Name", Level.OFF, mockLogService);
-            given(mockWriterRepository.getLogServiceWriter()).willReturn(stubLogWriter);
-            given(stubLogWriter.getMinimumOutputLevel()).willReturn(Level.TRACE);
-            given(mockCallerLevelRepository.getCallerMinimumOutputLevel(nativeLogger)).willReturn(Level.TRACE);
+                    new RefreshableLogServiceConfiguration(mockPropertiesLoader);
 
-            refreshableLogServiceConfiguration.isEnabled(nativeLogger);
+            LogWriter logServiceWriter = refreshableLogServiceConfiguration.getLogServiceWriter();
+            LogWriter logServiceWriter1 = refreshableLogServiceConfiguration.getLogServiceWriter();
 
-            assertSame(stubLogWriter, mockWriterRepository.getLogServiceWriter());
-            then(mockCallerLevelRepository).should().getCallerMinimumOutputLevel(nativeLogger);
-
-            refreshableLogServiceConfiguration.isEnabled(nativeLogger);
-
-            then(mockWriterRepository).shouldHaveNoMoreInteractions();
-            then(mockCallerLevelRepository).shouldHaveNoMoreInteractions();
+            assertSame(logServiceWriter, logServiceWriter1);
+            then(mockPropertiesLoader).should(times(1)).load();
         }
     }
 
     @Nested
     class refresh {
+
         @Test
         void reload() {
             RefreshableLogServiceConfiguration refreshableLogServiceConfiguration =
-                    new RefreshableLogServiceConfiguration();
+                    new RefreshableLogServiceConfiguration(mockPropertiesLoader);
 
             refreshableLogServiceConfiguration.refresh(null);
 
-            assertTrue(refreshableLogServiceConfiguration.getLogServiceWriter() instanceof WriterGroup);
+            then(mockPropertiesLoader).should(times(2)).load();
         }
 
         @Test
         void replace() {
             RefreshableLogServiceConfiguration refreshableLogServiceConfiguration =
-                    new RefreshableLogServiceConfiguration();
+                    new RefreshableLogServiceConfiguration(mockPropertiesLoader);
 
             refreshableLogServiceConfiguration.refresh(new Properties());
 
-            assertTrue(refreshableLogServiceConfiguration.getLogServiceWriter() instanceof StandardStreamsWriter);
+            then(mockPropertiesLoader).should(times(1)).load();
         }
     }
 }

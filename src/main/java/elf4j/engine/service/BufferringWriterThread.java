@@ -27,24 +27,28 @@ package elf4j.engine.service;
 
 import lombok.NonNull;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
  */
-public class BoundedBufferWriterThread implements WriterThread {
+public class BufferringWriterThread implements WriterThread {
+    private static final int DEFAULT_FRONT_BUFFER_CAPACITY = 256;
     private final ExecutorService executorService;
 
     /**
      * @param bufferCapacity
-     *         async work queue capacity
+     *         async work queue capacity for log entry tasks
      */
-    public BoundedBufferWriterThread(int bufferCapacity) {
+    public BufferringWriterThread(int bufferCapacity) {
         this.executorService = new ThreadPoolExecutor(1,
                 1,
                 0L,
                 TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(bufferCapacity),
+                new ArrayBlockingQueue<>(bufferCapacity == 0 ? DEFAULT_FRONT_BUFFER_CAPACITY : bufferCapacity),
                 r -> new Thread(r, "elf4j-engine-writer-thread"),
                 new BufferOverloadHandler());
         LogServiceManager.INSTANCE.register(this);
@@ -58,30 +62,5 @@ public class BoundedBufferWriterThread implements WriterThread {
     @Override
     public void stop() {
         this.executorService.shutdown();
-    }
-
-    static class BufferOverloadHandler implements RejectedExecutionHandler {
-        private static void forceRetry(Runnable r, @NonNull ThreadPoolExecutor executor) {
-            boolean interrupted = false;
-            try {
-                while (true) {
-                    try {
-                        executor.getQueue().put(r);
-                        break;
-                    } catch (InterruptedException e) {
-                        interrupted = true;
-                    }
-                }
-            } finally {
-                if (interrupted) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        }
-
-        @Override
-        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            forceRetry(r, executor);
-        }
     }
 }

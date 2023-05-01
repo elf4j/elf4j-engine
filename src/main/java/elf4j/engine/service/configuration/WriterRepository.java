@@ -27,13 +27,12 @@ package elf4j.engine.service.configuration;
 
 import elf4j.Level;
 import elf4j.engine.service.writer.LogWriter;
-import elf4j.engine.service.writer.NoopEnsuringWriter;
 import elf4j.engine.service.writer.StandardStreamsWriter;
 import elf4j.engine.service.writer.WriterGroup;
 import elf4j.util.InternalLogger;
+import lombok.NonNull;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Properties;
 
 /**
@@ -50,11 +49,7 @@ public class WriterRepository {
      * @param properties
      *         configuration from which to build the writer repo
      */
-    static @Nonnull WriterRepository from(@Nullable Properties properties) {
-        if (properties == null) {
-            InternalLogger.INSTANCE.log(Level.INFO, "No configuration provided, writer ensures no-op");
-            return new WriterRepository(new NoopEnsuringWriter());
-        }
+    static @Nonnull WriterRepository from(@NonNull Properties properties) {
         WriterGroup writerGroup = WriterGroup.from(properties);
         if (writerGroup.size() > 0) {
             InternalLogger.INSTANCE.log(Level.INFO,

@@ -23,32 +23,37 @@
  *
  */
 
-package elf4j.engine.service.writer;
+package elf4j.engine.service;
 
-import elf4j.Level;
-import elf4j.engine.service.LogEntry;
+import lombok.NonNull;
+
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  *
  */
-public class NoopEnsuringWriter implements LogWriter {
-    @Override
-    public Level getMinimumOutputLevel() {
-        return Level.OFF;
+public class BufferOverloadHandler implements RejectedExecutionHandler {
+    private static void forceRetry(Runnable r, @NonNull ThreadPoolExecutor executor) {
+        boolean interrupted = false;
+        try {
+            while (true) {
+                try {
+                    executor.getQueue().put(r);
+                    break;
+                } catch (InterruptedException e) {
+                    interrupted = true;
+                }
+            }
+        } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     @Override
-    public void write(LogEntry logEntry) {
-        throw new UnsupportedOperationException("Not supported in no-op mode");
-    }
-
-    @Override
-    public boolean includeCallerDetail() {
-        return false;
-    }
-
-    @Override
-    public boolean includeCallerThread() {
-        return false;
+    public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+        forceRetry(r, executor);
     }
 }
