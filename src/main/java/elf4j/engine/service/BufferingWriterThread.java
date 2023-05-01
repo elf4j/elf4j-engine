@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  */
-public class BufferringWriterThread implements WriterThread {
+public class BufferingWriterThread implements WriterThread {
     private static final int DEFAULT_FRONT_BUFFER_CAPACITY = 256;
     private final ExecutorService executorService;
 
@@ -43,7 +43,7 @@ public class BufferringWriterThread implements WriterThread {
      * @param bufferCapacity
      *         async work queue capacity for log entry tasks
      */
-    public BufferringWriterThread(int bufferCapacity) {
+    public BufferingWriterThread(int bufferCapacity) {
         this.executorService = new ThreadPoolExecutor(1,
                 1,
                 0L,

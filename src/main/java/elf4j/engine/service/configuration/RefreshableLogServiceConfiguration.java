@@ -27,7 +27,7 @@ package elf4j.engine.service.configuration;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
-import elf4j.engine.service.BufferringWriterThread;
+import elf4j.engine.service.BufferingWriterThread;
 import elf4j.engine.service.LogServiceManager;
 import elf4j.engine.service.WriterThread;
 import elf4j.engine.service.writer.BufferedStandardOutput;
@@ -118,7 +118,7 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
         this.callerLevelRepository = CallerLevelRepository.from(properties);
         this.writerRepository = WriterRepository.from(properties);
         this.writerThread =
-                new BufferringWriterThread(Integer.parseInt(properties.getProperty("buffer.front", UNDEFINED_INT)
+                new BufferingWriterThread(Integer.parseInt(properties.getProperty("buffer.front", UNDEFINED_INT)
                         .replace("_", "")
                         .replace(",", "")));
         this.standardOutputBufferCapacity =
