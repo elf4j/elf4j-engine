@@ -27,12 +27,13 @@ package elf4j.engine.service.writer;
 
 import elf4j.Level;
 import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.configuration.LogServiceConfiguration;
 import lombok.NonNull;
 import lombok.ToString;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Properties;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -49,12 +50,32 @@ public class WriterGroup implements LogWriter {
     }
 
     /**
-     * @param properties
-     *         configuration of all the writers
      * @return the composite writer containing all writers configured in the specified properties
      */
-    public static WriterGroup from(@NonNull Properties properties) {
-        return new WriterGroup(WriterType.parseAllWriters(properties));
+    @NonNull
+    public static WriterGroup from(LogServiceConfiguration logServiceConfiguration) {
+        List<LogWriterType> logWriterTypes = new ArrayList<>(getLogWriterTypes(logServiceConfiguration));
+        if (logWriterTypes.isEmpty()) {
+            logWriterTypes.add(new StandardStreamsWriter.StandardStreamsWriterType());
+        }
+        return new WriterGroup(logWriterTypes.stream()
+                .flatMap(t -> t.getLogWriters(logServiceConfiguration).stream())
+                .collect(Collectors.toList()));
+    }
+
+    private static List<LogWriterType> getLogWriterTypes(LogServiceConfiguration logServiceConfiguration) {
+        String writerTypes = logServiceConfiguration.getProperties().getProperty("writer.types");
+        if (writerTypes == null) {
+            return Collections.emptyList();
+        }
+        return Arrays.stream(writerTypes.split(",")).map(String::trim).map(fqcn -> {
+            try {
+                return (LogWriterType) Class.forName(fqcn).getDeclaredConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                     NoSuchMethodException | ClassNotFoundException e) {
+                throw new IllegalArgumentException(fqcn, e);
+            }
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -87,12 +108,5 @@ public class WriterGroup implements LogWriter {
             includeCallerThread = writers.stream().anyMatch(LogWriter::includeCallerThread);
         }
         return includeCallerThread;
-    }
-
-    /**
-     * @return number of writers in group
-     */
-    public int size() {
-        return writers.size();
     }
 }

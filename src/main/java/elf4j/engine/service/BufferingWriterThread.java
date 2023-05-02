@@ -26,32 +26,38 @@
 package elf4j.engine.service;
 
 import lombok.NonNull;
+import org.awaitility.Awaitility;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
  */
 public class BufferingWriterThread implements WriterThread {
-    private static final int DEFAULT_FRONT_BUFFER_CAPACITY = 256;
+    private static final int DEFAULT_FRONT_BUFFER_CAPACITY = 262144;
     private final ExecutorService executorService;
 
     /**
      * @param bufferCapacity
      *         async work queue capacity for log entry tasks
      */
-    public BufferingWriterThread(int bufferCapacity) {
-        this.executorService = new ThreadPoolExecutor(1,
+    public BufferingWriterThread(Integer bufferCapacity) {
+        bufferCapacity = bufferCapacity == null ? DEFAULT_FRONT_BUFFER_CAPACITY : bufferCapacity;
+        //        this.executorService = new ThreadPoolExecutor(1,
+        //                1,
+        //                0L,
+        //                TimeUnit.MILLISECONDS,
+        //                new ArrayBlockingQueue<>(bufferCapacity == 0 ? DEFAULT_FRONT_BUFFER_CAPACITY : bufferCapacity),
+        //                r -> new Thread(r, "elf4j-engine-writer-thread"),
+        //                new BufferOverloadHandler());
+        this.executorService = new Ex(1,
                 1,
-                0L,
+                0,
                 TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(bufferCapacity == 0 ? DEFAULT_FRONT_BUFFER_CAPACITY : bufferCapacity),
-                r -> new Thread(r, "elf4j-engine-writer-thread"),
-                new BufferOverloadHandler());
-        LogServiceManager.INSTANCE.register(this);
+                bufferCapacity == 0 ? new SynchronousQueue<>() : new ArrayBlockingQueue<>(bufferCapacity),
+                new WarningBufferOverloadHandler(bufferCapacity));
+        LogServiceManager.INSTANCE.registerStop(this);
     }
 
     @Override
@@ -62,5 +68,41 @@ public class BufferingWriterThread implements WriterThread {
     @Override
     public void stop() {
         this.executorService.shutdown();
+        Awaitility.with().timeout(30, TimeUnit.MINUTES).await().until(this.executorService::isTerminated);
+    }
+
+    static class Ex extends ThreadPoolExecutor {
+        AtomicInteger waterMark = new AtomicInteger();
+
+        public Ex(int corePoolSize,
+                int maximumPoolSize,
+                long keepAliveTime,
+                TimeUnit unit,
+                BlockingQueue<Runnable> workQueue,
+                RejectedExecutionHandler rejectedExecutionHandler) {
+            super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, rejectedExecutionHandler);
+        }
+
+        @Override
+        protected void beforeExecute(Thread t, Runnable r) {
+            //            super.beforeExecute(t, r);
+            //            System.err.println("f " + waterMark.updateAndGet(w -> Math.max(w, this.getQueue().size())));
+        }
+    }
+
+    static class WarningBufferOverloadHandler extends BufferOverloadHandler {
+        final int capacity;
+
+        WarningBufferOverloadHandler(int capacity) {
+            this.capacity = capacity;
+        }
+
+        @Override
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+            //            InternalLogger.INSTANCE.log(Level.WARN,
+            //                    "Dispatch rate lower than logging rate, buffer overloaded with queue size " + executor.getQueue()
+            //                            .size());
+            super.rejectedExecution(r, executor);
+        }
     }
 }

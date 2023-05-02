@@ -27,6 +27,7 @@ package elf4j.engine.service.util;
 
 import lombok.NonNull;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -36,8 +37,6 @@ import java.util.stream.Collectors;
  *
  */
 public class PropertiesUtils {
-
-    private static final String UNDEFINED_INT = "0";
 
     private PropertiesUtils() {
     }
@@ -80,9 +79,19 @@ public class PropertiesUtils {
      *         full key in properties
      * @param properties
      *         to look up in
-     * @return int value in specified properties, default to 0 if missing
+     * @return Integer value of the specified name in the given properties, null if named entry missing or the
+     *         corresponding value contains no digit
      */
-    public static int getAsInt(String name, @NonNull Properties properties) {
-        return Integer.parseInt(properties.getProperty(name, UNDEFINED_INT).replace("_", "").replace(",", ""));
+    @Nullable
+    public static Integer getAsInteger(String name, @NonNull Properties properties) {
+        String value = properties.getProperty(name);
+        if (value == null) {
+            return null;
+        }
+        String digits = value.replaceAll("\\D", "");
+        if (digits.isEmpty()) {
+            return null;
+        }
+        return value.startsWith("-") ? -Integer.parseInt(digits) : Integer.parseInt(digits);
     }
 }

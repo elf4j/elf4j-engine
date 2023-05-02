@@ -32,30 +32,29 @@ import elf4j.engine.service.Stoppable;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UncheckedIOException;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
  */
-public class BufferedStandardOutput implements Stoppable {
-    private static final int DEFAULT_BACK_BUFFER_CAPACITY = 262144;
+public class BufferedStandardOutput implements StandardOutput {
+    private static final int DEFAULT_BACK_BUFFER_CAPACITY = 256;
     private final ExecutorService executorService;
 
     /**
      * @param bufferCapacity
      *         buffer capacity queued on standard out stream
      */
-    public BufferedStandardOutput(int bufferCapacity) {
-        this.executorService = new ThreadPoolExecutor(1,
+    public BufferedStandardOutput(Integer bufferCapacity) {
+        bufferCapacity = bufferCapacity == null ? DEFAULT_BACK_BUFFER_CAPACITY : bufferCapacity;
+        this.executorService = new Ex(1,
                 1,
                 0,
                 TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(bufferCapacity == 0 ? DEFAULT_BACK_BUFFER_CAPACITY : bufferCapacity),
-                new BufferOverloadHandler());
-        LogServiceManager.INSTANCE.register(this);
+                bufferCapacity == 0 ? new SynchronousQueue<>() : new ArrayBlockingQueue<>(bufferCapacity),
+                new WarningBufferOverloadHandler(bufferCapacity));
+        LogServiceManager.INSTANCE.registerStop(this);
     }
 
     @Override
@@ -63,7 +62,8 @@ public class BufferedStandardOutput implements Stoppable {
         this.executorService.shutdown();
     }
 
-    void flushOut(byte[] bytes) {
+    @Override
+    public void flushOut(byte[] bytes) {
         PrintStream stdout = System.out;
         executorService.submit(() -> {
             try {
@@ -76,7 +76,8 @@ public class BufferedStandardOutput implements Stoppable {
         });
     }
 
-    void flushErr(byte[] bytes) {
+    @Override
+    public void flushErr(byte[] bytes) {
         PrintStream stderr = System.err;
         executorService.submit(() -> {
             try {
@@ -87,5 +88,39 @@ public class BufferedStandardOutput implements Stoppable {
                 throw new UncheckedIOException(e);
             }
         });
+    }
+
+    static class Ex extends ThreadPoolExecutor {
+        AtomicInteger waterMark = new AtomicInteger();
+
+        public Ex(int corePoolSize,
+                int maximumPoolSize,
+                long keepAliveTime,
+                TimeUnit unit,
+                BlockingQueue<Runnable> workQueue,
+                RejectedExecutionHandler rejectedExecutionHandler) {
+            super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, rejectedExecutionHandler);
+        }
+
+        @Override
+        protected void beforeExecute(Thread t, Runnable r) {
+            //            super.beforeExecute(t, r);
+            //            System.err.println("b " + waterMark.updateAndGet(w -> Math.max(w, this.getQueue().size())));
+        }
+    }
+
+    static class WarningBufferOverloadHandler extends BufferOverloadHandler {
+        final int queueCapacity;
+
+        private WarningBufferOverloadHandler(int queueCapacity) {
+            this.queueCapacity = queueCapacity;
+        }
+
+        @Override
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+            //            InternalLogger.INSTANCE.log(Level.WARN,
+            //                    "Output channel bandwidth too low, buffer overloaded with queue capacity " + queueCapacity);
+            super.rejectedExecution(r, executor);
+        }
     }
 }

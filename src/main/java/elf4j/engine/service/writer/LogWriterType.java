@@ -23,41 +23,12 @@
  *
  */
 
-package elf4j.engine.service.configuration;
+package elf4j.engine.service.writer;
 
-import elf4j.engine.NativeLogger;
-import elf4j.engine.service.WriterThread;
-import elf4j.engine.service.writer.BufferedStandardOutput;
-import elf4j.engine.service.writer.LogWriter;
+import elf4j.engine.service.configuration.LogServiceConfiguration;
 
-import java.util.Properties;
+import java.util.List;
 
-/**
- *
- */
-public interface LogServiceConfiguration {
-    Properties getProperties();
-
-    /**
-     * @return the top level (group) writer for the log service, may contain multiple individual writers.
-     */
-    LogWriter getLogServiceWriter();
-
-    /**
-     * @param nativeLogger
-     *         the logger to check for enablement against configuration
-     * @return true if the specified logger's level is at or above the configured minimum output level of both the
-     *         writer and that configured for the logger's caller/owner class; otherwise, false.
-     */
-    boolean isEnabled(NativeLogger nativeLogger);
-
-    /**
-     * @return async executor for log entry tasks
-     */
-    WriterThread getWriterThread();
-
-    /**
-     * @return buffered standard out stream writer
-     */
-    BufferedStandardOutput getSBufferedStandardOutput();
+public interface LogWriterType {
+    List<LogWriter> getLogWriters(LogServiceConfiguration logServiceConfiguration);
 }

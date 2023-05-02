@@ -30,6 +30,7 @@ import elf4j.engine.service.configuration.Refreshable;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -47,7 +48,7 @@ public enum LogServiceManager {
      * @param refreshable
      *         added to be accessible for management
      */
-    public void register(Refreshable refreshable) {
+    public void registerRefresh(Refreshable refreshable) {
         this.refreshables.add(refreshable);
     }
 
@@ -55,7 +56,7 @@ public enum LogServiceManager {
      * @param stoppable
      *         added to be accessible for management
      */
-    public void register(Stoppable stoppable) {
+    public void registerStop(Stoppable stoppable) {
         this.stoppables.add(stoppable);
     }
 
@@ -79,6 +80,18 @@ public enum LogServiceManager {
      *
      */
     public void stopAll() {
-        stoppables.forEach(Stoppable::stop);
+        stopWrite();
+        stopFlush();
+    }
+
+    private void stopFlush() {
+        stoppables.parallelStream().filter(s -> !(s instanceof WriterThread)).forEach(Stoppable::stop);
+    }
+
+    private void stopWrite() {
+        stoppables.parallelStream()
+                .filter(WriterThread.class::isInstance)
+                .collect(Collectors.toList())
+                .forEach(Stoppable::stop);
     }
 }

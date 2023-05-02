@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 /**
  *
  */
-public class CallerLevelRepository {
+public class CallerLevels {
     private static final Level DEFAULT_CALLER_MINIMUM_OUTPUT_LEVEL = Level.TRACE;
     private static final String ROOT_CLASS_NAME_SPACE = "";
     private final Map<String, Level> configuredLevels;
@@ -45,7 +45,7 @@ public class CallerLevelRepository {
      */
     private final List<String> sortedCallerClassNameSpaces;
 
-    private CallerLevelRepository(@NonNull Map<String, Level> configuredLevels) {
+    private CallerLevels(@NonNull Map<String, Level> configuredLevels) {
         this.configuredLevels = configuredLevels;
         this.sortedCallerClassNameSpaces = configuredLevels.keySet()
                 .stream()
@@ -58,7 +58,7 @@ public class CallerLevelRepository {
      *         configuration source of all minimum output levels for caller classes
      */
     @NonNull
-    static CallerLevelRepository from(@NonNull Properties properties) {
+    static CallerLevels from(@NonNull Properties properties) {
         Map<String, Level> configuredLevels = new HashMap<>();
         getAsLevel("level", properties).ifPresent(level -> configuredLevels.put(ROOT_CLASS_NAME_SPACE, level));
         configuredLevels.putAll(properties.stringPropertyNames()
@@ -68,7 +68,7 @@ public class CallerLevelRepository {
                         name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
         InternalLogger.INSTANCE.log(Level.INFO,
                 "Configured " + configuredLevels.size() + " output level(s): " + configuredLevels);
-        return new CallerLevelRepository(configuredLevels);
+        return new CallerLevels(configuredLevels);
     }
 
     private static Optional<Level> getAsLevel(String levelKey, @NonNull Properties properties) {
