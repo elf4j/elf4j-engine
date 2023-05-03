@@ -25,12 +25,16 @@
 
 package elf4j.engine.service.writer;
 
+import elf4j.Level;
 import elf4j.engine.service.LogServiceManager;
+import elf4j.util.InternalLogger;
+import lombok.ToString;
 import org.awaitility.Awaitility;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -41,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  */
+@ToString
 public class BufferedStandardOutput implements StandardOutput {
     private static final int DEFAULT_BACK_BUFFER_CAPACITY = 256;
     private final OutStreamType outStreamType;
@@ -73,6 +78,10 @@ public class BufferedStandardOutput implements StandardOutput {
         try {
             buffer.put(bytes);
         } catch (InterruptedException e) {
+            InternalLogger.INSTANCE.log(Level.ERROR,
+                    e,
+                    "Thread interrupted while enqueuing bytes of '" + new String(bytes, StandardCharsets.UTF_8)
+                            + "' to standard output buffer " + buffer);
             Thread.currentThread().interrupt();
         }
     }

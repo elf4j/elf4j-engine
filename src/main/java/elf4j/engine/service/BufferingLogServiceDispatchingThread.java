@@ -25,6 +25,8 @@
 
 package elf4j.engine.service;
 
+import elf4j.Level;
+import elf4j.util.InternalLogger;
 import lombok.NonNull;
 import org.awaitility.Awaitility;
 
@@ -76,11 +78,18 @@ public class BufferingLogServiceDispatchingThread implements LogServiceDispatchi
                         executor.getQueue().put(r);
                         break;
                     } catch (InterruptedException e) {
+                        InternalLogger.INSTANCE.log(Level.ERROR,
+                                e,
+                                "Thread interrupted while enqueuing log task " + r + " to executor service "
+                                        + executor);
                         interrupted = true;
                     }
                 }
             } finally {
                 if (interrupted) {
+                    InternalLogger.INSTANCE.log(Level.INFO,
+                            "Log task " + r + " was enqueued to executor service " + executor
+                                    + " post thread interruption");
                     Thread.currentThread().interrupt();
                 }
             }

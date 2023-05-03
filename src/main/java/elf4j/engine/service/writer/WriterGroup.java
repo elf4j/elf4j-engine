@@ -28,6 +28,7 @@ package elf4j.engine.service.writer;
 import elf4j.Level;
 import elf4j.engine.service.LogEntry;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
+import elf4j.util.InternalLogger;
 import lombok.NonNull;
 import lombok.ToString;
 
@@ -60,9 +61,12 @@ public class WriterGroup implements LogWriter {
         if (logWriterTypes.isEmpty()) {
             logWriterTypes.add(new StandardStreamsWriter.StandardStreamsWriterType());
         }
-        return new WriterGroup(logWriterTypes.stream()
+        List<LogWriter> logWriters = logWriterTypes.stream()
                 .flatMap(t -> t.getLogWriters(logServiceConfiguration).stream())
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+        InternalLogger.INSTANCE.log(Level.INFO,
+                "Configured " + logWriters.size() + " service writer(s): " + logWriters);
+        return new WriterGroup(logWriters);
     }
 
     private static List<LogWriterType> getLogWriterTypes(LogServiceConfiguration logServiceConfiguration) {

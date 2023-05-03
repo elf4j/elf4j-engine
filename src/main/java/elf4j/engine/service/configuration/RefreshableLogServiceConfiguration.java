@@ -116,12 +116,13 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
     private void parse(@Nullable Properties properties) {
         InternalLogger.INSTANCE.log(Level.INFO, "Configuration properties: " + properties);
         if (properties == null) {
+            InternalLogger.INSTANCE.log(Level.WARN, "No-op as in no configuration");
             this.noop = true;
             return;
         }
         this.noop = Boolean.parseBoolean(properties.getProperty("noop"));
         if (this.noop) {
-            InternalLogger.INSTANCE.log(Level.WARN, "No-op per configuration");
+            InternalLogger.INSTANCE.log(Level.WARN, "No-op as configured");
             return;
         }
         this.callerLevels = CallerLevels.from(properties);

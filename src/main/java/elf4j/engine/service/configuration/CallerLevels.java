@@ -67,7 +67,7 @@ public class CallerLevels {
                 .collect(Collectors.toMap(name -> name.split("@", 2)[1].trim(),
                         name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
         InternalLogger.INSTANCE.log(Level.INFO,
-                "Configured " + configuredLevels.size() + " output level(s): " + configuredLevels);
+                "Configured " + configuredLevels.size() + " caller output level(s): " + configuredLevels);
         return new CallerLevels(configuredLevels);
     }
 
