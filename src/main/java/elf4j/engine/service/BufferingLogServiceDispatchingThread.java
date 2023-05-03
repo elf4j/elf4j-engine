@@ -29,12 +29,11 @@ import lombok.NonNull;
 import org.awaitility.Awaitility;
 
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
  */
-public class BufferingWriterThread implements WriterThread {
+public class BufferingLogServiceDispatchingThread implements LogServiceDispatchingThread {
     private static final int DEFAULT_FRONT_BUFFER_CAPACITY = 262144;
     private final ExecutorService executorService;
 
@@ -42,21 +41,15 @@ public class BufferingWriterThread implements WriterThread {
      * @param bufferCapacity
      *         async work queue capacity for log entry tasks
      */
-    public BufferingWriterThread(Integer bufferCapacity) {
+    public BufferingLogServiceDispatchingThread(Integer bufferCapacity) {
         bufferCapacity = bufferCapacity == null ? DEFAULT_FRONT_BUFFER_CAPACITY : bufferCapacity;
-        //        this.executorService = new ThreadPoolExecutor(1,
-        //                1,
-        //                0L,
-        //                TimeUnit.MILLISECONDS,
-        //                new ArrayBlockingQueue<>(bufferCapacity == 0 ? DEFAULT_FRONT_BUFFER_CAPACITY : bufferCapacity),
-        //                r -> new Thread(r, "elf4j-engine-writer-thread"),
-        //                new BufferOverloadHandler());
-        this.executorService = new Ex(1,
+        this.executorService = new ThreadPoolExecutor(1,
                 1,
-                0,
+                0L,
                 TimeUnit.MILLISECONDS,
                 bufferCapacity == 0 ? new SynchronousQueue<>() : new ArrayBlockingQueue<>(bufferCapacity),
-                new WarningBufferOverloadHandler(bufferCapacity));
+                r -> new Thread(r, "elf4j-engine-writer-thread"),
+                new BufferOverloadHandler());
         LogServiceManager.INSTANCE.registerStop(this);
     }
 
@@ -71,38 +64,31 @@ public class BufferingWriterThread implements WriterThread {
         Awaitility.with().timeout(30, TimeUnit.MINUTES).await().until(this.executorService::isTerminated);
     }
 
-    static class Ex extends ThreadPoolExecutor {
-        AtomicInteger waterMark = new AtomicInteger();
-
-        public Ex(int corePoolSize,
-                int maximumPoolSize,
-                long keepAliveTime,
-                TimeUnit unit,
-                BlockingQueue<Runnable> workQueue,
-                RejectedExecutionHandler rejectedExecutionHandler) {
-            super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, rejectedExecutionHandler);
-        }
-
-        @Override
-        protected void beforeExecute(Thread t, Runnable r) {
-            //            super.beforeExecute(t, r);
-            //            System.err.println("f " + waterMark.updateAndGet(w -> Math.max(w, this.getQueue().size())));
-        }
-    }
-
-    static class WarningBufferOverloadHandler extends BufferOverloadHandler {
-        final int capacity;
-
-        WarningBufferOverloadHandler(int capacity) {
-            this.capacity = capacity;
+    /**
+     *
+     */
+    static class BufferOverloadHandler implements RejectedExecutionHandler {
+        private static void forceRetry(Runnable r, @NonNull ThreadPoolExecutor executor) {
+            boolean interrupted = false;
+            try {
+                while (true) {
+                    try {
+                        executor.getQueue().put(r);
+                        break;
+                    } catch (InterruptedException e) {
+                        interrupted = true;
+                    }
+                }
+            } finally {
+                if (interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
 
         @Override
         public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            //            InternalLogger.INSTANCE.log(Level.WARN,
-            //                    "Dispatch rate lower than logging rate, buffer overloaded with queue size " + executor.getQueue()
-            //                            .size());
-            super.rejectedExecution(r, executor);
+            forceRetry(r, executor);
         }
     }
 }

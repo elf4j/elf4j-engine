@@ -30,7 +30,6 @@ import elf4j.engine.service.configuration.Refreshable;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -80,18 +79,18 @@ public enum LogServiceManager {
      *
      */
     public void stopAll() {
-        stopWrite();
-        stopFlush();
+        stopService();
+        stopOutput();
     }
 
-    private void stopFlush() {
-        stoppables.parallelStream().filter(s -> !(s instanceof WriterThread)).forEach(Stoppable::stop);
-    }
-
-    private void stopWrite() {
-        stoppables.parallelStream()
-                .filter(WriterThread.class::isInstance)
-                .collect(Collectors.toList())
+    private void stopOutput() {
+        stoppables.stream()
+                .filter(s -> !(s instanceof LogServiceDispatchingThread))
+                .parallel()
                 .forEach(Stoppable::stop);
+    }
+
+    private void stopService() {
+        stoppables.stream().filter(LogServiceDispatchingThread.class::isInstance).parallel().forEach(Stoppable::stop);
     }
 }

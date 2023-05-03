@@ -27,12 +27,13 @@ package elf4j.engine.service.configuration;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
-import elf4j.engine.service.BufferingWriterThread;
+import elf4j.engine.service.BufferingLogServiceDispatchingThread;
+import elf4j.engine.service.LogServiceDispatchingThread;
 import elf4j.engine.service.LogServiceManager;
-import elf4j.engine.service.WriterThread;
 import elf4j.engine.service.util.PropertiesUtils;
 import elf4j.engine.service.writer.BufferedStandardOutput;
 import elf4j.engine.service.writer.LogWriter;
+import elf4j.engine.service.writer.StandardOutput;
 import elf4j.engine.service.writer.WriterGroup;
 import elf4j.util.InternalLogger;
 import lombok.ToString;
@@ -52,9 +53,9 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
     private boolean noop;
     private CallerLevels callerLevels;
     private Map<NativeLogger, Boolean> loggerEnablementCache;
-    private WriterThread writerThread;
-    private BufferedStandardOutput bufferedStandardOutput;
-    private LogWriter logWriter;
+    private LogServiceDispatchingThread logServiceDispatchingThread;
+    private StandardOutput standardOutput;
+    private LogWriter logServiceWriter;
 
     /**
      *
@@ -77,7 +78,7 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
 
     @Override
     public LogWriter getLogServiceWriter() {
-        return this.logWriter;
+        return this.logServiceWriter;
     }
 
     @Override
@@ -89,13 +90,13 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
     }
 
     @Override
-    public WriterThread getWriterThread() {
-        return this.writerThread;
+    public LogServiceDispatchingThread getLogServiceDispatchingThread() {
+        return this.logServiceDispatchingThread;
     }
 
     @Override
-    public BufferedStandardOutput getSBufferedStandardOutput() {
-        return this.bufferedStandardOutput;
+    public StandardOutput getStandardOutput() {
+        return this.standardOutput;
     }
 
     @Override
@@ -106,7 +107,7 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
 
     private boolean loadLoggerConfigurationCache(NativeLogger nativeLogger) {
         Level callerMinimumOutputLevel = callerLevels.getCallerMinimumOutputLevel(nativeLogger);
-        Level writerMinimumOutputLevel = logWriter.getMinimumOutputLevel();
+        Level writerMinimumOutputLevel = logServiceWriter.getMinimumOutputLevel();
         Level loggerLevel = nativeLogger.getLevel();
         return loggerLevel.compareTo(callerMinimumOutputLevel) >= 0
                 && loggerLevel.compareTo(writerMinimumOutputLevel) >= 0;
@@ -125,9 +126,10 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
         }
         this.callerLevels = CallerLevels.from(properties);
         this.loggerEnablementCache = new ConcurrentHashMap<>();
-        this.writerThread = new BufferingWriterThread(PropertiesUtils.getAsInteger("buffer.front", properties));
-        this.bufferedStandardOutput =
-                new BufferedStandardOutput(PropertiesUtils.getAsInteger("buffer.back", properties));
-        this.logWriter = WriterGroup.from(this);
+        this.logServiceDispatchingThread =
+                new BufferingLogServiceDispatchingThread(PropertiesUtils.getAsInteger("buffer.front", properties));
+        this.standardOutput = new BufferedStandardOutput(properties.getProperty("stream"),
+                PropertiesUtils.getAsInteger("buffer.back", properties));
+        this.logServiceWriter = WriterGroup.from(this);
     }
 }

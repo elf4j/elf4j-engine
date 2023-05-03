@@ -50,6 +50,8 @@ public class WriterGroup implements LogWriter {
     }
 
     /**
+     * @param logServiceConfiguration
+     *         entire configuration
      * @return the composite writer containing all writers configured in the specified properties
      */
     @NonNull

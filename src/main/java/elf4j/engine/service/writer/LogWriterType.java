@@ -29,6 +29,14 @@ import elf4j.engine.service.configuration.LogServiceConfiguration;
 
 import java.util.List;
 
+/**
+ *
+ */
 public interface LogWriterType {
+    /**
+     * @param logServiceConfiguration
+     *         entire configuration
+     * @return all log writers of this writer type from the given configuration
+     */
     List<LogWriter> getLogWriters(LogServiceConfiguration logServiceConfiguration);
 }

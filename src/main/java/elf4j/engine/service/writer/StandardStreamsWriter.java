@@ -53,8 +53,7 @@ public class StandardStreamsWriter implements LogWriter {
     private static final String DEFAULT_WRITER_OUT_STREAM = "stdout";
     private final Level minimumLevel;
     private final LogPattern logPattern;
-    private final OutStreamType outStreamType;
-    private final BufferedStandardOutput bufferedStandardOutput;
+    private final StandardOutput standardOutput;
 
     @Override
     public Level getMinimumOutputLevel() {
@@ -69,23 +68,7 @@ public class StandardStreamsWriter implements LogWriter {
         StringBuilder target = new StringBuilder();
         logPattern.renderTo(logEntry, target);
         byte[] bytes = target.append(System.lineSeparator()).toString().getBytes(StandardCharsets.UTF_8);
-        switch (this.outStreamType) {
-            case STDOUT:
-                bufferedStandardOutput.flushOut(bytes);
-                return;
-            case STDERR:
-                bufferedStandardOutput.flushErr(bytes);
-                return;
-            case AUTO:
-                if (logEntry.getNativeLogger().getLevel().compareTo(Level.WARN) < 0) {
-                    bufferedStandardOutput.flushOut(bytes);
-                } else {
-                    bufferedStandardOutput.flushErr(bytes);
-                }
-                return;
-            default:
-                throw new IllegalArgumentException("Unsupported out stream type: " + this.outStreamType);
-        }
+        standardOutput.write(bytes);
     }
 
     @Override
@@ -98,22 +81,18 @@ public class StandardStreamsWriter implements LogWriter {
         return logPattern.includeCallerThread();
     }
 
-    enum OutStreamType {
-        STDOUT, STDERR, AUTO
-    }
-
+    /**
+     *
+     */
     public static class StandardStreamsWriterType implements LogWriterType {
-        private static LogWriter getDefaultWriter(LogServiceConfiguration logServiceConfiguration) {
+        private static StandardStreamsWriter getDefaultWriter(LogServiceConfiguration logServiceConfiguration) {
             Properties properties = logServiceConfiguration.getProperties();
             return StandardStreamsWriter.builder()
                     .minimumLevel(Level.valueOf(properties.getProperty("level", DEFAULT_MINIMUM_LEVEL)
                             .trim()
                             .toUpperCase()))
                     .logPattern(PatternGroup.from(properties.getProperty("pattern", DEFAULT_PATTERN)))
-                    .outStreamType(OutStreamType.valueOf(properties.getProperty("stream", DEFAULT_WRITER_OUT_STREAM)
-                            .trim()
-                            .toUpperCase()))
-                    .bufferedStandardOutput(logServiceConfiguration.getSBufferedStandardOutput())
+                    .standardOutput(logServiceConfiguration.getStandardOutput())
                     .build();
         }
 
@@ -128,7 +107,6 @@ public class StandardStreamsWriter implements LogWriter {
         public List<LogWriter> getLogWriters(LogServiceConfiguration logServiceConfiguration) {
             List<LogWriter> standardStreamsWriters = new ArrayList<>();
             Properties properties = logServiceConfiguration.getProperties();
-            BufferedStandardOutput standardOutput = logServiceConfiguration.getSBufferedStandardOutput();
             List<Map<String, String>> writerConfigurations =
                     PropertiesUtils.getPropertiesGroupOfType("standard", logServiceConfiguration.getProperties());
             if (writerConfigurations.isEmpty()) {
@@ -145,12 +123,7 @@ public class StandardStreamsWriter implements LogWriter {
                                     writerConfiguration,
                                     properties,
                                     DEFAULT_PATTERN)))
-                            .outStreamType(StandardStreamsWriter.OutStreamType.valueOf(getWriterConfiguredOrDefault(
-                                    "stream",
-                                    writerConfiguration,
-                                    properties,
-                                    DEFAULT_WRITER_OUT_STREAM).trim().toUpperCase()))
-                            .bufferedStandardOutput(standardOutput)
+                            .standardOutput(logServiceConfiguration.getStandardOutput())
                             .build())
                     .collect(Collectors.toList());
         }

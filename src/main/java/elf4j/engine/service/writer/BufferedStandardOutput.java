@@ -25,102 +25,83 @@
 
 package elf4j.engine.service.writer;
 
-import elf4j.engine.service.BufferOverloadHandler;
 import elf4j.engine.service.LogServiceManager;
-import elf4j.engine.service.Stoppable;
+import org.awaitility.Awaitility;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.UncheckedIOException;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
  */
 public class BufferedStandardOutput implements StandardOutput {
     private static final int DEFAULT_BACK_BUFFER_CAPACITY = 256;
-    private final ExecutorService executorService;
+    private final OutStreamType outStreamType;
+    private final BlockingQueue<byte[]> buffer;
+    private boolean stopped;
 
     /**
+     * @param stream
+     *         standard out stream type, stdout or stderr, default to stdout
      * @param bufferCapacity
      *         buffer capacity queued on standard out stream
      */
-    public BufferedStandardOutput(Integer bufferCapacity) {
+    public BufferedStandardOutput(String stream, Integer bufferCapacity) {
+        this.outStreamType = stream == null ? OutStreamType.STDOUT : OutStreamType.valueOf(stream.toUpperCase());
         bufferCapacity = bufferCapacity == null ? DEFAULT_BACK_BUFFER_CAPACITY : bufferCapacity;
-        this.executorService = new Ex(1,
-                1,
-                0,
-                TimeUnit.MILLISECONDS,
-                bufferCapacity == 0 ? new SynchronousQueue<>() : new ArrayBlockingQueue<>(bufferCapacity),
-                new WarningBufferOverloadHandler(bufferCapacity));
+        this.buffer = bufferCapacity == 0 ? new SynchronousQueue<>() : new ArrayBlockingQueue<>(bufferCapacity);
+        this.stopped = false;
+        new Thread(new PollingBytesWriter()).start();
         LogServiceManager.INSTANCE.registerStop(this);
     }
 
     @Override
     public void stop() {
-        this.executorService.shutdown();
+        Awaitility.with().timeout(30, TimeUnit.MINUTES).await().until(this.buffer::isEmpty);
+        this.stopped = true;
     }
 
     @Override
-    public void flushOut(byte[] bytes) {
-        PrintStream stdout = System.out;
-        executorService.submit(() -> {
-            try {
-                stdout.write(bytes);
-                /* explicit flush in case default standard stream is changed */
-                stdout.flush();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
-    }
-
-    @Override
-    public void flushErr(byte[] bytes) {
-        PrintStream stderr = System.err;
-        executorService.submit(() -> {
-            try {
-                stderr.write(bytes);
-                /* explicit flush in case default standard stream is changed */
-                stderr.flush();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
-    }
-
-    static class Ex extends ThreadPoolExecutor {
-        AtomicInteger waterMark = new AtomicInteger();
-
-        public Ex(int corePoolSize,
-                int maximumPoolSize,
-                long keepAliveTime,
-                TimeUnit unit,
-                BlockingQueue<Runnable> workQueue,
-                RejectedExecutionHandler rejectedExecutionHandler) {
-            super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, rejectedExecutionHandler);
+    public void write(byte[] bytes) {
+        try {
+            buffer.put(bytes);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
+    }
 
+    enum OutStreamType {
+        STDOUT, STDERR
+    }
+
+    private class PollingBytesWriter implements Runnable {
         @Override
-        protected void beforeExecute(Thread t, Runnable r) {
-            //            super.beforeExecute(t, r);
-            //            System.err.println("b " + waterMark.updateAndGet(w -> Math.max(w, this.getQueue().size())));
-        }
-    }
-
-    static class WarningBufferOverloadHandler extends BufferOverloadHandler {
-        final int queueCapacity;
-
-        private WarningBufferOverloadHandler(int queueCapacity) {
-            this.queueCapacity = queueCapacity;
-        }
-
-        @Override
-        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            //            InternalLogger.INSTANCE.log(Level.WARN,
-            //                    "Output channel bandwidth too low, buffer overloaded with queue capacity " + queueCapacity);
-            super.rejectedExecution(r, executor);
+        public void run() {
+            while (!stopped) {
+                List<byte[]> poll = new LinkedList<>();
+                buffer.drainTo(poll);
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(poll.size() * 2048);
+                poll.forEach(bytes -> {
+                    try {
+                        byteArrayOutputStream.write(bytes);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                });
+                try {
+                    byteArrayOutputStream.writeTo(outStreamType == OutStreamType.STDERR ? System.err : System.out);
+                    byteArrayOutputStream.flush();
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            }
         }
     }
 }

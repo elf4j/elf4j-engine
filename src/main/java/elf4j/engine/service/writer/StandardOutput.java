@@ -27,8 +27,13 @@ package elf4j.engine.service.writer;
 
 import elf4j.engine.service.Stoppable;
 
+/**
+ *
+ */
 public interface StandardOutput extends Stoppable {
-    void flushOut(byte[] bytes);
-
-    void flushErr(byte[] bytes);
+    /**
+     * @param bytes
+     *         to be written to the out stream
+     */
+    void write(byte[] bytes);
 }

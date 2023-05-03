@@ -25,35 +25,10 @@
 
 package elf4j.engine.service;
 
-import lombok.NonNull;
-
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.Executor;
 
 /**
  *
  */
-public class BufferOverloadHandler implements RejectedExecutionHandler {
-    private static void forceRetry(Runnable r, @NonNull ThreadPoolExecutor executor) {
-        boolean interrupted = false;
-        try {
-            while (true) {
-                try {
-                    executor.getQueue().put(r);
-                    break;
-                } catch (InterruptedException e) {
-                    interrupted = true;
-                }
-            }
-        } finally {
-            if (interrupted) {
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
-
-    @Override
-    public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-        forceRetry(r, executor);
-    }
+public interface LogServiceDispatchingThread extends Executor, Stoppable {
 }
