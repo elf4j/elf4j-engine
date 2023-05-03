@@ -27,10 +27,10 @@ package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEntry;
 import lombok.NonNull;
-import lombok.ToString;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
@@ -39,10 +39,9 @@ import java.time.format.DateTimeFormatter;
  */
 @Value
 public class TimestampPattern implements LogPattern {
-    private static final DateTimeFormatter DEFAULT_TIMESTAMP_FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-    private static final ZoneId DEFAULT_TIMESTAMP_ZONE = ZoneId.systemDefault();
-    @ToString.Exclude DateTimeFormatter dateTimeFormatter;
+    private static final String DEFAULT_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+    private static final ZoneId DISPLAY_TIME_ZONE = ZoneId.systemDefault();
+    DateTimeFormatter dateTimeFormatter;
 
     /**
      * @param patternSegment
@@ -54,13 +53,13 @@ public class TimestampPattern implements LogPattern {
         if (!PatternType.TIMESTAMP.isTargetTypeOf(patternSegment)) {
             throw new IllegalArgumentException("patternSegment: " + patternSegment);
         }
-        DateTimeFormatter dateTimeFormatter = PatternType.getPatternDisplayOption(patternSegment)
-                .map(DateTimeFormatter::ofPattern)
-                .orElse(DEFAULT_TIMESTAMP_FORMATTER);
-        if (dateTimeFormatter.getZone() == null) {
-            dateTimeFormatter = dateTimeFormatter.withZone(DEFAULT_TIMESTAMP_ZONE);
-        }
-        return new TimestampPattern(dateTimeFormatter);
+        return new TimestampPattern(DateTimeFormatter.ofPattern(PatternType.getPatternDisplayOption(patternSegment)
+                .orElse(DEFAULT_DATETIME_PATTERN)).withZone(DISPLAY_TIME_ZONE));
+    }
+
+    @Override
+    public String toString() {
+        return "TimestampPattern{" + "sample=" + dateTimeFormatter.format(Instant.now()) + '}';
     }
 
     @Override

@@ -61,6 +61,7 @@ public class BufferedStandardOutput implements StandardOutput {
     public BufferedStandardOutput(String stream, Integer bufferCapacity) {
         this.outStreamType = stream == null ? OutStreamType.STDOUT : OutStreamType.valueOf(stream.toUpperCase());
         bufferCapacity = bufferCapacity == null ? DEFAULT_BACK_BUFFER_CAPACITY : bufferCapacity;
+        InternalLogger.INSTANCE.log(Level.INFO, "Standard stream buffer capacity: " + bufferCapacity);
         this.buffer = bufferCapacity == 0 ? new SynchronousQueue<>() : new ArrayBlockingQueue<>(bufferCapacity);
         this.stopped = false;
         new Thread(new PollingBytesWriter()).start();

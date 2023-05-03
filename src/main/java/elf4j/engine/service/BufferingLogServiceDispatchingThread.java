@@ -45,6 +45,7 @@ public class BufferingLogServiceDispatchingThread implements LogServiceDispatchi
      */
     public BufferingLogServiceDispatchingThread(Integer bufferCapacity) {
         bufferCapacity = bufferCapacity == null ? DEFAULT_FRONT_BUFFER_CAPACITY : bufferCapacity;
+        InternalLogger.INSTANCE.log(Level.INFO, "Service thread buffer capacity: " + bufferCapacity);
         this.executorService = new ThreadPoolExecutor(1,
                 1,
                 0L,
