@@ -27,19 +27,21 @@ package elf4j.engine.service.writer;
 
 import elf4j.Level;
 import elf4j.engine.service.LogServiceManager;
+import elf4j.engine.service.util.MoreAwaitility;
 import elf4j.util.InternalLogger;
 import lombok.ToString;
 import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -50,6 +52,7 @@ public class BufferedStandardOutput implements StandardOutput {
     private static final int DEFAULT_BACK_BUFFER_CAPACITY = 256;
     private final OutStreamType outStreamType;
     private final BlockingQueue<byte[]> buffer;
+    private final PollingBytesWriter pollingBytesWriter;
     private boolean stopped;
 
     /**
@@ -62,15 +65,19 @@ public class BufferedStandardOutput implements StandardOutput {
         this.outStreamType = stream == null ? OutStreamType.STDOUT : OutStreamType.valueOf(stream.toUpperCase());
         bufferCapacity = bufferCapacity == null ? DEFAULT_BACK_BUFFER_CAPACITY : bufferCapacity;
         InternalLogger.INSTANCE.log(Level.INFO, "Standard stream buffer capacity: " + bufferCapacity);
-        this.buffer = bufferCapacity == 0 ? new SynchronousQueue<>() : new ArrayBlockingQueue<>(bufferCapacity);
+        this.buffer = new ArrayBlockingQueue<>(bufferCapacity == 0 ? 1 : bufferCapacity);
         this.stopped = false;
-        new Thread(new PollingBytesWriter()).start();
+        pollingBytesWriter = new PollingBytesWriter();
+        new Thread(pollingBytesWriter).start();
         LogServiceManager.INSTANCE.registerStop(this);
     }
 
     @Override
     public void stop() {
-        Awaitility.with().timeout(30, TimeUnit.MINUTES).await().until(this.buffer::isEmpty);
+        MoreAwaitility.suspend(Duration.ofMillis(100));
+        ConditionFactory await = Awaitility.with().timeout(30, TimeUnit.MINUTES).await();
+        await.until(this.buffer::isEmpty);
+        await.until(this.pollingBytesWriter::isBufferEmpty);
         this.stopped = true;
     }
 
@@ -92,13 +99,15 @@ public class BufferedStandardOutput implements StandardOutput {
     }
 
     private class PollingBytesWriter implements Runnable {
+        private final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
         @Override
         public void run() {
             while (!stopped) {
-                List<byte[]> poll = new LinkedList<>();
-                buffer.drainTo(poll);
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(poll.size() * 2048);
-                poll.forEach(bytes -> {
+                List<byte[]> pollBatch = new LinkedList<>();
+                buffer.drainTo(pollBatch);
+                byteArrayOutputStream.reset();
+                pollBatch.forEach(bytes -> {
                     try {
                         byteArrayOutputStream.write(bytes);
                     } catch (IOException e) {
@@ -112,6 +121,10 @@ public class BufferedStandardOutput implements StandardOutput {
                     throw new UncheckedIOException(e);
                 }
             }
+        }
+
+        public boolean isBufferEmpty() {
+            return this.byteArrayOutputStream.size() == 0;
         }
     }
 }

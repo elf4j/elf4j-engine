@@ -58,7 +58,7 @@ public class Main {
                 .atDebug()
                 .log("Not a practical example but now the severity level is DEBUG");
 
-        MoreAwaitility.block(Duration.ofMillis(200), "Making sure console streams show up");
+        MoreAwaitility.suspend(Duration.ofMillis(200), "Making sure console streams show up");
         LogServiceManager.INSTANCE.stopAll();
     }
 }

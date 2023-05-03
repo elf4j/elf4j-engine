@@ -25,34 +25,47 @@
 
 package elf4j.engine.service.util;
 
+import elf4j.Level;
+import elf4j.util.InternalLogger;
 import lombok.NonNull;
 import org.awaitility.Awaitility;
 
 import java.time.Duration;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ *
+ */
 public class MoreAwaitility {
-    private static final ScheduledExecutorService delayer =
-            Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() + 1, r -> {
-                Thread daemonThread = new Thread(r, "more-awaitility-util-thread" + UUID.randomUUID());
-                daemonThread.setDaemon(true);
-                return daemonThread;
-            });
-
-    public static void block(@NonNull Duration duration) {
-        block(duration, null);
+    private MoreAwaitility() {
     }
 
-    public static void block(@NonNull Duration duration, String message) {
+    /**
+     * @param duration
+     *         to suspend the current thread for
+     */
+    public static void suspend(@NonNull Duration duration) {
+        suspend(duration, null);
+    }
+
+    /**
+     * @param duration
+     *         to suspend the current thread for
+     * @param message
+     *         intended for internal logging which goes out to stderr
+     */
+    public static void suspend(@NonNull Duration duration, String message) {
         if (message != null) {
-            System.out.println(message + " - blocking for " + duration);
+            InternalLogger.INSTANCE.log(Level.INFO,
+                    message + " - suspending current thread " + Thread.currentThread() + " for " + duration);
         }
         AtomicBoolean resume = new AtomicBoolean(false);
+        ScheduledExecutorService delayer = Executors.newSingleThreadScheduledExecutor();
         delayer.schedule(() -> resume.set(true), duration.toMillis(), TimeUnit.MILLISECONDS);
-        Awaitility.await().untilTrue(resume);
+        delayer.shutdown();
+        Awaitility.with().pollInterval(duration.dividedBy(10)).await().untilTrue(resume);
     }
 }
