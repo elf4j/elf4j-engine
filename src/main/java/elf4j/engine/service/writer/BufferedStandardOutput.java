@@ -105,7 +105,10 @@ public class BufferedStandardOutput implements StandardOutput {
         private final int batchSize;
 
         private PollingBytesWriter(int batchSize) {
-            this.batchSize = batchSize == 0 ? 1 : batchSize;
+            if (batchSize < 0) {
+                throw new IllegalArgumentException();
+            }
+            this.batchSize = Math.max(1, batchSize);
         }
 
         @Override
