@@ -26,7 +26,7 @@
 package elf4j.engine.service.writer;
 
 import elf4j.Level;
-import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.LogEvent;
 
 /**
  *
@@ -39,8 +39,8 @@ public interface LogWriter extends PerformanceSensitive {
     Level getMinimumOutputLevel();
 
     /**
-     * @param logEntry
+     * @param logEvent
      *         the log data entry to write out
      */
-    void write(LogEntry logEntry);
+    void write(LogEvent logEvent);
 }

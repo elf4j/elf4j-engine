@@ -25,7 +25,7 @@
 
 package elf4j.engine.service.pattern;
 
-import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.LogEvent;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
@@ -59,7 +59,7 @@ public class SystemEnvironmentPattern implements LogPattern {
     }
 
     @Override
-    public void renderTo(LogEntry logEntry, StringBuilder target) {
+    public void render(LogEvent logEvent, StringBuilder target) {
         target.append(this.value);
     }
 

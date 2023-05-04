@@ -25,7 +25,7 @@
 
 package elf4j.engine.service.pattern;
 
-import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.LogEvent;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -42,7 +42,7 @@ public class PatternGroup implements LogPattern {
     /**
      * @param pattern
      *         entire layout pattern text from configuration
-     * @return composite pattern object for the entire log entry's output layout
+     * @return composite pattern object for the entire final log message output layout
      */
     @Nonnull
     public static PatternGroup from(@NonNull String pattern) {
@@ -60,9 +60,9 @@ public class PatternGroup implements LogPattern {
     }
 
     @Override
-    public void renderTo(LogEntry logEntry, StringBuilder target) {
+    public void render(LogEvent logEvent, StringBuilder target) {
         for (LogPattern pattern : patterns) {
-            pattern.renderTo(logEntry, target);
+            pattern.render(logEvent, target);
         }
     }
 }

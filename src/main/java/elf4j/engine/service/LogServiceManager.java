@@ -84,13 +84,10 @@ public enum LogServiceManager {
     }
 
     private void stopOutput() {
-        stoppables.stream()
-                .filter(s -> !(s instanceof LogServiceDispatchingThread))
-                .parallel()
-                .forEach(Stoppable::stop);
+        stoppables.stream().filter(s -> !(s instanceof LogServiceThread)).parallel().forEach(Stoppable::stop);
     }
 
     private void stopService() {
-        stoppables.stream().filter(LogServiceDispatchingThread.class::isInstance).parallel().forEach(Stoppable::stop);
+        stoppables.stream().filter(LogServiceThread.class::isInstance).parallel().forEach(Stoppable::stop);
     }
 }

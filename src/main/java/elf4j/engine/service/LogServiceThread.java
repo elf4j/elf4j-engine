@@ -30,5 +30,5 @@ import java.util.concurrent.Executor;
 /**
  *
  */
-public interface LogServiceDispatchingThread extends Executor, Stoppable {
+public interface LogServiceThread extends Executor, Stoppable {
 }

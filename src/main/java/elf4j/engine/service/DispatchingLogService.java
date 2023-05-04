@@ -72,20 +72,20 @@ public class DispatchingLogService implements LogService {
         if (!logServiceConfiguration.isEnabled(nativeLogger)) {
             return;
         }
-        LogEntry.LogEntryBuilder logEntryBuilder = LogEntry.builder()
+        LogEvent.LogEventBuilder logEventBuilder = LogEvent.builder()
                 .nativeLogger(nativeLogger)
                 .throwable(throwable)
                 .message(message)
                 .arguments(arguments);
         if (this.includeCallerDetail()) {
-            logEntryBuilder.callerStack(new Throwable().getStackTrace()).serviceInterfaceClass(serviceInterfaceClass);
+            logEventBuilder.callerStack(new Throwable().getStackTrace()).serviceInterfaceClass(serviceInterfaceClass);
         }
         if (this.includeCallerThread()) {
             Thread callerThread = Thread.currentThread();
-            logEntryBuilder.callerThread(new LogEntry.ThreadValue(callerThread.getName(), callerThread.getId()));
+            logEventBuilder.callerThread(new LogEvent.ThreadValue(callerThread.getName(), callerThread.getId()));
         }
-        this.logServiceConfiguration.getLogServiceDispatchingThread()
-                .execute(() -> this.logServiceConfiguration.getLogServiceWriter().write(logEntryBuilder.build()));
+        this.logServiceConfiguration.getLogServiceThread()
+                .execute(() -> this.logServiceConfiguration.getLogServiceWriter().write(logEventBuilder.build()));
     }
 
     private static class Configuration {

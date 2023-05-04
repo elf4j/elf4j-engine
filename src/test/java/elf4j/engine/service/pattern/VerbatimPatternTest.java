@@ -25,7 +25,7 @@
 
 package elf4j.engine.service.pattern;
 
-import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.LogEvent;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,12 +37,12 @@ class VerbatimPatternTest {
 
     @Test
     void appendPatternTextAsIs() {
-        LogEntry mockEntry = mock(LogEntry.class);
+        LogEvent mockEntry = mock(LogEvent.class);
         String verbatimTextToAppend = "text";
         String inputLogText = "inputLogText";
         StringBuilder logTextBuilder = new StringBuilder(inputLogText);
 
-        new VerbatimPattern(verbatimTextToAppend).renderTo(mockEntry, logTextBuilder);
+        new VerbatimPattern(verbatimTextToAppend).render(mockEntry, logTextBuilder);
 
         verifyNoInteractions(mockEntry);
         assertEquals(inputLogText + verbatimTextToAppend, logTextBuilder.toString());

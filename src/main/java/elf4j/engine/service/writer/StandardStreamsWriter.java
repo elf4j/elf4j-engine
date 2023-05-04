@@ -26,7 +26,7 @@
 package elf4j.engine.service.writer;
 
 import elf4j.Level;
-import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.pattern.LogPattern;
 import elf4j.engine.service.pattern.PatternGroup;
@@ -61,12 +61,12 @@ public class StandardStreamsWriter implements LogWriter {
     }
 
     @Override
-    public void write(@NonNull LogEntry logEntry) {
-        if (logEntry.getNativeLogger().getLevel().compareTo(this.minimumLevel) < 0) {
+    public void write(@NonNull LogEvent logEvent) {
+        if (logEvent.getNativeLogger().getLevel().compareTo(this.minimumLevel) < 0) {
             return;
         }
         StringBuilder target = new StringBuilder();
-        logPattern.renderTo(logEntry, target);
+        logPattern.render(logEvent, target);
         byte[] bytes = target.append(System.lineSeparator()).toString().getBytes(StandardCharsets.UTF_8);
         standardOutput.write(bytes);
     }

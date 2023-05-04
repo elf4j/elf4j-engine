@@ -26,7 +26,7 @@
 package elf4j.engine.service.configuration;
 
 import elf4j.engine.NativeLogger;
-import elf4j.engine.service.LogServiceDispatchingThread;
+import elf4j.engine.service.LogServiceThread;
 import elf4j.engine.service.writer.LogWriter;
 import elf4j.engine.service.writer.StandardOutput;
 
@@ -55,9 +55,9 @@ public interface LogServiceConfiguration {
     boolean isEnabled(NativeLogger nativeLogger);
 
     /**
-     * @return async executor for log entry tasks
+     * @return async executor for log event processing
      */
-    LogServiceDispatchingThread getLogServiceDispatchingThread();
+    LogServiceThread getLogServiceThread();
 
     /**
      * @return buffered standard out stream writer

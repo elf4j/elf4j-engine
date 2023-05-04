@@ -70,7 +70,7 @@ class DispatchingLogServiceTest {
         DispatchingLogService logService;
         @Mock LogServiceConfiguration mockLogServiceConfiguration;
         @Mock LogWriter mockLogWriter;
-        @Captor ArgumentCaptor<LogEntry> captorLogEntry;
+        @Captor ArgumentCaptor<LogEvent> captorLogEntry;
 
         @Test
         void callWriter() {
@@ -78,11 +78,11 @@ class DispatchingLogServiceTest {
             stubLogger = new NativeLogger(this.getClass().getName(), Level.TRACE, logService);
             given(mockLogServiceConfiguration.isEnabled(any(NativeLogger.class))).willReturn(true);
             given(mockLogServiceConfiguration.getLogServiceWriter()).willReturn(mockLogWriter);
-            given(mockLogServiceConfiguration.getLogServiceDispatchingThread()).willReturn(new StubLogServiceDispatchingThread());
+            given(mockLogServiceConfiguration.getLogServiceThread()).willReturn(new StubLogServiceThread());
 
             logService.log(stubLogger, this.getClass(), null, null, null);
 
-            then(mockLogWriter).should().write(any(LogEntry.class));
+            then(mockLogWriter).should().write(any(LogEvent.class));
         }
 
         @Test
@@ -92,7 +92,7 @@ class DispatchingLogServiceTest {
             given(mockLogWriter.includeCallerThread()).willReturn(true);
             given(mockLogServiceConfiguration.isEnabled(any(NativeLogger.class))).willReturn(true);
             given(mockLogServiceConfiguration.getLogServiceWriter()).willReturn(mockLogWriter);
-            given(mockLogServiceConfiguration.getLogServiceDispatchingThread()).willReturn(new StubLogServiceDispatchingThread());
+            given(mockLogServiceConfiguration.getLogServiceThread()).willReturn(new StubLogServiceThread());
 
             logService.log(stubLogger, this.getClass(), null, null, null);
 
@@ -109,7 +109,7 @@ class DispatchingLogServiceTest {
             given(mockLogWriter.includeCallerThread()).willReturn(false);
             given(mockLogServiceConfiguration.isEnabled(any(NativeLogger.class))).willReturn(true);
             given(mockLogServiceConfiguration.getLogServiceWriter()).willReturn(mockLogWriter);
-            given(mockLogServiceConfiguration.getLogServiceDispatchingThread()).willReturn(new StubLogServiceDispatchingThread());
+            given(mockLogServiceConfiguration.getLogServiceThread()).willReturn(new StubLogServiceThread());
 
             logService.log(stubLogger, this.getClass(), null, null, null);
 
@@ -123,7 +123,7 @@ class DispatchingLogServiceTest {
             stubLogger = new NativeLogger(this.getClass().getName(), Level.TRACE, logService);
             given(mockLogServiceConfiguration.isEnabled(any(NativeLogger.class))).willReturn(true);
             given(mockLogServiceConfiguration.getLogServiceWriter()).willReturn(mockLogWriter);
-            given(mockLogServiceConfiguration.getLogServiceDispatchingThread()).willReturn(new StubLogServiceDispatchingThread());
+            given(mockLogServiceConfiguration.getLogServiceThread()).willReturn(new StubLogServiceThread());
             given(mockLogWriter.includeCallerDetail()).willReturn(true);
 
             logService.log(stubLogger, this.getClass(), null, null, null);
@@ -139,7 +139,7 @@ class DispatchingLogServiceTest {
             given(mockLogServiceConfiguration.isEnabled(any(NativeLogger.class))).willReturn(true);
             given(mockLogWriter.includeCallerDetail()).willReturn(false);
             given(mockLogServiceConfiguration.getLogServiceWriter()).willReturn(mockLogWriter);
-            given(mockLogServiceConfiguration.getLogServiceDispatchingThread()).willReturn(new StubLogServiceDispatchingThread());
+            given(mockLogServiceConfiguration.getLogServiceThread()).willReturn(new StubLogServiceThread());
 
             logService.log(stubLogger, this.getClass(), null, null, null);
 
@@ -158,7 +158,7 @@ class DispatchingLogServiceTest {
             then(mockLogServiceConfiguration).should(never()).getLogServiceWriter();
         }
 
-        private class StubLogServiceDispatchingThread implements LogServiceDispatchingThread {
+        private class StubLogServiceThread implements LogServiceThread {
             @Override
             public void stop() {
 

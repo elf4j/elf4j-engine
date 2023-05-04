@@ -27,9 +27,9 @@ package elf4j.engine.service.configuration;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
-import elf4j.engine.service.BufferingLogServiceDispatchingThread;
-import elf4j.engine.service.LogServiceDispatchingThread;
+import elf4j.engine.service.BufferingLogServiceThread;
 import elf4j.engine.service.LogServiceManager;
+import elf4j.engine.service.LogServiceThread;
 import elf4j.engine.service.util.PropertiesUtils;
 import elf4j.engine.service.writer.BufferedStandardOutput;
 import elf4j.engine.service.writer.LogWriter;
@@ -53,7 +53,7 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
     private boolean noop;
     private CallerLevels callerLevels;
     private Map<NativeLogger, Boolean> loggerEnablementCache;
-    private LogServiceDispatchingThread logServiceDispatchingThread;
+    private LogServiceThread logServiceThread;
     private StandardOutput standardOutput;
     private LogWriter logServiceWriter;
 
@@ -90,8 +90,8 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
     }
 
     @Override
-    public LogServiceDispatchingThread getLogServiceDispatchingThread() {
-        return this.logServiceDispatchingThread;
+    public LogServiceThread getLogServiceThread() {
+        return this.logServiceThread;
     }
 
     @Override
@@ -127,8 +127,7 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
         }
         this.callerLevels = CallerLevels.from(properties);
         this.loggerEnablementCache = new ConcurrentHashMap<>();
-        this.logServiceDispatchingThread =
-                new BufferingLogServiceDispatchingThread(PropertiesUtils.getAsInteger("buffer.front", properties));
+        this.logServiceThread = new BufferingLogServiceThread(PropertiesUtils.getAsInteger("buffer.front", properties));
         this.standardOutput = new BufferedStandardOutput(properties.getProperty("stream"),
                 PropertiesUtils.getAsInteger("buffer.back", properties));
         this.logServiceWriter = WriterGroup.from(this);

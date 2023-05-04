@@ -25,7 +25,7 @@
 
 package elf4j.engine.service.pattern;
 
-import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.writer.PerformanceSensitive;
 
 /**
@@ -34,13 +34,13 @@ import elf4j.engine.service.writer.PerformanceSensitive;
 public interface LogPattern extends PerformanceSensitive {
 
     /**
-     * Extracts the content of particular interest to this log pattern instance from the specified log entry, and
+     * Extracts the content of particular interest to this log pattern instance from the specified log event, and
      * appends the result to the specified target aggregator of the final log message
      *
-     * @param logEntry
+     * @param logEvent
      *         entire log content data source to render
      * @param target
      *         logging text aggregator of the final log message
      */
-    void renderTo(LogEntry logEntry, StringBuilder target);
+    void render(LogEvent logEvent, StringBuilder target);
 }

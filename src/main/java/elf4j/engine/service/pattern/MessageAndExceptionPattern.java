@@ -25,7 +25,7 @@
 
 package elf4j.engine.service.pattern;
 
-import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.util.StackTraceUtils;
 import lombok.NonNull;
 import lombok.Value;
@@ -61,9 +61,9 @@ public class MessageAndExceptionPattern implements LogPattern {
     }
 
     @Override
-    public void renderTo(@NonNull LogEntry logEntry, @NonNull StringBuilder target) {
-        target.append(logEntry.getResolvedMessage());
-        Throwable t = logEntry.getThrowable();
+    public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
+        target.append(logEvent.getResolvedMessage());
+        Throwable t = logEvent.getThrowable();
         if (t == null) {
             return;
         }

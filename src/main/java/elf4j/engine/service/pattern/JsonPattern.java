@@ -30,7 +30,7 @@ import com.dslplatform.json.DslJson;
 import com.dslplatform.json.JsonWriter;
 import com.dslplatform.json.PrettifyOutputStream;
 import com.dslplatform.json.runtime.Settings;
-import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.util.StackTraceUtils;
 import lombok.Builder;
 import lombok.NonNull;
@@ -104,9 +104,9 @@ public class JsonPattern implements LogPattern {
     }
 
     @Override
-    public void renderTo(LogEntry logEntry, StringBuilder target) {
+    public void render(LogEvent logEvent, StringBuilder target) {
         jsonWriter.reset();
-        jsonWriter.serializeObject(JsonLogEntry.from(logEntry, this));
+        jsonWriter.serializeObject(JsonLogEntry.from(logEvent, this));
         if (!this.prettyPrint) {
             target.append(jsonWriter);
             return;
@@ -127,21 +127,21 @@ public class JsonPattern implements LogPattern {
         OffsetDateTime timestamp;
         String level;
         String callerClass;
-        LogEntry.ThreadValue callerThread;
-        LogEntry.StackFrameValue callerDetail;
+        LogEvent.ThreadValue callerThread;
+        LogEvent.StackFrameValue callerDetail;
         CharSequence message;
         CharSequence exception;
 
-        static JsonLogEntry from(@NonNull LogEntry logEntry, @NonNull JsonPattern jsonPattern) {
+        static JsonLogEntry from(@NonNull LogEvent logEvent, @NonNull JsonPattern jsonPattern) {
             return JsonLogEntry.builder()
-                    .timestamp(OffsetDateTime.ofInstant(logEntry.getTimestamp(), ZoneId.systemDefault()))
-                    .callerClass(jsonPattern.includeCallerDetail ? null : logEntry.getCallerClassName())
-                    .level(logEntry.getNativeLogger().getLevel().name())
-                    .callerThread(jsonPattern.includeCallerThread ? logEntry.getCallerThread() : null)
-                    .callerDetail(jsonPattern.includeCallerDetail ? logEntry.getCallerDetail() : null)
-                    .message(logEntry.getResolvedMessage())
-                    .exception(logEntry.getThrowable() == null ? null :
-                            StackTraceUtils.getTraceAsBuffer(logEntry.getThrowable()))
+                    .timestamp(OffsetDateTime.ofInstant(logEvent.getTimestamp(), ZoneId.systemDefault()))
+                    .callerClass(jsonPattern.includeCallerDetail ? null : logEvent.getCallerClassName())
+                    .level(logEvent.getNativeLogger().getLevel().name())
+                    .callerThread(jsonPattern.includeCallerThread ? logEvent.getCallerThread() : null)
+                    .callerDetail(jsonPattern.includeCallerDetail ? logEvent.getCallerDetail() : null)
+                    .message(logEvent.getResolvedMessage())
+                    .exception(logEvent.getThrowable() == null ? null :
+                            StackTraceUtils.getTraceAsBuffer(logEvent.getThrowable()))
                     .build();
         }
     }

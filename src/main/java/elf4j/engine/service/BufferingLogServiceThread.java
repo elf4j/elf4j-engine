@@ -35,15 +35,15 @@ import java.util.concurrent.*;
 /**
  *
  */
-public class BufferingLogServiceDispatchingThread implements LogServiceDispatchingThread {
+public class BufferingLogServiceThread implements LogServiceThread {
     private static final int DEFAULT_FRONT_BUFFER_CAPACITY = 262144;
     private final ExecutorService executorService;
 
     /**
      * @param bufferCapacity
-     *         async work queue capacity for log entry tasks
+     *         async work queue capacity for log events
      */
-    public BufferingLogServiceDispatchingThread(Integer bufferCapacity) {
+    public BufferingLogServiceThread(Integer bufferCapacity) {
         bufferCapacity = bufferCapacity == null ? DEFAULT_FRONT_BUFFER_CAPACITY : bufferCapacity;
         InternalLogger.INSTANCE.log(Level.INFO, "Service thread buffer capacity: " + bufferCapacity);
         this.executorService = new ThreadPoolExecutor(1,

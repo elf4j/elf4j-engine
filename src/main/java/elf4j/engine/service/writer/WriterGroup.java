@@ -26,7 +26,7 @@
 package elf4j.engine.service.writer;
 
 import elf4j.Level;
-import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.util.InternalLogger;
 import lombok.NonNull;
@@ -96,8 +96,8 @@ public class WriterGroup implements LogWriter {
     }
 
     @Override
-    public void write(LogEntry logEntry) {
-        writers.parallelStream().forEach(writer -> writer.write(logEntry));
+    public void write(LogEvent logEvent) {
+        writers.parallelStream().forEach(writer -> writer.write(logEvent));
     }
 
     @Override

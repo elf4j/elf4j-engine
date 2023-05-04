@@ -27,7 +27,7 @@ package elf4j.engine.service.pattern;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
-import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.LogService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -42,16 +42,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(MockitoExtension.class)
 class MessageAndExceptionPatternTest {
     @Mock LogService stubLogService;
-    LogEntry mockLogEntry;
+    LogEvent mockLogEvent;
     String mockMessage = "testLogMessage {}";
     Object[] mockArgs = new Object[] { "testArg1" };
     Exception mockException = new Exception("testExceptionMessage");
 
     @BeforeEach
     void beforeEach() {
-        mockLogEntry = LogEntry.builder()
+        mockLogEvent = LogEvent.builder()
                 .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, stubLogService))
-                .callerThread(LogEntry.ThreadValue.builder()
+                .callerThread(LogEvent.ThreadValue.builder()
                         .name(Thread.currentThread().getName())
                         .id(Thread.currentThread().getId())
                         .build())
@@ -77,10 +77,10 @@ class MessageAndExceptionPatternTest {
             MessageAndExceptionPattern messageAndExceptionPattern = MessageAndExceptionPattern.from("message");
             StringBuilder logText = new StringBuilder();
 
-            messageAndExceptionPattern.renderTo(mockLogEntry, logText);
+            messageAndExceptionPattern.render(mockLogEvent, logText);
             String rendered = logText.toString();
 
-            assertTrue(rendered.contains(mockLogEntry.getResolvedMessage()));
+            assertTrue(rendered.contains(mockLogEvent.getResolvedMessage()));
             assertTrue(rendered.contains(mockException.getMessage()));
         }
     }

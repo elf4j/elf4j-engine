@@ -25,7 +25,7 @@
 
 package elf4j.engine.service.pattern;
 
-import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.LogEvent;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -73,7 +73,7 @@ public class TimestampPattern implements LogPattern {
     }
 
     @Override
-    public void renderTo(@NonNull LogEntry logEntry, @NonNull StringBuilder target) {
-        dateTimeFormatter.formatTo(logEntry.getTimestamp(), target);
+    public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
+        dateTimeFormatter.formatTo(logEvent.getTimestamp(), target);
     }
 }

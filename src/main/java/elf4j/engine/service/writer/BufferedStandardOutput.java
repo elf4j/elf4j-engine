@@ -42,6 +42,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -50,6 +51,7 @@ import java.util.concurrent.TimeUnit;
 @ToString
 public class BufferedStandardOutput implements StandardOutput {
     private static final int DEFAULT_BACK_BUFFER_CAPACITY = 256;
+    private static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
     private final OutStreamType outStreamType;
     private final BlockingQueue<byte[]> buffer;
     private final PollingBytesWriter pollingBytesWriter;
@@ -62,12 +64,12 @@ public class BufferedStandardOutput implements StandardOutput {
      *         buffer capacity queued on standard out stream
      */
     public BufferedStandardOutput(String stream, Integer bufferCapacity) {
-        this.outStreamType = stream == null ? OutStreamType.STDOUT : OutStreamType.valueOf(stream.toUpperCase());
+        this.outStreamType = stream == null ? DEFAULT_OUT_STREAM_TYPE : OutStreamType.valueOf(stream.toUpperCase());
         bufferCapacity = bufferCapacity == null ? DEFAULT_BACK_BUFFER_CAPACITY : bufferCapacity;
         InternalLogger.INSTANCE.log(Level.INFO, "Standard stream buffer capacity: " + bufferCapacity);
-        this.buffer = new ArrayBlockingQueue<>(bufferCapacity == 0 ? 1 : bufferCapacity);
+        this.buffer = bufferCapacity == 0 ? new SynchronousQueue<>() : new ArrayBlockingQueue<>(bufferCapacity);
         this.stopped = false;
-        pollingBytesWriter = new PollingBytesWriter();
+        pollingBytesWriter = new PollingBytesWriter(bufferCapacity);
         new Thread(pollingBytesWriter).start();
         LogServiceManager.INSTANCE.registerStop(this);
     }
@@ -100,25 +102,32 @@ public class BufferedStandardOutput implements StandardOutput {
 
     private class PollingBytesWriter implements Runnable {
         private final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        private final int batchSize;
+
+        private PollingBytesWriter(int batchSize) {
+            this.batchSize = batchSize == 0 ? 1 : batchSize;
+        }
 
         @Override
         public void run() {
             while (!stopped) {
                 List<byte[]> pollBatch = new LinkedList<>();
-                buffer.drainTo(pollBatch);
-                byteArrayOutputStream.reset();
-                pollBatch.forEach(bytes -> {
+                buffer.drainTo(pollBatch, batchSize);
+                synchronized (byteArrayOutputStream) {
+                    byteArrayOutputStream.reset();
+                    pollBatch.forEach(bytes -> {
+                        try {
+                            byteArrayOutputStream.write(bytes);
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    });
                     try {
-                        byteArrayOutputStream.write(bytes);
+                        byteArrayOutputStream.writeTo(outStreamType == OutStreamType.STDERR ? System.err : System.out);
+                        byteArrayOutputStream.flush();
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
-                });
-                try {
-                    byteArrayOutputStream.writeTo(outStreamType == OutStreamType.STDERR ? System.err : System.out);
-                    byteArrayOutputStream.flush();
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
                 }
             }
         }

@@ -27,7 +27,7 @@ package elf4j.engine.service.pattern;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
-import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.LogService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -42,14 +42,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(MockitoExtension.class)
 class JsonPatternTest {
     @Mock LogService stubLogService;
-    LogEntry mockLogEntry;
+    LogEvent mockLogEvent;
     String mockMessage = "testLogMessage {}";
 
     @BeforeEach
     void beforeEach() {
-        mockLogEntry = LogEntry.builder()
+        mockLogEvent = LogEvent.builder()
                 .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, stubLogService))
-                .callerThread(LogEntry.ThreadValue.builder()
+                .callerThread(LogEvent.ThreadValue.builder()
                         .name(Thread.currentThread().getName())
                         .id(Thread.currentThread().getId())
                         .build())
@@ -104,11 +104,11 @@ class JsonPatternTest {
         void resolveMessage() {
             StringBuilder layout = new StringBuilder();
 
-            jsonPattern.renderTo(mockLogEntry, layout);
+            jsonPattern.render(mockLogEvent, layout);
             String rendered = layout.toString();
 
             assertFalse(rendered.contains("testLogMessage {}"));
-            assertTrue(rendered.contains(mockLogEntry.getResolvedMessage()));
+            assertTrue(rendered.contains(mockLogEvent.getResolvedMessage()));
         }
     }
 }

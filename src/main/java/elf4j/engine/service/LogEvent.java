@@ -37,11 +37,11 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * Source content data to be rendered to a final log message
+ * Source data to be rendered to a final log message
  */
 @Value
 @Builder
-public class LogEntry {
+public class LogEvent {
     private static final int ADDITIONAL_STRING_BUILDER_CAPACITY = 32;
     @NonNull NativeLogger nativeLogger;
     @NonNull Instant timestamp = Instant.now();

@@ -25,7 +25,7 @@
 
 package elf4j.engine.service.pattern;
 
-import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.LogEvent;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +44,7 @@ class PatternGroupTest {
     class render {
         @Mock LogPattern mockPattern;
         @Mock LogPattern mockPattern2;
-        @Mock LogEntry stubLogEntry;
+        @Mock LogEvent stubLogEvent;
 
         PatternGroup patternGroupEntry;
 
@@ -53,11 +53,11 @@ class PatternGroupTest {
             patternGroupEntry = new PatternGroup(Arrays.asList(mockPattern2, mockPattern));
             StringBuilder stringBuilder = new StringBuilder();
 
-            patternGroupEntry.renderTo(stubLogEntry, stringBuilder);
+            patternGroupEntry.render(stubLogEvent, stringBuilder);
 
             InOrder inOrder = inOrder(mockPattern, mockPattern2);
-            then(mockPattern2).should(inOrder).renderTo(stubLogEntry, stringBuilder);
-            then(mockPattern).should(inOrder).renderTo(stubLogEntry, stringBuilder);
+            then(mockPattern2).should(inOrder).render(stubLogEvent, stringBuilder);
+            then(mockPattern).should(inOrder).render(stubLogEvent, stringBuilder);
         }
     }
 }

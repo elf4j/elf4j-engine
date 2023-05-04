@@ -25,7 +25,7 @@
 
 package elf4j.engine.service.pattern;
 
-import elf4j.engine.service.LogEntry;
+import elf4j.engine.service.LogEvent;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -70,8 +70,8 @@ public class ClassPattern implements LogPattern {
     }
 
     @Override
-    public void renderTo(@NonNull LogEntry logEntry, StringBuilder target) {
-        String fullName = logEntry.getCallerClassName();
+    public void render(@NonNull LogEvent logEvent, StringBuilder target) {
+        String fullName = logEvent.getCallerClassName();
         switch (classDisplayOption) {
             case FULL:
                 target.append(fullName);
