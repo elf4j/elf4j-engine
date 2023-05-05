@@ -25,12 +25,10 @@
 
 package elf4j.engine.service.writer;
 
-import elf4j.engine.service.Stoppable;
-
 /**
  *
  */
-public interface StandardOutput extends Stoppable {
+public interface StandardOutput {
     /**
      * @param bytes
      *         to be written to the out stream

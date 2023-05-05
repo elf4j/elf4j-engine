@@ -40,13 +40,13 @@ import java.util.stream.Collectors;
  *
  */
 @ToString
-public class WriterGroup implements LogWriter {
+public class CooperatingWriterGroup implements LogWriter {
     private final List<LogWriter> writers;
     private Level minimumLevel;
     @ToString.Exclude private Boolean includeCallerDetail;
     @ToString.Exclude private Boolean includeCallerThread;
 
-    private WriterGroup(List<LogWriter> writers) {
+    private CooperatingWriterGroup(List<LogWriter> writers) {
         this.writers = writers;
     }
 
@@ -56,7 +56,7 @@ public class WriterGroup implements LogWriter {
      * @return the composite writer containing all writers configured in the specified properties
      */
     @NonNull
-    public static WriterGroup from(LogServiceConfiguration logServiceConfiguration) {
+    public static CooperatingWriterGroup from(LogServiceConfiguration logServiceConfiguration) {
         List<LogWriterType> logWriterTypes = new ArrayList<>(getLogWriterTypes(logServiceConfiguration));
         if (logWriterTypes.isEmpty()) {
             logWriterTypes.add(new StandardStreamsWriter.StandardStreamsWriterType());
@@ -66,7 +66,7 @@ public class WriterGroup implements LogWriter {
                 .collect(Collectors.toList());
         InternalLogger.INSTANCE.log(Level.INFO,
                 "Configured " + logWriters.size() + " service writer(s): " + logWriters);
-        return new WriterGroup(logWriters);
+        return new CooperatingWriterGroup(logWriters);
     }
 
     private static List<LogWriterType> getLogWriterTypes(LogServiceConfiguration logServiceConfiguration) {

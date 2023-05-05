@@ -27,6 +27,7 @@ package elf4j.engine.service.writer;
 
 import elf4j.Level;
 import elf4j.engine.service.LogServiceManager;
+import elf4j.engine.service.Stoppable;
 import elf4j.engine.service.util.MoreAwaitility;
 import elf4j.util.InternalLogger;
 import lombok.ToString;
@@ -49,7 +50,7 @@ import java.util.concurrent.TimeUnit;
  *
  */
 @ToString
-public class BufferedStandardOutput implements StandardOutput {
+public class BufferedStandardOutput implements StandardOutput, Stoppable {
     private static final int DEFAULT_BACK_BUFFER_CAPACITY = 256;
     private static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
     private final OutStreamType outStreamType;

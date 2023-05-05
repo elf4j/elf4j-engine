@@ -27,14 +27,14 @@ package elf4j.engine.service.configuration;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
-import elf4j.engine.service.BufferingLogServiceThread;
+import elf4j.engine.service.FixedCapacitySingleThreadExecutor;
+import elf4j.engine.service.LogEventIntakeThread;
 import elf4j.engine.service.LogServiceManager;
-import elf4j.engine.service.LogServiceThread;
 import elf4j.engine.service.util.PropertiesUtils;
 import elf4j.engine.service.writer.BufferedStandardOutput;
+import elf4j.engine.service.writer.CooperatingWriterGroup;
 import elf4j.engine.service.writer.LogWriter;
 import elf4j.engine.service.writer.StandardOutput;
-import elf4j.engine.service.writer.WriterGroup;
 import elf4j.util.InternalLogger;
 import lombok.ToString;
 
@@ -53,7 +53,7 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
     private boolean noop;
     private CallerLevels callerLevels;
     private Map<NativeLogger, Boolean> loggerEnablementCache;
-    private LogServiceThread logServiceThread;
+    private LogEventIntakeThread logEventIntakeThread;
     private StandardOutput standardOutput;
     private LogWriter logServiceWriter;
 
@@ -90,8 +90,8 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
     }
 
     @Override
-    public LogServiceThread getLogServiceThread() {
-        return this.logServiceThread;
+    public LogEventIntakeThread getLogEventIntakeThread() {
+        return this.logEventIntakeThread;
     }
 
     @Override
@@ -127,9 +127,10 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
         }
         this.callerLevels = CallerLevels.from(properties);
         this.loggerEnablementCache = new ConcurrentHashMap<>();
-        this.logServiceThread = new BufferingLogServiceThread(PropertiesUtils.getAsInteger("buffer.front", properties));
+        this.logEventIntakeThread =
+                new FixedCapacitySingleThreadExecutor(PropertiesUtils.getAsInteger("buffer.front", properties));
         this.standardOutput = new BufferedStandardOutput(properties.getProperty("stream"),
                 PropertiesUtils.getAsInteger("buffer.back", properties));
-        this.logServiceWriter = WriterGroup.from(this);
+        this.logServiceWriter = CooperatingWriterGroup.from(this);
     }
 }

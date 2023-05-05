@@ -84,7 +84,7 @@ public class DispatchingLogService implements LogService {
             Thread callerThread = Thread.currentThread();
             logEventBuilder.callerThread(new LogEvent.ThreadValue(callerThread.getName(), callerThread.getId()));
         }
-        this.logServiceConfiguration.getLogServiceThread()
+        this.logServiceConfiguration.getLogEventIntakeThread()
                 .execute(() -> this.logServiceConfiguration.getLogServiceWriter().write(logEventBuilder.build()));
     }
 

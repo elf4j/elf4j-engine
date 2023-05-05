@@ -35,7 +35,7 @@ import java.util.concurrent.*;
 /**
  *
  */
-public class BufferingLogServiceThread implements LogServiceThread {
+public class FixedCapacitySingleThreadExecutor implements LogEventIntakeThread {
     private static final int DEFAULT_FRONT_BUFFER_CAPACITY = 262144;
     private final ExecutorService executorService;
 
@@ -43,7 +43,7 @@ public class BufferingLogServiceThread implements LogServiceThread {
      * @param bufferCapacity
      *         async work queue capacity for log events
      */
-    public BufferingLogServiceThread(Integer bufferCapacity) {
+    public FixedCapacitySingleThreadExecutor(Integer bufferCapacity) {
         bufferCapacity = bufferCapacity == null ? DEFAULT_FRONT_BUFFER_CAPACITY : bufferCapacity;
         InternalLogger.INSTANCE.log(Level.INFO, "Service thread buffer capacity: " + bufferCapacity);
         this.executorService = new ThreadPoolExecutor(1,
@@ -52,7 +52,7 @@ public class BufferingLogServiceThread implements LogServiceThread {
                 TimeUnit.MILLISECONDS,
                 bufferCapacity == 0 ? new SynchronousQueue<>() : new ArrayBlockingQueue<>(bufferCapacity),
                 r -> new Thread(r, "elf4j-engine-writer-thread"),
-                new BufferOverloadHandler());
+                new BlockingRetryHandler());
         LogServiceManager.INSTANCE.registerStop(this);
     }
 
@@ -70,13 +70,17 @@ public class BufferingLogServiceThread implements LogServiceThread {
     /**
      *
      */
-    static class BufferOverloadHandler implements RejectedExecutionHandler {
+    static class BlockingRetryHandler implements RejectedExecutionHandler {
         private static void forceRetry(Runnable r, @NonNull ThreadPoolExecutor executor) {
+            BlockingQueue<Runnable> workQueue = executor.getQueue();
+            if (workQueue.offer(r)) {
+                return;
+            }
             boolean interrupted = false;
             try {
                 while (true) {
                     try {
-                        executor.getQueue().put(r);
+                        workQueue.put(r);
                         break;
                     } catch (InterruptedException e) {
                         InternalLogger.INSTANCE.log(Level.ERROR,
@@ -90,7 +94,7 @@ public class BufferingLogServiceThread implements LogServiceThread {
                 if (interrupted) {
                     InternalLogger.INSTANCE.log(Level.INFO,
                             "Log task " + r + " was enqueued to executor service " + executor
-                                    + " post thread interruption");
+                                    + " in spite of thread interruption");
                     Thread.currentThread().interrupt();
                 }
             }
