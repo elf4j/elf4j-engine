@@ -79,15 +79,15 @@ public enum LogServiceManager {
      *
      */
     public void stopAll() {
-        stopService();
-        stopOutput();
+        stopFrontend();
+        stopBackend();
     }
 
-    private void stopOutput() {
-        stoppables.stream().filter(s -> !(s instanceof LogEventIntakeThread)).parallel().forEach(Stoppable::stop);
+    private void stopBackend() {
+        stoppables.stream().filter(s -> !(s instanceof LogEventProcessor)).parallel().forEach(Stoppable::stop);
     }
 
-    private void stopService() {
-        stoppables.stream().filter(LogEventIntakeThread.class::isInstance).parallel().forEach(Stoppable::stop);
+    private void stopFrontend() {
+        stoppables.stream().filter(LogEventProcessor.class::isInstance).parallel().forEach(Stoppable::stop);
     }
 }

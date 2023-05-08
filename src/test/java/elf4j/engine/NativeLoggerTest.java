@@ -35,8 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.function.Supplier;
 
-import static elf4j.Level.TRACE;
-import static elf4j.Level.WARN;
+import static elf4j.Level.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.same;
@@ -46,11 +45,14 @@ import static org.mockito.BDDMockito.then;
 class NativeLoggerTest {
     @Mock LogService mockLogService;
 
+    NativeLoggerFactory mockNativeLoggerFactory;
+
     NativeLogger nativeLogger;
 
     @BeforeEach
     void init() {
-        nativeLogger = new NativeLogger(this.getClass().getName(), TRACE, mockLogService);
+        mockNativeLoggerFactory = new NativeLoggerFactory(INFO, NativeLogger.class, mockLogService);
+        nativeLogger = new NativeLogger(this.getClass().getName(), TRACE, mockNativeLoggerFactory);
     }
 
     @Nested

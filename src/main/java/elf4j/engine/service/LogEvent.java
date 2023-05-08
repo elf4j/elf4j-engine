@@ -44,13 +44,13 @@ import java.util.function.Supplier;
 public class LogEvent {
     private static final int ADDITIONAL_STRING_BUILDER_CAPACITY = 32;
     @NonNull NativeLogger nativeLogger;
+    @NonNull ThreadValue callerThread;
     @NonNull Instant timestamp = Instant.now();
     @Nullable Object message;
     @Nullable Object[] arguments;
     @Nullable Throwable throwable;
     @Nullable Class<?> serviceInterfaceClass;
     @Nullable StackTraceElement[] callerStack;
-    @Nullable ThreadValue callerThread;
 
     private static @NonNull CharSequence resolve(Object message, Object[] arguments) {
         String suppliedMessage = Objects.toString(supply(message), "");

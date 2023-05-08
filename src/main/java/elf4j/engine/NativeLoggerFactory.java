@@ -33,8 +33,12 @@ import elf4j.engine.service.util.StackTraceUtils;
 import elf4j.spi.LoggerFactory;
 import lombok.NonNull;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.toMap;
 
 /**
  *
@@ -44,15 +48,14 @@ public class NativeLoggerFactory implements LoggerFactory {
      * Default to TRACE for this native implementation
      */
     private static final Level DEFAULT_LOGGER_SEVERITY_LEVEL = Level.INFO;
-    private static final Class<?> LOGGING_SERVICE_ACCESS_CLASS = Logger.class;
     /**
      * Made injectable for extensions other than this native ELF4J implementation
      */
     @NonNull private final Level defaultLoggerLevel;
-    private final Map<String, NativeLogger> nativeLoggers = new HashMap<>();
+    private final Map<Level, Map<String, NativeLogger>> nativeLoggers;
     /**
-     * The class that the API client calls first to get a logger instance. The client caller class of this class will be
-     * the "owner class" of the logger instances this factory produces.
+     * The class or interface that the API client calls first to get a logger instance. The client caller class of this
+     * class will be the "owner class" of the logger instances this factory produces.
      * <p></p>
      * For this native implementation, the service access class is the {@link Logger} interface itself as the client
      * calls the static factory method {@link Logger#instance()} first to get a logger instance. If this library is used
@@ -66,12 +69,12 @@ public class NativeLoggerFactory implements LoggerFactory {
      * Default constructor required by {@link java.util.ServiceLoader}
      */
     public NativeLoggerFactory() {
-        this(LOGGING_SERVICE_ACCESS_CLASS);
+        this(Logger.class);
     }
 
     /**
      * @param serviceAccessClass
-     *         the class that the API client uses to obtain access to a logger instance
+     *         the class or interface that the API client application calls first to a logger instance
      */
     public NativeLoggerFactory(@NonNull Class<?> serviceAccessClass) {
         this(DEFAULT_LOGGER_SEVERITY_LEVEL, serviceAccessClass, new DispatchingLogService());
@@ -82,6 +85,8 @@ public class NativeLoggerFactory implements LoggerFactory {
             @NonNull LogService logService) {
         this.defaultLoggerLevel = defaultLoggerLevel;
         this.serviceAccessClass = serviceAccessClass;
+        this.nativeLoggers =
+                EnumSet.allOf(Level.class).stream().collect(toMap(Function.identity(), l -> new HashMap<>()));
         this.logService = logService;
     }
 
@@ -93,7 +98,15 @@ public class NativeLoggerFactory implements LoggerFactory {
      */
     @Override
     public NativeLogger logger() {
-        return this.nativeLoggers.computeIfAbsent(StackTraceUtils.callerOf(this.serviceAccessClass).getClassName(),
-                ownerClassName -> new NativeLogger(ownerClassName, this.defaultLoggerLevel, this.logService));
+        return getLogger(this.defaultLoggerLevel, StackTraceUtils.callerOf(this.serviceAccessClass).getClassName());
+    }
+
+    @NonNull LogService getLogService() {
+        return logService;
+    }
+
+    NativeLogger getLogger(Level level, String ownerClassName) {
+        return this.nativeLoggers.get(level)
+                .computeIfAbsent(ownerClassName, ownerClass -> new NativeLogger(ownerClass, level, this));
     }
 }

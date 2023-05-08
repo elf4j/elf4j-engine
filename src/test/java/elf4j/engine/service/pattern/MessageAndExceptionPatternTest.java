@@ -27,6 +27,7 @@ package elf4j.engine.service.pattern;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
+import elf4j.engine.NativeLoggerFactory;
 import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.LogService;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +43,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(MockitoExtension.class)
 class MessageAndExceptionPatternTest {
     @Mock LogService stubLogService;
+
+    @Mock NativeLoggerFactory mockNativeLoggerFactory;
     LogEvent mockLogEvent;
     String mockMessage = "testLogMessage {}";
     Object[] mockArgs = new Object[] { "testArg1" };
@@ -50,7 +53,7 @@ class MessageAndExceptionPatternTest {
     @BeforeEach
     void beforeEach() {
         mockLogEvent = LogEvent.builder()
-                .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, stubLogService))
+                .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, mockNativeLoggerFactory))
                 .callerThread(LogEvent.ThreadValue.builder()
                         .name(Thread.currentThread().getName())
                         .id(Thread.currentThread().getId())
