@@ -41,7 +41,7 @@ public class DispatchingLogService implements LogService {
      *
      */
     public DispatchingLogService() {
-        this(Configuration.INSTANCE);
+        this(new RefreshableLogServiceConfiguration());
     }
 
     DispatchingLogService(LogServiceConfiguration logServiceConfiguration) {
@@ -80,16 +80,9 @@ public class DispatchingLogService implements LogService {
         if (this.includeCallerDetail()) {
             logEventBuilder.callerStack(new Throwable().getStackTrace()).serviceInterfaceClass(serviceInterfaceClass);
         }
-        if (this.includeCallerThread()) {
-            Thread callerThread = Thread.currentThread();
-            logEventBuilder.callerThread(new LogEvent.ThreadValue(callerThread.getName(), callerThread.getId()));
-        }
-        this.logServiceConfiguration.getLogEventIntakeThread()
-                .execute(() -> this.logServiceConfiguration.getLogServiceWriter().write(logEventBuilder.build()));
-    }
-
-    private static class Configuration {
-        private static final LogServiceConfiguration INSTANCE = new RefreshableLogServiceConfiguration();
+        Thread callerThread = Thread.currentThread();
+        logEventBuilder.callerThread(new LogEvent.ThreadValue(callerThread.getName(), callerThread.getId()));
+        this.logServiceConfiguration.getLogEventProcessor().process(logEventBuilder.build());
     }
 }
 

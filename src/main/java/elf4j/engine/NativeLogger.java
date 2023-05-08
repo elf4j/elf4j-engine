@@ -28,17 +28,9 @@ package elf4j.engine;
 import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.service.LogService;
-import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import lombok.Value;
 
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-
-import static java.util.stream.Collectors.toMap;
 
 /**
  * Any instance of this class is thread-safe; it can be safely used as static, instance, or local variables. However,
@@ -47,11 +39,7 @@ import static java.util.stream.Collectors.toMap;
  * of variables.
  */
 @ThreadSafe
-@Value
 public class NativeLogger implements Logger {
-    private static final Map<Level, Map<String, NativeLogger>> NATIVE_LOGGERS =
-            EnumSet.allOf(Level.class).stream().collect(toMap(Function.identity(), l -> new HashMap<>()));
-
     /**
      * Name of this logger's "owner class" - the logging service client class that first requested this logger instance
      * via the {@link Logger#instance()} service access method. The owner class is usually the same as the "caller
@@ -66,9 +54,9 @@ public class NativeLogger implements Logger {
      * only the caller class name, this field will be used in liu of checking the stack trace; i.e. the stack trace
      * walking is needed only when more caller details (e.g. method name, file name, line number) are required.
      */
-    @NonNull String ownerClassName;
-    @NonNull Level level;
-    @EqualsAndHashCode.Exclude @NonNull LogService logService;
+    private final @NonNull String ownerClassName;
+    private final @NonNull Level level;
+    private final @NonNull NativeLoggerFactory nativeLoggerFactory;
 
     /**
      * Constructor only meant to be used by {@link NativeLoggerFactory} and this class itself
@@ -77,24 +65,30 @@ public class NativeLogger implements Logger {
      *         name of the owner class that requested this instance via the {@link Logger#instance()} method
      * @param level
      *         severity level of this logger instance
-     * @param logService
-     *         service delegate to do the logging
+     * @param nativeLoggerFactory
+     *         log service access point from this instance, not reloadable
      */
-    public NativeLogger(@NonNull String ownerClassName, @NonNull Level level, @NonNull LogService logService) {
+    public NativeLogger(@NonNull String ownerClassName,
+            @NonNull Level level,
+            @NonNull NativeLoggerFactory nativeLoggerFactory) {
         this.ownerClassName = ownerClassName;
         this.level = level;
-        this.logService = logService;
+        this.nativeLoggerFactory = nativeLoggerFactory;
     }
 
     @Override
     public NativeLogger atLevel(Level level) {
-        return this.level == level ? this : NATIVE_LOGGERS.get(level)
-                .computeIfAbsent(this.ownerClassName, k -> new NativeLogger(k, level, this.logService));
+        return this.level == level ? this : this.nativeLoggerFactory.getLogger(level, this.ownerClassName);
+    }
+
+    @Override
+    public @NonNull Level getLevel() {
+        return this.level;
     }
 
     @Override
     public boolean isEnabled() {
-        return this.logService.isEnabled(this);
+        return getLogService().isEnabled(this);
     }
 
     @Override
@@ -122,7 +116,21 @@ public class NativeLogger implements Logger {
         this.service(throwable, message, arguments);
     }
 
+    /**
+     * @return directly callable log service, useful for log APIs than elf4j to use this engine
+     */
+    public LogService getLogService() {
+        return this.nativeLoggerFactory.getLogService();
+    }
+
+    /**
+     * @return owner/caller class of this logger instance
+     */
+    public @NonNull String getOwnerClassName() {
+        return this.ownerClassName;
+    }
+
     private void service(Throwable throwable, Object message, Object[] arguments) {
-        this.logService.log(this, NativeLogger.class, throwable, message, arguments);
+        getLogService().log(this, NativeLogger.class, throwable, message, arguments);
     }
 }

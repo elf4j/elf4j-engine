@@ -25,10 +25,13 @@
 
 package elf4j.engine.service;
 
-import java.util.concurrent.Executor;
-
 /**
  *
  */
-public interface LogEventIntakeThread extends Executor, Stoppable {
+public interface LogEventProcessor extends Stoppable {
+    /**
+     * @param logEvent
+     *         to process
+     */
+    void process(LogEvent logEvent);
 }

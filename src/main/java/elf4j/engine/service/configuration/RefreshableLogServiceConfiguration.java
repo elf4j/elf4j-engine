@@ -27,8 +27,8 @@ package elf4j.engine.service.configuration;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
-import elf4j.engine.service.FixedCapacitySingleThreadExecutor;
-import elf4j.engine.service.LogEventIntakeThread;
+import elf4j.engine.service.ConseqLogEventProcessor;
+import elf4j.engine.service.LogEventProcessor;
 import elf4j.engine.service.LogServiceManager;
 import elf4j.engine.service.util.PropertiesUtils;
 import elf4j.engine.service.writer.BufferedStandardOutput;
@@ -53,9 +53,9 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
     private boolean noop;
     private CallerLevels callerLevels;
     private Map<NativeLogger, Boolean> loggerEnablementCache;
-    private LogEventIntakeThread logEventIntakeThread;
     private StandardOutput standardOutput;
     private LogWriter logServiceWriter;
+    private LogEventProcessor logEventProcessor;
 
     /**
      *
@@ -90,13 +90,12 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
     }
 
     @Override
-    public LogEventIntakeThread getLogEventIntakeThread() {
-        return this.logEventIntakeThread;
-    }
-
-    @Override
     public StandardOutput getStandardOutput() {
         return this.standardOutput;
+    }
+
+    public LogEventProcessor getLogEventProcessor() {
+        return this.logEventProcessor;
     }
 
     @Override
@@ -127,10 +126,9 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
         }
         this.callerLevels = CallerLevels.from(properties);
         this.loggerEnablementCache = new ConcurrentHashMap<>();
-        this.logEventIntakeThread =
-                new FixedCapacitySingleThreadExecutor(PropertiesUtils.getAsInteger("buffer.front", properties));
         this.standardOutput = new BufferedStandardOutput(properties.getProperty("stream"),
                 PropertiesUtils.getAsInteger("buffer.back", properties));
         this.logServiceWriter = CooperatingWriterGroup.from(this);
+        this.logEventProcessor = ConseqLogEventProcessor.from(this);
     }
 }
