@@ -31,6 +31,7 @@ import elf4j.util.InternalLogger;
 import lombok.NonNull;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -46,7 +47,7 @@ public class CallerLevels {
     private final List<String> sortedCallerClassNameSpaces;
 
     private CallerLevels(@NonNull Map<String, Level> configuredLevels) {
-        this.configuredLevels = configuredLevels;
+        this.configuredLevels = new ConcurrentHashMap<>(configuredLevels);
         this.sortedCallerClassNameSpaces = configuredLevels.keySet()
                 .stream()
                 .sorted(Comparator.comparingInt(String::length).reversed())

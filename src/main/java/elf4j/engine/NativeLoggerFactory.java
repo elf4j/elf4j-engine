@@ -34,8 +34,8 @@ import elf4j.spi.LoggerFactory;
 import lombok.NonNull;
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.toMap;
@@ -86,7 +86,7 @@ public class NativeLoggerFactory implements LoggerFactory {
         this.defaultLoggerLevel = defaultLoggerLevel;
         this.serviceAccessClass = serviceAccessClass;
         this.nativeLoggers =
-                EnumSet.allOf(Level.class).stream().collect(toMap(Function.identity(), l -> new HashMap<>()));
+                EnumSet.allOf(Level.class).stream().collect(toMap(Function.identity(), l -> new ConcurrentHashMap<>()));
         this.logService = logService;
     }
 
