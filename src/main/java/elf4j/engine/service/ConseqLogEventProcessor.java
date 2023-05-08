@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
  * orginal thread.
  */
 public class ConseqLogEventProcessor implements LogEventProcessor {
-    private static final int DEFAULT_FRONT_BUFFER_CAPACITY = 262144;
+    private static final int DEFAULT_FRONT_BUFFER_CAPACITY = 256;
     private static final int DEFAULT_CONCURRENCY = Runtime.getRuntime().availableProcessors();
     private final LogWriter logWriter;
     private final SequentialExecutor conseqExecutor;
