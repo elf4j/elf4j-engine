@@ -85,8 +85,9 @@ public class NativeLoggerFactory implements LoggerFactory {
             @NonNull LogService logService) {
         this.defaultLoggerLevel = defaultLoggerLevel;
         this.serviceAccessClass = serviceAccessClass;
-        this.nativeLoggers =
-                EnumSet.allOf(Level.class).stream().collect(toMap(Function.identity(), l -> new ConcurrentHashMap<>()));
+        this.nativeLoggers = EnumSet.allOf(Level.class)
+                .stream()
+                .collect(toMap(Function.identity(), level -> new ConcurrentHashMap<>()));
         this.logService = logService;
     }
 

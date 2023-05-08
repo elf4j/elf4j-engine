@@ -65,9 +65,9 @@ public class ConseqLogEventProcessor implements LogEventProcessor {
     public static ConseqLogEventProcessor from(LogServiceConfiguration logServiceConfiguration) {
         Properties properties = logServiceConfiguration.getProperties();
         Integer workQueueCapacity = getWorkQueueCapacity(properties);
-        InternalLogger.INSTANCE.log(Level.INFO, "Log event work queue capacity: " + workQueueCapacity);
+        InternalLogger.INSTANCE.log(Level.INFO, "Buffer front: " + workQueueCapacity);
         Integer concurrency = getConcurrency(properties);
-        InternalLogger.INSTANCE.log(Level.INFO, "Log process concurrency: " + concurrency);
+        InternalLogger.INSTANCE.log(Level.INFO, "Concurrency: " + concurrency);
         SequentialExecutor conseqExecutor =
                 new ConseqExecutor.Builder().concurrency(concurrency).workQueueCapacity(workQueueCapacity).build();
         return new ConseqLogEventProcessor(logServiceConfiguration.getLogServiceWriter(), conseqExecutor);

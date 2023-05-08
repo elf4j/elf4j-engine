@@ -51,7 +51,7 @@ import java.util.concurrent.TimeUnit;
  */
 @ToString
 public class BufferedStandardOutput implements StandardOutput, Stoppable {
-    private static final int DEFAULT_BACK_BUFFER_CAPACITY = 256;
+    private static final int DEFAULT_BACK_BUFFER_CAPACITY = 8192;
     private static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
     private final OutStreamType outStreamType;
     private final BlockingQueue<byte[]> buffer;
@@ -67,7 +67,7 @@ public class BufferedStandardOutput implements StandardOutput, Stoppable {
     public BufferedStandardOutput(String stream, Integer bufferCapacity) {
         this.outStreamType = stream == null ? DEFAULT_OUT_STREAM_TYPE : OutStreamType.valueOf(stream.toUpperCase());
         bufferCapacity = bufferCapacity == null ? DEFAULT_BACK_BUFFER_CAPACITY : bufferCapacity;
-        InternalLogger.INSTANCE.log(Level.INFO, "Standard stream buffer capacity: " + bufferCapacity);
+        InternalLogger.INSTANCE.log(Level.INFO, "Buffer back: " + bufferCapacity);
         this.buffer = bufferCapacity == 0 ? new SynchronousQueue<>() : new ArrayBlockingQueue<>(bufferCapacity);
         this.stopped = false;
         pollingBytesWriter = new PollingBytesWriter(bufferCapacity);
