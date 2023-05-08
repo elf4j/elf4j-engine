@@ -39,7 +39,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -115,7 +115,7 @@ public class BufferedStandardOutput implements StandardOutput, Stoppable {
         @Override
         public void run() {
             while (!stopped) {
-                List<byte[]> pollBatch = new ArrayList<>(this.batchSize);
+                List<byte[]> pollBatch = new LinkedList<>();
                 buffer.drainTo(pollBatch, batchSize);
                 synchronized (byteArrayOutputStream) {
                     byteArrayOutputStream.reset();
