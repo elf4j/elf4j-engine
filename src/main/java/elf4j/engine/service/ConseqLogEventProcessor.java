@@ -27,7 +27,7 @@ package elf4j.engine.service;
 
 import conseq4j.execute.ConseqExecutor;
 import conseq4j.execute.SequentialExecutor;
-import conseq4j.util.MorePolicies;
+import conseq4j.util.MoreRejectedExecutionHandlers;
 import elf4j.Level;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.util.PropertiesUtils;
@@ -71,7 +71,7 @@ public class ConseqLogEventProcessor implements LogEventProcessor {
         int concurrency = getConcurrency(properties);
         InternalLogger.INSTANCE.log(Level.INFO, "Concurrency: " + concurrency);
         ConseqExecutor.Builder conseqBuilder = new ConseqExecutor.Builder().concurrency(concurrency)
-                .rejectedPolicy(MorePolicies.blockingRetryPolicy());
+                .rejectedExecutionHandler(MoreRejectedExecutionHandlers.blockingRetryPolicy());
         SequentialExecutor conseqExecutor = workQueueCapacity == DEFAULT_FRONT_BUFFER_CAPACITY ? conseqBuilder.build() :
                 conseqBuilder.workQueueCapacity(workQueueCapacity).build();
         return new ConseqLogEventProcessor(logServiceConfiguration.getLogServiceWriter(), conseqExecutor);
