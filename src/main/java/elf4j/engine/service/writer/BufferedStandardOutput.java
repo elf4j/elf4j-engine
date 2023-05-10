@@ -77,9 +77,10 @@ public class BufferedStandardOutput implements StandardOutput, Stoppable {
 
     @Override
     public void stop() {
-        MoreAwaitility.suspend(Duration.ofMillis(100));
+        MoreAwaitility.suspend(Duration.ofMillis(50));
         ConditionFactory await = Awaitility.with().timeout(30, TimeUnit.MINUTES).await();
         await.until(this.buffer::isEmpty);
+        MoreAwaitility.suspend(Duration.ofMillis(50));
         await.until(this.pollingBytesWriter::isBufferEmpty);
         this.stopped = true;
     }
@@ -115,10 +116,13 @@ public class BufferedStandardOutput implements StandardOutput, Stoppable {
         @Override
         public void run() {
             while (!stopped) {
-                List<byte[]> pollBatch = new LinkedList<>();
-                buffer.drainTo(pollBatch, batchSize);
                 synchronized (byteArrayOutputStream) {
                     byteArrayOutputStream.reset();
+                    List<byte[]> pollBatch = new LinkedList<>();
+                    buffer.drainTo(pollBatch, batchSize);
+                    if (pollBatch.isEmpty()) {
+                        continue;
+                    }
                     pollBatch.forEach(bytes -> {
                         try {
                             byteArrayOutputStream.write(bytes);
@@ -128,7 +132,6 @@ public class BufferedStandardOutput implements StandardOutput, Stoppable {
                     });
                     try {
                         byteArrayOutputStream.writeTo(outStreamType == OutStreamType.STDERR ? System.err : System.out);
-                        byteArrayOutputStream.flush();
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }

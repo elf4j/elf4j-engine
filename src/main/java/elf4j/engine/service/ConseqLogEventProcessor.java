@@ -27,6 +27,7 @@ package elf4j.engine.service;
 
 import conseq4j.execute.ConseqExecutor;
 import conseq4j.execute.SequentialExecutor;
+import conseq4j.util.MorePolicies;
 import elf4j.Level;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.util.PropertiesUtils;
@@ -46,7 +47,7 @@ import java.util.concurrent.TimeUnit;
  * orginal thread.
  */
 public class ConseqLogEventProcessor implements LogEventProcessor {
-    private static final int DEFAULT_FRONT_BUFFER_CAPACITY = 256;
+    private static final int DEFAULT_FRONT_BUFFER_CAPACITY = Integer.MAX_VALUE;
     private static final int DEFAULT_CONCURRENCY = Runtime.getRuntime().availableProcessors();
     private final LogWriter logWriter;
     private final SequentialExecutor conseqExecutor;
@@ -62,19 +63,21 @@ public class ConseqLogEventProcessor implements LogEventProcessor {
      *         entire configuration
      * @return conseq executor
      */
-    public static ConseqLogEventProcessor from(LogServiceConfiguration logServiceConfiguration) {
+    @NonNull
+    public static ConseqLogEventProcessor from(@NonNull LogServiceConfiguration logServiceConfiguration) {
         Properties properties = logServiceConfiguration.getProperties();
-        Integer workQueueCapacity = getWorkQueueCapacity(properties);
+        int workQueueCapacity = getWorkQueueCapacity(properties);
         InternalLogger.INSTANCE.log(Level.INFO, "Buffer front: " + workQueueCapacity);
-        Integer concurrency = getConcurrency(properties);
+        int concurrency = getConcurrency(properties);
         InternalLogger.INSTANCE.log(Level.INFO, "Concurrency: " + concurrency);
-        SequentialExecutor conseqExecutor =
-                new ConseqExecutor.Builder().concurrency(concurrency).workQueueCapacity(workQueueCapacity).build();
+        ConseqExecutor.Builder conseqBuilder = new ConseqExecutor.Builder().concurrency(concurrency)
+                .rejectedPolicy(MorePolicies.blockingRetryPolicy());
+        SequentialExecutor conseqExecutor = workQueueCapacity == DEFAULT_FRONT_BUFFER_CAPACITY ? conseqBuilder.build() :
+                conseqBuilder.workQueueCapacity(workQueueCapacity).build();
         return new ConseqLogEventProcessor(logServiceConfiguration.getLogServiceWriter(), conseqExecutor);
     }
 
-    @NonNull
-    private static Integer getConcurrency(Properties properties) {
+    private static int getConcurrency(Properties properties) {
         Integer concurrency = PropertiesUtils.getAsInteger("concurrency", properties);
         concurrency = concurrency == null ? DEFAULT_CONCURRENCY : concurrency;
         if (concurrency < 1) {
@@ -83,15 +86,14 @@ public class ConseqLogEventProcessor implements LogEventProcessor {
         return concurrency;
     }
 
-    @NonNull
-    private static Integer getWorkQueueCapacity(Properties properties) {
+    private static int getWorkQueueCapacity(Properties properties) {
         Integer workQueueCapacity = PropertiesUtils.getAsInteger("buffer.front", properties);
-        workQueueCapacity = workQueueCapacity == null ? DEFAULT_FRONT_BUFFER_CAPACITY : workQueueCapacity;
-        if (workQueueCapacity < 0) {
-            throw new IllegalArgumentException("Unexpected buffer.front: " + workQueueCapacity);
+        if (workQueueCapacity == null) {
+            return DEFAULT_FRONT_BUFFER_CAPACITY;
         }
-        if (workQueueCapacity == 0) {
-            workQueueCapacity = 1;
+        if (workQueueCapacity < 1) {
+            throw new IllegalArgumentException(
+                    "Unexpected buffer.front: " + workQueueCapacity + ", cannot be less than 1");
         }
         return workQueueCapacity;
     }

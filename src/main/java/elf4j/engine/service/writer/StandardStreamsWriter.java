@@ -51,6 +51,7 @@ public class StandardStreamsWriter implements LogWriter {
     private static final String DEFAULT_MINIMUM_LEVEL = "trace";
     private static final String DEFAULT_PATTERN = "{timestamp} {level} {class} - {message}";
     private static final String DEFAULT_WRITER_OUT_STREAM = "stdout";
+    private static final String LINE_FEED = System.lineSeparator();
     private final Level minimumLevel;
     private final LogPattern logPattern;
     private final StandardOutput standardOutput;
@@ -67,7 +68,7 @@ public class StandardStreamsWriter implements LogWriter {
         }
         StringBuilder target = new StringBuilder();
         logPattern.render(logEvent, target);
-        byte[] bytes = target.append(System.lineSeparator()).toString().getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = target.append(LINE_FEED).toString().getBytes(StandardCharsets.UTF_8);
         standardOutput.write(bytes);
     }
 
