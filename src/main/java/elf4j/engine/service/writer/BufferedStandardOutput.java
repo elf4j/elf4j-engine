@@ -51,7 +51,7 @@ import java.util.concurrent.TimeUnit;
  */
 @ToString
 public class BufferedStandardOutput implements StandardOutput, Stoppable {
-    private static final int DEFAULT_BACK_BUFFER_CAPACITY = 8192;
+    private static final int DEFAULT_BACK_BUFFER_CAPACITY = 256;
     private static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
     private final OutStreamType outStreamType;
     private final BlockingQueue<byte[]> buffer;
