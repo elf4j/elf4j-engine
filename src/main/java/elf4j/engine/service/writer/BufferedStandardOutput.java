@@ -28,7 +28,8 @@ package elf4j.engine.service.writer;
 import elf4j.Level;
 import elf4j.engine.service.LogServiceManager;
 import elf4j.engine.service.Stoppable;
-import elf4j.engine.service.util.MoreAwaitility;
+import elf4j.engine.service.configuration.LogServiceConfiguration;
+import elf4j.engine.service.util.PropertiesUtils;
 import elf4j.util.InternalLogger;
 import lombok.ToString;
 import org.awaitility.Awaitility;
@@ -38,13 +39,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.Properties;
+import java.util.concurrent.*;
 
 /**
  *
@@ -59,30 +57,57 @@ public class BufferedStandardOutput implements StandardOutput, Stoppable {
     private boolean stopped;
 
     /**
-     * @param stream
+     * @param outStreamType
      *         standard out stream type, stdout or stderr, default to stdout
      * @param bufferCapacity
      *         buffer capacity queued on standard out stream
      */
-    public BufferedStandardOutput(String stream, Integer bufferCapacity) {
-        this.outStreamType = stream == null ? DEFAULT_OUT_STREAM_TYPE : OutStreamType.valueOf(stream.toUpperCase());
-        bufferCapacity = bufferCapacity == null ? DEFAULT_BACK_BUFFER_CAPACITY : bufferCapacity;
-        InternalLogger.INSTANCE.log(Level.INFO, "Buffer back: " + bufferCapacity);
-        this.buffer = bufferCapacity == 0 ? new SynchronousQueue<>() : new ArrayBlockingQueue<>(bufferCapacity);
-        this.stopped = false;
-        pollingBytesWriter = new PollingBytesWriter(bufferCapacity);
-        new Thread(pollingBytesWriter).start();
+    private BufferedStandardOutput(OutStreamType outStreamType, int bufferCapacity) {
+        this.outStreamType = outStreamType;
+        this.buffer = new ArrayBlockingQueue<>(bufferCapacity);
+        this.pollingBytesWriter = new PollingBytesWriter(bufferCapacity);
         LogServiceManager.INSTANCE.registerStop(this);
+        this.stopped = false;
+        new Thread(pollingBytesWriter).start();
+    }
+
+    /**
+     * @param logServiceConfiguration
+     *         entire service configuration
+     * @return the {@link BufferedStandardOutput} per the specified configuration
+     */
+    public static BufferedStandardOutput from(LogServiceConfiguration logServiceConfiguration) {
+        Properties properties = logServiceConfiguration.getProperties();
+        return new BufferedStandardOutput(getOutStreamType(properties), getBufferCapacity(properties));
+    }
+
+    private static int getBufferCapacity(Properties properties) {
+        int bufferCapacity = PropertiesUtils.getIntOrDefault("buffer.back", properties, DEFAULT_BACK_BUFFER_CAPACITY);
+        InternalLogger.INSTANCE.log(Level.INFO, "Buffer back: " + bufferCapacity);
+        return bufferCapacity;
+    }
+
+    private static OutStreamType getOutStreamType(Properties properties) {
+        String stream = properties.getProperty("stream");
+        return stream == null ? DEFAULT_OUT_STREAM_TYPE : OutStreamType.valueOf(stream.toUpperCase());
     }
 
     @Override
     public void stop() {
-        MoreAwaitility.suspend(Duration.ofMillis(50));
-        ConditionFactory await = Awaitility.with().timeout(30, TimeUnit.MINUTES).await();
-        await.until(this.buffer::isEmpty);
-        MoreAwaitility.suspend(Duration.ofMillis(50));
-        await.until(this.pollingBytesWriter::isBufferEmpty);
-        this.stopped = true;
+        long longMinutes = 10;
+        ExecutorService shutdownThread = Executors.newSingleThreadExecutor();
+        shutdownThread.execute(() -> {
+            ConditionFactory await = Awaitility.with().timeout(longMinutes, TimeUnit.MINUTES).await();
+            await.until(this.buffer::isEmpty);
+            await.until(this.pollingBytesWriter::isBufferEmpty);
+            this.stopped = true;
+        });
+        shutdownThread.shutdown();
+    }
+
+    @Override
+    public boolean isStopped() {
+        return this.stopped;
     }
 
     @Override

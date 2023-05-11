@@ -29,7 +29,6 @@ import elf4j.Level;
 import elf4j.engine.NativeLogger;
 import elf4j.engine.NativeLoggerFactory;
 import elf4j.engine.service.LogEvent;
-import elf4j.engine.service.LogService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -42,8 +41,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 class JsonPatternTest {
-    @Mock LogService stubLogService;
-
     @Mock NativeLoggerFactory mockNativeLoggerFactory;
     LogEvent mockLogEvent;
     String mockMessage = "testLogMessage {}";

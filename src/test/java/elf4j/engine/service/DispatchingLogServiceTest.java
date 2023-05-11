@@ -49,6 +49,29 @@ import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class DispatchingLogServiceTest {
+    static class StubLogEventProcessor implements LogEventProcessor {
+        final LogWriter logWriter;
+
+        StubLogEventProcessor(LogWriter logWriter) {
+            this.logWriter = logWriter;
+        }
+
+        @Override
+        public void process(LogEvent logEvent) {
+            logWriter.write(logEvent);
+        }
+
+        @Override
+        public void stop() {
+
+        }
+
+        @Override
+        public boolean isStopped() {
+            return false;
+        }
+    }
+
     @Nested
     class isEnabled {
         NativeLogger stubLogger;
@@ -152,24 +175,6 @@ class DispatchingLogServiceTest {
             logService.log(stubLogger, this.getClass(), null, null, null);
 
             then(mockLogServiceConfiguration).should(never()).getLogServiceWriter();
-        }
-    }
-
-    class StubLogEventProcessor implements LogEventProcessor {
-        final LogWriter logWriter;
-
-        StubLogEventProcessor(LogWriter logWriter) {
-            this.logWriter = logWriter;
-        }
-
-        @Override
-        public void process(LogEvent logEvent) {
-            logWriter.write(logEvent);
-        }
-
-        @Override
-        public void stop() {
-
         }
     }
 }

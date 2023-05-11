@@ -33,4 +33,9 @@ public interface Stoppable {
      *
      */
     void stop();
+
+    /**
+     * @return true if the instance has stopped
+     */
+    boolean isStopped();
 }

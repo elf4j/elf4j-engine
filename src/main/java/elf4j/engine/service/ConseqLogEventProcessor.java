@@ -34,10 +34,8 @@ import elf4j.engine.service.util.PropertiesUtils;
 import elf4j.engine.service.writer.LogWriter;
 import elf4j.util.InternalLogger;
 import lombok.NonNull;
-import org.awaitility.Awaitility;
 
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Log events are asynchronously processed, optionally by multiple concurrent threads. However, events issued by the
@@ -78,8 +76,7 @@ public class ConseqLogEventProcessor implements LogEventProcessor {
     }
 
     private static int getConcurrency(Properties properties) {
-        Integer concurrency = PropertiesUtils.getAsInteger("concurrency", properties);
-        concurrency = concurrency == null ? DEFAULT_CONCURRENCY : concurrency;
+        int concurrency = PropertiesUtils.getIntOrDefault("concurrency", properties, DEFAULT_CONCURRENCY);
         if (concurrency < 1) {
             throw new IllegalArgumentException("Unexpected concurrency: " + concurrency + ", cannot be less than 1");
         }
@@ -87,10 +84,8 @@ public class ConseqLogEventProcessor implements LogEventProcessor {
     }
 
     private static int getWorkQueueCapacity(Properties properties) {
-        Integer workQueueCapacity = PropertiesUtils.getAsInteger("buffer.front", properties);
-        if (workQueueCapacity == null) {
-            return DEFAULT_FRONT_BUFFER_CAPACITY;
-        }
+        int workQueueCapacity =
+                PropertiesUtils.getIntOrDefault("buffer.front", properties, DEFAULT_FRONT_BUFFER_CAPACITY);
         if (workQueueCapacity < 1) {
             throw new IllegalArgumentException(
                     "Unexpected buffer.front: " + workQueueCapacity + ", cannot be less than 1");
@@ -106,6 +101,10 @@ public class ConseqLogEventProcessor implements LogEventProcessor {
     @Override
     public void stop() {
         this.conseqExecutor.shutdown();
-        Awaitility.with().timeout(30, TimeUnit.MINUTES).await().until(this.conseqExecutor::isTerminated);
+    }
+
+    @Override
+    public boolean isStopped() {
+        return this.conseqExecutor.isTerminated();
     }
 }

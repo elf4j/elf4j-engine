@@ -75,6 +75,8 @@ public class PropertiesUtils {
     }
 
     /**
+     * Takes only digits from the value to form a sequence, and tries to parse the sequence as an {@link Integer}
+     *
      * @param name
      *         full key in properties
      * @param properties
@@ -93,5 +95,22 @@ public class PropertiesUtils {
             return null;
         }
         return value.startsWith("-") ? -Integer.parseInt(digits) : Integer.parseInt(digits);
+    }
+
+    /**
+     * @param name
+     *         full key in properties
+     * @param properties
+     *         to look up in
+     * @param defaultValue
+     *         the default value to return if the delegate method {@link #getAsInteger} returns null
+     * @return result of the delegate method {@link #getAsInteger} or, if that is null, the specified defaultValue
+     */
+    public static int getIntOrDefault(String name, @NonNull Properties properties, int defaultValue) {
+        Integer value = getAsInteger(name, properties);
+        if (value == null) {
+            return defaultValue;
+        }
+        return value;
     }
 }

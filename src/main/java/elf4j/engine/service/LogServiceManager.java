@@ -26,10 +26,13 @@
 package elf4j.engine.service;
 
 import elf4j.engine.service.configuration.Refreshable;
+import lombok.NonNull;
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
 
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
+import java.time.Duration;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -42,6 +45,11 @@ public enum LogServiceManager {
 
     private final Set<Refreshable> refreshables = new HashSet<>();
     private final Set<Stoppable> stoppables = new HashSet<>();
+    private final ConditionFactory await = Awaitility.with().timeout(Duration.ofMinutes(10));
+
+    private static boolean allStopped(@NonNull Collection<Stoppable> stoppables) {
+        return stoppables.stream().allMatch(Stoppable::isStopped);
+    }
 
     /**
      * @param refreshable
@@ -83,11 +91,26 @@ public enum LogServiceManager {
         stopBackend();
     }
 
+    /**
+     * @return a thread that orderly stops the entire log service. As an alternative to calling the {@link #stopAll()},
+     *         the returned thread can be registered as a JVM shutdown hook.
+     */
+    @NonNull
+    public Thread getShutdownHookThread() {
+        return new Thread(this::stopAll);
+    }
+
     private void stopBackend() {
-        stoppables.stream().filter(s -> !(s instanceof LogEventProcessor)).parallel().forEach(Stoppable::stop);
+        List<Stoppable> backend =
+                stoppables.stream().filter(s -> !(s instanceof LogEventProcessor)).collect(Collectors.toList());
+        backend.stream().parallel().forEach(Stoppable::stop);
+        this.await.until(() -> allStopped(backend));
     }
 
     private void stopFrontend() {
-        stoppables.stream().filter(LogEventProcessor.class::isInstance).parallel().forEach(Stoppable::stop);
+        List<Stoppable> frontend =
+                stoppables.stream().filter(LogEventProcessor.class::isInstance).collect(Collectors.toList());
+        frontend.stream().parallel().forEach(Stoppable::stop);
+        this.await.until(() -> allStopped(frontend));
     }
 }
