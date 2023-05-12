@@ -89,8 +89,7 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
    e.g. with the `elf4j.properties` file:
 
    ```properties
-   writer=standard
-   writer.pattern={timestamp} {level:5} {class:full}#{method}(L{linenumber}@{filename}) - {message}
+   pattern={timestamp} {level:5} {class:full}#{method}(L{linenumber}@{filename}) - {message}
    ```
 
    The output is:
@@ -114,8 +113,7 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
    With the `elf4j.properties` file:
 
    ```properties
-   writer=standard
-   writer.pattern={json}
+   pattern={json}
    ```
 
    The output becomes:
