@@ -54,12 +54,13 @@ import java.util.stream.Collectors;
 @Value
 @Builder
 public class JsonPattern implements LogPattern {
+    private static final String UTF_8 = StandardCharsets.UTF_8.toString();
+    private static final int JSON_BYTES_INIT_SIZE = 1024;
     private static final String CALLER_DETAIL = "caller-detail";
     private static final String CALLER_THREAD = "caller-thread";
     private static final String PRETTY = "pretty";
     private static final Set<String> DISPLAY_OPTIONS =
             Arrays.stream(new String[] { CALLER_THREAD, CALLER_DETAIL, PRETTY }).collect(Collectors.toSet());
-    private static final int JSON_BYTES_INIT_SIZE = 1024;
     boolean includeCallerThread;
     boolean includeCallerDetail;
     boolean prettyPrint;
@@ -107,7 +108,7 @@ public class JsonPattern implements LogPattern {
         try (OutputStream outputStream = this.prettyPrint ? new PrettifyOutputStream(byteArrayOutputStream) :
                 byteArrayOutputStream) {
             dslJson.serialize(JsonLogEntry.from(logEvent, this), outputStream);
-            target.append(byteArrayOutputStream.toString(StandardCharsets.UTF_8.toString()));
+            target.append(byteArrayOutputStream.toString(UTF_8));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
