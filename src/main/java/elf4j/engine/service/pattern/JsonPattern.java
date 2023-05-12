@@ -27,7 +27,6 @@ package elf4j.engine.service.pattern;
 
 import com.dslplatform.json.CompiledJson;
 import com.dslplatform.json.DslJson;
-import com.dslplatform.json.JsonWriter;
 import com.dslplatform.json.PrettifyOutputStream;
 import com.dslplatform.json.runtime.Settings;
 import elf4j.engine.service.LogEvent;
@@ -42,6 +41,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -64,9 +64,8 @@ public class JsonPattern implements LogPattern {
     boolean includeCallerThread;
     boolean includeCallerDetail;
     boolean prettyPrint;
-    @ToString.Exclude JsonWriter jsonWriter =
-            new DslJson<>(Settings.withRuntime().skipDefaultValues(true).includeServiceLoader()).newWriter();
-    @ToString.Exclude ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    @ToString.Exclude DslJson<Object> dslJson =
+            new DslJson<>(Settings.basicSetup().skipDefaultValues(true).includeServiceLoader());
 
     /**
      * @param patternSegment
@@ -105,16 +104,11 @@ public class JsonPattern implements LogPattern {
 
     @Override
     public void render(LogEvent logEvent, StringBuilder target) {
-        jsonWriter.reset();
-        jsonWriter.serializeObject(JsonLogEntry.from(logEvent, this));
-        if (!this.prettyPrint) {
-            target.append(jsonWriter);
-            return;
-        }
-        byteArrayOutputStream.reset();
-        try (OutputStream outputStream = new PrettifyOutputStream(byteArrayOutputStream)) {
-            jsonWriter.toStream(outputStream);
-            target.append(byteArrayOutputStream.toString("UTF-8"));
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(2048);
+        try (OutputStream outputStream = this.prettyPrint ? new PrettifyOutputStream(byteArrayOutputStream) :
+                byteArrayOutputStream) {
+            dslJson.serialize(JsonLogEntry.from(logEvent, this), outputStream);
+            target.append(byteArrayOutputStream.toString(StandardCharsets.UTF_8.toString()));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
