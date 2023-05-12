@@ -103,7 +103,7 @@ public class JsonPattern implements LogPattern {
     }
 
     @Override
-    public void render(LogEvent logEvent, StringBuilder target) {
+    public void render(LogEvent logEvent, @NonNull StringBuilder target) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(JSON_BYTES_INIT_SIZE);
         try (OutputStream outputStream = this.prettyPrint ? new PrettifyOutputStream(byteArrayOutputStream) :
                 byteArrayOutputStream) {
