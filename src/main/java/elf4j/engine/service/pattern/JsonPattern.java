@@ -59,6 +59,7 @@ public class JsonPattern implements LogPattern {
     private static final String PRETTY = "pretty";
     private static final Set<String> DISPLAY_OPTIONS =
             Arrays.stream(new String[] { CALLER_THREAD, CALLER_DETAIL, PRETTY }).collect(Collectors.toSet());
+    private static final int JSON_BYTES_INIT_SIZE = 1024;
     boolean includeCallerThread;
     boolean includeCallerDetail;
     boolean prettyPrint;
@@ -102,7 +103,7 @@ public class JsonPattern implements LogPattern {
 
     @Override
     public void render(LogEvent logEvent, StringBuilder target) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(2048);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(JSON_BYTES_INIT_SIZE);
         try (OutputStream outputStream = this.prettyPrint ? new PrettifyOutputStream(byteArrayOutputStream) :
                 byteArrayOutputStream) {
             dslJson.serialize(JsonLogEntry.from(logEvent, this), outputStream);
