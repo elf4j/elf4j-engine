@@ -36,7 +36,6 @@ import lombok.NonNull;
 import lombok.ToString;
 import lombok.Value;
 
-import javax.annotation.concurrent.NotThreadSafe;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -52,7 +51,6 @@ import java.util.stream.Collectors;
 /**
  *
  */
-@NotThreadSafe
 @Value
 @Builder
 public class JsonPattern implements LogPattern {

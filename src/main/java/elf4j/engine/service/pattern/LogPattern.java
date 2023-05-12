@@ -28,9 +28,12 @@ package elf4j.engine.service.pattern;
 import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.writer.PerformanceSensitive;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
- *
+ * Implementation should be thread-safe
  */
+@ThreadSafe
 public interface LogPattern extends PerformanceSensitive {
 
     /**

@@ -28,9 +28,12 @@ package elf4j.engine.service.writer;
 import elf4j.Level;
 import elf4j.engine.service.LogEvent;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
- *
+ * Implementation should be thread-safe
  */
+@ThreadSafe
 public interface LogWriter extends PerformanceSensitive {
 
     /**
