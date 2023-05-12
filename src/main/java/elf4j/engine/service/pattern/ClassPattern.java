@@ -94,6 +94,8 @@ public class ClassPattern implements LogPattern {
     }
 
     enum DisplayOption {
-        FULL, SIMPLE, COMPRESSED
+        FULL,
+        SIMPLE,
+        COMPRESSED
     }
 }

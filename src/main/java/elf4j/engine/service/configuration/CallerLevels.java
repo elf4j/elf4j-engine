@@ -27,7 +27,7 @@ package elf4j.engine.service.configuration;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
-import elf4j.util.InternalLogger;
+import elf4j.util.IeLogger;
 import lombok.NonNull;
 
 import java.util.*;
@@ -67,8 +67,7 @@ public class CallerLevels {
                 .filter(name -> name.trim().startsWith("level@"))
                 .collect(Collectors.toMap(name -> name.split("@", 2)[1].trim(),
                         name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
-        InternalLogger.INSTANCE.log(Level.INFO,
-                "Configured " + configuredLevels.size() + " caller output level(s): " + configuredLevels);
+        IeLogger.INFO.log("{} caller class output level(s): {}", configuredLevels.size(), configuredLevels);
         return new CallerLevels(configuredLevels);
     }
 

@@ -34,7 +34,7 @@ import elf4j.engine.service.writer.BufferedStandardOutput;
 import elf4j.engine.service.writer.CooperatingWriterGroup;
 import elf4j.engine.service.writer.LogWriter;
 import elf4j.engine.service.writer.StandardOutput;
-import elf4j.util.InternalLogger;
+import elf4j.util.IeLogger;
 import lombok.ToString;
 
 import javax.annotation.Nullable;
@@ -112,15 +112,15 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
     }
 
     private void parse(@Nullable Properties properties) {
-        InternalLogger.INSTANCE.log(Level.INFO, "Configuration properties: " + properties);
+        IeLogger.INFO.log("Configuration properties: {}", properties);
         if (properties == null) {
-            InternalLogger.INSTANCE.log(Level.WARN, "No-op as in no configuration");
+            IeLogger.WARN.log("No-op as in no configuration");
             this.noop = true;
             return;
         }
         this.noop = Boolean.parseBoolean(properties.getProperty("noop"));
         if (this.noop) {
-            InternalLogger.INSTANCE.log(Level.WARN, "No-op as configured");
+            IeLogger.WARN.log("No-op as configured");
             return;
         }
         this.callerLevels = CallerLevels.from(properties);

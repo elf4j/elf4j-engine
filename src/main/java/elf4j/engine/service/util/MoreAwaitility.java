@@ -25,8 +25,7 @@
 
 package elf4j.engine.service.util;
 
-import elf4j.Level;
-import elf4j.util.InternalLogger;
+import elf4j.util.IeLogger;
 import lombok.NonNull;
 import org.awaitility.Awaitility;
 
@@ -59,8 +58,7 @@ public class MoreAwaitility {
      */
     public static void suspend(@NonNull Duration duration, String message) {
         if (message != null) {
-            InternalLogger.INSTANCE.log(Level.INFO,
-                    message + " - suspending current thread " + Thread.currentThread() + " for " + duration);
+            IeLogger.INFO.log("{}, suspending current {} for {}", message, Thread.currentThread(), duration);
         }
         AtomicBoolean resume = new AtomicBoolean(false);
         ScheduledExecutorService delayer = Executors.newSingleThreadScheduledExecutor();

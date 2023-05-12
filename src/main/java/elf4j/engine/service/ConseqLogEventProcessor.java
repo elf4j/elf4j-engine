@@ -28,11 +28,10 @@ package elf4j.engine.service;
 import conseq4j.execute.ConseqExecutor;
 import conseq4j.execute.SequentialExecutor;
 import conseq4j.util.MoreRejectedExecutionHandlers;
-import elf4j.Level;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.util.PropertiesUtils;
 import elf4j.engine.service.writer.LogWriter;
-import elf4j.util.InternalLogger;
+import elf4j.util.IeLogger;
 import lombok.NonNull;
 
 import java.util.Properties;
@@ -65,9 +64,9 @@ public class ConseqLogEventProcessor implements LogEventProcessor {
     public static ConseqLogEventProcessor from(@NonNull LogServiceConfiguration logServiceConfiguration) {
         Properties properties = logServiceConfiguration.getProperties();
         int workQueueCapacity = getWorkQueueCapacity(properties);
-        InternalLogger.INSTANCE.log(Level.INFO, "Buffer front: " + workQueueCapacity);
+        IeLogger.INFO.log("Buffer front: {}", workQueueCapacity);
         int concurrency = getConcurrency(properties);
-        InternalLogger.INSTANCE.log(Level.INFO, "Concurrency: " + concurrency);
+        IeLogger.INFO.log("Concurrency: {}", concurrency);
         ConseqExecutor.Builder conseqBuilder = new ConseqExecutor.Builder().concurrency(concurrency)
                 .rejectedExecutionHandler(MoreRejectedExecutionHandlers.blockingRetryPolicy());
         SequentialExecutor conseqExecutor = workQueueCapacity == DEFAULT_FRONT_BUFFER_CAPACITY ? conseqBuilder.build() :

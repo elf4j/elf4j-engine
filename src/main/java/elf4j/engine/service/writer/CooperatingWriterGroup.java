@@ -28,7 +28,7 @@ package elf4j.engine.service.writer;
 import elf4j.Level;
 import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
-import elf4j.util.InternalLogger;
+import elf4j.util.IeLogger;
 import lombok.NonNull;
 import lombok.ToString;
 
@@ -64,8 +64,7 @@ public class CooperatingWriterGroup implements LogWriter {
         List<LogWriter> logWriters = logWriterTypes.stream()
                 .flatMap(t -> t.getLogWriters(logServiceConfiguration).stream())
                 .collect(Collectors.toList());
-        InternalLogger.INSTANCE.log(Level.INFO,
-                "Configured " + logWriters.size() + " service writer(s): " + logWriters);
+        IeLogger.INFO.log("{} service writer(s): {}", logWriters.size(), logWriters);
         return new CooperatingWriterGroup(logWriters);
     }
 

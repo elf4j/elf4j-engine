@@ -80,12 +80,14 @@ enum PatternType {
         LogPattern translate(String patternSegment) {
             return MethodPattern.from(patternSegment);
         }
-    }, FILENAME {
+    },
+    FILENAME {
         @Override
         LogPattern translate(String patternSegment) {
             return FileNamePattern.from(patternSegment);
         }
-    }, LINENUMBER {
+    },
+    LINENUMBER {
         @Override
         LogPattern translate(String patternSegment) {
             return LineNumberPattern.from(patternSegment);
@@ -109,12 +111,14 @@ enum PatternType {
         LogPattern translate(String patternSegment) {
             return JsonPattern.from(patternSegment);
         }
-    }, SYSPROP {
+    },
+    SYSPROP {
         @Override
         LogPattern translate(String patternSegment) {
             return SystemPropertyPattern.from(patternSegment);
         }
-    }, SYSENV {
+    },
+    SYSENV {
         @Override
         LogPattern translate(String patternSegment) {
             return SystemEnvironmentPattern.from(patternSegment);

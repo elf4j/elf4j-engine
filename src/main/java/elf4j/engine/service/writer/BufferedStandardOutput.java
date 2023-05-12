@@ -25,12 +25,11 @@
 
 package elf4j.engine.service.writer;
 
-import elf4j.Level;
 import elf4j.engine.service.LogServiceManager;
 import elf4j.engine.service.Stoppable;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.util.PropertiesUtils;
-import elf4j.util.InternalLogger;
+import elf4j.util.IeLogger;
 import lombok.ToString;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
@@ -83,7 +82,7 @@ public class BufferedStandardOutput implements StandardOutput, Stoppable {
 
     private static int getBufferCapacity(Properties properties) {
         int bufferCapacity = PropertiesUtils.getIntOrDefault("buffer.back", properties, DEFAULT_BACK_BUFFER_CAPACITY);
-        InternalLogger.INSTANCE.log(Level.INFO, "Buffer back: " + bufferCapacity);
+        IeLogger.INFO.log("Buffer back: {}", bufferCapacity);
         return bufferCapacity;
     }
 
@@ -115,16 +114,17 @@ public class BufferedStandardOutput implements StandardOutput, Stoppable {
         try {
             buffer.put(bytes);
         } catch (InterruptedException e) {
-            InternalLogger.INSTANCE.log(Level.ERROR,
-                    e,
-                    "Thread interrupted while enqueuing bytes of '" + new String(bytes, StandardCharsets.UTF_8)
-                            + "' to standard output buffer " + buffer);
+            IeLogger.ERROR.log(e,
+                    "Thread interrupted while enqueuing bytes of '{}' to standard output buffer {}",
+                    new String(bytes, StandardCharsets.UTF_8),
+                    buffer);
             Thread.currentThread().interrupt();
         }
     }
 
     enum OutStreamType {
-        STDOUT, STDERR
+        STDOUT,
+        STDERR
     }
 
     private class PollingBytesWriter implements Runnable {
