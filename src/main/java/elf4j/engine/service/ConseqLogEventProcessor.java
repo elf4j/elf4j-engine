@@ -67,17 +67,18 @@ public class ConseqLogEventProcessor implements LogEventProcessor {
         IeLogger.INFO.log("Buffer front: {}", workQueueCapacity);
         int concurrency = getConcurrency(properties);
         IeLogger.INFO.log("Concurrency: {}", concurrency);
-        ConseqExecutor.Builder conseqBuilder = new ConseqExecutor.Builder().concurrency(concurrency)
-                .rejectedExecutionHandler(MoreRejectedExecutionHandlers.blockingRetryPolicy());
-        SequentialExecutor conseqExecutor = workQueueCapacity == DEFAULT_FRONT_BUFFER_CAPACITY ? conseqBuilder.build() :
-                conseqBuilder.workQueueCapacity(workQueueCapacity).build();
+        SequentialExecutor conseqExecutor = new ConseqExecutor.Builder().concurrency(concurrency)
+                .rejectedExecutionHandler(MoreRejectedExecutionHandlers.blockingRetryPolicy())
+                .workQueueCapacity(workQueueCapacity)
+                .build();
         return new ConseqLogEventProcessor(logServiceConfiguration.getLogServiceWriter(), conseqExecutor);
     }
 
     private static int getConcurrency(Properties properties) {
         int concurrency = PropertiesUtils.getIntOrDefault("concurrency", properties, DEFAULT_CONCURRENCY);
         if (concurrency < 1) {
-            throw new IllegalArgumentException("Unexpected concurrency: " + concurrency + ", cannot be less than 1");
+            IeLogger.ERROR.log("Unexpected concurrency: {}, cannot be less than 1", concurrency);
+            throw new IllegalArgumentException("concurrency: " + concurrency);
         }
         return concurrency;
     }
@@ -86,8 +87,8 @@ public class ConseqLogEventProcessor implements LogEventProcessor {
         int workQueueCapacity =
                 PropertiesUtils.getIntOrDefault("buffer.front", properties, DEFAULT_FRONT_BUFFER_CAPACITY);
         if (workQueueCapacity < 1) {
-            throw new IllegalArgumentException(
-                    "Unexpected buffer.front: " + workQueueCapacity + ", cannot be less than 1");
+            IeLogger.ERROR.log("Unexpected buffer.front: {}, cannot be less than 1", workQueueCapacity);
+            throw new IllegalArgumentException("buffer.front: " + workQueueCapacity);
         }
         return workQueueCapacity;
     }

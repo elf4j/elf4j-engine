@@ -48,7 +48,7 @@ import java.util.concurrent.*;
  */
 @ToString
 public class BufferedStandardOutput implements StandardOutput, Stoppable {
-    private static final int DEFAULT_BACK_BUFFER_CAPACITY = 256;
+    private static final int DEFAULT_BACK_BUFFER_CAPACITY = Integer.MAX_VALUE;
     private static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
     private final OutStreamType outStreamType;
     private final BlockingQueue<byte[]> buffer;
@@ -63,7 +63,7 @@ public class BufferedStandardOutput implements StandardOutput, Stoppable {
      */
     private BufferedStandardOutput(OutStreamType outStreamType, int bufferCapacity) {
         this.outStreamType = outStreamType;
-        this.buffer = new ArrayBlockingQueue<>(bufferCapacity);
+        this.buffer = new LinkedBlockingQueue<>(bufferCapacity);
         this.pollingBytesWriter = new PollingBytesWriter(bufferCapacity);
         LogServiceManager.INSTANCE.registerStop(this);
         this.stopped = false;
@@ -83,6 +83,10 @@ public class BufferedStandardOutput implements StandardOutput, Stoppable {
     private static int getBufferCapacity(Properties properties) {
         int bufferCapacity = PropertiesUtils.getIntOrDefault("buffer.back", properties, DEFAULT_BACK_BUFFER_CAPACITY);
         IeLogger.INFO.log("Buffer back: {}", bufferCapacity);
+        if (bufferCapacity < 1) {
+            IeLogger.ERROR.log("Unexpected buffer.back: {}, cannot be less than 1", bufferCapacity);
+            throw new IllegalArgumentException("buffer.back: " + bufferCapacity);
+        }
         return bufferCapacity;
     }
 
