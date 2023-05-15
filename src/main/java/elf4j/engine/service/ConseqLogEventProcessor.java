@@ -64,7 +64,7 @@ public class ConseqLogEventProcessor implements LogEventProcessor {
     public static ConseqLogEventProcessor from(@NonNull LogServiceConfiguration logServiceConfiguration) {
         Properties properties = logServiceConfiguration.getProperties();
         int workQueueCapacity = getWorkQueueCapacity(properties);
-        IeLogger.INFO.log("Buffer front: {}", workQueueCapacity);
+        IeLogger.INFO.log("Buffer: {}", workQueueCapacity);
         int concurrency = getConcurrency(properties);
         IeLogger.INFO.log("Concurrency: {}", concurrency);
         SequentialExecutor conseqExecutor = new ConseqExecutor.Builder().concurrency(concurrency)
@@ -84,11 +84,10 @@ public class ConseqLogEventProcessor implements LogEventProcessor {
     }
 
     private static int getWorkQueueCapacity(Properties properties) {
-        int workQueueCapacity =
-                PropertiesUtils.getIntOrDefault("buffer.front", properties, DEFAULT_FRONT_BUFFER_CAPACITY);
+        int workQueueCapacity = PropertiesUtils.getIntOrDefault("buffer", properties, DEFAULT_FRONT_BUFFER_CAPACITY);
         if (workQueueCapacity < 1) {
-            IeLogger.ERROR.log("Unexpected buffer.front: {}, cannot be less than 1", workQueueCapacity);
-            throw new IllegalArgumentException("buffer.front: " + workQueueCapacity);
+            IeLogger.ERROR.log("Unexpected buffer: {}, cannot be less than 1", workQueueCapacity);
+            throw new IllegalArgumentException("buffer: " + workQueueCapacity);
         }
         return workQueueCapacity;
     }
