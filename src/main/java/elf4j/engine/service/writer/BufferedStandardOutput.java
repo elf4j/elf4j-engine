@@ -25,8 +25,6 @@
 
 package elf4j.engine.service.writer;
 
-import elf4j.engine.service.LogServiceManager;
-import elf4j.engine.service.Stoppable;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import lombok.NonNull;
 import lombok.ToString;
@@ -38,11 +36,10 @@ import java.util.Properties;
  *
  */
 @ToString
-public class BufferedStandardOutput implements StandardOutput, Stoppable {
+public class BufferedStandardOutput implements StandardOutput {
     private static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
     @NonNull private final OutStreamType outStreamType;
-    private final BufferedOutStream bufferedOutStream = new BufferedOutStream();
-    private boolean closed;
+    private final BufferedStandardOutStreams bufferedStandardOutStreams = new BufferedStandardOutStreams();
 
     /**
      * @param outStreamType
@@ -50,7 +47,6 @@ public class BufferedStandardOutput implements StandardOutput, Stoppable {
      */
     private BufferedStandardOutput(@NonNull OutStreamType outStreamType) {
         this.outStreamType = outStreamType;
-        LogServiceManager.INSTANCE.registerStop(this);
     }
 
     /**
@@ -68,21 +64,10 @@ public class BufferedStandardOutput implements StandardOutput, Stoppable {
     @Override
     public void write(byte[] bytes) {
         if (this.outStreamType == OutStreamType.STDERR) {
-            bufferedOutStream.err(bytes);
+            bufferedStandardOutStreams.err(bytes);
         } else {
-            bufferedOutStream.out(bytes);
+            bufferedStandardOutStreams.out(bytes);
         }
-    }
-
-    @Override
-    public void stop() {
-        this.closed = true;
-        this.bufferedOutStream.close();
-    }
-
-    @Override
-    public boolean isStopped() {
-        return this.closed;
     }
 
     enum OutStreamType {
@@ -90,38 +75,32 @@ public class BufferedStandardOutput implements StandardOutput, Stoppable {
         STDERR
     }
 
-    static class BufferedOutStream implements Closeable {
+    static class BufferedStandardOutStreams {
         final OutputStream bufferedStdOut = new BufferedOutputStream(new FileOutputStream(FileDescriptor.out), 2048);
         final OutputStream bufferedStdErr = new BufferedOutputStream(new FileOutputStream(FileDescriptor.err), 2048);
 
-        BufferedOutStream() {
+        BufferedStandardOutStreams() {
         }
 
-        @Override
-        public void close() {
-            try (OutputStream out = bufferedStdOut; OutputStream err = bufferedStdErr) {
-                out.flush();
-                err.flush();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+        void err(byte[] bytes) {
+            synchronized (System.err) {
+                try {
+                    bufferedStdErr.write(bytes);
+                    bufferedStdErr.flush();
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
             }
         }
 
-        synchronized void err(byte[] bytes) {
-            try {
-                bufferedStdErr.write(bytes);
-                bufferedStdErr.flush();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-
-        synchronized void out(byte[] bytes) {
-            try {
-                bufferedStdOut.write(bytes);
-                bufferedStdOut.flush();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+        void out(byte[] bytes) {
+            synchronized (System.out) {
+                try {
+                    bufferedStdOut.write(bytes);
+                    bufferedStdOut.flush();
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
             }
         }
     }
