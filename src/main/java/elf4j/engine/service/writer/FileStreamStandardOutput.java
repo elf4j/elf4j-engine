@@ -39,7 +39,7 @@ import java.util.Properties;
 public class FileStreamStandardOutput implements StandardOutput {
     private static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
     @NonNull private final OutStreamType outStreamType;
-    private final FileStandardOutStreams fileStandardOutStreams = new FileStandardOutStreams();
+    private final StandardFileOutStreams standardFileOutStreams = new StandardFileOutStreams();
 
     /**
      * @param outStreamType
@@ -53,7 +53,7 @@ public class FileStreamStandardOutput implements StandardOutput {
      * @param logServiceConfiguration
      *         entire service configuration @return the {@link FileStreamStandardOutput} per the specified
      *         configuration
-     * @return output per specified configuration
+     * @return parsed output per specified configuration
      */
     public static @NonNull FileStreamStandardOutput from(@NonNull LogServiceConfiguration logServiceConfiguration) {
         Properties properties = logServiceConfiguration.getProperties();
@@ -65,9 +65,9 @@ public class FileStreamStandardOutput implements StandardOutput {
     @Override
     public void write(byte[] bytes) {
         if (this.outStreamType == OutStreamType.STDERR) {
-            fileStandardOutStreams.writeErr(bytes);
+            standardFileOutStreams.writeErr(bytes);
         } else {
-            fileStandardOutStreams.writeOut(bytes);
+            standardFileOutStreams.writeOut(bytes);
         }
     }
 
@@ -76,11 +76,11 @@ public class FileStreamStandardOutput implements StandardOutput {
         STDERR
     }
 
-    static class FileStandardOutStreams {
+    static class StandardFileOutStreams {
         final OutputStream stdoutFos = new FileOutputStream(FileDescriptor.out);
         final OutputStream stderrFos = new FileOutputStream(FileDescriptor.err);
 
-        FileStandardOutStreams() {
+        StandardFileOutStreams() {
         }
 
         void writeErr(byte[] bytes) {
