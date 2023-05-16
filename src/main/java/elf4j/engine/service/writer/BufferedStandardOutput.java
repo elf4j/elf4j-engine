@@ -76,8 +76,8 @@ public class BufferedStandardOutput implements StandardOutput, Stoppable {
 
     @Override
     public void stop() {
-        this.bufferedOutStream.close();
         this.closed = true;
+        this.bufferedOutStream.close();
     }
 
     @Override
