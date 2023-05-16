@@ -68,8 +68,7 @@ public class StandardStreamsWriter implements LogWriter {
         }
         StringBuilder target = new StringBuilder();
         logPattern.render(logEvent, target);
-        byte[] bytes = target.append(LINE_FEED).toString().getBytes(StandardCharsets.UTF_8);
-        standardOutput.write(bytes);
+        standardOutput.write(target.append(LINE_FEED).toString().getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
@@ -86,7 +85,7 @@ public class StandardStreamsWriter implements LogWriter {
      *
      */
     public static class StandardStreamsWriterType implements LogWriterType {
-        private static StandardStreamsWriter getDefaultWriter(LogServiceConfiguration logServiceConfiguration) {
+        private static StandardStreamsWriter getDefaultWriter(@NonNull LogServiceConfiguration logServiceConfiguration) {
             Properties properties = logServiceConfiguration.getProperties();
             return StandardStreamsWriter.builder()
                     .minimumLevel(Level.valueOf(properties.getProperty("level", DEFAULT_MINIMUM_LEVEL)
@@ -97,7 +96,7 @@ public class StandardStreamsWriter implements LogWriter {
                     .build();
         }
 
-        private static String getWriterConfiguredOrDefault(String name,
+        private static String getWriterConfigurationValueOrDefault(String name,
                 Map<String, String> writerConfiguration,
                 Properties properties,
                 String defaultValue) {
@@ -116,11 +115,11 @@ public class StandardStreamsWriter implements LogWriter {
             }
             return writerConfigurations.stream()
                     .map(writerConfiguration -> StandardStreamsWriter.builder()
-                            .minimumLevel(Level.valueOf(getWriterConfiguredOrDefault("level",
+                            .minimumLevel(Level.valueOf(getWriterConfigurationValueOrDefault("level",
                                     writerConfiguration,
                                     properties,
                                     DEFAULT_MINIMUM_LEVEL).trim().toUpperCase()))
-                            .logPattern(PatternGroup.from(getWriterConfiguredOrDefault("pattern",
+                            .logPattern(PatternGroup.from(getWriterConfigurationValueOrDefault("pattern",
                                     writerConfiguration,
                                     properties,
                                     DEFAULT_PATTERN)))
