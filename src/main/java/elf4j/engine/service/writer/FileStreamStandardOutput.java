@@ -39,7 +39,7 @@ import java.util.Properties;
 public class FileStreamStandardOutput implements StandardOutput {
     private static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
     @NonNull private final OutStreamType outStreamType;
-    private final StandardFileOutStreams standardFileOutStreams = new StandardFileOutStreams();
+    private final StandardFileOutputStreams standardFileOutputStreams = new StandardFileOutputStreams();
 
     /**
      * @param outStreamType
@@ -65,9 +65,9 @@ public class FileStreamStandardOutput implements StandardOutput {
     @Override
     public void write(byte[] bytes) {
         if (this.outStreamType == OutStreamType.STDERR) {
-            standardFileOutStreams.writeErr(bytes);
+            standardFileOutputStreams.writeErr(bytes);
         } else {
-            standardFileOutStreams.writeOut(bytes);
+            standardFileOutputStreams.writeOut(bytes);
         }
     }
 
@@ -76,11 +76,11 @@ public class FileStreamStandardOutput implements StandardOutput {
         STDERR
     }
 
-    static class StandardFileOutStreams {
+    static class StandardFileOutputStreams {
         final OutputStream stdoutFos = new FileOutputStream(FileDescriptor.out);
         final OutputStream stderrFos = new FileOutputStream(FileDescriptor.err);
 
-        StandardFileOutStreams() {
+        StandardFileOutputStreams() {
         }
 
         void writeErr(byte[] bytes) {
