@@ -38,4 +38,16 @@ public interface Stoppable {
      * @return true if the instance has stopped
      */
     boolean isStopped();
+
+    /**
+     *
+     */
+    interface Intake extends Stoppable {
+    }
+
+    /**
+     *
+     */
+    interface Output extends Stoppable {
+    }
 }

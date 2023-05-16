@@ -28,7 +28,7 @@ package elf4j.engine.service;
 /**
  *
  */
-public interface LogEventProcessor extends Stoppable {
+public interface LogEventProcessor extends Stoppable.Intake {
     /**
      * @param logEvent
      *         to process

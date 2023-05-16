@@ -36,37 +36,38 @@ import java.util.Properties;
  *
  */
 @ToString
-public class BufferedStandardOutput implements StandardOutput {
+public class FileStreamStandardOutput implements StandardOutput {
     private static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
     @NonNull private final OutStreamType outStreamType;
-    private final BufferedStandardOutStreams bufferedStandardOutStreams = new BufferedStandardOutStreams();
+    private final FileStandardOutStreams fileStandardOutStreams = new FileStandardOutStreams();
 
     /**
      * @param outStreamType
      *         standard out stream type, stdout or stderr, default to stdout
      */
-    private BufferedStandardOutput(@NonNull OutStreamType outStreamType) {
+    private FileStreamStandardOutput(@NonNull OutStreamType outStreamType) {
         this.outStreamType = outStreamType;
     }
 
     /**
      * @param logServiceConfiguration
-     *         entire service configuration @return the {@link BufferedStandardOutput} per the specified configuration
+     *         entire service configuration @return the {@link FileStreamStandardOutput} per the specified
+     *         configuration
      * @return output per specified configuration
      */
-    public static @NonNull BufferedStandardOutput from(@NonNull LogServiceConfiguration logServiceConfiguration) {
+    public static @NonNull FileStreamStandardOutput from(@NonNull LogServiceConfiguration logServiceConfiguration) {
         Properties properties = logServiceConfiguration.getProperties();
         String stream = properties.getProperty("stream");
-        return new BufferedStandardOutput(
+        return new FileStreamStandardOutput(
                 stream == null ? DEFAULT_OUT_STREAM_TYPE : OutStreamType.valueOf(stream.toUpperCase()));
     }
 
     @Override
     public void write(byte[] bytes) {
         if (this.outStreamType == OutStreamType.STDERR) {
-            bufferedStandardOutStreams.err(bytes);
+            fileStandardOutStreams.writeErr(bytes);
         } else {
-            bufferedStandardOutStreams.out(bytes);
+            fileStandardOutStreams.writeOut(bytes);
         }
     }
 
@@ -75,29 +76,35 @@ public class BufferedStandardOutput implements StandardOutput {
         STDERR
     }
 
-    static class BufferedStandardOutStreams {
-        final OutputStream bufferedStdOut = new BufferedOutputStream(new FileOutputStream(FileDescriptor.out), 2048);
-        final OutputStream bufferedStdErr = new BufferedOutputStream(new FileOutputStream(FileDescriptor.err), 2048);
+    static class FileStandardOutStreams {
+        final OutputStream stdoutFos = new FileOutputStream(FileDescriptor.out);
+        final OutputStream stderrFos = new FileOutputStream(FileDescriptor.err);
 
-        BufferedStandardOutStreams() {
+        FileStandardOutStreams() {
         }
 
-        void err(byte[] bytes) {
+        void writeErr(byte[] bytes) {
+            doErr(bytes);
+        }
+
+        void writeOut(byte[] bytes) {
+            doOut(bytes);
+        }
+
+        private void doErr(byte[] bytes) {
             synchronized (System.err) {
                 try {
-                    bufferedStdErr.write(bytes);
-                    bufferedStdErr.flush();
+                    stderrFos.write(bytes);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }
             }
         }
 
-        void out(byte[] bytes) {
+        private void doOut(byte[] bytes) {
             synchronized (System.out) {
                 try {
-                    bufferedStdOut.write(bytes);
-                    bufferedStdOut.flush();
+                    stdoutFos.write(bytes);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }

@@ -87,8 +87,8 @@ public enum LogServiceManager {
      *
      */
     public void stopAll() {
-        stopFrontend();
-        stopBackend();
+        stopIntake();
+        stopOutput();
     }
 
     /**
@@ -100,17 +100,17 @@ public enum LogServiceManager {
         return new Thread(this::stopAll);
     }
 
-    private void stopBackend() {
-        List<Stoppable> backend =
-                stoppables.stream().filter(s -> !(s instanceof LogEventProcessor)).collect(Collectors.toList());
-        backend.stream().parallel().forEach(Stoppable::stop);
-        this.await.until(() -> allStopped(backend));
+    private void stopIntake() {
+        stopType(Stoppable.Intake.class);
     }
 
-    private void stopFrontend() {
-        List<Stoppable> frontend =
-                stoppables.stream().filter(LogEventProcessor.class::isInstance).collect(Collectors.toList());
-        frontend.stream().parallel().forEach(Stoppable::stop);
-        this.await.until(() -> allStopped(frontend));
+    private void stopOutput() {
+        stopType(Stoppable.Output.class);
+    }
+
+    private void stopType(Class<? extends Stoppable> targetType) {
+        List<Stoppable> stopTargets = stoppables.stream().filter(targetType::isInstance).collect(Collectors.toList());
+        stopTargets.stream().parallel().forEach(Stoppable::stop);
+        this.await.until(() -> allStopped(stopTargets));
     }
 }
