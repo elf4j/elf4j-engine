@@ -70,7 +70,7 @@ public enum LogServiceManager {
     /**
      * reloads properties source for each refreshable
      */
-    public void refreshAll() {
+    public void refresh() {
         refreshables.forEach(Refreshable::refresh);
     }
 
@@ -79,25 +79,25 @@ public enum LogServiceManager {
      *         if non-null, replaces current configuration with the specified properties, instead of reloading from the
      *         original properties source; otherwise, reloads the original properties source for each refreshable.
      */
-    public void refreshAll(Properties properties) {
+    public void refresh(Properties properties) {
         refreshables.forEach(refreshable -> refreshable.refresh(properties));
     }
 
     /**
      *
      */
-    public void stopAll() {
+    public void stop() {
         stopIntake();
         stopOutput();
     }
 
     /**
-     * @return a thread that orderly stops the entire log service. As an alternative to calling the {@link #stopAll()},
-     *         the returned thread can be registered as a JVM shutdown hook.
+     * @return a thread that orderly stops the entire log service. As an alternative to calling the {@link #stop()}, the
+     *         returned thread can be registered as a JVM shutdown hook.
      */
     @NonNull
     public Thread getShutdownHookThread() {
-        return new Thread(this::stopAll);
+        return new Thread(this::stop);
     }
 
     private void stopIntake() {
