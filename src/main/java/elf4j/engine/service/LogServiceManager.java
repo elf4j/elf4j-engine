@@ -28,9 +28,9 @@ package elf4j.engine.service;
 import elf4j.engine.service.configuration.Refreshable;
 import lombok.NonNull;
 import org.awaitility.Awaitility;
+import org.awaitility.Durations;
 import org.awaitility.core.ConditionFactory;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,9 +43,12 @@ public enum LogServiceManager {
      */
     INSTANCE;
 
+    private static final List<Class<? extends Stoppable>> ORDERED_STOPPABLE_TYPES =
+            Arrays.asList(Stoppable.Intake.class, Stoppable.Process.class, Stoppable.Output.class);
+
     private final Set<Refreshable> refreshables = new HashSet<>();
     private final Set<Stoppable> stoppables = new HashSet<>();
-    private final ConditionFactory await = Awaitility.with().timeout(Duration.ofMinutes(10));
+    private final ConditionFactory await = Awaitility.with().timeout(Durations.FOREVER);
 
     private static boolean allStopped(@NonNull Collection<Stoppable> stoppables) {
         return stoppables.stream().allMatch(Stoppable::isStopped);
@@ -87,8 +90,7 @@ public enum LogServiceManager {
      *
      */
     public void stop() {
-        stopIntake();
-        stopOutput();
+        ORDERED_STOPPABLE_TYPES.forEach(this::awaitStop);
     }
 
     /**
@@ -100,15 +102,7 @@ public enum LogServiceManager {
         return new Thread(this::stop);
     }
 
-    private void stopIntake() {
-        stopType(Stoppable.Intake.class);
-    }
-
-    private void stopOutput() {
-        stopType(Stoppable.Output.class);
-    }
-
-    private void stopType(Class<? extends Stoppable> targetType) {
+    private void awaitStop(Class<? extends Stoppable> targetType) {
         List<Stoppable> stopTargets = stoppables.stream().filter(targetType::isInstance).collect(Collectors.toList());
         stopTargets.stream().parallel().forEach(Stoppable::stop);
         this.await.until(() -> allStopped(stopTargets));

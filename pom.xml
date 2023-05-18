@@ -31,7 +31,7 @@
 
     <groupId>io.github.elf4j</groupId>
     <artifactId>elf4j-engine</artifactId>
-    <version>11.0.0</version>
+    <version>11.0.1</version>
     <packaging>jar</packaging>
     <name>elf4j-engine</name>
     <description>A stand-alone Java log engine implementing the ELF4J (Easy Logging Facade for Java) API</description>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>io.github.q3769</groupId>
             <artifactId>conseq4j</artifactId>
-            <version>20230510.20230513.0</version>
+            <version>20230510.20230513.20230518</version>
         </dependency>
         <dependency>
             <groupId>com.dslplatform</groupId>
@@ -159,6 +159,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.1.0</version>
+                <configuration>
+                    <forkNode implementation="org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory"/>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

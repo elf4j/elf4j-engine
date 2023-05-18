@@ -25,9 +25,14 @@
 
 package elf4j.engine.service.writer;
 
+import conseq4j.execute.ConseqExecutor;
+import conseq4j.util.MoreRejectedExecutionHandlers;
 import elf4j.Level;
 import elf4j.engine.service.LogEvent;
+import elf4j.engine.service.LogServiceManager;
+import elf4j.engine.service.Stoppable;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
+import elf4j.engine.service.util.PropertiesUtils;
 import elf4j.util.IeLogger;
 import lombok.NonNull;
 import lombok.ToString;
@@ -37,17 +42,25 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- *
+ * In general, log events are asynchronously written/rendered in parallel by multiple concurrent threads. However,
+ * events issued by the same caller application thread are rendered sequentially with the {@link ConseqExecutor} API.
+ * Thus, logs by different caller threads may arrive at the final destination (e.g. system Console or a log file) in any
+ * order; meanwhile, logs from the same caller thread will arrive sequentially in the same order as they are called in
+ * the orginal thread.
  */
 @ToString
-public class CooperatingWriterGroup implements LogWriter {
+public class ConseqWriterGroup implements LogWriter, Stoppable.Process {
+    private static final int DEFAULT_CONSEQ_CONCURRENCY = Runtime.getRuntime().availableProcessors();
     private final List<LogWriter> writers;
+    private final ConseqExecutor conseqExecutor;
     private Level minimumLevel;
     @ToString.Exclude private Boolean includeCallerDetail;
     @ToString.Exclude private Boolean includeCallerThread;
 
-    private CooperatingWriterGroup(List<LogWriter> writers) {
+    private ConseqWriterGroup(List<LogWriter> writers, ConseqExecutor conseqExecutor) {
         this.writers = writers;
+        this.conseqExecutor = conseqExecutor;
+        LogServiceManager.INSTANCE.registerStop(this);
     }
 
     /**
@@ -56,7 +69,7 @@ public class CooperatingWriterGroup implements LogWriter {
      * @return the composite writer containing all writers configured in the specified properties
      */
     @NonNull
-    public static CooperatingWriterGroup from(LogServiceConfiguration logServiceConfiguration) {
+    public static ConseqWriterGroup from(LogServiceConfiguration logServiceConfiguration) {
         List<LogWriterType> logWriterTypes = new ArrayList<>(getLogWriterTypes(logServiceConfiguration));
         if (logWriterTypes.isEmpty()) {
             logWriterTypes.add(new StandardStreamsWriter.StandardStreamsWriterType());
@@ -65,7 +78,21 @@ public class CooperatingWriterGroup implements LogWriter {
                 .flatMap(t -> t.getLogWriters(logServiceConfiguration).stream())
                 .collect(Collectors.toList());
         IeLogger.INFO.log("{} service writer(s): {}", logWriters.size(), logWriters);
-        return new CooperatingWriterGroup(logWriters);
+        Properties properties = logServiceConfiguration.getProperties();
+        return new ConseqWriterGroup(logWriters,
+                new ConseqExecutor.Builder().concurrency(getConcurrency(properties))
+                        .rejectedExecutionHandler(MoreRejectedExecutionHandlers.blockingRetryPolicy())
+                        .build());
+    }
+
+    private static int getConcurrency(Properties properties) {
+        int concurrency = PropertiesUtils.getIntOrDefault("concurrency", properties, DEFAULT_CONSEQ_CONCURRENCY);
+        IeLogger.INFO.log("Concurrency: {}", concurrency);
+        if (concurrency < 1) {
+            IeLogger.ERROR.log("Unexpected concurrency: {}, cannot be less than 1", concurrency);
+            throw new IllegalArgumentException("concurrency: " + concurrency);
+        }
+        return concurrency;
     }
 
     private static List<LogWriterType> getLogWriterTypes(LogServiceConfiguration logServiceConfiguration) {
@@ -96,7 +123,8 @@ public class CooperatingWriterGroup implements LogWriter {
 
     @Override
     public void write(LogEvent logEvent) {
-        writers.parallelStream().forEach(writer -> writer.write(logEvent));
+        conseqExecutor.execute(() -> writers.parallelStream().forEach(writer -> writer.write(logEvent)),
+                logEvent.getCallerThread().getId());
     }
 
     @Override
@@ -113,5 +141,15 @@ public class CooperatingWriterGroup implements LogWriter {
             includeCallerThread = writers.stream().anyMatch(LogWriter::includeCallerThread);
         }
         return includeCallerThread;
+    }
+
+    @Override
+    public void stop() {
+        conseqExecutor.shutdown();
+    }
+
+    @Override
+    public boolean isStopped() {
+        return conseqExecutor.isTerminated();
     }
 }

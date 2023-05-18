@@ -23,38 +23,39 @@
  *
  */
 
-package elf4j.engine.service;
+package elf4j.engine.service.util;
+
+import conseq4j.util.MoreRejectedExecutionHandlers;
+
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
  */
-public interface Stoppable {
-    /**
-     *
-     */
-    void stop();
-
-    /**
-     * @return true if the instance has stopped
-     */
-    boolean isStopped();
-
-    /**
-     *
-     */
-    interface Intake extends Stoppable {
+public class MoreExecutors {
+    private MoreExecutors() {
     }
 
     /**
-     *
+     * @return single thread executor with unlimited work queue capacity and blocking retry execution rejection handling
+     *         policy
      */
-    interface Output extends Stoppable {
-
+    public static ThreadPoolExecutor newSingleThreadBlockingRetryExecutor() {
+        return newSingleThreadBlockingRetryExecutor(Integer.MAX_VALUE);
     }
 
     /**
-     *
+     * @return single thread executor with specified work queue capacity and blocking retry execution rejection handling
+     *         policy
      */
-    interface Process extends Stoppable {
+    public static ThreadPoolExecutor newSingleThreadBlockingRetryExecutor(int workQueueCapacity) {
+        return new ThreadPoolExecutor(1,
+                1,
+                0,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(workQueueCapacity),
+                MoreRejectedExecutionHandlers.blockingRetryPolicy());
     }
 }
