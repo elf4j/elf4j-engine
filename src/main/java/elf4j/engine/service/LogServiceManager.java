@@ -75,7 +75,9 @@ public enum LogServiceManager {
      * reloads properties source for each refreshable
      */
     public void refresh() {
+        IeLogger.INFO.log("Refreshing elf4j service by reloading properties...");
         refreshables.forEach(Refreshable::refresh);
+        IeLogger.INFO.log("Refreshed elf4j service by reloading properties");
     }
 
     /**
@@ -84,7 +86,9 @@ public enum LogServiceManager {
      *         original properties source; otherwise, reloads the original properties source for each refreshable.
      */
     public void refresh(Properties properties) {
+        IeLogger.INFO.log("Refreshing elf4j service with given properties: {}...", properties);
         refreshables.forEach(refreshable -> refreshable.refresh(properties));
+        IeLogger.INFO.log("Refreshed elf4j service with given properties: {}", properties);
     }
 
     /**
