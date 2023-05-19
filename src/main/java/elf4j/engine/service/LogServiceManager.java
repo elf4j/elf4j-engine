@@ -26,6 +26,7 @@
 package elf4j.engine.service;
 
 import elf4j.engine.service.configuration.Refreshable;
+import elf4j.util.IeLogger;
 import lombok.NonNull;
 import org.awaitility.Awaitility;
 import org.awaitility.Durations;
@@ -90,7 +91,9 @@ public enum LogServiceManager {
      *
      */
     public void stop() {
+        IeLogger.INFO.log("Stopping elf4j service...");
         ORDERED_STOPPABLE_TYPES.forEach(this::awaitStop);
+        IeLogger.INFO.log("Stopped elf4j service");
     }
 
     /**
