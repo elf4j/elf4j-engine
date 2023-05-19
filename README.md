@@ -15,7 +15,7 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
 * It is also a log engine for the Java Platform Logging ([JPL](https://openjdk.org/jeps/264)) API introduced since Java
   9, as in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
 
-## Getting Started...
+## Getting started...
 
 1. Install
 
@@ -130,7 +130,7 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
 
    The JSON pattern can be configured to pretty-print format, and/or mixed with other patterns.
 
-## Features, Usage, and Configuration Details
+## Features, usage, and configuration details
 
 For using ELF4J as a logging facade API, see
 ELF4J's [API description](https://github.com/elf4j/elf4j#log-service-interface-and-access-api)
@@ -140,7 +140,7 @@ For details of using this as a runtime log engine, see [elf4j-provider](https://
 for [features](https://github.com/elf4j/elf4j-provider#features)
 and [configuration](https://github.com/elf4j/elf4j-provider#configuration).
 
-## ["The Performance Talk"](https://github.com/elf4j/elf4j-provider#performance)
+## ["The performance talk"](https://github.com/elf4j/elf4j-provider#performance)
 
 It's not how fast you fill up the target log file or repository, it's how fast you relieve the application from logging
 duty back to its own business.
