@@ -145,6 +145,7 @@ public class ConseqWriterGroup implements LogWriter, Stoppable.Process {
 
     @Override
     public void stop() {
+        IeLogger.INFO.log("Stopping: {}", this);
         conseqExecutor.shutdown();
     }
 

@@ -28,17 +28,17 @@ package elf4j.engine.service.util;
 import elf4j.util.IeLogger;
 import lombok.NonNull;
 import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionFactory;
 
 import java.time.Duration;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
  */
 public class MoreAwaitility {
+
+    private static final ConditionFactory await = Awaitility.await().forever();
+
     private MoreAwaitility() {
     }
 
@@ -60,10 +60,6 @@ public class MoreAwaitility {
         if (message != null) {
             IeLogger.INFO.log("{}, suspending current {} for {}", message, Thread.currentThread(), duration);
         }
-        AtomicBoolean resume = new AtomicBoolean(false);
-        ScheduledExecutorService delayer = Executors.newSingleThreadScheduledExecutor();
-        delayer.schedule(() -> resume.set(true), duration.toMillis(), TimeUnit.MILLISECONDS);
-        delayer.shutdown();
-        Awaitility.with().pollInterval(duration.dividedBy(10)).await().untilTrue(resume);
+        await.with().pollDelay(duration).until(() -> true);
     }
 }

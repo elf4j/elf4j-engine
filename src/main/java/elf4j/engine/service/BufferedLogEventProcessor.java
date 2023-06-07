@@ -77,6 +77,7 @@ public class BufferedLogEventProcessor implements LogEventProcessor {
 
     @Override
     public void stop() {
+        IeLogger.INFO.log("Stopping: {}", this);
         this.bufferedExecutor.shutdown();
     }
 

@@ -29,7 +29,6 @@ import elf4j.engine.service.configuration.Refreshable;
 import elf4j.util.IeLogger;
 import lombok.NonNull;
 import org.awaitility.Awaitility;
-import org.awaitility.Durations;
 import org.awaitility.core.ConditionFactory;
 
 import java.util.*;
@@ -49,7 +48,7 @@ public enum LogServiceManager {
 
     private final Set<Refreshable> refreshables = new HashSet<>();
     private final Set<Stoppable> stoppables = new HashSet<>();
-    private final ConditionFactory await = Awaitility.with().timeout(Durations.FOREVER);
+    private final ConditionFactory await = Awaitility.await().forever();
 
     private static boolean allStopped(@NonNull Collection<Stoppable> stoppables) {
         return stoppables.stream().allMatch(Stoppable::isStopped);
