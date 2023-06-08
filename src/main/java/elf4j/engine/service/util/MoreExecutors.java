@@ -47,6 +47,8 @@ public class MoreExecutors {
     }
 
     /**
+     * @param workQueueCapacity
+     *         max size of work queue
      * @return single thread executor with specified work queue capacity and blocking retry execution rejection handling
      *         policy
      */
