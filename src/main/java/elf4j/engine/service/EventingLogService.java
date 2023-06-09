@@ -31,20 +31,20 @@ import elf4j.engine.service.configuration.RefreshableLogServiceConfiguration;
 import lombok.NonNull;
 
 /**
- *
+ * converts a log request into an event for async processing
  */
-public class DispatchingLogService implements LogService {
+public class EventingLogService implements LogService {
 
     private final LogServiceConfiguration logServiceConfiguration;
 
     /**
      *
      */
-    public DispatchingLogService() {
+    public EventingLogService() {
         this(new RefreshableLogServiceConfiguration());
     }
 
-    DispatchingLogService(LogServiceConfiguration logServiceConfiguration) {
+    EventingLogService(LogServiceConfiguration logServiceConfiguration) {
         this.logServiceConfiguration = logServiceConfiguration;
     }
 

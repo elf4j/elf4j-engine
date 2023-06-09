@@ -27,7 +27,7 @@ package elf4j.engine;
 
 import elf4j.Level;
 import elf4j.Logger;
-import elf4j.engine.service.DispatchingLogService;
+import elf4j.engine.service.EventingLogService;
 import elf4j.engine.service.LogService;
 import elf4j.engine.service.util.StackTraceUtils;
 import elf4j.spi.LoggerFactory;
@@ -77,7 +77,7 @@ public class NativeLoggerFactory implements LoggerFactory {
      *         the class or interface that the API client application calls first to a logger instance
      */
     public NativeLoggerFactory(@NonNull Class<?> serviceAccessClass) {
-        this(DEFAULT_LOGGER_SEVERITY_LEVEL, serviceAccessClass, new DispatchingLogService());
+        this(DEFAULT_LOGGER_SEVERITY_LEVEL, serviceAccessClass, new EventingLogService());
     }
 
     NativeLoggerFactory(@NonNull Level defaultLoggerLevel,

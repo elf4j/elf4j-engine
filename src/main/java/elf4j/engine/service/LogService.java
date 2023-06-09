@@ -44,11 +44,11 @@ public interface LogService extends PerformanceSensitive {
      *         the serviced logger
      * @param serviceInterfaceClass
      *         The concrete logging service (logger) implementation class that the client calls directly at runtime to
-     *         issue the log. For the native ELF4J service implementation, this is always the {@link NativeLogger}
-     *         class; may be a different class if this core library is used to service other logging API. The real-time
-     *         caller of this class, therefore, is the logging service's "caller class" whose details, such as method
-     *         and line number, may need to be resolved by walking the runtime calling stack trace if such details are
-     *         required per configuration.
+     *         make log requests. For the native ELF4J service implementation, this is always the {@link NativeLogger}
+     *         class; may be a different class if this core library is used to service other logging API. i.e. the
+     *         real-time caller of this class is the logging service's "caller class" whose details (such as method and
+     *         line number) if required by configuration, may need to be resolved by walking the runtime calling stack
+     *         trace.
      * @param throwable
      *         to log
      * @param message

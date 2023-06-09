@@ -48,7 +48,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
-class DispatchingLogServiceTest {
+class EventingLogServiceTest {
     static class StubLogEventProcessor implements LogEventProcessor {
         final LogWriter logWriter;
 
@@ -75,14 +75,14 @@ class DispatchingLogServiceTest {
     @Nested
     class isEnabled {
         NativeLogger stubLogger;
-        DispatchingLogService logService;
+        EventingLogService logService;
         @Mock LogServiceConfiguration mockLogServiceConfiguration;
 
         @Mock NativeLoggerFactory mockNativeLoggerFactory;
 
         @Test
         void delegateToConfiguration() {
-            logService = new DispatchingLogService(mockLogServiceConfiguration);
+            logService = new EventingLogService(mockLogServiceConfiguration);
             stubLogger = new NativeLogger(this.getClass().getName(), Level.TRACE, mockNativeLoggerFactory);
 
             logService.isEnabled(stubLogger);
@@ -94,7 +94,7 @@ class DispatchingLogServiceTest {
     @Nested
     class log {
         NativeLogger stubLogger;
-        DispatchingLogService logService;
+        EventingLogService logService;
         @Mock LogServiceConfiguration mockLogServiceConfiguration;
         @Mock LogWriter mockLogWriter;
         @Captor ArgumentCaptor<LogEvent> captorLogEntry;
@@ -109,7 +109,7 @@ class DispatchingLogServiceTest {
 
         @Test
         void callWriter() {
-            logService = new DispatchingLogService(mockLogServiceConfiguration);
+            logService = new EventingLogService(mockLogServiceConfiguration);
             stubLogger = new NativeLogger(this.getClass().getName(), Level.TRACE, mockNativeLoggerFactory);
             given(mockLogServiceConfiguration.isEnabled(any(NativeLogger.class))).willReturn(true);
             given(mockLogServiceConfiguration.getLogServiceWriter()).willReturn(mockLogWriter);
@@ -122,7 +122,7 @@ class DispatchingLogServiceTest {
 
         @Test
         void callThreadRequired() {
-            logService = new DispatchingLogService(mockLogServiceConfiguration);
+            logService = new EventingLogService(mockLogServiceConfiguration);
             stubLogger = new NativeLogger(this.getClass().getName(), Level.TRACE, mockNativeLoggerFactory);
             given(mockLogServiceConfiguration.isEnabled(any(NativeLogger.class))).willReturn(true);
             given(mockLogServiceConfiguration.getLogServiceWriter()).willReturn(mockLogWriter);
@@ -138,7 +138,7 @@ class DispatchingLogServiceTest {
 
         @Test
         void callerDetailRequired() {
-            logService = new DispatchingLogService(mockLogServiceConfiguration);
+            logService = new EventingLogService(mockLogServiceConfiguration);
             stubLogger = new NativeLogger(this.getClass().getName(), Level.TRACE, mockNativeLoggerFactory);
             given(mockLogServiceConfiguration.isEnabled(any(NativeLogger.class))).willReturn(true);
             given(mockLogServiceConfiguration.getLogServiceWriter()).willReturn(mockLogWriter);
@@ -153,7 +153,7 @@ class DispatchingLogServiceTest {
 
         @Test
         void callDetailNotRequired() {
-            logService = new DispatchingLogService(mockLogServiceConfiguration);
+            logService = new EventingLogService(mockLogServiceConfiguration);
             stubLogger = new NativeLogger(this.getClass().getName(), Level.TRACE, mockNativeLoggerFactory);
             given(mockLogServiceConfiguration.isEnabled(any(NativeLogger.class))).willReturn(true);
             given(mockLogWriter.includeCallerDetail()).willReturn(false);
@@ -168,7 +168,7 @@ class DispatchingLogServiceTest {
 
         @Test
         void onlyLogWhenEnabled() {
-            logService = new DispatchingLogService(mockLogServiceConfiguration);
+            logService = new EventingLogService(mockLogServiceConfiguration);
             stubLogger = new NativeLogger(this.getClass().getName(), Level.TRACE, mockNativeLoggerFactory);
             given(mockLogServiceConfiguration.isEnabled(any(NativeLogger.class))).willReturn(false);
 
