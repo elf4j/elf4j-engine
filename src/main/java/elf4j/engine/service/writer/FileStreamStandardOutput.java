@@ -25,12 +25,17 @@
 
 package elf4j.engine.service.writer;
 
+import elf4j.engine.service.LogServiceManager;
+import elf4j.engine.service.Stoppable;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
+import elf4j.util.IeLogger;
 import lombok.NonNull;
 import lombok.ToString;
 
 import java.io.*;
 import java.util.Properties;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
@@ -39,7 +44,7 @@ import java.util.Properties;
 public class FileStreamStandardOutput implements StandardOutput {
     private static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
     @NonNull private final OutStreamType outStreamType;
-    private final StandardFileOutputStreams standardFileOutputStreams = new StandardFileOutputStreams();
+    private final StandardOutputStreams standardOutputStreams = new StandardOutputStreams();
 
     /**
      * @param outStreamType
@@ -65,9 +70,9 @@ public class FileStreamStandardOutput implements StandardOutput {
     @Override
     public void write(byte[] bytes) {
         if (this.outStreamType == OutStreamType.STDERR) {
-            standardFileOutputStreams.writeErr(bytes);
+            standardOutputStreams.err(bytes);
         } else {
-            standardFileOutputStreams.writeOut(bytes);
+            standardOutputStreams.out(bytes);
         }
     }
 
@@ -76,38 +81,64 @@ public class FileStreamStandardOutput implements StandardOutput {
         STDERR
     }
 
-    static class StandardFileOutputStreams {
-        final OutputStream stdoutFos = new FileOutputStream(FileDescriptor.out);
-        final OutputStream stderrFos = new FileOutputStream(FileDescriptor.err);
+    static class StandardOutputStreams implements Stoppable.Output {
+        final OutputStream stdout = new BufferedOutputStream(new FileOutputStream(FileDescriptor.out));
+        final OutputStream stderr = new BufferedOutputStream(new FileOutputStream(FileDescriptor.err));
 
-        StandardFileOutputStreams() {
+        final Lock lock = new ReentrantLock();
+        boolean stopped;
+
+        StandardOutputStreams() {
+            LogServiceManager.INSTANCE.registerStop(this);
         }
 
-        void writeErr(byte[] bytes) {
-            doErr(bytes);
-        }
-
-        void writeOut(byte[] bytes) {
-            doOut(bytes);
-        }
-
-        private void doErr(byte[] bytes) {
-            synchronized (System.err) {
-                try {
-                    stderrFos.write(bytes);
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
+        @Override
+        public void stop() {
+            IeLogger.INFO.log("Stopping {}", this);
+            try (AutoCloseable out = stdout; AutoCloseable err = stderr) {
+                this.stopped = true;
+            } catch (Exception e) {
+                IeLogger.WARN.log(e, "Error closing {} or {}", stdout, stderr);
+                throw new IllegalStateException(e);
             }
         }
 
-        private void doOut(byte[] bytes) {
-            synchronized (System.out) {
-                try {
-                    stdoutFos.write(bytes);
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
+        @Override
+        public boolean isStopped() {
+            return this.stopped;
+        }
+
+        void err(byte[] bytes) {
+            lock.lock();
+            try {
+                writeErr(bytes);
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        void out(byte[] bytes) {
+            lock.lock();
+            try {
+                writeOut(bytes);
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        private void writeErr(byte[] bytes) {
+            try {
+                stderr.write(bytes);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
+        private void writeOut(byte[] bytes) {
+            try {
+                stdout.write(bytes);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
         }
     }
