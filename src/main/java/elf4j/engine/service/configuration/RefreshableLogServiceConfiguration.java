@@ -125,7 +125,7 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
         }
         this.callerLevels = CallerLevels.from(properties);
         this.loggerEnablementCache = new ConcurrentHashMap<>();
-        this.standardOutput = FileStreamStandardOutput.from(this);
+        this.standardOutput = new FileStreamStandardOutput();
         this.logServiceWriter = ConseqWriterGroup.from(this);
         this.logEventProcessor = BufferedLogEventProcessor.from(this);
     }

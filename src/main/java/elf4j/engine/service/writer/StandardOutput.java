@@ -25,13 +25,22 @@
 
 package elf4j.engine.service.writer;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  *
  */
+@ThreadSafe
 public interface StandardOutput {
     /**
      * @param bytes
      *         to be written to the out stream
      */
-    void write(byte[] bytes);
+    void out(byte[] bytes);
+
+    /**
+     * @param bytes
+     *         to be written to the out stream
+     */
+    void err(byte[] bytes);
 }

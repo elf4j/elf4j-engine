@@ -27,13 +27,10 @@ package elf4j.engine.service.writer;
 
 import elf4j.engine.service.LogServiceManager;
 import elf4j.engine.service.Stoppable;
-import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.util.IeLogger;
-import lombok.NonNull;
 import lombok.ToString;
 
 import java.io.*;
-import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -41,105 +38,67 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  */
 @ToString
-public class FileStreamStandardOutput implements StandardOutput {
-    private static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
-    @NonNull private final OutStreamType outStreamType;
-    private final StandardOutputStreams standardOutputStreams = new StandardOutputStreams();
+public class FileStreamStandardOutput implements StandardOutput, Stoppable.Output {
+    private final OutputStream stdout = new BufferedOutputStream(new FileOutputStream(FileDescriptor.out));
+    private final OutputStream stderr = new BufferedOutputStream(new FileOutputStream(FileDescriptor.err));
+    private final Lock lock = new ReentrantLock();
+    private boolean stopped;
 
     /**
-     * @param outStreamType
-     *         standard out stream type, stdout or stderr, default to stdout
+     *
      */
-    private FileStreamStandardOutput(@NonNull OutStreamType outStreamType) {
-        this.outStreamType = outStreamType;
-    }
-
-    /**
-     * @param logServiceConfiguration
-     *         entire service configuration @return the {@link FileStreamStandardOutput} per the specified
-     *         configuration
-     * @return parsed output per specified configuration
-     */
-    public static @NonNull FileStreamStandardOutput from(@NonNull LogServiceConfiguration logServiceConfiguration) {
-        Properties properties = logServiceConfiguration.getProperties();
-        String stream = properties.getProperty("stream");
-        return new FileStreamStandardOutput(
-                stream == null ? DEFAULT_OUT_STREAM_TYPE : OutStreamType.valueOf(stream.toUpperCase()));
+    public FileStreamStandardOutput() {
+        LogServiceManager.INSTANCE.registerStop(this);
     }
 
     @Override
-    public void write(byte[] bytes) {
-        if (this.outStreamType == OutStreamType.STDERR) {
-            standardOutputStreams.err(bytes);
-        } else {
-            standardOutputStreams.out(bytes);
+    public void out(byte[] bytes) {
+        lock.lock();
+        try {
+            writeOut(bytes);
+        } finally {
+            lock.unlock();
         }
     }
 
-    enum OutStreamType {
-        STDOUT,
-        STDERR
+    @Override
+    public void err(byte[] bytes) {
+        lock.lock();
+        try {
+            writeErr(bytes);
+        } finally {
+            lock.unlock();
+        }
     }
 
-    static class StandardOutputStreams implements Stoppable.Output {
-        final OutputStream stdout = new BufferedOutputStream(new FileOutputStream(FileDescriptor.out));
-        final OutputStream stderr = new BufferedOutputStream(new FileOutputStream(FileDescriptor.err));
-
-        final Lock lock = new ReentrantLock();
-        boolean stopped;
-
-        StandardOutputStreams() {
-            LogServiceManager.INSTANCE.registerStop(this);
+    @Override
+    public void stop() {
+        IeLogger.INFO.log("Stopping {}", this);
+        try (AutoCloseable out = stdout; AutoCloseable err = stderr) {
+            stopped = true;
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
+    }
 
-        @Override
-        public void stop() {
-            IeLogger.INFO.log("Stopping {}", this);
-            try (AutoCloseable out = stdout; AutoCloseable err = stderr) {
-                this.stopped = true;
-            } catch (Exception e) {
-                IeLogger.WARN.log(e, "Error closing {} or {}", stdout, stderr);
-                throw new IllegalStateException(e);
-            }
+    @Override
+    public boolean isStopped() {
+        return stopped;
+    }
+
+    private void writeErr(byte[] bytes) {
+        try {
+            stderr.write(bytes);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
+    }
 
-        @Override
-        public boolean isStopped() {
-            return this.stopped;
-        }
-
-        void err(byte[] bytes) {
-            lock.lock();
-            try {
-                writeErr(bytes);
-            } finally {
-                lock.unlock();
-            }
-        }
-
-        void out(byte[] bytes) {
-            lock.lock();
-            try {
-                writeOut(bytes);
-            } finally {
-                lock.unlock();
-            }
-        }
-
-        private void writeErr(byte[] bytes) {
-            try {
-                stderr.write(bytes);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-
-        private void writeOut(byte[] bytes) {
-            try {
-                stdout.write(bytes);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+    private void writeOut(byte[] bytes) {
+        try {
+            stdout.write(bytes);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 }

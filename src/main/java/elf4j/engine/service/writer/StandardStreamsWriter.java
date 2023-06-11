@@ -36,7 +36,7 @@ import lombok.NonNull;
 import lombok.ToString;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -50,10 +50,11 @@ import java.util.stream.Collectors;
 public class StandardStreamsWriter implements LogWriter {
     private static final String DEFAULT_MINIMUM_LEVEL = "trace";
     private static final String DEFAULT_PATTERN = "{timestamp} {level} {class} - {message}";
-    private static final String DEFAULT_WRITER_OUT_STREAM = "stdout";
+    private static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
     private static final String LINE_FEED = System.lineSeparator();
     private final Level minimumLevel;
     private final LogPattern logPattern;
+    private final OutStreamType outStreamType;
     private final StandardOutput standardOutput;
 
     @Override
@@ -68,7 +69,12 @@ public class StandardStreamsWriter implements LogWriter {
         }
         StringBuilder target = new StringBuilder();
         logPattern.render(logEvent, target);
-        standardOutput.write(target.append(LINE_FEED).toString().getBytes(StandardCharsets.UTF_8));
+        byte[] bytes = target.append(LINE_FEED).toString().getBytes(StandardCharsets.UTF_8);
+        if (outStreamType == OutStreamType.STDERR) {
+            standardOutput.err(bytes);
+        } else {
+            standardOutput.out(bytes);
+        }
     }
 
     @Override
@@ -79,6 +85,11 @@ public class StandardStreamsWriter implements LogWriter {
     @Override
     public boolean includeCallerThread() {
         return logPattern.includeCallerThread();
+    }
+
+    enum OutStreamType {
+        STDOUT,
+        STDERR
     }
 
     /**
@@ -92,6 +103,7 @@ public class StandardStreamsWriter implements LogWriter {
                             .trim()
                             .toUpperCase()))
                     .logPattern(PatternGroup.from(properties.getProperty("pattern", DEFAULT_PATTERN)))
+                    .outStreamType(DEFAULT_OUT_STREAM_TYPE)
                     .standardOutput(logServiceConfiguration.getStandardOutput())
                     .build();
         }
@@ -105,16 +117,16 @@ public class StandardStreamsWriter implements LogWriter {
 
         @Override
         public List<LogWriter> getLogWriters(LogServiceConfiguration logServiceConfiguration) {
-            List<LogWriter> standardStreamsWriters = new ArrayList<>();
             Properties properties = logServiceConfiguration.getProperties();
             List<Map<String, String>> writerConfigurations =
                     PropertiesUtils.getPropertiesGroupOfType("standard", logServiceConfiguration.getProperties());
             if (writerConfigurations.isEmpty()) {
-                standardStreamsWriters.add(getDefaultWriter(logServiceConfiguration));
-                return standardStreamsWriters;
+                return Collections.singletonList(getDefaultWriter(logServiceConfiguration));
             }
             return writerConfigurations.stream()
                     .map(writerConfiguration -> StandardStreamsWriter.builder()
+                            .outStreamType(OutStreamType.valueOf(properties.getProperty("stream",
+                                    DEFAULT_OUT_STREAM_TYPE.name()).toUpperCase()))
                             .minimumLevel(Level.valueOf(getWriterConfigurationValueOrDefault("level",
                                     writerConfiguration,
                                     properties,
