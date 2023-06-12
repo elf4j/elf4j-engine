@@ -74,10 +74,10 @@ public class FileStreamStandardOutput implements StandardOutput, Stoppable.Outpu
     @Override
     public void stop() {
         IeLogger.INFO.log("Stopping {}", this);
-        try (AutoCloseable out = stdout; AutoCloseable err = stderr) {
+        try (Closeable stopTarget1 = stdout; Closeable stopTarget2 = stderr) {
             stopped = true;
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
