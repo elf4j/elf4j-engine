@@ -55,7 +55,9 @@ public class FileStreamStandardOutput implements StandardOutput, Stoppable.Outpu
     public void out(byte[] bytes) {
         lock.lock();
         try {
-            writeOut(bytes);
+            stdout.write(bytes);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         } finally {
             lock.unlock();
         }
@@ -65,7 +67,9 @@ public class FileStreamStandardOutput implements StandardOutput, Stoppable.Outpu
     public void err(byte[] bytes) {
         lock.lock();
         try {
-            writeErr(bytes);
+            stderr.write(bytes);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         } finally {
             lock.unlock();
         }
@@ -84,21 +88,5 @@ public class FileStreamStandardOutput implements StandardOutput, Stoppable.Outpu
     @Override
     public boolean isStopped() {
         return stopped;
-    }
-
-    private void writeErr(byte[] bytes) {
-        try {
-            stderr.write(bytes);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private void writeOut(byte[] bytes) {
-        try {
-            stdout.write(bytes);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 }
