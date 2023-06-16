@@ -25,9 +25,6 @@
 
 package elf4j.engine.service.writer;
 
-import elf4j.engine.service.LogServiceManager;
-import elf4j.engine.service.Stoppable;
-import elf4j.util.IeLogger;
 import lombok.ToString;
 
 import java.io.*;
@@ -38,18 +35,10 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  */
 @ToString
-public class FileStreamStandardOutput implements StandardOutput, Stoppable.Output {
-    private final OutputStream stdout = new BufferedOutputStream(new FileOutputStream(FileDescriptor.out));
-    private final OutputStream stderr = new BufferedOutputStream(new FileOutputStream(FileDescriptor.err));
+public class FileStreamStandardOutput implements StandardOutput {
+    private final OutputStream stdout = new FileOutputStream(FileDescriptor.out);
+    private final OutputStream stderr = new FileOutputStream(FileDescriptor.err);
     private final Lock lock = new ReentrantLock();
-    private boolean stopped;
-
-    /**
-     *
-     */
-    public FileStreamStandardOutput() {
-        LogServiceManager.INSTANCE.registerStop(this);
-    }
 
     @Override
     public void out(byte[] bytes) {
@@ -73,20 +62,5 @@ public class FileStreamStandardOutput implements StandardOutput, Stoppable.Outpu
         } finally {
             lock.unlock();
         }
-    }
-
-    @Override
-    public void stop() {
-        IeLogger.INFO.log("Stopping {}", this);
-        try (Closeable stopTarget1 = stdout; Closeable stopTarget2 = stderr) {
-            stopped = true;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
-    public boolean isStopped() {
-        return stopped;
     }
 }
