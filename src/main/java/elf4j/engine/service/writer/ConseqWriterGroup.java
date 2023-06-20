@@ -25,8 +25,8 @@
 
 package elf4j.engine.service.writer;
 
+import coco4j.MoreRejectedExecutionHandlers;
 import conseq4j.execute.ConseqExecutor;
-import conseq4j.util.MoreRejectedExecutionHandlers;
 import elf4j.Level;
 import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.LogServiceManager;
@@ -81,7 +81,7 @@ public class ConseqWriterGroup implements LogWriter, Stoppable.Process {
         Properties properties = logServiceConfiguration.getProperties();
         return new ConseqWriterGroup(logWriters,
                 new ConseqExecutor.Builder().concurrency(getConcurrency(properties))
-                        .rejectedExecutionHandler(MoreRejectedExecutionHandlers.blockingRetryPolicy())
+                        .rejectedExecutionHandler(MoreRejectedExecutionHandlers.blockingResubmitPolicy())
                         .build());
     }
 

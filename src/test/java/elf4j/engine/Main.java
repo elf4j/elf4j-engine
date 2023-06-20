@@ -25,9 +25,9 @@
 
 package elf4j.engine;
 
+import coco4j.MoreAwaitilities;
 import elf4j.Logger;
 import elf4j.engine.service.LogServiceManager;
-import elf4j.engine.service.util.MoreAwaitility;
 
 import java.time.Duration;
 import java.util.function.Supplier;
@@ -58,7 +58,7 @@ public class Main {
                 .atDebug()
                 .log("Not a practical example but now the severity level is DEBUG");
 
-        MoreAwaitility.suspend(Duration.ofMillis(200), "Making sure console streams show up");
+        MoreAwaitilities.suspend(Duration.ofMillis(200));
         LogServiceManager.INSTANCE.stop();
     }
 }

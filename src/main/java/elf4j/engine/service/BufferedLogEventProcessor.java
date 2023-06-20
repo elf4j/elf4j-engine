@@ -25,8 +25,8 @@
 
 package elf4j.engine.service;
 
+import coco4j.MoreExecutors;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
-import elf4j.engine.service.util.MoreExecutors;
 import elf4j.engine.service.util.PropertiesUtils;
 import elf4j.engine.service.writer.LogWriter;
 import elf4j.util.IeLogger;
@@ -57,7 +57,7 @@ public class BufferedLogEventProcessor implements LogEventProcessor {
     @NonNull
     public static BufferedLogEventProcessor from(@NonNull LogServiceConfiguration logServiceConfiguration) {
         return new BufferedLogEventProcessor(logServiceConfiguration.getLogServiceWriter(),
-                MoreExecutors.newSingleThreadBlockingRetryExecutor(getWorkQueueCapacity(logServiceConfiguration.getProperties())));
+                MoreExecutors.newSingleThreadBlockingResubmitExecutor(getWorkQueueCapacity(logServiceConfiguration.getProperties())));
     }
 
     private static int getWorkQueueCapacity(Properties properties) {
