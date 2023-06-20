@@ -95,7 +95,7 @@ public class StandardStreamsWriter implements LogWriter {
     /**
      *
      */
-    public static class StandardStreamsWriterType implements LogWriterType {
+    public static class StandardStreamsWriterFactory implements TypedLogWriterFactory {
         private static StandardStreamsWriter getDefaultWriter(@NonNull LogServiceConfiguration logServiceConfiguration) {
             Properties properties = logServiceConfiguration.getProperties();
             return StandardStreamsWriter.builder()

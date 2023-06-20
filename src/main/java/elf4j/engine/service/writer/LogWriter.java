@@ -27,8 +27,10 @@ package elf4j.engine.service.writer;
 
 import elf4j.Level;
 import elf4j.engine.service.LogEvent;
+import elf4j.engine.service.configuration.LogServiceConfiguration;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.List;
 
 /**
  * Implementation should be thread-safe
@@ -46,4 +48,16 @@ public interface LogWriter extends PerformanceSensitive {
      *         the log data entry to write out
      */
     void write(LogEvent logEvent);
+
+    /**
+     *
+     */
+    interface TypedLogWriterFactory {
+        /**
+         * @param logServiceConfiguration
+         *         entire configuration
+         * @return all log writers of the enclosing writer type from the given configuration
+         */
+        List<LogWriter> getLogWriters(LogServiceConfiguration logServiceConfiguration);
+    }
 }

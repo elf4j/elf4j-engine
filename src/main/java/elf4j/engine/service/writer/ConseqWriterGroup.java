@@ -70,11 +70,12 @@ public class ConseqWriterGroup implements LogWriter, Stoppable.Process {
      */
     @NonNull
     public static ConseqWriterGroup from(LogServiceConfiguration logServiceConfiguration) {
-        List<LogWriterType> logWriterTypes = new ArrayList<>(getLogWriterTypes(logServiceConfiguration));
-        if (logWriterTypes.isEmpty()) {
-            logWriterTypes.add(new StandardStreamsWriter.StandardStreamsWriterType());
+        List<TypedLogWriterFactory> typedLogWriterFactories =
+                new ArrayList<>(getTypedLogWriterFactories(logServiceConfiguration));
+        if (typedLogWriterFactories.isEmpty()) {
+            typedLogWriterFactories.add(new StandardStreamsWriter.StandardStreamsWriterFactory());
         }
-        List<LogWriter> logWriters = logWriterTypes.stream()
+        List<LogWriter> logWriters = typedLogWriterFactories.stream()
                 .flatMap(t -> t.getLogWriters(logServiceConfiguration).stream())
                 .collect(Collectors.toList());
         IeLogger.INFO.log("{} service writer(s): {}", logWriters.size(), logWriters);
@@ -95,14 +96,14 @@ public class ConseqWriterGroup implements LogWriter, Stoppable.Process {
         return concurrency;
     }
 
-    private static List<LogWriterType> getLogWriterTypes(LogServiceConfiguration logServiceConfiguration) {
+    private static List<TypedLogWriterFactory> getTypedLogWriterFactories(@NonNull LogServiceConfiguration logServiceConfiguration) {
         String writerTypes = logServiceConfiguration.getProperties().getProperty("writer.types");
         if (writerTypes == null) {
             return Collections.emptyList();
         }
         return Arrays.stream(writerTypes.split(",")).map(String::trim).map(fqcn -> {
             try {
-                return (LogWriterType) Class.forName(fqcn).getDeclaredConstructor().newInstance();
+                return (TypedLogWriterFactory) Class.forName(fqcn).getDeclaredConstructor().newInstance();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                      NoSuchMethodException | ClassNotFoundException e) {
                 throw new IllegalArgumentException(fqcn, e);

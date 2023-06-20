@@ -25,6 +25,7 @@
 
 package elf4j.engine.service.writer;
 
+import lombok.NonNull;
 import lombok.ToString;
 
 import java.io.*;
@@ -40,13 +41,19 @@ public class FileStreamStandardOutput implements StandardOutput {
     private final OutputStream stderr = new FileOutputStream(FileDescriptor.err);
     private final Lock lock = new ReentrantLock();
 
+    private static void write(byte[] bytes, @NonNull OutputStream outputStream) {
+        try {
+            outputStream.write(bytes);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     @Override
     public void out(byte[] bytes) {
         lock.lock();
         try {
-            stdout.write(bytes);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            write(bytes, stdout);
         } finally {
             lock.unlock();
         }
@@ -56,9 +63,7 @@ public class FileStreamStandardOutput implements StandardOutput {
     public void err(byte[] bytes) {
         lock.lock();
         try {
-            stderr.write(bytes);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            write(bytes, stderr);
         } finally {
             lock.unlock();
         }
