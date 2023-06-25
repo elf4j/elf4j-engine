@@ -58,7 +58,7 @@ public class Main {
                 .atDebug()
                 .log("Not a practical example but now the severity level is DEBUG");
 
-        MoreAwaitilities.suspend(Duration.ofMillis(200));
+        MoreAwaitilities.sleepInterruptibly(Duration.ofMillis(200));
         LogServiceManager.INSTANCE.stop();
     }
 }

@@ -39,7 +39,7 @@ class SampleUsageTest {
 
     @AfterEach
     void afterEach() {
-        MoreAwaitilities.suspend(Duration.ofMillis(500));
+        MoreAwaitilities.sleepInterruptibly(Duration.ofMillis(500));
     }
 
     @Nested
