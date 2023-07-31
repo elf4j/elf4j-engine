@@ -77,7 +77,7 @@
         <dependency>
             <groupId>io.github.q3769</groupId>
             <artifactId>conseq4j</artifactId>
-            <version>20230619.0.0</version>
+            <version>20230619.20230729.20230730</version>
         </dependency>
         <dependency>
             <groupId>com.dslplatform</groupId>
