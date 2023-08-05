@@ -25,11 +25,9 @@
 
 package elf4j.engine;
 
-import coco4j.MoreAwaitilities;
 import elf4j.Logger;
 import elf4j.engine.service.LogServiceManager;
 
-import java.time.Duration;
 import java.util.function.Supplier;
 
 public class Main {
@@ -57,8 +55,6 @@ public class Main {
                 .atTrace()
                 .atDebug()
                 .log("Not a practical example but now the severity level is DEBUG");
-
-        MoreAwaitilities.sleepInterruptibly(Duration.ofMillis(200));
-        LogServiceManager.INSTANCE.stop();
+        LogServiceManager.INSTANCE.shutdown();
     }
 }

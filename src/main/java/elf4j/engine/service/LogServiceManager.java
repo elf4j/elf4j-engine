@@ -31,8 +31,9 @@ import lombok.NonNull;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  *
@@ -43,16 +44,9 @@ public enum LogServiceManager {
      */
     INSTANCE;
 
-    private static final List<Class<? extends Stoppable>> ORDERED_STOPPABLE_TYPES =
-            Arrays.asList(Stoppable.Intake.class, Stoppable.Process.class, Stoppable.Output.class);
-
     private final Set<Refreshable> refreshables = new HashSet<>();
     private final Set<Stoppable> stoppables = new HashSet<>();
     private final ConditionFactory await = Awaitility.await().forever();
-
-    private static boolean allStopped(@NonNull Collection<Stoppable> stoppables) {
-        return stoppables.stream().allMatch(Stoppable::isStopped);
-    }
 
     /**
      * @param refreshable
@@ -93,24 +87,21 @@ public enum LogServiceManager {
     /**
      *
      */
-    public void stop() {
-        IeLogger.INFO.log("Stopping elf4j service...");
-        ORDERED_STOPPABLE_TYPES.forEach(this::awaitStop);
-        IeLogger.INFO.log("Stopped elf4j service");
+    public void shutdown() {
+        IeLogger.INFO.log("Start shutting down elf4j service...");
+        IeLogger.INFO.log("Awaiting all log processors to complete...");
+        await.until(() -> stoppables.stream().allMatch(Stoppable::isIdle));
+        IeLogger.INFO.log("All log processors completed");
+        stoppables.forEach(Stoppable::stop);
+        IeLogger.INFO.log("End shutting down elf4j service");
     }
 
     /**
-     * @return a thread that orderly stops the entire log service. As an alternative to calling the {@link #stop()}, the
+     * @return a thread that orderly stops the entire log service. As an alternative to calling {@link #shutdown()}, the
      *         returned thread can be registered as a JVM shutdown hook.
      */
     @NonNull
     public Thread getShutdownHookThread() {
-        return new Thread(this::stop);
-    }
-
-    private void awaitStop(Class<? extends Stoppable> targetType) {
-        List<Stoppable> stopTargets = stoppables.stream().filter(targetType::isInstance).collect(Collectors.toList());
-        stopTargets.stream().parallel().forEach(Stoppable::stop);
-        this.await.until(() -> allStopped(stopTargets));
+        return new Thread(this::shutdown);
     }
 }

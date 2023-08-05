@@ -40,21 +40,7 @@ public interface Stoppable {
     boolean isStopped();
 
     /**
-     *
+     * @return true if, by estimation, no worker/thread is actively executing tasks.
      */
-    interface Intake extends Stoppable {
-    }
-
-    /**
-     *
-     */
-    interface Output extends Stoppable {
-
-    }
-
-    /**
-     *
-     */
-    interface Process extends Stoppable {
-    }
+    boolean isIdle();
 }

@@ -33,7 +33,7 @@ import elf4j.util.IeLogger;
 import lombok.NonNull;
 
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  *
@@ -41,9 +41,9 @@ import java.util.concurrent.ExecutorService;
 public class BufferedLogEventProcessor implements LogEventProcessor {
     private static final int DEFAULT_FRONT_BUFFER_CAPACITY = Integer.MAX_VALUE;
     private final LogWriter logWriter;
-    private final ExecutorService bufferedExecutor;
+    private final ThreadPoolExecutor bufferedExecutor;
 
-    private BufferedLogEventProcessor(LogWriter logWriter, ExecutorService bufferedExecutor) {
+    private BufferedLogEventProcessor(LogWriter logWriter, ThreadPoolExecutor bufferedExecutor) {
         this.logWriter = logWriter;
         this.bufferedExecutor = bufferedExecutor;
         LogServiceManager.INSTANCE.registerStop(this);
@@ -77,12 +77,17 @@ public class BufferedLogEventProcessor implements LogEventProcessor {
 
     @Override
     public void stop() {
-        IeLogger.INFO.log("Stopping: {}", this);
+        IeLogger.INFO.log("Stopping {}", this);
         this.bufferedExecutor.shutdown();
     }
 
     @Override
     public boolean isStopped() {
         return this.bufferedExecutor.isTerminated();
+    }
+
+    @Override
+    public boolean isIdle() {
+        return bufferedExecutor.getActiveCount() == 0;
     }
 }

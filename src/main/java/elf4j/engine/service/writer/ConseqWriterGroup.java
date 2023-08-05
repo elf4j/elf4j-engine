@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  * the orginal thread.
  */
 @ToString
-public class ConseqWriterGroup implements LogWriter, Stoppable.Process {
+public class ConseqWriterGroup implements LogWriter, Stoppable {
     private static final int DEFAULT_CONSEQ_CONCURRENCY = Runtime.getRuntime().availableProcessors();
     private final List<LogWriter> writers;
     private final ConseqExecutor conseqExecutor;
@@ -146,12 +146,17 @@ public class ConseqWriterGroup implements LogWriter, Stoppable.Process {
 
     @Override
     public void stop() {
-        IeLogger.INFO.log("Stopping: {}", this);
+        IeLogger.INFO.log("Stopping {}", this);
         conseqExecutor.shutdown();
     }
 
     @Override
     public boolean isStopped() {
         return conseqExecutor.isTerminated();
+    }
+
+    @Override
+    public boolean isIdle() {
+        return this.conseqExecutor.isIdle();
     }
 }

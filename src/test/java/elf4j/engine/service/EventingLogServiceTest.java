@@ -70,6 +70,11 @@ class EventingLogServiceTest {
         public boolean isStopped() {
             return false;
         }
+
+        @Override
+        public boolean isIdle() {
+            return false;
+        }
     }
 
     @Nested

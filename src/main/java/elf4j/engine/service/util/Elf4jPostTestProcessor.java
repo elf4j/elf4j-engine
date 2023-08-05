@@ -23,26 +23,19 @@
  *
  */
 
-package elf4j.engine;
+package elf4j.engine.service.util;
 
-import elf4j.Logger;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import elf4j.engine.service.LogServiceManager;
+import org.junit.platform.launcher.TestExecutionListener;
+import org.junit.platform.launcher.TestPlan;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+/**
+ *
+ */
+public class Elf4jPostTestProcessor implements TestExecutionListener {
 
-class IntegrationTest {
-    @Nested
-    class defaultLogger {
-        @Test
-        void hey() {
-            Logger logger = Logger.instance();
-
-            logger.atInfo().log("Hello, world!");
-            Exception issue = new Exception("Test ex message");
-            logger.atWarn().log(issue, "Testing issue '{}' in {}", issue, this.getClass());
-
-            assertEquals(this.getClass().getName(), ((NativeLogger) logger).getOwnerClassName());
-        }
+    @Override
+    public void testPlanExecutionFinished(TestPlan testPlan) {
+        LogServiceManager.INSTANCE.shutdown();
     }
 }

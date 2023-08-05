@@ -25,22 +25,14 @@
 
 package elf4j.engine;
 
-import coco4j.MoreAwaitilities;
 import elf4j.Logger;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.function.Supplier;
 
 class SampleUsageTest {
     static Logger logger = Logger.instance();
-
-    @AfterEach
-    void afterEach() {
-        MoreAwaitilities.sleepInterruptibly(Duration.ofMillis(500));
-    }
 
     @Nested
     class plainText {
