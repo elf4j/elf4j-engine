@@ -1,4 +1,4 @@
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.elf4j/elf4j-engine.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.elf4j%22%20AND%20a:%22elf4j-engine%22)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.elf4j/elf4j-engine.svg?label=Maven%20Central)](https://maven-badges.herokuapp.com/maven-central/io.github.elf4j/elf4j-engine)
 
 # elf4j-engine
 
