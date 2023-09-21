@@ -89,10 +89,10 @@ public enum LogServiceManager {
      */
     public void shutdown() {
         IeLogger.INFO.log("Start shutting down elf4j service...");
-        IeLogger.INFO.log("Awaiting all log processors to complete...");
-        await.until(() -> stoppables.stream().allMatch(Stoppable::isIdle));
-        IeLogger.INFO.log("All log processors completed");
         stoppables.forEach(Stoppable::stop);
+        IeLogger.INFO.log("Awaiting all log processors to complete...");
+        await.until(() -> stoppables.stream().allMatch(Stoppable::isStopped));
+        IeLogger.INFO.log("All log processors completed");
         IeLogger.INFO.log("End shutting down elf4j service");
     }
 

@@ -38,9 +38,4 @@ public interface Stoppable {
      * @return true if the instance has stopped
      */
     boolean isStopped();
-
-    /**
-     * @return true if, by estimation, no worker/thread is actively executing tasks.
-     */
-    boolean isIdle();
 }

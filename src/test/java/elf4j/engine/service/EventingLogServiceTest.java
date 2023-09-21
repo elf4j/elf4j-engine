@@ -60,21 +60,6 @@ class EventingLogServiceTest {
         public void process(LogEvent logEvent) {
             logWriter.write(logEvent);
         }
-
-        @Override
-        public void stop() {
-
-        }
-
-        @Override
-        public boolean isStopped() {
-            return false;
-        }
-
-        @Override
-        public boolean isIdle() {
-            return false;
-        }
     }
 
     @Nested

@@ -25,13 +25,32 @@
 
 package elf4j.engine.service;
 
+import elf4j.engine.service.configuration.LogServiceConfiguration;
+import elf4j.engine.service.writer.LogWriter;
+import lombok.NonNull;
+
 /**
  *
  */
-public interface LogEventProcessor {
+public class DelegatingLogEventProcessor implements LogEventProcessor {
+    private final LogWriter logWriter;
+
+    private DelegatingLogEventProcessor(LogWriter logWriter) {
+        this.logWriter = logWriter;
+    }
+
     /**
-     * @param logEvent
-     *         to process
+     * @param logServiceConfiguration
+     *         entire configuration
+     * @return conseq executor
      */
-    void process(LogEvent logEvent);
+    @NonNull
+    public static DelegatingLogEventProcessor from(@NonNull LogServiceConfiguration logServiceConfiguration) {
+        return new DelegatingLogEventProcessor(logServiceConfiguration.getLogServiceWriter());
+    }
+
+    @Override
+    public void process(LogEvent logEvent) {
+        logWriter.write(logEvent);
+    }
 }

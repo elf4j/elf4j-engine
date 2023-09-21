@@ -27,7 +27,7 @@ package elf4j.engine.service.configuration;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
-import elf4j.engine.service.BufferedLogEventProcessor;
+import elf4j.engine.service.DelegatingLogEventProcessor;
 import elf4j.engine.service.LogEventProcessor;
 import elf4j.engine.service.LogServiceManager;
 import elf4j.engine.service.writer.ConseqWriterGroup;
@@ -93,6 +93,7 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
         return this.standardOutput;
     }
 
+    @Override
     public LogEventProcessor getLogEventProcessor() {
         return this.logEventProcessor;
     }
@@ -127,6 +128,6 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
         this.loggerEnablementCache = new ConcurrentHashMap<>();
         this.standardOutput = new FileStreamStandardOutput();
         this.logServiceWriter = ConseqWriterGroup.from(this);
-        this.logEventProcessor = BufferedLogEventProcessor.from(this);
+        this.logEventProcessor = DelegatingLogEventProcessor.from(this);
     }
 }
