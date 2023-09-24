@@ -134,11 +134,6 @@ public class ConseqWriterGroup implements LogWriter, Stoppable {
     @Override
     public void stop() {
         IeLogger.INFO.log("Stopping {}", this);
-        conseqExecutor.shutdown();
-    }
-
-    @Override
-    public boolean isStopped() {
-        return conseqExecutor.isTerminated();
+        conseqExecutor.close();
     }
 }

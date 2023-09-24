@@ -28,8 +28,6 @@ package elf4j.engine.service;
 import elf4j.engine.service.configuration.Refreshable;
 import elf4j.util.IeLogger;
 import lombok.NonNull;
-import org.awaitility.Awaitility;
-import org.awaitility.core.ConditionFactory;
 
 import java.util.HashSet;
 import java.util.Properties;
@@ -46,7 +44,6 @@ public enum LogServiceManager {
 
     private final Set<Refreshable> refreshables = new HashSet<>();
     private final Set<Stoppable> stoppables = new HashSet<>();
-    private final ConditionFactory await = Awaitility.await().forever();
 
     /**
      * @param refreshable
@@ -90,9 +87,6 @@ public enum LogServiceManager {
     public void shutdown() {
         IeLogger.INFO.log("Start shutting down elf4j service...");
         stoppables.forEach(Stoppable::stop);
-        IeLogger.INFO.log("Awaiting all log processors to complete...");
-        await.until(() -> stoppables.stream().allMatch(Stoppable::isStopped));
-        IeLogger.INFO.log("All log processors completed");
         IeLogger.INFO.log("End shutting down elf4j service");
     }
 
