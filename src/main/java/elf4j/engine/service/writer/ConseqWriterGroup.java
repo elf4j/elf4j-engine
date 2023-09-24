@@ -54,7 +54,6 @@ public class ConseqWriterGroup implements LogWriter, Stoppable {
     private final ConseqExecutor conseqExecutor;
     private Level minimumLevel;
     @ToString.Exclude private Boolean includeCallerDetail;
-    @ToString.Exclude private Boolean includeCallerThread;
 
     private ConseqWriterGroup(List<LogWriter> writers, ConseqExecutor conseqExecutor) {
         this.writers = writers;
@@ -130,14 +129,6 @@ public class ConseqWriterGroup implements LogWriter, Stoppable {
             includeCallerDetail = writers.stream().anyMatch(LogWriter::includeCallerDetail);
         }
         return includeCallerDetail;
-    }
-
-    @Override
-    public boolean includeCallerThread() {
-        if (includeCallerThread == null) {
-            includeCallerThread = writers.stream().anyMatch(LogWriter::includeCallerThread);
-        }
-        return includeCallerThread;
     }
 
     @Override

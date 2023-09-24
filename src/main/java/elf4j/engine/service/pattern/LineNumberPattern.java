@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
  *
  */
 @Value
-public class LineNumberPattern implements LogPattern {
+class LineNumberPattern implements LogPattern {
     /**
      * @param patternSegment
      *         text segment to convert
@@ -52,11 +52,6 @@ public class LineNumberPattern implements LogPattern {
     @Override
     public boolean includeCallerDetail() {
         return true;
-    }
-
-    @Override
-    public boolean includeCallerThread() {
-        return false;
     }
 
     @Override

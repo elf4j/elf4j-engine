@@ -38,7 +38,7 @@ import java.time.format.DateTimeFormatter;
  *
  */
 @Value
-public class TimestampPattern implements LogPattern {
+class TimestampPattern implements LogPattern {
     private static final String DEFAULT_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
     private static final ZoneId DISPLAY_TIME_ZONE = ZoneId.systemDefault();
     DateTimeFormatter dateTimeFormatter;
@@ -64,11 +64,6 @@ public class TimestampPattern implements LogPattern {
 
     @Override
     public boolean includeCallerDetail() {
-        return false;
-    }
-
-    @Override
-    public boolean includeCallerThread() {
         return false;
     }
 

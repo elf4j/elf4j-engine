@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
  *
  */
 @Value
-public class ClassPattern implements LogPattern {
+class ClassPattern implements LogPattern {
     private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.SIMPLE;
     @NonNull DisplayOption classDisplayOption;
 
@@ -61,11 +61,6 @@ public class ClassPattern implements LogPattern {
      */
     @Override
     public boolean includeCallerDetail() {
-        return false;
-    }
-
-    @Override
-    public boolean includeCallerThread() {
         return false;
     }
 

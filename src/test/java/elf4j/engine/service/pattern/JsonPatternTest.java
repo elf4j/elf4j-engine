@@ -67,7 +67,6 @@ class JsonPatternTest {
         void noPatternOptionDefaults() {
             JsonPattern jsonPattern = JsonPattern.from("json");
 
-            assertFalse(jsonPattern.includeCallerThread());
             assertFalse(jsonPattern.includeCallerDetail());
         }
 
@@ -75,7 +74,6 @@ class JsonPatternTest {
         void includeCallerOption() {
             JsonPattern jsonPattern = JsonPattern.from("json:caller-detail");
 
-            assertFalse(jsonPattern.includeCallerThread());
             assertTrue(jsonPattern.includeCallerDetail());
         }
 
@@ -83,7 +81,6 @@ class JsonPatternTest {
         void includeThreadOption() {
             JsonPattern jsonPattern = JsonPattern.from("json:caller-thread");
 
-            assertTrue(jsonPattern.includeCallerThread());
             assertFalse(jsonPattern.includeCallerDetail());
         }
 
@@ -91,7 +88,6 @@ class JsonPatternTest {
         void includeCallerAndThreadOptions() {
             JsonPattern jsonPattern = JsonPattern.from("json:caller-thread,caller-detail");
 
-            assertTrue(jsonPattern.includeCallerThread());
             assertTrue(jsonPattern.includeCallerDetail());
         }
     }

@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
  *
  */
 @Value
-public class LevelPattern implements LogPattern {
+class LevelPattern implements LogPattern {
     private static final int UNSPECIFIED = -1;
     int displayLength;
 
@@ -60,11 +60,6 @@ public class LevelPattern implements LogPattern {
 
     @Override
     public boolean includeCallerDetail() {
-        return false;
-    }
-
-    @Override
-    public boolean includeCallerThread() {
         return false;
     }
 

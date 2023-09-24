@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
  *
  */
 @Value
-public class MessageAndExceptionPattern implements LogPattern {
+class MessageAndExceptionPattern implements LogPattern {
     /**
      * @param patternSegment
      *         text segment to convert
@@ -52,11 +52,6 @@ public class MessageAndExceptionPattern implements LogPattern {
 
     @Override
     public boolean includeCallerDetail() {
-        return false;
-    }
-
-    @Override
-    public boolean includeCallerThread() {
         return false;
     }
 

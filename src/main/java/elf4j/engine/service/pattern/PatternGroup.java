@@ -55,11 +55,6 @@ public class PatternGroup implements LogPattern {
     }
 
     @Override
-    public boolean includeCallerThread() {
-        return patterns.stream().anyMatch(LogPattern::includeCallerThread);
-    }
-
-    @Override
     public void render(LogEvent logEvent, StringBuilder target) {
         for (LogPattern pattern : patterns) {
             pattern.render(logEvent, target);

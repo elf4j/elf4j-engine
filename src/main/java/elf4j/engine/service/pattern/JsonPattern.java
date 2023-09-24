@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
  */
 @Value
 @Builder
-public class JsonPattern implements LogPattern {
+class JsonPattern implements LogPattern {
     private static final String UTF_8 = StandardCharsets.UTF_8.toString();
     private static final int JSON_BYTES_INIT_SIZE = 1024;
     private static final String CALLER_DETAIL = "caller-detail";
@@ -95,11 +95,6 @@ public class JsonPattern implements LogPattern {
     @Override
     public boolean includeCallerDetail() {
         return this.includeCallerDetail;
-    }
-
-    @Override
-    public boolean includeCallerThread() {
-        return this.includeCallerThread;
     }
 
     @Override

@@ -35,7 +35,7 @@ import java.util.NoSuchElementException;
  *
  */
 @Value
-public class SystemPropertyPattern implements LogPattern {
+class SystemPropertyPattern implements LogPattern {
     String key;
 
     private SystemPropertyPattern(String key) {
@@ -63,11 +63,6 @@ public class SystemPropertyPattern implements LogPattern {
 
     @Override
     public boolean includeCallerDetail() {
-        return false;
-    }
-
-    @Override
-    public boolean includeCallerThread() {
         return false;
     }
 }

@@ -82,11 +82,6 @@ public class StandardStreamsWriter implements LogWriter {
         return logPattern.includeCallerDetail();
     }
 
-    @Override
-    public boolean includeCallerThread() {
-        return logPattern.includeCallerThread();
-    }
-
     enum OutStreamType {
         STDOUT,
         STDERR

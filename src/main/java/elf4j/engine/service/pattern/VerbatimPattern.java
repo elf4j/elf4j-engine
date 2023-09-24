@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
  *
  */
 @Value
-public class VerbatimPattern implements LogPattern {
+class VerbatimPattern implements LogPattern {
     @NonNull String text;
 
     /**
@@ -56,11 +56,6 @@ public class VerbatimPattern implements LogPattern {
 
     @Override
     public boolean includeCallerDetail() {
-        return false;
-    }
-
-    @Override
-    public boolean includeCallerThread() {
         return false;
     }
 

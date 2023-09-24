@@ -54,11 +54,6 @@ public class EventingLogService implements LogService {
     }
 
     @Override
-    public boolean includeCallerThread() {
-        return this.logServiceConfiguration.getLogServiceWriter().includeCallerThread();
-    }
-
-    @Override
     public boolean isEnabled(NativeLogger nativeLogger) {
         return logServiceConfiguration.isEnabled(nativeLogger);
     }
@@ -85,4 +80,3 @@ public class EventingLogService implements LogService {
         this.logServiceConfiguration.getLogEventProcessor().process(logEventBuilder.build());
     }
 }
-

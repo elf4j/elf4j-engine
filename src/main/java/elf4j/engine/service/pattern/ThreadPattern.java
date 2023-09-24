@@ -36,7 +36,7 @@ import java.util.Objects;
  *
  */
 @Value
-public class ThreadPattern implements LogPattern {
+class ThreadPattern implements LogPattern {
     @NonNull ThreadPattern.DisplayOption threadDisplayOption;
 
     /**
@@ -57,11 +57,6 @@ public class ThreadPattern implements LogPattern {
     @Override
     public boolean includeCallerDetail() {
         return false;
-    }
-
-    @Override
-    public boolean includeCallerThread() {
-        return true;
     }
 
     @Override
