@@ -51,11 +51,9 @@ class MessageAndExceptionPatternTest {
     void beforeEach() {
         mockLogEvent = LogEvent.builder()
                 .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, mockNativeLoggerFactory))
-                .callerThread(LogEvent.ThreadValue.builder()
-                        .name(Thread.currentThread().getName())
-                        .id(Thread.currentThread().getId())
-                        .build())
-                .callerStack(new Throwable().getStackTrace())
+                .callerThread(new LogEvent.ThreadValue(Thread.currentThread().getName(),
+                        Thread.currentThread().getId()))
+                .callerFrame(new StackTraceElement("testClassName", "testMethodName", "testFileName", 42))
                 .message(mockMessage)
                 .arguments(mockArgs)
                 .throwable(mockException)

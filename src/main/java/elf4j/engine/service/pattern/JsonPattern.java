@@ -44,6 +44,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -127,7 +128,8 @@ class JsonPattern implements LogPattern {
                     .callerClass(jsonPattern.includeCallerDetail ? null : logEvent.getCallerClassName())
                     .level(logEvent.getNativeLogger().getLevel().name())
                     .callerThread(jsonPattern.includeCallerThread ? logEvent.getCallerThread() : null)
-                    .callerDetail(jsonPattern.includeCallerDetail ? logEvent.getCallerDetail() : null)
+                    .callerDetail(jsonPattern.includeCallerDetail ?
+                            LogEvent.StackFrameValue.from(Objects.requireNonNull(logEvent.getCallerFrame())) : null)
                     .message(logEvent.getResolvedMessage())
                     .exception(logEvent.getThrowable() == null ? null :
                             StackTraceUtils.getTraceAsBuffer(logEvent.getThrowable()))

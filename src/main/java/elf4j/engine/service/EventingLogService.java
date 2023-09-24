@@ -28,6 +28,7 @@ package elf4j.engine.service;
 import elf4j.engine.NativeLogger;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.configuration.RefreshableLogServiceConfiguration;
+import elf4j.engine.service.util.StackTraceUtils;
 import lombok.NonNull;
 
 /**
@@ -67,16 +68,18 @@ public class EventingLogService implements LogService {
         if (!logServiceConfiguration.isEnabled(nativeLogger)) {
             return;
         }
-        LogEvent.LogEventBuilder logEventBuilder = LogEvent.builder()
-                .nativeLogger(nativeLogger)
-                .throwable(throwable)
-                .message(message)
-                .arguments(arguments);
-        if (this.includeCallerDetail()) {
-            logEventBuilder.callerStack(new Throwable().getStackTrace()).serviceInterfaceClass(serviceInterfaceClass);
-        }
         Thread callerThread = Thread.currentThread();
-        logEventBuilder.callerThread(new LogEvent.ThreadValue(callerThread.getName(), callerThread.getId()));
-        this.logServiceConfiguration.getLogEventProcessor().process(logEventBuilder.build());
+        logServiceConfiguration.getLogEventProcessor()
+                .process(LogEvent.builder()
+                        .callerThread(new LogEvent.ThreadValue(callerThread.getName(), callerThread.getId()))
+                        .nativeLogger(nativeLogger)
+                        .throwable(throwable)
+                        .message(message)
+                        .arguments(arguments)
+                        .serviceInterfaceClass(serviceInterfaceClass)
+                        .callerFrame(this.includeCallerDetail() ?
+                                StackTraceUtils.getCallerFrame(serviceInterfaceClass, new Throwable().getStackTrace()) :
+                                null)
+                        .build());
     }
 }

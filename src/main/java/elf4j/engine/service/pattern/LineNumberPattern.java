@@ -30,6 +30,7 @@ import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 /**
  *
@@ -56,6 +57,6 @@ class LineNumberPattern implements LogPattern {
 
     @Override
     public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
-        target.append(logEvent.getCallerDetail().getLineNumber());
+        target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getLineNumber());
     }
 }

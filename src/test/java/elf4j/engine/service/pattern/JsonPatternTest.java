@@ -49,11 +49,9 @@ class JsonPatternTest {
     void beforeEach() {
         mockLogEvent = LogEvent.builder()
                 .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, mockNativeLoggerFactory))
-                .callerThread(LogEvent.ThreadValue.builder()
-                        .name(Thread.currentThread().getName())
-                        .id(Thread.currentThread().getId())
-                        .build())
-                .callerStack(new Throwable().getStackTrace())
+                .callerThread(new LogEvent.ThreadValue(Thread.currentThread().getName(),
+                        Thread.currentThread().getId()))
+                .callerFrame(new StackTraceElement("testClassName", "testMethodName", "testFileName", 42))
                 .serviceInterfaceClass(this.getClass())
                 .message(mockMessage)
                 .arguments(new Object[] { "testArg1" })

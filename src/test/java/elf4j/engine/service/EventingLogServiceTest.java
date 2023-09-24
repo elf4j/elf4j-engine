@@ -138,7 +138,7 @@ class EventingLogServiceTest {
             logService.log(stubLogger, this.getClass(), null, null, null);
 
             then(mockLogWriter).should().write(captorLogEntry.capture());
-            assertNotNull(captorLogEntry.getValue().getCallerStack());
+            assertNotNull(captorLogEntry.getValue().getCallerFrame());
         }
 
         @Test
@@ -153,7 +153,7 @@ class EventingLogServiceTest {
             logService.log(stubLogger, this.getClass(), null, null, null);
 
             then(mockLogWriter).should().write(captorLogEntry.capture());
-            assertNull(captorLogEntry.getValue().getCallerStack());
+            assertNull(captorLogEntry.getValue().getCallerFrame());
         }
 
         @Test

@@ -26,7 +26,6 @@
 package elf4j.engine.service;
 
 import elf4j.engine.NativeLogger;
-import elf4j.engine.service.util.StackTraceUtils;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -50,7 +49,7 @@ public class LogEvent {
     @Nullable Object[] arguments;
     @Nullable Throwable throwable;
     @Nullable Class<?> serviceInterfaceClass;
-    @Nullable StackTraceElement[] callerStack;
+    @Nullable StackTraceElement callerFrame;
 
     private static @NonNull CharSequence resolve(Object message, Object[] arguments) {
         String suppliedMessage = Objects.toString(supply(message), "");
@@ -83,7 +82,7 @@ public class LogEvent {
      * @return the name of the application client class calling the logging method of this logger instance
      */
     public String getCallerClassName() {
-        return callerStack != null ? getCallerFrame().getClassName() : nativeLogger.getOwnerClassName();
+        return callerFrame != null ? callerFrame.getClassName() : nativeLogger.getOwnerClassName();
     }
 
     /**
@@ -91,24 +90,6 @@ public class LogEvent {
      */
     public CharSequence getResolvedMessage() {
         return resolve(this.message, this.arguments);
-    }
-
-    /**
-     * @return POJO version of caller {@link StackTraceElement}
-     */
-    public StackFrameValue getCallerDetail() {
-        StackTraceElement callerFrame = getCallerFrame();
-        return StackFrameValue.builder()
-                .className(callerFrame.getClassName())
-                .fileName(callerFrame.getFileName())
-                .methodName(callerFrame.getMethodName())
-                .lineNumber(callerFrame.getLineNumber())
-                .build();
-    }
-
-    private StackTraceElement getCallerFrame() {
-        return StackTraceUtils.getCallerFrame(Objects.requireNonNull(this.serviceInterfaceClass),
-                Objects.requireNonNull(this.callerStack));
     }
 
     /**
@@ -121,13 +102,21 @@ public class LogEvent {
         @NonNull String methodName;
         int lineNumber;
         @Nullable String fileName;
+
+        public static StackFrameValue from(StackTraceElement stackTraceElement) {
+            return LogEvent.StackFrameValue.builder()
+                    .fileName(stackTraceElement.getFileName())
+                    .className(stackTraceElement.getClassName())
+                    .methodName(stackTraceElement.getMethodName())
+                    .lineNumber(stackTraceElement.getLineNumber())
+                    .build();
+        }
     }
 
     /**
      *
      */
     @Value
-    @Builder
     public static class ThreadValue {
         @NonNull String name;
         long id;
