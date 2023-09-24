@@ -51,7 +51,10 @@ class JsonPatternTest {
                 .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, mockNativeLoggerFactory))
                 .callerThread(new LogEvent.ThreadValue(Thread.currentThread().getName(),
                         Thread.currentThread().getId()))
-                .callerFrame(new StackTraceElement("testClassName", "testMethodName", "testFileName", 42))
+                .callerFrame(LogEvent.StackFrameValue.from(new StackTraceElement("testClassName",
+                        "testMethodName",
+                        "testFileName",
+                        42)))
                 .serviceInterfaceClass(this.getClass())
                 .message(mockMessage)
                 .arguments(new Object[] { "testArg1" })

@@ -49,7 +49,7 @@ public class LogEvent {
     @Nullable Object[] arguments;
     @Nullable Throwable throwable;
     @Nullable Class<?> serviceInterfaceClass;
-    @Nullable StackTraceElement callerFrame;
+    @Nullable StackFrameValue callerFrame;
 
     private static @NonNull CharSequence resolve(Object message, Object[] arguments) {
         String suppliedMessage = Objects.toString(supply(message), "");

@@ -53,7 +53,10 @@ class MessageAndExceptionPatternTest {
                 .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, mockNativeLoggerFactory))
                 .callerThread(new LogEvent.ThreadValue(Thread.currentThread().getName(),
                         Thread.currentThread().getId()))
-                .callerFrame(new StackTraceElement("testClassName", "testMethodName", "testFileName", 42))
+                .callerFrame(LogEvent.StackFrameValue.from(new StackTraceElement("testClassName",
+                        "testMethodName",
+                        "testFileName",
+                        42)))
                 .message(mockMessage)
                 .arguments(mockArgs)
                 .throwable(mockException)

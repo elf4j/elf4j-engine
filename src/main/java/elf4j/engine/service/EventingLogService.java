@@ -78,8 +78,8 @@ public class EventingLogService implements LogService {
                         .arguments(arguments)
                         .serviceInterfaceClass(serviceInterfaceClass)
                         .callerFrame(this.includeCallerDetail() ?
-                                StackTraceUtils.getCallerFrame(serviceInterfaceClass, new Throwable().getStackTrace()) :
-                                null)
+                                LogEvent.StackFrameValue.from(StackTraceUtils.getCallerFrame(serviceInterfaceClass,
+                                        new Throwable().getStackTrace())) : null)
                         .build());
     }
 }

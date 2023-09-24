@@ -128,8 +128,8 @@ class JsonPattern implements LogPattern {
                     .callerClass(jsonPattern.includeCallerDetail ? null : logEvent.getCallerClassName())
                     .level(logEvent.getNativeLogger().getLevel().name())
                     .callerThread(jsonPattern.includeCallerThread ? logEvent.getCallerThread() : null)
-                    .callerDetail(jsonPattern.includeCallerDetail ?
-                            LogEvent.StackFrameValue.from(Objects.requireNonNull(logEvent.getCallerFrame())) : null)
+                    .callerDetail(
+                            jsonPattern.includeCallerDetail ? Objects.requireNonNull(logEvent.getCallerFrame()) : null)
                     .message(logEvent.getResolvedMessage())
                     .exception(logEvent.getThrowable() == null ? null :
                             StackTraceUtils.getTraceAsBuffer(logEvent.getThrowable()))
