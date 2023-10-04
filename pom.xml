@@ -71,11 +71,6 @@
         </dependency>
         <dependency>
             <groupId>io.github.q3769</groupId>
-            <artifactId>coco4j</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.q3769</groupId>
             <artifactId>conseq4j</artifactId>
             <version>20230922.20230924.20230924</version>
         </dependency>
