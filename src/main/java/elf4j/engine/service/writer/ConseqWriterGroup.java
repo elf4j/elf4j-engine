@@ -71,7 +71,7 @@ public class ConseqWriterGroup implements LogWriter, Stoppable {
         List<TypedLogWriterFactory> typedLogWriterFactories =
                 new ArrayList<>(getTypedLogWriterFactories(logServiceConfiguration));
         if (typedLogWriterFactories.isEmpty()) {
-            typedLogWriterFactories.add(new StandardStreamsWriter.StandardStreamsWriterFactory());
+            typedLogWriterFactories.add(new StandardStreamWriter.Factory());
         }
         List<LogWriter> logWriters = typedLogWriterFactories.stream()
                 .flatMap(t -> t.getLogWriters(logServiceConfiguration).stream())

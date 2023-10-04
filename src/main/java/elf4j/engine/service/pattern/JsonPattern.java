@@ -114,12 +114,12 @@ class JsonPattern implements LogPattern {
     @Builder
     @CompiledJson
     static class JsonLogEntry {
+        CharSequence message;
         OffsetDateTime timestamp;
         String level;
         String callerClass;
         LogEvent.ThreadValue callerThread;
         LogEvent.StackFrameValue callerDetail;
-        CharSequence message;
         CharSequence exception;
 
         static JsonLogEntry from(@NonNull LogEvent logEvent, @NonNull JsonPattern jsonPattern) {

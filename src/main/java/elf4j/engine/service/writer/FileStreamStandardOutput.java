@@ -41,29 +41,22 @@ public class FileStreamStandardOutput implements StandardOutput {
     private final OutputStream stderr = new FileOutputStream(FileDescriptor.err);
     private final Lock lock = new ReentrantLock();
 
-    private static void write(byte[] bytes, @NonNull OutputStream outputStream) {
-        try {
-            outputStream.write(bytes);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     @Override
     public void out(byte[] bytes) {
-        lock.lock();
-        try {
-            write(bytes, stdout);
-        } finally {
-            lock.unlock();
-        }
+        write(bytes, stdout);
     }
 
     @Override
     public void err(byte[] bytes) {
+        write(bytes, stderr);
+    }
+
+    private void write(byte[] bytes, @NonNull OutputStream outputStream) {
         lock.lock();
         try {
-            write(bytes, stderr);
+            outputStream.write(bytes);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         } finally {
             lock.unlock();
         }
