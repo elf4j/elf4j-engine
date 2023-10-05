@@ -58,7 +58,7 @@ public class ConseqWriterGroup implements LogWriter, Stoppable {
     private ConseqWriterGroup(List<LogWriter> writers, ConseqExecutor conseqExecutor) {
         this.writers = writers;
         this.conseqExecutor = conseqExecutor;
-        LogServiceManager.INSTANCE.registerStop(this);
+        LogServiceManager.INSTANCE.register(this);
     }
 
     /**

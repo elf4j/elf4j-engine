@@ -67,7 +67,7 @@ public class RefreshableLogServiceConfiguration implements LogServiceConfigurati
         this.propertiesLoader = propertiesLoader;
         this.properties = this.propertiesLoader.load();
         parse(this.properties);
-        LogServiceManager.INSTANCE.registerRefresh(this);
+        LogServiceManager.INSTANCE.register(this);
     }
 
     @Override

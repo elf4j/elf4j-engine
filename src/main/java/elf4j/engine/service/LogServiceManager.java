@@ -49,7 +49,7 @@ public enum LogServiceManager {
      * @param refreshable
      *         added to be accessible for management
      */
-    public void registerRefresh(Refreshable refreshable) {
+    public void register(Refreshable refreshable) {
         this.refreshables.add(refreshable);
     }
 
@@ -57,7 +57,7 @@ public enum LogServiceManager {
      * @param stoppable
      *         added to be accessible for management
      */
-    public void registerStop(Stoppable stoppable) {
+    public void register(Stoppable stoppable) {
         this.stoppables.add(stoppable);
     }
 
