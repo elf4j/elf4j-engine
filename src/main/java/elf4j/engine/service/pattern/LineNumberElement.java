@@ -29,7 +29,6 @@ import elf4j.engine.service.LogEvent;
 import lombok.NonNull;
 import lombok.Value;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
@@ -37,16 +36,6 @@ import java.util.Objects;
  */
 @Value
 class LineNumberElement implements PatternElement {
-    /**
-     * @param patternSegment
-     *         text segment to convert
-     * @return converted patternSegment object
-     */
-    @Nonnull
-    public static LineNumberElement from(String patternSegment) {
-        return new LineNumberElement();
-    }
-
     @Override
     public boolean includeCallerDetail() {
         return true;

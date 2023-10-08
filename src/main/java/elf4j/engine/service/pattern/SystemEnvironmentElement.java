@@ -51,7 +51,7 @@ class SystemEnvironmentElement implements PatternElement {
      */
     @Nonnull
     public static SystemEnvironmentElement from(String patternSegment) {
-        return new SystemEnvironmentElement(ElementType.getPatternDisplayOption(patternSegment)
+        return new SystemEnvironmentElement(PatternElements.getPatternElementDisplayOption(patternSegment)
                 .orElseThrow(NoSuchElementException::new));
     }
 

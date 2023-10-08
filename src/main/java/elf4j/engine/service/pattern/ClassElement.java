@@ -46,7 +46,7 @@ class ClassElement implements PatternElement {
      */
     @Nonnull
     public static ClassElement from(@NonNull String patternSegment) {
-        return new ClassElement(ElementType.getPatternDisplayOption(patternSegment)
+        return new ClassElement(PatternElements.getPatternElementDisplayOption(patternSegment)
                 .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
                 .orElse(DEFAULT_DISPLAY_OPTION));
     }

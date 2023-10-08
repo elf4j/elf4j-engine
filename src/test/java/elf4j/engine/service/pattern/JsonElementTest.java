@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
-class JsonPatternTest {
+class JsonElementTest {
     @Mock NativeLoggerFactory mockNativeLoggerFactory;
     LogEvent mockLogEvent;
     String mockMessage = "testLogMessage {}";

@@ -50,8 +50,8 @@ class TimestampElement implements PatternElement {
      */
     @Nonnull
     public static TimestampElement from(@NonNull String patternSegment) {
-        return new TimestampElement(DateTimeFormatter.ofPattern(ElementType.getPatternDisplayOption(patternSegment)
-                .orElse(DEFAULT_DATETIME_PATTERN)).withZone(DISPLAY_TIME_ZONE));
+        return new TimestampElement(DateTimeFormatter.ofPattern(PatternElements.getPatternElementDisplayOption(
+                patternSegment).orElse(DEFAULT_DATETIME_PATTERN)).withZone(DISPLAY_TIME_ZONE));
     }
 
     @Override

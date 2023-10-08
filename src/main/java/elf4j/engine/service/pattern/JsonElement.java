@@ -74,7 +74,7 @@ class JsonElement implements PatternElement {
      * @return converted patternSegment object
      */
     public static JsonElement from(@NonNull String patternSegment) {
-        Optional<String> displayOption = ElementType.getPatternDisplayOption(patternSegment);
+        Optional<String> displayOption = PatternElements.getPatternElementDisplayOption(patternSegment);
         if (!displayOption.isPresent()) {
             return JsonElement.builder().build();
         }

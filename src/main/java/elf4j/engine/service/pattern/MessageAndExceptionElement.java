@@ -30,23 +30,11 @@ import elf4j.engine.service.util.StackTraceUtils;
 import lombok.NonNull;
 import lombok.Value;
 
-import javax.annotation.Nonnull;
-
 /**
  *
  */
 @Value
 class MessageAndExceptionElement implements PatternElement {
-    /**
-     * @param patternSegment
-     *         text segment to convert
-     * @return converted patternSegment object
-     */
-    @Nonnull
-    public static MessageAndExceptionElement from(String patternSegment) {
-        return new MessageAndExceptionElement();
-    }
-
     @Override
     public boolean includeCallerDetail() {
         return false;

@@ -29,8 +29,6 @@ import elf4j.engine.service.LogEvent;
 import lombok.NonNull;
 import lombok.Value;
 
-import javax.annotation.Nonnull;
-
 /**
  *
  */
@@ -48,9 +46,8 @@ class LevelElement implements PatternElement {
      *         to convert
      * @return converted patternSegment object
      */
-    @Nonnull
-    public static LevelElement from(@NonNull String patternSegment) {
-        return new LevelElement(ElementType.getPatternDisplayOption(patternSegment)
+    public static @NonNull LevelElement from(@NonNull String patternSegment) {
+        return new LevelElement(PatternElements.getPatternElementDisplayOption(patternSegment)
                 .map(Integer::parseInt)
                 .orElse(UNSPECIFIED));
     }

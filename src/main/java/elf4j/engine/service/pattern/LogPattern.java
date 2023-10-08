@@ -30,6 +30,7 @@ import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,12 +42,42 @@ public class LogPattern implements PatternElement {
 
     /**
      * @param pattern
-     *         entire layout pattern text from configuration
+     *         layout pattern text for entire log entry from configuration
      * @return composite pattern object for the entire final log message output layout
      */
-    @Nonnull
-    public static LogPattern from(@NonNull String pattern) {
-        return new LogPattern(ElementType.parsePattern(pattern));
+    public static @Nonnull LogPattern from(@NonNull String pattern) {
+        if (pattern.trim().isEmpty()) {
+            throw new IllegalArgumentException("Unexpected blank pattern");
+        }
+        List<PatternElement> elements = new ArrayList<>();
+        final int length = pattern.length();
+        int i = 0;
+        while (i < length) {
+            String element;
+            int j;
+            if (pattern.charAt(i) == '{') {
+                j = pattern.indexOf('}', i);
+                if (j != -1) {
+                    element = pattern.substring(i + 1, j);
+                    i = j + 1;
+                } else {
+                    element = pattern.substring(i);
+                    i = length;
+                }
+                elements.add(PatternElements.parsePredefinedPatternELement(element));
+            } else {
+                j = pattern.indexOf('{', i);
+                if (j != -1) {
+                    element = pattern.substring(i, j);
+                    i = j;
+                } else {
+                    element = pattern.substring(i);
+                    i = length;
+                }
+                elements.add(VerbatimElement.from(element));
+            }
+        }
+        return new LogPattern(elements);
     }
 
     @Override

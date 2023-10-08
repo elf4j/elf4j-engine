@@ -29,7 +29,6 @@ import elf4j.engine.service.LogEvent;
 import lombok.NonNull;
 import lombok.Value;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
@@ -37,15 +36,6 @@ import java.util.Objects;
  */
 @Value
 class FileNameElement implements PatternElement {
-    /**
-     * @param patternSegment
-     *         text segment to convert
-     * @return converted patternSegment object
-     */
-    @Nonnull
-    public static FileNameElement from(String patternSegment) {
-        return new FileNameElement();
-    }
 
     @Override
     public boolean includeCallerDetail() {

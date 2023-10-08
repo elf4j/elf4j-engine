@@ -46,7 +46,7 @@ class ThreadElement implements PatternElement {
      */
     @Nonnull
     public static ThreadElement from(@NonNull String patternSegment) {
-        return new ThreadElement(ElementType.getPatternDisplayOption(patternSegment)
+        return new ThreadElement(PatternElements.getPatternElementDisplayOption(patternSegment)
                 .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
                 .orElse(DisplayOption.NAME));
     }

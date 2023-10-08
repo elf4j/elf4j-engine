@@ -49,7 +49,7 @@ class SystemPropertyElement implements PatternElement {
      */
     @Nonnull
     public static SystemPropertyElement from(String patternSegment) {
-        return new SystemPropertyElement(ElementType.getPatternDisplayOption(patternSegment)
+        return new SystemPropertyElement(PatternElements.getPatternElementDisplayOption(patternSegment)
                 .orElseThrow(NoSuchElementException::new));
     }
 

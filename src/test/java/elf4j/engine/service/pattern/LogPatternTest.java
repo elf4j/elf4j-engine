@@ -5,14 +5,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class ElementTypeTest {
+class LogPatternTest {
 
     @Nested
     class parsePattern {
         @Test
         void whenPredefinedElementIsUnrecognized() {
-            assertThrows(IllegalArgumentException.class,
-                    () -> ElementType.parsePattern("{testUnrecognizedPredefined}"));
+            assertThrows(IllegalArgumentException.class, () -> LogPattern.from("{testUnrecognizedPredefined}"));
         }
     }
 }
