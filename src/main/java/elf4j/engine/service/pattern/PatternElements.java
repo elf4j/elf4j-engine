@@ -6,8 +6,8 @@ import java.util.EnumSet;
 import java.util.Optional;
 
 class PatternElements {
-    private static final EnumSet<PREDEFINED_PATTERN_ELEMENT> PREDEFINED_PATTERN_ELEMENT_TYPES =
-            EnumSet.allOf(PREDEFINED_PATTERN_ELEMENT.class);
+    private static final EnumSet<PredefinedPatternElement> PREDEFINED_PATTERN_ELEMENT_TYPES =
+            EnumSet.allOf(PredefinedPatternElement.class);
 
     private PatternElements() {
     }
@@ -38,7 +38,7 @@ class PatternElements {
     /**
      *
      */
-    enum PREDEFINED_PATTERN_ELEMENT {
+    enum PredefinedPatternElement {
         /**
          *
          */
