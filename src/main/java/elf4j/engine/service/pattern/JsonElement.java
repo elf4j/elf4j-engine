@@ -112,10 +112,10 @@ class JsonElement implements PatternElement {
     @CompiledJson
     static class JsonLogEntry {
         OffsetDateTime timestamp;
-        CharSequence message;
-        String level;
-        String callerClass;
         LogEvent.ThreadValue callerThread;
+        String level;
+        CharSequence message;
+        String callerClass;
         LogEvent.StackFrameValue callerDetail;
         CharSequence exception;
 
