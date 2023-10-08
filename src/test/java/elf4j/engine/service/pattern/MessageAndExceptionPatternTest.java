@@ -36,7 +36,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,18 +63,10 @@ class MessageAndExceptionPatternTest {
     }
 
     @Nested
-    class from {
-        @Test
-        void errorOnInvalidPatternText() {
-            assertThrows(IllegalArgumentException.class, () -> MessageAndExceptionPattern.from("badPatternText"));
-        }
-    }
-
-    @Nested
     class render {
         @Test
         void includeBothMessageAndException() {
-            MessageAndExceptionPattern messageAndExceptionPattern = MessageAndExceptionPattern.from("message");
+            MessageAndExceptionElement messageAndExceptionPattern = MessageAndExceptionElement.from("message");
             StringBuilder logText = new StringBuilder();
 
             messageAndExceptionPattern.render(mockLogEvent, logText);

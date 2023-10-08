@@ -119,13 +119,13 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
    The output becomes:
 
    ```
-   {"message":"Hello, world!","timestamp":"2023-10-04T09:06:08.2921769-05:00","level":"INFO","callerClass":"elf4j.engine.Main"}
-   {"message":"It's a beautiful day","timestamp":"2023-10-04T09:06:08.2951796-05:00","level":"TRACE","callerClass":"elf4j.engine.Main"}
-   {"message":"... no matter on what level you say it","timestamp":"2023-10-04T09:06:08.2951796-05:00","level":"INFO","callerClass":"elf4j.engine.Main"}
-   {"message":"Houston, we do not have a problem but let's do a drill","timestamp":"2023-10-04T09:06:08.2951796-05:00","level":"WARN","callerClass":"elf4j.engine.Main"}
-   {"message":"","timestamp":"2023-10-04T09:06:08.2951796-05:00","level":"ERROR","callerClass":"elf4j.engine.Main","exception":"java.lang.Exception: This is a drill\r\n\tat elf4j.engine.Main.main(Main.java:43)\r\n"}
-   {"message":"i.e. Throwable always comes first, then the following optional message and arguments work as usual","timestamp":"2023-10-04T09:06:08.2951796-05:00","level":"INFO","callerClass":"elf4j.engine.Main","exception":"java.lang.Exception: This is a drill\r\n\tat elf4j.engine.Main.main(Main.java:43)\r\n"}
-   {"message":"Not a practical example but now the severity level is DEBUG","timestamp":"2023-10-04T09:06:08.2951796-05:00","level":"DEBUG","callerClass":"elf4j.engine.Main"}
+   {"timestamp":"2023-10-07T20:11:44.0345848-05:00","message":"Hello, world!","level":"INFO","callerClass":"elf4j.engine.Main"}
+   {"timestamp":"2023-10-07T20:11:44.0375856-05:00","message":"It's a beautiful day","level":"TRACE","callerClass":"elf4j.engine.Main"}
+   {"timestamp":"2023-10-07T20:11:44.038585-05:00","message":"... no matter on what level you say it","level":"INFO","callerClass":"elf4j.engine.Main"}
+   {"timestamp":"2023-10-07T20:11:44.038585-05:00","message":"Houston, we do not have a problem but let's do a drill","level":"WARN","callerClass":"elf4j.engine.Main"}
+   {"timestamp":"2023-10-07T20:11:44.038585-05:00","message":"","level":"ERROR","callerClass":"elf4j.engine.Main","exception":"java.lang.Exception: This is a drill\r\n\tat elf4j.engine.Main.main(Main.java:43)\r\n"}
+   {"timestamp":"2023-10-07T20:11:44.038585-05:00","message":"i.e. Throwable always comes first, then the following optional message and arguments work as usual","level":"INFO","callerClass":"elf4j.engine.Main","exception":"java.lang.Exception: This is a drill\r\n\tat elf4j.engine.Main.main(Main.java:43)\r\n"}
+   {"timestamp":"2023-10-07T20:11:44.038585-05:00","message":"Not a practical example but now the severity level is DEBUG","level":"DEBUG","callerClass":"elf4j.engine.Main"}
    ```
 
    The JSON pattern can be configured to pretty-print format, and/or mixed with other patterns.

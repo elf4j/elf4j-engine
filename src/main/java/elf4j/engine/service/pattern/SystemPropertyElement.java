@@ -26,37 +26,40 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
-import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
+import java.util.NoSuchElementException;
 
 /**
  *
  */
 @Value
-class FileNamePattern implements LogPattern {
+class SystemPropertyElement implements PatternElement {
+    String key;
+
+    private SystemPropertyElement(String key) {
+        this.key = key;
+    }
+
     /**
      * @param patternSegment
-     *         text segment to convert
+     *         text patternSegment to convert
      * @return converted patternSegment object
      */
     @Nonnull
-    public static FileNamePattern from(String patternSegment) {
-        if (!PatternType.FILENAME.isTargetTypeOf(patternSegment)) {
-            throw new IllegalArgumentException("patternSegment: " + patternSegment);
-        }
-        return new FileNamePattern();
+    public static SystemPropertyElement from(String patternSegment) {
+        return new SystemPropertyElement(ElementType.getPatternDisplayOption(patternSegment)
+                .orElseThrow(NoSuchElementException::new));
+    }
+
+    @Override
+    public void render(LogEvent logEvent, StringBuilder target) {
+        target.append(System.getProperty(this.key));
     }
 
     @Override
     public boolean includeCallerDetail() {
-        return true;
-    }
-
-    @Override
-    public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
-        target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getFileName());
+        return false;
     }
 }

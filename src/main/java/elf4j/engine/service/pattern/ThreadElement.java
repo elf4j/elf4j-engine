@@ -36,8 +36,8 @@ import java.util.Objects;
  *
  */
 @Value
-class ThreadPattern implements LogPattern {
-    @NonNull ThreadPattern.DisplayOption threadDisplayOption;
+class ThreadElement implements PatternElement {
+    @NonNull ThreadElement.DisplayOption threadDisplayOption;
 
     /**
      * @param patternSegment
@@ -45,11 +45,8 @@ class ThreadPattern implements LogPattern {
      * @return the thread pattern segment converted from the specified text
      */
     @Nonnull
-    public static ThreadPattern from(@NonNull String patternSegment) {
-        if (!PatternType.THREAD.isTargetTypeOf(patternSegment)) {
-            throw new IllegalArgumentException("patternSegment: " + patternSegment);
-        }
-        return new ThreadPattern(PatternType.getPatternDisplayOption(patternSegment)
+    public static ThreadElement from(@NonNull String patternSegment) {
+        return new ThreadElement(ElementType.getPatternDisplayOption(patternSegment)
                 .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
                 .orElse(DisplayOption.NAME));
     }

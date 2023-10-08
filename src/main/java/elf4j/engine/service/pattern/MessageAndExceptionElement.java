@@ -26,45 +26,39 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
+import elf4j.engine.service.util.StackTraceUtils;
+import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
-import java.util.NoSuchElementException;
 
 /**
  *
  */
 @Value
-class SystemEnvironmentPattern implements LogPattern {
-    String key;
-    String value;
-
-    private SystemEnvironmentPattern(String key) {
-        this.key = key;
-        this.value = System.getenv(key);
-    }
-
+class MessageAndExceptionElement implements PatternElement {
     /**
      * @param patternSegment
-     *         text patternSegment to convert
+     *         text segment to convert
      * @return converted patternSegment object
      */
     @Nonnull
-    public static SystemEnvironmentPattern from(String patternSegment) {
-        if (!PatternType.SYSENV.isTargetTypeOf(patternSegment)) {
-            throw new IllegalArgumentException("patternSegment: " + patternSegment);
-        }
-        return new SystemEnvironmentPattern(PatternType.getPatternDisplayOption(patternSegment)
-                .orElseThrow(NoSuchElementException::new));
-    }
-
-    @Override
-    public void render(LogEvent logEvent, StringBuilder target) {
-        target.append(this.value);
+    public static MessageAndExceptionElement from(String patternSegment) {
+        return new MessageAndExceptionElement();
     }
 
     @Override
     public boolean includeCallerDetail() {
         return false;
+    }
+
+    @Override
+    public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
+        target.append(logEvent.getResolvedMessage());
+        Throwable t = logEvent.getThrowable();
+        if (t == null) {
+            return;
+        }
+        target.append(System.lineSeparator()).append(StackTraceUtils.getTraceAsBuffer(t));
     }
 }

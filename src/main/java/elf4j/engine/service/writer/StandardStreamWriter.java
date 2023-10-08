@@ -29,7 +29,7 @@ import elf4j.Level;
 import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.pattern.LogPattern;
-import elf4j.engine.service.pattern.PatternGroup;
+import elf4j.engine.service.pattern.PatternElement;
 import elf4j.engine.service.util.PropertiesUtils;
 import lombok.Builder;
 import lombok.NonNull;
@@ -53,7 +53,7 @@ public class StandardStreamWriter implements LogWriter {
     private static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
     private static final String LINE_FEED = System.lineSeparator();
     private final Level minimumLevel;
-    private final LogPattern logPattern;
+    private final PatternElement logPattern;
     private final OutStreamType outStreamType;
     private final StandardOutput standardOutput;
 
@@ -99,7 +99,7 @@ public class StandardStreamWriter implements LogWriter {
                     .minimumLevel(Level.valueOf(properties.getProperty("level", DEFAULT_MINIMUM_LEVEL)
                             .trim()
                             .toUpperCase()))
-                    .logPattern(PatternGroup.from(properties.getProperty("pattern", DEFAULT_PATTERN)))
+                    .logPattern(LogPattern.from(properties.getProperty("pattern", DEFAULT_PATTERN)))
                     .outStreamType(getGlobalOutStreamType(properties))
                     .standardOutput(logServiceConfiguration.getStandardOutput())
                     .build();
@@ -127,7 +127,8 @@ public class StandardStreamWriter implements LogWriter {
             if (writerConfigurations.isEmpty()) {
                 return Collections.singletonList(getDefaultWriter(logServiceConfiguration));
             }
-            return writerConfigurations.stream().map(writerConfiguration -> StandardStreamWriter.builder()
+            return writerConfigurations.stream()
+                    .map(writerConfiguration -> StandardStreamWriter.builder()
                             .outStreamType(OutStreamType.valueOf(getWriterConfigurationValueOrGlobalDefault("stream",
                                     writerConfiguration,
                                     properties,
@@ -136,7 +137,7 @@ public class StandardStreamWriter implements LogWriter {
                                     writerConfiguration,
                                     properties,
                                     DEFAULT_MINIMUM_LEVEL).trim().toUpperCase()))
-                            .logPattern(PatternGroup.from(getWriterConfigurationValueOrGlobalDefault("pattern",
+                            .logPattern(LogPattern.from(getWriterConfigurationValueOrGlobalDefault("pattern",
                                     writerConfiguration,
                                     properties,
                                     DEFAULT_PATTERN)))

@@ -42,15 +42,15 @@ import static org.mockito.Mockito.inOrder;
 class PatternGroupTest {
     @Nested
     class render {
-        @Mock LogPattern mockPattern;
-        @Mock LogPattern mockPattern2;
+        @Mock PatternElement mockPattern;
+        @Mock PatternElement mockPattern2;
         @Mock LogEvent stubLogEvent;
 
-        PatternGroup patternGroupEntry;
+        LogPattern patternGroupEntry;
 
         @Test
         void dispatchAll() {
-            patternGroupEntry = new PatternGroup(Arrays.asList(mockPattern2, mockPattern));
+            patternGroupEntry = new LogPattern(Arrays.asList(mockPattern2, mockPattern));
             StringBuilder stringBuilder = new StringBuilder();
 
             patternGroupEntry.render(stubLogEvent, stringBuilder);

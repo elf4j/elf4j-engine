@@ -26,43 +26,50 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
+import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
-import java.util.NoSuchElementException;
 
 /**
  *
  */
 @Value
-class SystemPropertyPattern implements LogPattern {
-    String key;
+class LevelElement implements PatternElement {
+    private static final int UNSPECIFIED = -1;
+    int displayLength;
 
-    private SystemPropertyPattern(String key) {
-        this.key = key;
+    private LevelElement(int displayLength) {
+        this.displayLength = displayLength;
     }
 
     /**
      * @param patternSegment
-     *         text patternSegment to convert
+     *         to convert
      * @return converted patternSegment object
      */
     @Nonnull
-    public static SystemPropertyPattern from(String patternSegment) {
-        if (!PatternType.SYSPROP.isTargetTypeOf(patternSegment)) {
-            throw new IllegalArgumentException("patternSegment: " + patternSegment);
-        }
-        return new SystemPropertyPattern(PatternType.getPatternDisplayOption(patternSegment)
-                .orElseThrow(NoSuchElementException::new));
-    }
-
-    @Override
-    public void render(LogEvent logEvent, StringBuilder target) {
-        target.append(System.getProperty(this.key));
+    public static LevelElement from(@NonNull String patternSegment) {
+        return new LevelElement(ElementType.getPatternDisplayOption(patternSegment)
+                .map(Integer::parseInt)
+                .orElse(UNSPECIFIED));
     }
 
     @Override
     public boolean includeCallerDetail() {
         return false;
+    }
+
+    @Override
+    public void render(@NonNull LogEvent logEvent, StringBuilder target) {
+        String level = logEvent.getNativeLogger().getLevel().name();
+        if (displayLength == UNSPECIFIED) {
+            target.append(level);
+            return;
+        }
+        char[] levelChars = level.toCharArray();
+        for (int i = 0; i < displayLength; i++) {
+            target.append(i < levelChars.length ? levelChars[i] : ' ');
+        }
     }
 }

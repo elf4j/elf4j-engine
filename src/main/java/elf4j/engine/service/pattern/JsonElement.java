@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  */
 @Value
 @Builder
-class JsonPattern implements LogPattern {
+class JsonElement implements PatternElement {
     private static final String UTF_8 = StandardCharsets.UTF_8.toString();
     private static final int JSON_BYTES_INIT_SIZE = 1024;
     private static final String CALLER_DETAIL = "caller-detail";
@@ -73,20 +73,17 @@ class JsonPattern implements LogPattern {
      *         to convert
      * @return converted patternSegment object
      */
-    public static JsonPattern from(@NonNull String patternSegment) {
-        if (!PatternType.JSON.isTargetTypeOf(patternSegment)) {
-            throw new IllegalArgumentException("patternSegment: " + patternSegment);
-        }
-        Optional<String> displayOption = PatternType.getPatternDisplayOption(patternSegment);
+    public static JsonElement from(@NonNull String patternSegment) {
+        Optional<String> displayOption = ElementType.getPatternDisplayOption(patternSegment);
         if (!displayOption.isPresent()) {
-            return JsonPattern.builder().build();
+            return JsonElement.builder().build();
         }
         Set<String> options =
                 Arrays.stream(displayOption.get().split(",")).map(String::trim).collect(Collectors.toSet());
         if (!DISPLAY_OPTIONS.containsAll(options)) {
             throw new IllegalArgumentException("Invalid JSON display option inside: " + options);
         }
-        return JsonPattern.builder()
+        return JsonElement.builder()
                 .includeCallerThread(options.contains(CALLER_THREAD))
                 .includeCallerDetail(options.contains(CALLER_DETAIL))
                 .prettyPrint(options.contains(PRETTY))
@@ -114,15 +111,15 @@ class JsonPattern implements LogPattern {
     @Builder
     @CompiledJson
     static class JsonLogEntry {
-        CharSequence message;
         OffsetDateTime timestamp;
+        CharSequence message;
         String level;
         String callerClass;
         LogEvent.ThreadValue callerThread;
         LogEvent.StackFrameValue callerDetail;
         CharSequence exception;
 
-        static JsonLogEntry from(@NonNull LogEvent logEvent, @NonNull JsonPattern jsonPattern) {
+        static JsonLogEntry from(@NonNull LogEvent logEvent, @NonNull JsonElement jsonPattern) {
             return JsonLogEntry.builder()
                     .timestamp(OffsetDateTime.ofInstant(logEvent.getTimestamp(), ZoneId.systemDefault()))
                     .callerClass(jsonPattern.includeCallerDetail ? null : logEvent.getCallerClassName())

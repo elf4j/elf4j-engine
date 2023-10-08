@@ -26,38 +26,42 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
-import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
-import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
- * Composite of individual patterns forming the entire layout pattern
+ *
  */
 @Value
-public class PatternGroup implements LogPattern {
-    List<LogPattern> patterns;
+class SystemEnvironmentElement implements PatternElement {
+    String key;
+    String value;
 
-    /**
-     * @param pattern
-     *         entire layout pattern text from configuration
-     * @return composite pattern object for the entire final log message output layout
-     */
-    @Nonnull
-    public static PatternGroup from(@NonNull String pattern) {
-        return new PatternGroup(PatternType.parsePatterns(pattern));
+    private SystemEnvironmentElement(String key) {
+        this.key = key;
+        this.value = System.getenv(key);
     }
 
-    @Override
-    public boolean includeCallerDetail() {
-        return patterns.stream().anyMatch(LogPattern::includeCallerDetail);
+    /**
+     * @param patternSegment
+     *         text patternSegment to convert
+     * @return converted patternSegment object
+     */
+    @Nonnull
+    public static SystemEnvironmentElement from(String patternSegment) {
+        return new SystemEnvironmentElement(ElementType.getPatternDisplayOption(patternSegment)
+                .orElseThrow(NoSuchElementException::new));
     }
 
     @Override
     public void render(LogEvent logEvent, StringBuilder target) {
-        for (LogPattern pattern : patterns) {
-            pattern.render(logEvent, target);
-        }
+        target.append(this.value);
+    }
+
+    @Override
+    public boolean includeCallerDetail() {
+        return false;
     }
 }

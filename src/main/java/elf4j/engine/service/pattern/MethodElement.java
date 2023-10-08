@@ -30,45 +30,30 @@ import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 /**
  *
  */
 @Value
-class TimestampPattern implements LogPattern {
-    private static final String DEFAULT_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
-    private static final ZoneId DISPLAY_TIME_ZONE = ZoneId.systemDefault();
-    DateTimeFormatter dateTimeFormatter;
-
+class MethodElement implements PatternElement {
     /**
      * @param patternSegment
-     *         text pattern segment to convert
-     * @return converted pattern segment object
+     *         text segment to convert
+     * @return converted patternSegment object
      */
     @Nonnull
-    public static TimestampPattern from(@NonNull String patternSegment) {
-        if (!PatternType.TIMESTAMP.isTargetTypeOf(patternSegment)) {
-            throw new IllegalArgumentException("patternSegment: " + patternSegment);
-        }
-        return new TimestampPattern(DateTimeFormatter.ofPattern(PatternType.getPatternDisplayOption(patternSegment)
-                .orElse(DEFAULT_DATETIME_PATTERN)).withZone(DISPLAY_TIME_ZONE));
-    }
-
-    @Override
-    public String toString() {
-        return "TimestampPattern{" + "sample=" + dateTimeFormatter.format(Instant.now()) + '}';
+    public static MethodElement from(String patternSegment) {
+        return new MethodElement();
     }
 
     @Override
     public boolean includeCallerDetail() {
-        return false;
+        return true;
     }
 
     @Override
     public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
-        dateTimeFormatter.formatTo(logEvent.getTimestamp(), target);
+        target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getMethodName());
     }
 }

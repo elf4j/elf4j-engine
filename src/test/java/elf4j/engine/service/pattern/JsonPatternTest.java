@@ -66,28 +66,28 @@ class JsonPatternTest {
     class from {
         @Test
         void noPatternOptionDefaults() {
-            JsonPattern jsonPattern = JsonPattern.from("json");
+            JsonElement jsonPattern = JsonElement.from("json");
 
             assertFalse(jsonPattern.includeCallerDetail());
         }
 
         @Test
         void includeCallerOption() {
-            JsonPattern jsonPattern = JsonPattern.from("json:caller-detail");
+            JsonElement jsonPattern = JsonElement.from("json:caller-detail");
 
             assertTrue(jsonPattern.includeCallerDetail());
         }
 
         @Test
         void includeThreadOption() {
-            JsonPattern jsonPattern = JsonPattern.from("json:caller-thread");
+            JsonElement jsonPattern = JsonElement.from("json:caller-thread");
 
             assertFalse(jsonPattern.includeCallerDetail());
         }
 
         @Test
         void includeCallerAndThreadOptions() {
-            JsonPattern jsonPattern = JsonPattern.from("json:caller-thread,caller-detail");
+            JsonElement jsonPattern = JsonElement.from("json:caller-thread,caller-detail");
 
             assertTrue(jsonPattern.includeCallerDetail());
         }
@@ -95,7 +95,7 @@ class JsonPatternTest {
 
     @Nested
     class render {
-        JsonPattern jsonPattern = JsonPattern.from("json");
+        JsonElement jsonPattern = JsonElement.from("json");
 
         @Test
         void resolveMessage() {

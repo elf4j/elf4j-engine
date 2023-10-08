@@ -30,49 +30,30 @@ import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 /**
  *
  */
 @Value
-class LevelPattern implements LogPattern {
-    private static final int UNSPECIFIED = -1;
-    int displayLength;
-
-    private LevelPattern(int displayLength) {
-        this.displayLength = displayLength;
-    }
-
+class FileNameElement implements PatternElement {
     /**
      * @param patternSegment
-     *         to convert
+     *         text segment to convert
      * @return converted patternSegment object
      */
     @Nonnull
-    public static LevelPattern from(@NonNull String patternSegment) {
-        if (!PatternType.LEVEL.isTargetTypeOf(patternSegment)) {
-            throw new IllegalArgumentException("patternSegment: " + patternSegment);
-        }
-        return new LevelPattern(PatternType.getPatternDisplayOption(patternSegment)
-                .map(Integer::parseInt)
-                .orElse(UNSPECIFIED));
+    public static FileNameElement from(String patternSegment) {
+        return new FileNameElement();
     }
 
     @Override
     public boolean includeCallerDetail() {
-        return false;
+        return true;
     }
 
     @Override
-    public void render(@NonNull LogEvent logEvent, StringBuilder target) {
-        String level = logEvent.getNativeLogger().getLevel().name();
-        if (displayLength == UNSPECIFIED) {
-            target.append(level);
-            return;
-        }
-        char[] levelChars = level.toCharArray();
-        for (int i = 0; i < displayLength; i++) {
-            target.append(i < levelChars.length ? levelChars[i] : ' ');
-        }
+    public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
+        target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getFileName());
     }
 }

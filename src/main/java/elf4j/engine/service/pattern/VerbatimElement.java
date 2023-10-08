@@ -30,33 +30,31 @@ import lombok.NonNull;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
 /**
  *
  */
 @Value
-class LineNumberPattern implements LogPattern {
+class VerbatimElement implements PatternElement {
+    @NonNull String text;
+
     /**
      * @param patternSegment
-     *         text segment to convert
-     * @return converted patternSegment object
+     *         text pattern segment to convert
+     * @return converted pattern segment object
      */
     @Nonnull
-    public static LineNumberPattern from(String patternSegment) {
-        if (!PatternType.LINENUMBER.isTargetTypeOf(patternSegment)) {
-            throw new IllegalArgumentException("patternSegment: " + patternSegment);
-        }
-        return new LineNumberPattern();
+    public static VerbatimElement from(String patternSegment) {
+        return new VerbatimElement(patternSegment);
     }
 
     @Override
     public boolean includeCallerDetail() {
-        return true;
+        return false;
     }
 
     @Override
-    public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
-        target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getLineNumber());
+    public void render(LogEvent logEvent, @NonNull StringBuilder target) {
+        target.append(text);
     }
 }

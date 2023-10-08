@@ -26,42 +26,24 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
-import elf4j.engine.service.util.StackTraceUtils;
-import lombok.NonNull;
-import lombok.Value;
+import elf4j.engine.service.writer.PerformanceSensitive;
 
-import javax.annotation.Nonnull;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
- *
+ * Implementation should be thread-safe
  */
-@Value
-class MessageAndExceptionPattern implements LogPattern {
+@ThreadSafe
+public interface PatternElement extends PerformanceSensitive {
+
     /**
-     * @param patternSegment
-     *         text segment to convert
-     * @return converted patternSegment object
+     * Extracts the content of particular interest to this log pattern instance from the specified log event, and
+     * appends the result to the specified target aggregator of the final log message
+     *
+     * @param logEvent
+     *         entire log content data source to render
+     * @param target
+     *         logging text aggregator of the final log message
      */
-    @Nonnull
-    public static MessageAndExceptionPattern from(String patternSegment) {
-        if (!PatternType.MESSAGE.isTargetTypeOf(patternSegment)) {
-            throw new IllegalArgumentException("patternSegment text: " + patternSegment);
-        }
-        return new MessageAndExceptionPattern();
-    }
-
-    @Override
-    public boolean includeCallerDetail() {
-        return false;
-    }
-
-    @Override
-    public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
-        target.append(logEvent.getResolvedMessage());
-        Throwable t = logEvent.getThrowable();
-        if (t == null) {
-            return;
-        }
-        target.append(System.lineSeparator()).append(StackTraceUtils.getTraceAsBuffer(t));
-    }
+    void render(LogEvent logEvent, StringBuilder target);
 }

@@ -26,24 +26,38 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
-import elf4j.engine.service.writer.PerformanceSensitive;
+import lombok.NonNull;
+import lombok.Value;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
- * Implementation should be thread-safe
+ * Composite of individual patterns, intended to form the entire log layout
  */
-@ThreadSafe
-public interface LogPattern extends PerformanceSensitive {
+@Value
+public class LogPattern implements PatternElement {
+    List<PatternElement> patternElements;
 
     /**
-     * Extracts the content of particular interest to this log pattern instance from the specified log event, and
-     * appends the result to the specified target aggregator of the final log message
-     *
-     * @param logEvent
-     *         entire log content data source to render
-     * @param target
-     *         logging text aggregator of the final log message
+     * @param pattern
+     *         entire layout pattern text from configuration
+     * @return composite pattern object for the entire final log message output layout
      */
-    void render(LogEvent logEvent, StringBuilder target);
+    @Nonnull
+    public static LogPattern from(@NonNull String pattern) {
+        return new LogPattern(ElementType.parsePattern(pattern));
+    }
+
+    @Override
+    public boolean includeCallerDetail() {
+        return patternElements.stream().anyMatch(PatternElement::includeCallerDetail);
+    }
+
+    @Override
+    public void render(LogEvent logEvent, StringBuilder target) {
+        for (PatternElement pattern : patternElements) {
+            pattern.render(logEvent, target);
+        }
+    }
 }
