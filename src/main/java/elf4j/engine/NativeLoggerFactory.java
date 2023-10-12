@@ -29,12 +29,16 @@ import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.service.EventingLogService;
 import elf4j.engine.service.LogService;
+import elf4j.engine.service.LogServiceManager;
+import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.util.StackTraceUtils;
 import elf4j.spi.LoggerFactory;
 import lombok.NonNull;
 
+import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
@@ -43,7 +47,7 @@ import static java.util.stream.Collectors.toMap;
 /**
  *
  */
-public class NativeLoggerFactory implements LoggerFactory {
+public class NativeLoggerFactory implements LoggerFactory, LogServiceManager.Refreshable {
     /**
      * Default to TRACE for this native implementation
      */
@@ -52,7 +56,8 @@ public class NativeLoggerFactory implements LoggerFactory {
      * Made injectable for extensions other than this native ELF4J implementation
      */
     @NonNull private final Level defaultLoggerLevel;
-    private final Map<Level, Map<String, NativeLogger>> nativeLoggers;
+    private final Map<Level, Map<String, NativeLogger>> nativeLoggers =
+            EnumSet.allOf(Level.class).stream().collect(toMap(Function.identity(), level -> new ConcurrentHashMap<>()));
     /**
      * The class or interface that the API client calls first to get a logger instance. The client caller class of this
      * class will be the "owner class" of the logger instances this factory produces.
@@ -63,7 +68,7 @@ public class NativeLoggerFactory implements LoggerFactory {
      * first to get a logger instance of that API.
      */
     @NonNull private final Class<?> serviceAccessClass;
-    @NonNull private final LogService logService;
+    @NonNull private LogService logService;
 
     /**
      * Default constructor required by {@link java.util.ServiceLoader}
@@ -77,7 +82,9 @@ public class NativeLoggerFactory implements LoggerFactory {
      *         the class or interface that the API client application calls first to a logger instance
      */
     public NativeLoggerFactory(@NonNull Class<?> serviceAccessClass) {
-        this(DEFAULT_LOGGER_SEVERITY_LEVEL, serviceAccessClass, new EventingLogService());
+        this(DEFAULT_LOGGER_SEVERITY_LEVEL,
+                serviceAccessClass,
+                new EventingLogService(LogServiceConfiguration.byLoading()));
     }
 
     NativeLoggerFactory(@NonNull Level defaultLoggerLevel,
@@ -85,10 +92,8 @@ public class NativeLoggerFactory implements LoggerFactory {
             @NonNull LogService logService) {
         this.defaultLoggerLevel = defaultLoggerLevel;
         this.serviceAccessClass = serviceAccessClass;
-        this.nativeLoggers = EnumSet.allOf(Level.class)
-                .stream()
-                .collect(toMap(Function.identity(), level -> new ConcurrentHashMap<>()));
         this.logService = logService;
+        LogServiceManager.INSTANCE.register(this);
     }
 
     /**
@@ -100,6 +105,16 @@ public class NativeLoggerFactory implements LoggerFactory {
     @Override
     public NativeLogger logger() {
         return getLogger(this.defaultLoggerLevel, StackTraceUtils.callerOf(this.serviceAccessClass).getClassName());
+    }
+
+    @Override
+    public void refresh(@Nullable Properties properties) {
+        logService = new EventingLogService(LogServiceConfiguration.bySetting(properties));
+    }
+
+    @Override
+    public void refresh() {
+        logService = new EventingLogService(LogServiceConfiguration.byLoading());
     }
 
     @NonNull LogService getLogService() {

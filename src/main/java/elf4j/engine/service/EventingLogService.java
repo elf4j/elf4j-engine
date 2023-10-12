@@ -25,38 +25,53 @@
 
 package elf4j.engine.service;
 
+import elf4j.Level;
 import elf4j.engine.NativeLogger;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
-import elf4j.engine.service.configuration.RefreshableLogServiceConfiguration;
+import elf4j.engine.service.configuration.OverridingCallerLevels;
 import elf4j.engine.service.util.StackTraceUtils;
+import elf4j.engine.service.writer.ConseqWriterGroup;
+import elf4j.engine.service.writer.LogWriter;
 import lombok.NonNull;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * converts a log request into an event for async processing
  */
 public class EventingLogService implements LogService {
+    private final boolean noop;
+    private final LogWriter logWriter;
+    private final OverridingCallerLevels overridingCallerLevels;
+    private final Map<NativeLogger, Boolean> loggerEnabled = new ConcurrentHashMap<>();
 
-    private final LogServiceConfiguration logServiceConfiguration;
-
-    /**
-     *
-     */
-    public EventingLogService() {
-        this(new RefreshableLogServiceConfiguration());
-    }
-
-    EventingLogService(LogServiceConfiguration logServiceConfiguration) {
-        this.logServiceConfiguration = logServiceConfiguration;
+    public EventingLogService(@NonNull LogServiceConfiguration logServiceConfiguration) {
+        if (logServiceConfiguration.isMissing() || logServiceConfiguration.isTrue("noop")) {
+            noop = true;
+            logWriter = null;
+            overridingCallerLevels = null;
+            return;
+        }
+        noop = false;
+        logWriter = ConseqWriterGroup.from(logServiceConfiguration);
+        overridingCallerLevels = OverridingCallerLevels.from(logServiceConfiguration);
     }
 
     @Override
     public boolean includeCallerDetail() {
-        return this.logServiceConfiguration.getLogServiceWriter().includeCallerDetail();
+        return logWriter.includeCallerDetail();
     }
 
     @Override
     public boolean isEnabled(NativeLogger nativeLogger) {
-        return logServiceConfiguration.isEnabled(nativeLogger);
+        if (noop) {
+            return false;
+        }
+        Level level = nativeLogger.getLevel();
+        return loggerEnabled.computeIfAbsent(nativeLogger,
+                k -> level.compareTo(overridingCallerLevels.getCallerMinimumOutputLevel(k)) >= 0
+                        && level.compareTo(logWriter.getMinimumOutputLevel()) >= 0);
     }
 
     @Override
@@ -65,21 +80,20 @@ public class EventingLogService implements LogService {
             Throwable throwable,
             Object message,
             Object[] arguments) {
-        if (!logServiceConfiguration.isEnabled(nativeLogger)) {
+        if (!this.isEnabled(nativeLogger)) {
             return;
         }
         Thread callerThread = Thread.currentThread();
-        logServiceConfiguration.getLogEventProcessor()
-                .process(LogEvent.builder()
-                        .callerThread(new LogEvent.ThreadValue(callerThread.getName(), callerThread.getId()))
-                        .nativeLogger(nativeLogger)
-                        .throwable(throwable)
-                        .message(message)
-                        .arguments(arguments)
-                        .serviceInterfaceClass(serviceInterfaceClass)
-                        .callerFrame(this.includeCallerDetail() ?
-                                LogEvent.StackFrameValue.from(StackTraceUtils.getCallerFrame(serviceInterfaceClass,
-                                        new Throwable().getStackTrace())) : null)
-                        .build());
+        logWriter.write(LogEvent.builder()
+                .callerThread(new LogEvent.ThreadValue(callerThread.getName(), callerThread.getId()))
+                .nativeLogger(nativeLogger)
+                .throwable(throwable)
+                .message(message)
+                .arguments(arguments)
+                .serviceInterfaceClass(serviceInterfaceClass)
+                .callerFrame(includeCallerDetail() ? LogEvent.StackFrameValue.from(StackTraceUtils.getCallerFrame(
+                        serviceInterfaceClass,
+                        new Throwable().getStackTrace())) : null)
+                .build());
     }
 }

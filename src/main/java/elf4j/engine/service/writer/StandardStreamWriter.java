@@ -30,7 +30,6 @@ import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.pattern.LogPattern;
 import elf4j.engine.service.pattern.PatternElement;
-import elf4j.engine.service.util.PropertiesUtils;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.ToString;
@@ -38,9 +37,8 @@ import lombok.ToString;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -52,10 +50,10 @@ public class StandardStreamWriter implements LogWriter {
     private static final String DEFAULT_PATTERN = "{timestamp} {level} {class} - {message}";
     private static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
     private static final String LINE_FEED = System.lineSeparator();
+    private final StandardOutput standardOutput = new FileStreamStandardOutput();
     private final Level minimumLevel;
     private final PatternElement logPattern;
     private final OutStreamType outStreamType;
-    private final StandardOutput standardOutput;
 
     @Override
     public Level getMinimumOutputLevel() {
@@ -90,60 +88,29 @@ public class StandardStreamWriter implements LogWriter {
     /**
      *
      */
-    public static class Factory implements TypedLogWriterFactory {
-        private static final String DEFAULT_STANDARD_STREAM_WRITER = "";
-
+    static class Type implements LogWriterType {
         private static StandardStreamWriter getDefaultWriter(@NonNull LogServiceConfiguration logServiceConfiguration) {
-            Properties properties = logServiceConfiguration.getProperties();
+            if (logServiceConfiguration.isMissing()) {
+                return StandardStreamWriter.builder()
+                        .minimumLevel(Level.TRACE)
+                        .logPattern(LogPattern.from(DEFAULT_PATTERN))
+                        .outStreamType(DEFAULT_OUT_STREAM_TYPE)
+                        .build();
+            }
+            Properties properties = Objects.requireNonNull(logServiceConfiguration.getProperties());
             return StandardStreamWriter.builder()
                     .minimumLevel(Level.valueOf(properties.getProperty("level", DEFAULT_MINIMUM_LEVEL)
                             .trim()
                             .toUpperCase()))
                     .logPattern(LogPattern.from(properties.getProperty("pattern", DEFAULT_PATTERN)))
-                    .outStreamType(getGlobalOutStreamType(properties))
-                    .standardOutput(logServiceConfiguration.getStandardOutput())
+                    .outStreamType(OutStreamType.valueOf(properties.getProperty("stream",
+                            DEFAULT_OUT_STREAM_TYPE.name()).trim().toUpperCase()))
                     .build();
         }
 
-        @NonNull
-        private static OutStreamType getGlobalOutStreamType(Properties properties) {
-            return OutStreamType.valueOf(properties.getProperty("stream", DEFAULT_OUT_STREAM_TYPE.name())
-                    .toUpperCase());
-        }
-
-        private static String getWriterConfigurationValueOrGlobalDefault(String name,
-                Map<String, String> writerConfiguration,
-                Properties properties,
-                String defaultValue) {
-            return writerConfiguration.getOrDefault(name, properties.getProperty(name, defaultValue));
-        }
-
         @Override
-        public List<LogWriter> getLogWriters(LogServiceConfiguration logServiceConfiguration) {
-            Properties properties = logServiceConfiguration.getProperties();
-            List<Map<String, String>> writerConfigurations = PropertiesUtils.getPropertiesGroupOfType(
-                    DEFAULT_STANDARD_STREAM_WRITER,
-                    logServiceConfiguration.getProperties());
-            if (writerConfigurations.isEmpty()) {
-                return Collections.singletonList(getDefaultWriter(logServiceConfiguration));
-            }
-            return writerConfigurations.stream()
-                    .map(writerConfiguration -> StandardStreamWriter.builder()
-                            .outStreamType(OutStreamType.valueOf(getWriterConfigurationValueOrGlobalDefault("stream",
-                                    writerConfiguration,
-                                    properties,
-                                    DEFAULT_OUT_STREAM_TYPE.name()).trim().toUpperCase()))
-                            .minimumLevel(Level.valueOf(getWriterConfigurationValueOrGlobalDefault("level",
-                                    writerConfiguration,
-                                    properties,
-                                    DEFAULT_MINIMUM_LEVEL).trim().toUpperCase()))
-                            .logPattern(LogPattern.from(getWriterConfigurationValueOrGlobalDefault("pattern",
-                                    writerConfiguration,
-                                    properties,
-                                    DEFAULT_PATTERN)))
-                            .standardOutput(logServiceConfiguration.getStandardOutput())
-                            .build())
-                    .collect(Collectors.toList());
+        public List<LogWriter> getLogWriters(@NonNull LogServiceConfiguration logServiceConfiguration) {
+            return Collections.singletonList(getDefaultWriter(logServiceConfiguration));
         }
     }
 }

@@ -25,32 +25,39 @@
 
 package elf4j.engine.service;
 
-import elf4j.engine.service.configuration.Refreshable;
 import elf4j.util.IeLogger;
 import lombok.NonNull;
+import lombok.ToString;
 
+import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
  */
+@ToString
 public enum LogServiceManager {
     /**
      *
      */
     INSTANCE;
 
-    private final Set<Refreshable> refreshables = new HashSet<>();
-    private final Set<Stoppable> stoppables = new HashSet<>();
+    private final Set<Refreshable> refreshables = Collections.synchronizedSet(new HashSet<>());
+    private final Set<Stoppable> stoppables = Collections.synchronizedSet(new HashSet<>());
+    @ToString.Exclude private final Lock lock = new ReentrantLock();
 
     /**
      * @param refreshable
      *         added to be accessible for management
      */
     public void register(Refreshable refreshable) {
-        this.refreshables.add(refreshable);
+        refreshables.add(refreshable);
+        IeLogger.INFO.log("Registered Refreshable {} in {}", refreshable, this);
     }
 
     /**
@@ -58,16 +65,24 @@ public enum LogServiceManager {
      *         added to be accessible for management
      */
     public void register(Stoppable stoppable) {
-        this.stoppables.add(stoppable);
+        stoppables.add(stoppable);
+        IeLogger.INFO.log("Registered Stoppable {} in {}", stoppable, this);
     }
 
     /**
      * reloads properties source for each refreshable
      */
     public void refresh() {
-        IeLogger.INFO.log("Refreshing elf4j service by reloading properties...");
-        refreshables.forEach(Refreshable::refresh);
-        IeLogger.INFO.log("Refreshed elf4j service by reloading properties");
+        IeLogger.INFO.log("Refreshing elf4j service by {} via reloading properties", this);
+        lock.lock();
+        try {
+            shutdown();
+            refreshables.forEach(Refreshable::refresh);
+        } finally {
+            lock.unlock();
+        }
+
+        IeLogger.INFO.log("Refreshed elf4j service by {} via reloading properties", this);
     }
 
     /**
@@ -76,18 +91,30 @@ public enum LogServiceManager {
      *         original properties source; otherwise, reloads the original properties source for each refreshable.
      */
     public void refresh(Properties properties) {
-        IeLogger.INFO.log("Refreshing elf4j service with given properties: {}...", properties);
-        refreshables.forEach(refreshable -> refreshable.refresh(properties));
-        IeLogger.INFO.log("Refreshed elf4j service with given properties: {}", properties);
+        IeLogger.INFO.log("Refreshing elf4j service by {} with properties {}", this, properties);
+        lock.lock();
+        try {
+            shutdown();
+            refreshables.forEach(refreshable -> refreshable.refresh(properties));
+        } finally {
+            lock.unlock();
+        }
+        IeLogger.INFO.log("Refreshed elf4j service by {} with properties {}", this, properties);
     }
 
     /**
      *
      */
     public void shutdown() {
-        IeLogger.INFO.log("Start shutting down elf4j service...");
-        stoppables.forEach(Stoppable::stop);
-        IeLogger.INFO.log("End shutting down elf4j service");
+        IeLogger.INFO.log("Start shutting down elf4j service by {}", this);
+        lock.lock();
+        try {
+            stoppables.forEach(Stoppable::stop);
+            stoppables.clear();
+        } finally {
+            lock.unlock();
+        }
+        IeLogger.INFO.log("End shutting down elf4j service by {}", this);
     }
 
     /**
@@ -97,5 +124,33 @@ public enum LogServiceManager {
     @NonNull
     public Thread getShutdownHookThread() {
         return new Thread(this::shutdown);
+    }
+
+    /**
+     *
+     */
+    public interface Refreshable {
+        /**
+         * @param properties
+         *         used to refresh the logging configuration. If <code>null</code>, only properties reloaded from the
+         *         configuration file will be used. Otherwise, the specified properties will replace all current
+         *         properties and configuration file is ignored.
+         */
+        void refresh(@Nullable Properties properties);
+
+        /**
+         * reloads from original source of properties
+         */
+        void refresh();
+    }
+
+    /**
+     *
+     */
+    public interface Stoppable {
+        /**
+         *
+         */
+        void stop();
     }
 }

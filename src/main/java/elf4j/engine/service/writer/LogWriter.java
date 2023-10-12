@@ -52,7 +52,7 @@ public interface LogWriter extends PerformanceSensitive {
     /**
      *
      */
-    interface TypedLogWriterFactory {
+    interface LogWriterType {
         /**
          * @param logServiceConfiguration
          *         entire configuration

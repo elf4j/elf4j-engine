@@ -26,19 +26,29 @@
 package elf4j.engine;
 
 import elf4j.Level;
+import elf4j.engine.service.EventingLogService;
 import elf4j.engine.service.LogService;
+import elf4j.engine.service.LogServiceManager;
+import elf4j.engine.service.configuration.LogServiceConfiguration;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import java.util.Properties;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class NativeLoggerFactoryTest {
     @Mock LogService mockLogService;
+
+    @AfterAll
+    static void afterAll() {
+        LogServiceManager.INSTANCE.refresh();
+    }
 
     @Nested
     class customizedFactory {
@@ -71,6 +81,39 @@ class NativeLoggerFactoryTest {
             NativeLogger nativeLogger = nativeLoggerFactory.logger();
 
             assertSame(mockLogService, nativeLogger.getLogService());
+        }
+
+        @Nested
+        class refresh {
+            @Test
+            void whenRefreshedBySetting() {
+                Class<?> stubLoggerAccessInterface = NativeLoggerFactory.class;
+                Properties properties = new Properties();
+                NativeLoggerFactory nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR,
+                        stubLoggerAccessInterface,
+                        new EventingLogService(LogServiceConfiguration.bySetting(properties)));
+                NativeLogger nativeLogger = nativeLoggerFactory.logger();
+                LogService logService = nativeLogger.getLogService();
+
+                nativeLoggerFactory.refresh(properties);
+
+                assertNotSame(nativeLogger.getLogService(), logService);
+            }
+
+            @Test
+            void whenRefreshedByLoading() {
+                Class<?> stubLoggerAccessInterface = NativeLoggerFactory.class;
+                Properties properties = new Properties();
+                NativeLoggerFactory nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR,
+                        stubLoggerAccessInterface,
+                        new EventingLogService(LogServiceConfiguration.bySetting(properties)));
+                NativeLogger nativeLogger = nativeLoggerFactory.logger();
+                LogService logService = nativeLogger.getLogService();
+
+                nativeLoggerFactory.refresh();
+
+                assertNotSame(nativeLogger.getLogService(), logService);
+            }
         }
     }
 }

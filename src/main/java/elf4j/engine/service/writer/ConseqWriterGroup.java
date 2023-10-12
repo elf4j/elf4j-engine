@@ -29,9 +29,7 @@ import conseq4j.execute.ConseqExecutor;
 import elf4j.Level;
 import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.LogServiceManager;
-import elf4j.engine.service.Stoppable;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
-import elf4j.engine.service.util.PropertiesUtils;
 import elf4j.util.IeLogger;
 import lombok.NonNull;
 import lombok.ToString;
@@ -47,8 +45,7 @@ import java.util.stream.Collectors;
  * order; meanwhile, logs from the same caller thread will arrive sequentially in the same order as they are called in
  * the orginal thread.
  */
-@ToString
-public class ConseqWriterGroup implements LogWriter, Stoppable {
+public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable {
     private static final int DEFAULT_CONSEQ_CONCURRENCY = Runtime.getRuntime().availableProcessors();
     private final List<LogWriter> writers;
     private final ConseqExecutor conseqExecutor;
@@ -68,21 +65,19 @@ public class ConseqWriterGroup implements LogWriter, Stoppable {
      */
     @NonNull
     public static ConseqWriterGroup from(LogServiceConfiguration logServiceConfiguration) {
-        List<TypedLogWriterFactory> typedLogWriterFactories =
-                new ArrayList<>(getTypedLogWriterFactories(logServiceConfiguration));
-        if (typedLogWriterFactories.isEmpty()) {
-            typedLogWriterFactories.add(new StandardStreamWriter.Factory());
+        List<LogWriterType> logWriterTypes = new ArrayList<>(getLogWriterTypes(logServiceConfiguration));
+        if (logWriterTypes.isEmpty()) {
+            logWriterTypes.add(new StandardStreamWriter.Type());
         }
-        List<LogWriter> logWriters = typedLogWriterFactories.stream()
+        List<LogWriter> logWriters = logWriterTypes.stream()
                 .flatMap(t -> t.getLogWriters(logServiceConfiguration).stream())
                 .collect(Collectors.toList());
         IeLogger.INFO.log("{} service writer(s): {}", logWriters.size(), logWriters);
-        Properties properties = logServiceConfiguration.getProperties();
-        return new ConseqWriterGroup(logWriters, ConseqExecutor.instance(getConcurrency(properties)));
+        return new ConseqWriterGroup(logWriters, ConseqExecutor.instance(getConcurrency(logServiceConfiguration)));
     }
 
-    private static int getConcurrency(Properties properties) {
-        int concurrency = PropertiesUtils.getIntOrDefault("concurrency", properties, DEFAULT_CONSEQ_CONCURRENCY);
+    private static int getConcurrency(@NonNull LogServiceConfiguration logServiceConfiguration) {
+        int concurrency = logServiceConfiguration.getIntOrDefault("concurrency", DEFAULT_CONSEQ_CONCURRENCY);
         IeLogger.INFO.log("Concurrency: {}", concurrency);
         if (concurrency < 1) {
             IeLogger.ERROR.log("Unexpected concurrency: {}, cannot be less than 1", concurrency);
@@ -91,17 +86,21 @@ public class ConseqWriterGroup implements LogWriter, Stoppable {
         return concurrency;
     }
 
-    private static List<TypedLogWriterFactory> getTypedLogWriterFactories(@NonNull LogServiceConfiguration logServiceConfiguration) {
-        String writerTypes = logServiceConfiguration.getProperties().getProperty("writer.types");
+    private static List<LogWriterType> getLogWriterTypes(@NonNull LogServiceConfiguration logServiceConfiguration) {
+        Properties properties = logServiceConfiguration.getProperties();
+        if (properties == null) {
+            return Collections.emptyList();
+        }
+        String writerTypes = properties.getProperty("writer.types");
         if (writerTypes == null) {
             return Collections.emptyList();
         }
         return Arrays.stream(writerTypes.split(",")).map(String::trim).map(fqcn -> {
             try {
-                return (TypedLogWriterFactory) Class.forName(fqcn).getDeclaredConstructor().newInstance();
+                return (LogWriterType) Class.forName(fqcn).getDeclaredConstructor().newInstance();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                      NoSuchMethodException | ClassNotFoundException e) {
-                throw new IllegalArgumentException(fqcn, e);
+                throw new IllegalArgumentException("Error instantiating: " + fqcn, e);
             }
         }).collect(Collectors.toList());
     }
@@ -133,7 +132,10 @@ public class ConseqWriterGroup implements LogWriter, Stoppable {
 
     @Override
     public void stop() {
-        IeLogger.INFO.log("Stopping {} writer(s)", writers.size());
+        if (conseqExecutor.isTerminated()) {
+            return;
+        }
+        IeLogger.INFO.log("Stopping {}", this);
         conseqExecutor.close();
     }
 }

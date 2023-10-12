@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 /**
  *
  */
-public class CallerLevels {
+public class OverridingCallerLevels {
     private static final Level DEFAULT_CALLER_MINIMUM_OUTPUT_LEVEL = Level.TRACE;
     private static final String ROOT_CLASS_NAME_SPACE = "";
     private final Map<String, Level> configuredLevels;
@@ -46,7 +46,7 @@ public class CallerLevels {
      */
     private final List<String> sortedCallerClassNameSpaces;
 
-    private CallerLevels(@NonNull Map<String, Level> configuredLevels) {
+    private OverridingCallerLevels(@NonNull Map<String, Level> configuredLevels) {
         this.configuredLevels = new ConcurrentHashMap<>(configuredLevels);
         this.sortedCallerClassNameSpaces = configuredLevels.keySet()
                 .stream()
@@ -55,20 +55,23 @@ public class CallerLevels {
     }
 
     /**
-     * @param properties
+     * @param logServiceConfiguration
      *         configuration source of all minimum output levels for caller classes
      */
     @NonNull
-    static CallerLevels from(@NonNull Properties properties) {
+    public static OverridingCallerLevels from(@NonNull LogServiceConfiguration logServiceConfiguration) {
         Map<String, Level> configuredLevels = new HashMap<>();
-        getAsLevel("level", properties).ifPresent(level -> configuredLevels.put(ROOT_CLASS_NAME_SPACE, level));
-        configuredLevels.putAll(properties.stringPropertyNames()
-                .stream()
-                .filter(name -> name.trim().startsWith("level@"))
-                .collect(Collectors.toMap(name -> name.split("@", 2)[1].trim(),
-                        name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
-        IeLogger.INFO.log("{} caller class output level(s): {}", configuredLevels.size(), configuredLevels);
-        return new CallerLevels(configuredLevels);
+        Properties properties = logServiceConfiguration.getProperties();
+        if (properties != null) {
+            getAsLevel("level", properties).ifPresent(level -> configuredLevels.put(ROOT_CLASS_NAME_SPACE, level));
+            configuredLevels.putAll(properties.stringPropertyNames()
+                    .stream()
+                    .filter(name -> name.trim().startsWith("level@"))
+                    .collect(Collectors.toMap(name -> name.split("@", 2)[1].trim(),
+                            name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
+        }
+        IeLogger.INFO.log("{} overriding caller level(s): {}", configuredLevels.size(), configuredLevels);
+        return new OverridingCallerLevels(configuredLevels);
     }
 
     private static Optional<Level> getAsLevel(String levelKey, @NonNull Properties properties) {

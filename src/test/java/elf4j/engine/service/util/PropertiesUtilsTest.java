@@ -25,6 +25,7 @@
 
 package elf4j.engine.service.util;
 
+import elf4j.engine.service.configuration.LogServiceConfiguration;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -42,11 +43,11 @@ class PropertiesUtilsTest {
         void noSuchPrefix() {
             Properties properties = new Properties();
 
-            assertTrue(PropertiesUtils.getChildProperties("writer1", properties).isEmpty());
+            assertTrue(LogServiceConfiguration.bySetting(properties).getChildProperties("writer1").isEmpty());
 
             properties.setProperty("writer", "fooValue");
 
-            assertTrue(PropertiesUtils.getChildProperties("writer1", properties).isEmpty());
+            assertTrue(LogServiceConfiguration.bySetting(properties).getChildProperties("writer1").isEmpty());
         }
 
         @Test
@@ -56,7 +57,8 @@ class PropertiesUtilsTest {
             properties.setProperty("writer1.level", "info");
             properties.setProperty("writer1.pattern", "{json}");
 
-            Map<String, String> childProperties = PropertiesUtils.getChildProperties("writer1", properties);
+            Map<String, String> childProperties =
+                    LogServiceConfiguration.bySetting(properties).getChildProperties("writer1");
 
             assertEquals(2, childProperties.size());
             assertEquals("info", childProperties.get("level"));
@@ -71,7 +73,8 @@ class PropertiesUtilsTest {
             properties.setProperty("writer1.level", "info");
             properties.setProperty("writer1.pattern", "{json}");
 
-            Map<String, String> childProperties = PropertiesUtils.getChildProperties("writer1", properties);
+            Map<String, String> childProperties =
+                    LogServiceConfiguration.bySetting(properties).getChildProperties("writer1");
 
             assertFalse(childProperties.containsKey("writer"));
             assertFalse(childProperties.containsKey("writer1"));
@@ -85,7 +88,7 @@ class PropertiesUtilsTest {
             Properties properties = new Properties();
             properties.setProperty("writer2", "standard");
 
-            assertTrue(PropertiesUtils.getPropertiesGroupOfType("fileWriters", properties).isEmpty());
+            assertTrue(LogServiceConfiguration.bySetting(properties).getPropertiesGroupOfType("fileWriters").isEmpty());
         }
 
         @Test
@@ -94,7 +97,8 @@ class PropertiesUtilsTest {
             properties.setProperty("writer", "standard");
             properties.setProperty("writer2", "standard");
 
-            List<Map<String, String>> declaredWriter = PropertiesUtils.getPropertiesGroupOfType("standard", properties);
+            List<Map<String, String>> declaredWriter =
+                    LogServiceConfiguration.bySetting(properties).getPropertiesGroupOfType("standard");
 
             assertEquals(2, declaredWriter.size());
             assertTrue(declaredWriter.get(0).isEmpty());

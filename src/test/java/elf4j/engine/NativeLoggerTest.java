@@ -84,7 +84,7 @@ class NativeLoggerTest {
     }
 
     @Nested
-    class enabled {
+    class isEnabled {
         @Test
         void delegateToService() {
             nativeLogger.isEnabled();

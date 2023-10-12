@@ -25,42 +25,182 @@
 
 package elf4j.engine.service.configuration;
 
-import elf4j.engine.NativeLogger;
-import elf4j.engine.service.LogEventProcessor;
-import elf4j.engine.service.writer.LogWriter;
-import elf4j.engine.service.writer.StandardOutput;
+import elf4j.util.IeLogger;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import lombok.ToString;
 
-import java.util.Properties;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
  */
-public interface LogServiceConfiguration {
-    /**
-     * @return entire configuration properties
-     */
-    Properties getProperties();
+@ToString
+@EqualsAndHashCode
+public class LogServiceConfiguration {
+    @Nullable private final Properties properties;
 
     /**
-     * @return the top level (group) writer for the log service, may contain multiple individual writers.
+     *
      */
-    LogWriter getLogServiceWriter();
+    private LogServiceConfiguration() {
+        this(new PropertiesFileLoader().load());
+    }
+
+    private LogServiceConfiguration(@Nullable Properties properties) {
+        this.properties = properties;
+    }
+
+    public static @NonNull LogServiceConfiguration byLoading() {
+        return new LogServiceConfiguration();
+    }
+
+    public static @NonNull LogServiceConfiguration bySetting(Properties properties) {
+        IeLogger.INFO.log("Setting configuration: {}", properties);
+        return new LogServiceConfiguration(properties);
+    }
+
+    public boolean isMissing() {
+        return properties == null;
+    }
 
     /**
-     * @param nativeLogger
-     *         the logger to check for enablement against configuration
-     * @return true if the specified logger's level is at or above the configured minimum output level of both the
-     *         writer and that configured for the logger's caller/owner class; otherwise, false.
+     * Takes only digits from the value to form a sequence, and tries to parse the sequence as an {@link Integer}
+     *
+     * @param name
+     *         full key in properties
+     * @return Integer value of the specified name in the given properties, null if named entry missing or the
+     *         corresponding value contains no digit
      */
-    boolean isEnabled(NativeLogger nativeLogger);
+    @Nullable
+    public Integer getAsInteger(String name) {
+        if (properties == null) {
+            return null;
+        }
+        String value = properties.getProperty(name);
+        if (value == null) {
+            return null;
+        }
+        String digits = value.replaceAll("\\D", "");
+        if (digits.isEmpty()) {
+            return null;
+        }
+        return value.startsWith("-") ? -Integer.parseInt(digits) : Integer.parseInt(digits);
+    }
 
     /**
-     * @return buffered standard out stream writer
+     * @param name
+     *         full key in properties
+     * @param defaultValue
+     *         the default value to return if the delegate method {@link #getAsInteger} returns null
+     * @return result of the delegate method {@link #getAsInteger} or, if that is null, the specified defaultValue
      */
-    StandardOutput getStandardOutput();
+    public int getIntOrDefault(String name, int defaultValue) {
+        Integer value = getAsInteger(name);
+        if (value == null) {
+            return defaultValue;
+        }
+        return value;
+    }
 
     /**
-     * @return configured log event processor
+     * @param prefix
+     *         key prefix to search for
+     * @return all properties entries whose original keys start with the specified prefix. The prefix is removed from
+     *         the keys of the returned entries.
      */
-    LogEventProcessor getLogEventProcessor();
+    public Map<String, String> getChildProperties(String prefix) {
+        if (properties == null) {
+            return Collections.emptyMap();
+        }
+        final String start = prefix + '.';
+        return properties.stringPropertyNames()
+                .stream()
+                .filter(name -> name.trim().startsWith(start))
+                .collect(Collectors.toMap(name -> name.substring(start.length()).trim(),
+                        name -> properties.getProperty(name).trim()));
+    }
+
+    /**
+     * @param type
+     *         the properties value whose keys are each used as a parent key prefix
+     * @return a group whose every member is a set of properties entries having a common key prefix of the specified
+     *         type
+     */
+    public List<Map<String, String>> getPropertiesGroupOfType(String type) {
+        if (properties == null) {
+            return Collections.emptyList();
+        }
+        return properties.stringPropertyNames()
+                .stream()
+                .filter(name -> properties.getProperty(name).trim().equals(type))
+                .map(this::getChildProperties)
+                .collect(Collectors.toList());
+    }
+
+    @Nullable
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public boolean isTrue(String name) {
+        return properties != null && Boolean.parseBoolean(properties.getProperty(name));
+    }
+
+    /**
+     *
+     */
+    static class PropertiesFileLoader {
+        /**
+         *
+         */
+        static final String ELF4J_PROPERTIES_LOCATION = "elf4j.properties.location";
+        private static final String[] DEFAULT_PROPERTIES_LOCATIONS =
+                new String[] { "/elf4j-test.properties", "/elf4j.properties" };
+
+        /**
+         * @return configuration properties loaded from either the default or specified location
+         */
+        @Nullable
+        public Properties load() {
+            Properties properties = new Properties();
+            InputStream propertiesInputStream;
+            final String customPropertiesLocation = System.getProperty(ELF4J_PROPERTIES_LOCATION);
+            if (customPropertiesLocation == null) {
+                propertiesInputStream = fromDefaultPropertiesLocation();
+                if (propertiesInputStream == null) {
+                    IeLogger.WARN.log("No configuration file located");
+                    return null;
+                }
+            } else {
+                propertiesInputStream = getClass().getResourceAsStream(customPropertiesLocation);
+                if (propertiesInputStream == null) {
+                    throw new IllegalArgumentException(
+                            "Null resource stream from specified properties location: " + customPropertiesLocation);
+                }
+            }
+            try {
+                properties.load(propertiesInputStream);
+            } catch (IOException e) {
+                throw new UncheckedIOException(
+                        "Error loading properties stream from location: " + (customPropertiesLocation == null ?
+                                "default location" : customPropertiesLocation), e);
+            }
+            IeLogger.INFO.log("Loaded configuration: {}", properties);
+            return properties;
+        }
+
+        private InputStream fromDefaultPropertiesLocation() {
+            return Arrays.stream(DEFAULT_PROPERTIES_LOCATIONS)
+                    .map(location -> getClass().getResourceAsStream(location))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+        }
+    }
 }
