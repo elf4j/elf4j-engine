@@ -31,6 +31,7 @@ import elf4j.engine.service.LogService;
 import elf4j.engine.service.LogServiceManager;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,8 +44,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class NativeLoggerFactoryTest {
-    @Mock LogService mockLogService;
-
     @AfterAll
     static void afterAll() {
         LogServiceManager.INSTANCE.refresh();
@@ -52,46 +51,46 @@ class NativeLoggerFactoryTest {
 
     @Nested
     class customizedFactory {
+
+        @Mock LogService mockLogService;
+        NativeLoggerFactory nativeLoggerFactory;
+
+        @BeforeEach
+        void afterEach() {
+            nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR, NativeLoggerFactory.class, mockLogService);
+            LogServiceManager.INSTANCE.deregister(nativeLoggerFactory);
+        }
+
         @Test
         void level() {
-            Class<?> stubLoggerAccessInterface = NativeLoggerFactory.class;
-            NativeLoggerFactory nativeLoggerFactory =
-                    new NativeLoggerFactory(Level.ERROR, stubLoggerAccessInterface, mockLogService);
-
             assertEquals(Level.ERROR, nativeLoggerFactory.logger().getLevel());
         }
 
         @Test
         void name() {
-            Class<?> mockLoggerInterface = NativeLoggerFactory.class;
-            NativeLoggerFactory nativeLoggerFactory =
-                    new NativeLoggerFactory(Level.ERROR, mockLoggerInterface, mockLogService);
-
-            NativeLogger logger = nativeLoggerFactory.logger();
-
-            assertSame(this.getClass().getName(), logger.getOwnerClassName());
+            assertSame(this.getClass().getName(), nativeLoggerFactory.logger().getOwnerClassName());
         }
 
         @Test
         void service() {
-            Class<?> stubLoggerAccessInterface = NativeLoggerFactory.class;
-            NativeLoggerFactory nativeLoggerFactory =
-                    new NativeLoggerFactory(Level.ERROR, stubLoggerAccessInterface, mockLogService);
-
-            NativeLogger nativeLogger = nativeLoggerFactory.logger();
-
-            assertSame(mockLogService, nativeLogger.getLogService());
+            assertSame(mockLogService, nativeLoggerFactory.logger().getLogService());
         }
 
         @Nested
         class refresh {
+            NativeLoggerFactory nativeLoggerFactory;
+
+            @BeforeEach
+            void beforeEach() {
+                nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR,
+                        NativeLoggerFactory.class,
+                        new EventingLogService(LogServiceConfiguration.bySetting(new Properties())));
+                LogServiceManager.INSTANCE.deregister(nativeLoggerFactory);
+            }
+
             @Test
             void whenRefreshedBySetting() {
-                Class<?> stubLoggerAccessInterface = NativeLoggerFactory.class;
                 Properties properties = new Properties();
-                NativeLoggerFactory nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR,
-                        stubLoggerAccessInterface,
-                        new EventingLogService(LogServiceConfiguration.bySetting(properties)));
                 NativeLogger nativeLogger = nativeLoggerFactory.logger();
                 LogService logService = nativeLogger.getLogService();
 
@@ -102,11 +101,6 @@ class NativeLoggerFactoryTest {
 
             @Test
             void whenRefreshedByLoading() {
-                Class<?> stubLoggerAccessInterface = NativeLoggerFactory.class;
-                Properties properties = new Properties();
-                NativeLoggerFactory nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR,
-                        stubLoggerAccessInterface,
-                        new EventingLogService(LogServiceConfiguration.bySetting(properties)));
                 NativeLogger nativeLogger = nativeLoggerFactory.logger();
                 LogService logService = nativeLogger.getLogService();
 

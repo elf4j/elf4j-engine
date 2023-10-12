@@ -39,7 +39,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -143,14 +142,7 @@ public class StandardStreamWriter implements LogWriter {
      */
     static class Type implements LogWriterType {
         private static StandardStreamWriter getDefaultWriter(@NonNull LogServiceConfiguration logServiceConfiguration) {
-            if (logServiceConfiguration.isMissing()) {
-                return StandardStreamWriter.builder()
-                        .minimumLevel(Level.TRACE)
-                        .logPattern(LogPattern.from(DEFAULT_PATTERN))
-                        .outStreamType(DEFAULT_OUT_STREAM_TYPE)
-                        .build();
-            }
-            Properties properties = Objects.requireNonNull(logServiceConfiguration.getProperties());
+            Properties properties = logServiceConfiguration.getProperties();
             return StandardStreamWriter.builder()
                     .minimumLevel(Level.valueOf(properties.getProperty("level", DEFAULT_MINIMUM_LEVEL)
                             .trim()

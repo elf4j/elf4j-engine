@@ -57,19 +57,18 @@ public class OverridingCallerLevels {
     /**
      * @param logServiceConfiguration
      *         configuration source of all minimum output levels for caller classes
+     * @return the overriding caller levels
      */
     @NonNull
     public static OverridingCallerLevels from(@NonNull LogServiceConfiguration logServiceConfiguration) {
         Map<String, Level> configuredLevels = new HashMap<>();
         Properties properties = logServiceConfiguration.getProperties();
-        if (properties != null) {
-            getAsLevel("level", properties).ifPresent(level -> configuredLevels.put(ROOT_CLASS_NAME_SPACE, level));
-            configuredLevels.putAll(properties.stringPropertyNames()
-                    .stream()
-                    .filter(name -> name.trim().startsWith("level@"))
-                    .collect(Collectors.toMap(name -> name.split("@", 2)[1].trim(),
-                            name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
-        }
+        getAsLevel("level", properties).ifPresent(level -> configuredLevels.put(ROOT_CLASS_NAME_SPACE, level));
+        configuredLevels.putAll(properties.stringPropertyNames()
+                .stream()
+                .filter(name -> name.trim().startsWith("level@"))
+                .collect(Collectors.toMap(name -> name.split("@", 2)[1].trim(),
+                        name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
         IeLogger.INFO.log("{} overriding caller level(s): {}", configuredLevels.size(), configuredLevels);
         return new OverridingCallerLevels(configuredLevels);
     }
@@ -87,7 +86,7 @@ public class OverridingCallerLevels {
      * @return configured min output level for the specified logger's caller/owner class, or the default level if not
      *         configured
      */
-    public Level getCallerMinimumOutputLevel(NativeLogger nativeLogger) {
+    public Level getMinimumOutputLevel(NativeLogger nativeLogger) {
         return this.sortedCallerClassNameSpaces.stream()
                 .filter(classNameSpace -> nativeLogger.getOwnerClassName().startsWith(classNameSpace))
                 .findFirst()

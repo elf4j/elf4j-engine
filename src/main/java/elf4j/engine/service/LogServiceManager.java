@@ -30,7 +30,6 @@ import lombok.NonNull;
 import lombok.ToString;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -47,8 +46,8 @@ public enum LogServiceManager {
      */
     INSTANCE;
 
-    private final Set<Refreshable> refreshables = Collections.synchronizedSet(new HashSet<>());
-    private final Set<Stoppable> stoppables = Collections.synchronizedSet(new HashSet<>());
+    private final Set<Refreshable> refreshables = new HashSet<>();
+    private final Set<Stoppable> stoppables = new HashSet<>();
     @ToString.Exclude private final Lock lock = new ReentrantLock();
 
     /**
@@ -56,7 +55,12 @@ public enum LogServiceManager {
      *         added to be accessible for management
      */
     public void register(Refreshable refreshable) {
-        refreshables.add(refreshable);
+        lock.lock();
+        try {
+            refreshables.add(refreshable);
+        } finally {
+            lock.unlock();
+        }
         IeLogger.INFO.log("Registered Refreshable {} in {}", refreshable, this);
     }
 
@@ -65,7 +69,12 @@ public enum LogServiceManager {
      *         added to be accessible for management
      */
     public void register(Stoppable stoppable) {
-        stoppables.add(stoppable);
+        lock.lock();
+        try {
+            stoppables.add(stoppable);
+        } finally {
+            lock.unlock();
+        }
         IeLogger.INFO.log("Registered Stoppable {} in {}", stoppable, this);
     }
 
@@ -124,6 +133,15 @@ public enum LogServiceManager {
     @NonNull
     public Thread getShutdownHookThread() {
         return new Thread(this::shutdown);
+    }
+
+    public void deregister(Refreshable refreshable) {
+        lock.lock();
+        try {
+            refreshables.remove(refreshable);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**

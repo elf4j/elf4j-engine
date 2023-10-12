@@ -26,6 +26,8 @@
 package elf4j.engine;
 
 import elf4j.engine.service.LogService;
+import elf4j.engine.service.LogServiceManager;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -43,23 +45,26 @@ import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 class NativeLoggerTest {
-    @Mock LogService mockLogService;
+    @Mock LogService logService;
+    NativeLogger sut;
 
-    NativeLoggerFactory mockNativeLoggerFactory;
-
-    NativeLogger nativeLogger;
+    @AfterAll
+    static void afterAll() {
+        LogServiceManager.INSTANCE.refresh();
+    }
 
     @BeforeEach
-    void init() {
-        mockNativeLoggerFactory = new NativeLoggerFactory(INFO, NativeLogger.class, mockLogService);
-        nativeLogger = new NativeLogger(this.getClass().getName(), TRACE, mockNativeLoggerFactory);
+    void beforeEach() {
+        NativeLoggerFactory nativeLoggerFactory = new NativeLoggerFactory(TRACE, NativeLoggerTest.class, logService);
+        sut = new NativeLogger(NativeLoggerTest.class.getName(), INFO, nativeLoggerFactory);
+        LogServiceManager.INSTANCE.deregister(nativeLoggerFactory);
     }
 
     @Nested
     class atLevels {
         @Test
         void instanceForDifferentLevel() {
-            NativeLogger info = (NativeLogger) nativeLogger.atInfo();
+            NativeLogger info = (NativeLogger) sut.atInfo();
             NativeLogger warn = (NativeLogger) info.atWarn();
 
             assertNotSame(warn, info);
@@ -69,11 +74,11 @@ class NativeLoggerTest {
 
         @Test
         void instanceForSameLevel() {
-            NativeLogger trace = (NativeLogger) nativeLogger.atTrace();
-            NativeLogger debug = (NativeLogger) nativeLogger.atDebug();
-            NativeLogger info = (NativeLogger) nativeLogger.atInfo();
-            NativeLogger warn = (NativeLogger) nativeLogger.atWarn();
-            NativeLogger error = (NativeLogger) nativeLogger.atError();
+            NativeLogger trace = (NativeLogger) sut.atTrace();
+            NativeLogger debug = (NativeLogger) sut.atDebug();
+            NativeLogger info = (NativeLogger) sut.atInfo();
+            NativeLogger warn = (NativeLogger) sut.atWarn();
+            NativeLogger error = (NativeLogger) sut.atError();
 
             assertSame(trace, trace.atTrace());
             assertSame(debug, debug.atDebug());
@@ -87,9 +92,9 @@ class NativeLoggerTest {
     class isEnabled {
         @Test
         void delegateToService() {
-            nativeLogger.isEnabled();
+            sut.isEnabled();
 
-            then(mockLogService).should().isEnabled(nativeLogger);
+            then(logService).should().isEnabled(sut);
         }
     }
 
@@ -104,30 +109,25 @@ class NativeLoggerTest {
 
         @Test
         void exception() {
-            nativeLogger.log(exception);
+            sut.log(exception);
 
-            then(mockLogService).should()
-                    .log(same(nativeLogger), same(NativeLogger.class), same(exception), isNull(), isNull());
+            then(logService).should().log(same(sut), same(NativeLogger.class), same(exception), isNull(), isNull());
         }
 
         @Test
         void exceptionWithMessage() {
-            nativeLogger.log(exception, plainTextMessage);
+            sut.log(exception, plainTextMessage);
 
-            then(mockLogService).should()
-                    .log(same(nativeLogger),
-                            same(NativeLogger.class),
-                            same(exception),
-                            same(plainTextMessage),
-                            isNull());
+            then(logService).should()
+                    .log(same(sut), same(NativeLogger.class), same(exception), same(plainTextMessage), isNull());
         }
 
         @Test
         void exceptionWithMessageAndArgs() {
-            nativeLogger.log(exception, textMessageWithArgHolders, args);
+            sut.log(exception, textMessageWithArgHolders, args);
 
-            then(mockLogService).should()
-                    .log(same(nativeLogger),
+            then(logService).should()
+                    .log(same(sut),
                             same(NativeLogger.class),
                             same(exception),
                             same(textMessageWithArgHolders),
@@ -136,22 +136,18 @@ class NativeLoggerTest {
 
         @Test
         void messageWithArguments() {
-            nativeLogger.log(textMessageWithArgHolders, args);
+            sut.log(textMessageWithArgHolders, args);
 
-            then(mockLogService).should()
-                    .log(same(nativeLogger),
-                            same(NativeLogger.class),
-                            isNull(),
-                            same(textMessageWithArgHolders),
-                            same(args));
+            then(logService).should()
+                    .log(same(sut), same(NativeLogger.class), isNull(), same(textMessageWithArgHolders), same(args));
         }
 
         @Test
         void plainText() {
-            nativeLogger.log(plainTextMessage);
+            sut.log(plainTextMessage);
 
-            then(mockLogService).should()
-                    .log(same(nativeLogger), same(NativeLogger.class), isNull(), same(plainTextMessage), isNull());
+            then(logService).should()
+                    .log(same(sut), same(NativeLogger.class), isNull(), same(plainTextMessage), isNull());
         }
     }
 }

@@ -45,7 +45,7 @@ class PropertiesUtilsTest {
 
             assertTrue(LogServiceConfiguration.bySetting(properties).getChildProperties("writer1").isEmpty());
 
-            properties.setProperty("writer", "fooValue");
+            properties.setProperty("writerA", "fooValue");
 
             assertTrue(LogServiceConfiguration.bySetting(properties).getChildProperties("writer1").isEmpty());
         }

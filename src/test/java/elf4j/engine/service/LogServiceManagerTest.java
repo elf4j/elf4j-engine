@@ -1,7 +1,7 @@
 package elf4j.engine.service;
 
 import elf4j.Logger;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LogServiceManagerTest {
 
-    @AfterEach
-    void cleanUp() {
+    @AfterAll
+    static void cleanUp() {
         LogServiceManager.INSTANCE.refresh();
     }
 

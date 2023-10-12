@@ -30,6 +30,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,34 +39,45 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- *
+ * The type Log service configuration.
  */
 @ToString
 @EqualsAndHashCode
 public class LogServiceConfiguration {
     @Nullable private final Properties properties;
 
-    /**
-     *
-     */
-    private LogServiceConfiguration() {
-        this(new PropertiesFileLoader().load());
-    }
-
     private LogServiceConfiguration(@Nullable Properties properties) {
         this.properties = properties;
     }
 
+    /**
+     * By loading log service configuration.
+     *
+     * @return the log service configuration
+     */
     public static @NonNull LogServiceConfiguration byLoading() {
-        return new LogServiceConfiguration();
+        IeLogger.INFO.log("Configuring by loading properties");
+        return new LogServiceConfiguration(new PropertiesFileLoader().load());
     }
 
+    /**
+     * By setting log service configuration.
+     *
+     * @param properties
+     *         the properties
+     * @return the log service configuration
+     */
     public static @NonNull LogServiceConfiguration bySetting(Properties properties) {
-        IeLogger.INFO.log("Setting configuration: {}", properties);
+        IeLogger.INFO.log("Configuring by setting properties: {}", properties);
         return new LogServiceConfiguration(properties);
     }
 
-    public boolean isMissing() {
+    /**
+     * Is absent boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isAbsent() {
         return properties == null;
     }
 
@@ -79,10 +91,7 @@ public class LogServiceConfiguration {
      */
     @Nullable
     public Integer getAsInteger(String name) {
-        if (properties == null) {
-            return null;
-        }
-        String value = properties.getProperty(name);
+        String value = getProperties().getProperty(name);
         if (value == null) {
             return null;
         }
@@ -90,10 +99,13 @@ public class LogServiceConfiguration {
         if (digits.isEmpty()) {
             return null;
         }
-        return value.startsWith("-") ? -Integer.parseInt(digits) : Integer.parseInt(digits);
+        int i = Integer.parseInt(digits);
+        return value.startsWith("-") ? -i : i;
     }
 
     /**
+     * Gets int or default.
+     *
      * @param name
      *         full key in properties
      * @param defaultValue
@@ -109,51 +121,68 @@ public class LogServiceConfiguration {
     }
 
     /**
+     * Gets child properties.
+     *
      * @param prefix
      *         key prefix to search for
      * @return all properties entries whose original keys start with the specified prefix. The prefix is removed from
      *         the keys of the returned entries.
      */
     public Map<String, String> getChildProperties(String prefix) {
-        if (properties == null) {
+        if (isAbsent()) {
             return Collections.emptyMap();
         }
         final String start = prefix + '.';
-        return properties.stringPropertyNames()
+        return getProperties().stringPropertyNames()
                 .stream()
                 .filter(name -> name.trim().startsWith(start))
                 .collect(Collectors.toMap(name -> name.substring(start.length()).trim(),
-                        name -> properties.getProperty(name).trim()));
+                        name -> getProperties().getProperty(name).trim()));
     }
 
     /**
+     * Gets properties group of type.
+     *
      * @param type
      *         the properties value whose keys are each used as a parent key prefix
      * @return a group whose every member is a set of properties entries having a common key prefix of the specified
      *         type
      */
     public List<Map<String, String>> getPropertiesGroupOfType(String type) {
-        if (properties == null) {
+        if (isAbsent()) {
             return Collections.emptyList();
         }
-        return properties.stringPropertyNames()
+        return getProperties().stringPropertyNames()
                 .stream()
-                .filter(name -> properties.getProperty(name).trim().equals(type))
+                .filter(name -> getProperties().getProperty(name).trim().equals(type))
                 .map(this::getChildProperties)
                 .collect(Collectors.toList());
     }
 
-    @Nullable
+    /**
+     * Gets properties.
+     *
+     * @return the properties
+     */
+    @Nonnull
     public Properties getProperties() {
-        return properties;
-    }
-
-    public boolean isTrue(String name) {
-        return properties != null && Boolean.parseBoolean(properties.getProperty(name));
+        if (isAbsent()) {
+            throw new IllegalStateException("No elf4j configuration present");
+        }
+        return Objects.requireNonNull(properties);
     }
 
     /**
-     *
+     * @param name
+     *         the name to check
+     * @return true only when the named property exists, and has a true value
+     */
+    public boolean isTrue(String name) {
+        return Boolean.parseBoolean(getProperties().getProperty(name));
+    }
+
+    /**
+     * The type Properties file loader.
      */
     static class PropertiesFileLoader {
         /**
@@ -191,7 +220,7 @@ public class LogServiceConfiguration {
                         "Error loading properties stream from location: " + (customPropertiesLocation == null ?
                                 "default location" : customPropertiesLocation), e);
             }
-            IeLogger.INFO.log("Loaded configuration: {}", properties);
+            IeLogger.INFO.log("Loaded properties: {}", properties);
             return properties;
         }
 

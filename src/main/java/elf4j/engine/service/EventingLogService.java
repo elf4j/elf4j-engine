@@ -47,7 +47,7 @@ public class EventingLogService implements LogService {
     private final Map<NativeLogger, Boolean> loggerEnabled = new ConcurrentHashMap<>();
 
     public EventingLogService(@NonNull LogServiceConfiguration logServiceConfiguration) {
-        if (logServiceConfiguration.isMissing() || logServiceConfiguration.isTrue("noop")) {
+        if (logServiceConfiguration.isAbsent() || logServiceConfiguration.isTrue("noop")) {
             noop = true;
             logWriter = null;
             overridingCallerLevels = null;
@@ -68,10 +68,11 @@ public class EventingLogService implements LogService {
         if (noop) {
             return false;
         }
-        Level level = nativeLogger.getLevel();
-        return loggerEnabled.computeIfAbsent(nativeLogger,
-                k -> level.compareTo(overridingCallerLevels.getCallerMinimumOutputLevel(k)) >= 0
-                        && level.compareTo(logWriter.getMinimumOutputLevel()) >= 0);
+        return loggerEnabled.computeIfAbsent(nativeLogger, k -> {
+            Level level = k.getLevel();
+            return level.compareTo(overridingCallerLevels.getMinimumOutputLevel(k)) >= 0
+                    && level.compareTo(logWriter.getMinimumOutputLevel()) >= 0;
+        });
     }
 
     @Override

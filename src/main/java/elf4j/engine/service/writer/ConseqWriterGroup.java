@@ -55,6 +55,7 @@ public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable
     private ConseqWriterGroup(List<LogWriter> writers, ConseqExecutor conseqExecutor) {
         this.writers = writers;
         this.conseqExecutor = conseqExecutor;
+        IeLogger.INFO.log("{} service writer(s) in {}", writers.size(), this);
         LogServiceManager.INSTANCE.register(this);
     }
 
@@ -72,7 +73,6 @@ public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable
         List<LogWriter> logWriters = logWriterTypes.stream()
                 .flatMap(t -> t.getLogWriters(logServiceConfiguration).stream())
                 .collect(Collectors.toList());
-        IeLogger.INFO.log("{} service writer(s): {}", logWriters.size(), logWriters);
         return new ConseqWriterGroup(logWriters, ConseqExecutor.instance(getConcurrency(logServiceConfiguration)));
     }
 
@@ -87,10 +87,10 @@ public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable
     }
 
     private static List<LogWriterType> getLogWriterTypes(@NonNull LogServiceConfiguration logServiceConfiguration) {
-        Properties properties = logServiceConfiguration.getProperties();
-        if (properties == null) {
+        if (logServiceConfiguration.isAbsent()) {
             return Collections.emptyList();
         }
+        Properties properties = logServiceConfiguration.getProperties();
         String writerTypes = properties.getProperty("writer.types");
         if (writerTypes == null) {
             return Collections.emptyList();
@@ -117,7 +117,7 @@ public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable
     }
 
     @Override
-    public void write(LogEvent logEvent) {
+    public void write(@NonNull LogEvent logEvent) {
         conseqExecutor.execute(() -> writers.parallelStream().forEach(writer -> writer.write(logEvent)),
                 logEvent.getCallerThread().getId());
     }
