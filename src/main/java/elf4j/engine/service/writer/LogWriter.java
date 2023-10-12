@@ -27,6 +27,7 @@ package elf4j.engine.service.writer;
 
 import elf4j.Level;
 import elf4j.engine.service.LogEvent;
+import elf4j.engine.service.PerformanceSensitive;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 
 import javax.annotation.concurrent.ThreadSafe;

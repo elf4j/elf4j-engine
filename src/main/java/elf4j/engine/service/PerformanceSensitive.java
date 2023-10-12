@@ -23,24 +23,14 @@
  *
  */
 
-package elf4j.engine.service.writer;
-
-import javax.annotation.concurrent.ThreadSafe;
+package elf4j.engine.service;
 
 /**
  *
  */
-@ThreadSafe
-public interface StandardOutput {
+public interface PerformanceSensitive {
     /**
-     * @param bytes
-     *         to be written to the out stream
+     * @return true if log should include caller detail such as method, line number...
      */
-    void out(byte[] bytes);
-
-    /**
-     * @param bytes
-     *         to be written to the out stream
-     */
-    void err(byte[] bytes);
+    boolean includeCallerDetail();
 }

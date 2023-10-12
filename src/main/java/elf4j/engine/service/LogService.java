@@ -26,7 +26,6 @@
 package elf4j.engine.service;
 
 import elf4j.engine.NativeLogger;
-import elf4j.engine.service.writer.PerformanceSensitive;
 
 /**
  *

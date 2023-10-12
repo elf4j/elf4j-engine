@@ -34,11 +34,15 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.ToString;
 
+import javax.annotation.concurrent.ThreadSafe;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
@@ -83,6 +87,55 @@ public class StandardStreamWriter implements LogWriter {
     enum OutStreamType {
         STDOUT,
         STDERR
+    }
+
+    /**
+     *
+     */
+    @ThreadSafe
+    public interface StandardOutput {
+        /**
+         * @param bytes
+         *         to be written to the out stream
+         */
+        void out(byte[] bytes);
+
+        /**
+         * @param bytes
+         *         to be written to the out stream
+         */
+        void err(byte[] bytes);
+    }
+
+    /**
+     *
+     */
+    @ToString
+    public static class FileStreamStandardOutput implements StandardOutput {
+        private final OutputStream stdout = new FileOutputStream(FileDescriptor.out);
+        private final OutputStream stderr = new FileOutputStream(FileDescriptor.err);
+        private final Lock lock = new ReentrantLock();
+
+        @Override
+        public void out(byte[] bytes) {
+            write(bytes, stdout);
+        }
+
+        @Override
+        public void err(byte[] bytes) {
+            write(bytes, stderr);
+        }
+
+        private void write(byte[] bytes, @NonNull OutputStream outputStream) {
+            lock.lock();
+            try {
+                outputStream.write(bytes);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            } finally {
+                lock.unlock();
+            }
+        }
     }
 
     /**
