@@ -55,12 +55,7 @@ public enum LogServiceManager {
      *         added to be accessible for management
      */
     public void register(Refreshable refreshable) {
-        lock.lock();
-        try {
-            refreshables.add(refreshable);
-        } finally {
-            lock.unlock();
-        }
+        lockAndRun(() -> refreshables.add(refreshable));
         IeLogger.INFO.log("Registered Refreshable {} in {}", refreshable, this);
     }
 
@@ -69,12 +64,7 @@ public enum LogServiceManager {
      *         added to be accessible for management
      */
     public void register(Stoppable stoppable) {
-        lock.lock();
-        try {
-            stoppables.add(stoppable);
-        } finally {
-            lock.unlock();
-        }
+        lockAndRun(() -> stoppables.add(stoppable));
         IeLogger.INFO.log("Registered Stoppable {} in {}", stoppable, this);
     }
 
@@ -83,14 +73,10 @@ public enum LogServiceManager {
      */
     public void refresh() {
         IeLogger.INFO.log("Refreshing elf4j service by {} via reloading properties", this);
-        lock.lock();
-        try {
+        lockAndRun(() -> {
             shutdown();
             refreshables.forEach(Refreshable::refresh);
-        } finally {
-            lock.unlock();
-        }
-
+        });
         IeLogger.INFO.log("Refreshed elf4j service by {} via reloading properties", this);
     }
 
@@ -101,13 +87,10 @@ public enum LogServiceManager {
      */
     public void refresh(Properties properties) {
         IeLogger.INFO.log("Refreshing elf4j service by {} with properties {}", this, properties);
-        lock.lock();
-        try {
+        lockAndRun(() -> {
             shutdown();
             refreshables.forEach(refreshable -> refreshable.refresh(properties));
-        } finally {
-            lock.unlock();
-        }
+        });
         IeLogger.INFO.log("Refreshed elf4j service by {} with properties {}", this, properties);
     }
 
@@ -116,13 +99,10 @@ public enum LogServiceManager {
      */
     public void shutdown() {
         IeLogger.INFO.log("Start shutting down elf4j service by {}", this);
-        lock.lock();
-        try {
+        lockAndRun(() -> {
             stoppables.forEach(Stoppable::stop);
             stoppables.clear();
-        } finally {
-            lock.unlock();
-        }
+        });
         IeLogger.INFO.log("End shutting down elf4j service by {}", this);
     }
 
@@ -136,9 +116,13 @@ public enum LogServiceManager {
     }
 
     public void deregister(Refreshable refreshable) {
+        lockAndRun(() -> refreshables.remove(refreshable));
+    }
+
+    private void lockAndRun(@NonNull Runnable runnable) {
         lock.lock();
         try {
-            refreshables.remove(refreshable);
+            runnable.run();
         } finally {
             lock.unlock();
         }
