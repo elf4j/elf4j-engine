@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
  *
  */
 public class OverridingCallerLevels {
-    private static final Level DEFAULT_CALLER_MINIMUM_OUTPUT_LEVEL = Level.TRACE;
     private static final String ROOT_CLASS_NAME_SPACE = "";
     private final Map<String, Level> configuredLevels;
     /**
@@ -91,6 +90,6 @@ public class OverridingCallerLevels {
                 .filter(classNameSpace -> nativeLogger.getOwnerClassName().startsWith(classNameSpace))
                 .findFirst()
                 .map(this.configuredLevels::get)
-                .orElse(DEFAULT_CALLER_MINIMUM_OUTPUT_LEVEL);
+                .orElse(nativeLogger.getLevel());
     }
 }
