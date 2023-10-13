@@ -22,10 +22,6 @@ class PatternElements {
         return elements.length == 1 ? Optional.empty() : Optional.of(elements[1].trim());
     }
 
-    static @NonNull String getPatternElementName(@NonNull String patternElement) {
-        return patternElement.split(":", 2)[0].trim();
-    }
-
     static PatternElement parsePredefinedPatternELement(String predefinedPatternElement) {
         return PREDEFINED_PATTERN_ELEMENT_TYPES.stream()
                 .filter(type -> type.isTargetTypeOf(predefinedPatternElement))
@@ -33,6 +29,10 @@ class PatternElements {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Predefined pattern element: '" + predefinedPatternElement + "'"))
                 .parse(predefinedPatternElement);
+    }
+
+    private static @NonNull String getPatternElementName(@NonNull String patternElement) {
+        return patternElement.split(":", 2)[0].trim();
     }
 
     /**
