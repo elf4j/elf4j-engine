@@ -25,9 +25,8 @@
 
 package elf4j.engine;
 
+import elf4j.Logger;
 import elf4j.engine.service.LogService;
-import elf4j.engine.service.LogServiceManager;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,33 +36,23 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.function.Supplier;
 
-import static elf4j.Level.*;
+import static elf4j.Level.INFO;
+import static elf4j.Level.WARN;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class NativeLoggerTest {
-    @Mock LogService logService;
-    NativeLogger sut;
-
-    @AfterAll
-    static void afterAll() {
-        LogServiceManager.INSTANCE.refresh();
-    }
-
-    @BeforeEach
-    void beforeEach() {
-        NativeLoggerFactory nativeLoggerFactory = new NativeLoggerFactory(TRACE, NativeLoggerTest.class, logService);
-        sut = new NativeLogger(NativeLoggerTest.class.getName(), INFO, nativeLoggerFactory);
-        LogServiceManager.INSTANCE.deregister(nativeLoggerFactory);
-    }
 
     @Nested
     class atLevels {
         @Test
         void instanceForDifferentLevel() {
+            NativeLogger sut = (NativeLogger) Logger.instance();
             NativeLogger info = (NativeLogger) sut.atInfo();
             NativeLogger warn = (NativeLogger) info.atWarn();
 
@@ -74,6 +63,7 @@ class NativeLoggerTest {
 
         @Test
         void instanceForSameLevel() {
+            NativeLogger sut = (NativeLogger) Logger.instance();
             NativeLogger trace = (NativeLogger) sut.atTrace();
             NativeLogger debug = (NativeLogger) sut.atDebug();
             NativeLogger info = (NativeLogger) sut.atInfo();
@@ -90,8 +80,14 @@ class NativeLoggerTest {
 
     @Nested
     class isEnabled {
+
         @Test
         void delegateToService() {
+            NativeLoggerFactory nativeLoggerFactory = mock(NativeLoggerFactory.class);
+            LogService logService = mock(LogService.class);
+            given(nativeLoggerFactory.getLogService()).willReturn(logService);
+            NativeLogger sut = new NativeLogger(this.getClass().getName(), INFO, nativeLoggerFactory);
+
             sut.isEnabled();
 
             then(logService).should().isEnabled(sut);
@@ -100,12 +96,19 @@ class NativeLoggerTest {
 
     @Nested
     class logDelegateToService {
+        @Mock LogService logService;
+        @Mock NativeLoggerFactory nativeLoggerFactory;
+        NativeLogger sut;
         String plainTextMessage = "plainTextMessage";
         String textMessageWithArgHolders = "textMessage with 2 task holders of values {} and {}";
-
         Object[] args = new Object[] { "1stArgOfObjectType", (Supplier) () -> "2ndArgOfSupplierType" };
-
         Throwable exception = new Exception("Test exception message");
+
+        @BeforeEach
+        void beforeEach() {
+            given(nativeLoggerFactory.getLogService()).willReturn(logService);
+            sut = new NativeLogger(NativeLoggerTest.class.getName(), INFO, nativeLoggerFactory);
+        }
 
         @Test
         void exception() {

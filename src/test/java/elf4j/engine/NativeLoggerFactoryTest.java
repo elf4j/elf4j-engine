@@ -52,59 +52,59 @@ class NativeLoggerFactoryTest {
     @Nested
     class customizedFactory {
 
-        @Mock LogService mockLogService;
-        NativeLoggerFactory nativeLoggerFactory;
+        @Mock LogService logService;
+        NativeLoggerFactory sut;
 
         @BeforeEach
-        void afterEach() {
-            nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR, NativeLoggerFactory.class, mockLogService);
-            LogServiceManager.INSTANCE.deregister(nativeLoggerFactory);
+        void beforeEach() {
+            sut = new NativeLoggerFactory(Level.ERROR, NativeLoggerFactory.class, logService);
+            LogServiceManager.INSTANCE.deregister(sut);
         }
 
         @Test
         void level() {
-            assertEquals(Level.ERROR, nativeLoggerFactory.logger().getLevel());
+            assertEquals(Level.ERROR, sut.logger().getLevel());
         }
 
         @Test
         void name() {
-            assertSame(this.getClass().getName(), nativeLoggerFactory.logger().getOwnerClassName());
+            assertSame(this.getClass().getName(), sut.logger().getOwnerClassName());
         }
 
         @Test
         void service() {
-            assertSame(mockLogService, nativeLoggerFactory.logger().getLogService());
+            assertSame(logService, sut.logger().getLogService());
         }
 
         @Nested
         class refresh {
-            NativeLoggerFactory nativeLoggerFactory;
+            NativeLoggerFactory sut;
 
             @BeforeEach
             void beforeEach() {
-                nativeLoggerFactory = new NativeLoggerFactory(Level.ERROR,
+                sut = new NativeLoggerFactory(Level.ERROR,
                         NativeLoggerFactory.class,
                         new EventingLogService(LogServiceConfiguration.bySetting(new Properties())));
-                LogServiceManager.INSTANCE.deregister(nativeLoggerFactory);
+                LogServiceManager.INSTANCE.deregister(sut);
             }
 
             @Test
             void whenRefreshedBySetting() {
                 Properties properties = new Properties();
-                NativeLogger nativeLogger = nativeLoggerFactory.logger();
+                NativeLogger nativeLogger = sut.logger();
                 LogService logService = nativeLogger.getLogService();
 
-                nativeLoggerFactory.refresh(properties);
+                sut.refresh(properties);
 
                 assertNotSame(nativeLogger.getLogService(), logService);
             }
 
             @Test
             void whenRefreshedByLoading() {
-                NativeLogger nativeLogger = nativeLoggerFactory.logger();
+                NativeLogger nativeLogger = sut.logger();
                 LogService logService = nativeLogger.getLogService();
 
-                nativeLoggerFactory.refresh();
+                sut.refresh();
 
                 assertNotSame(nativeLogger.getLogService(), logService);
             }
