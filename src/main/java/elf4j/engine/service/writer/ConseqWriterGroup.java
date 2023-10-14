@@ -118,8 +118,14 @@ public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable
 
     @Override
     public void write(@NonNull LogEvent logEvent) {
+        long callerThreadId = logEvent.getCallerThread().getId();
+        if (writers.size() == 1) {
+            LogWriter soleWriter = writers.get(0);
+            conseqExecutor.execute(() -> soleWriter.write(logEvent), callerThreadId);
+            return;
+        }
         conseqExecutor.execute(() -> writers.parallelStream().forEach(writer -> writer.write(logEvent)),
-                logEvent.getCallerThread().getId());
+                callerThreadId);
     }
 
     @Override
