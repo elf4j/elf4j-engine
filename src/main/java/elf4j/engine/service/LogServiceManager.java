@@ -117,6 +117,7 @@ public enum LogServiceManager {
 
     public void deregister(Refreshable refreshable) {
         lockAndRun(() -> refreshables.remove(refreshable));
+        IeLogger.INFO.log("De-registered Refreshable {}", refreshable);
     }
 
     private void lockAndRun(@NonNull Runnable runnable) {

@@ -29,6 +29,7 @@ import elf4j.Level;
 import elf4j.engine.NativeLogger;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.writer.LogWriter;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,6 +47,11 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class EventingLogServiceTest {
+    @AfterAll
+    static void afterAll() {
+        LogServiceManager.INSTANCE.refresh();
+    }
+
     @Nested
     class isEnabled {
         @Test

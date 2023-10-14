@@ -26,11 +26,8 @@
 package elf4j.engine;
 
 import elf4j.Level;
-import elf4j.engine.service.EventingLogService;
 import elf4j.engine.service.LogService;
 import elf4j.engine.service.LogServiceManager;
-import elf4j.engine.service.configuration.LogServiceConfiguration;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -41,23 +38,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class NativeLoggerFactoryTest {
-    @AfterAll
-    static void afterAll() {
-        LogServiceManager.INSTANCE.refresh();
-    }
-
     @Nested
     class customizedFactory {
 
         @Mock LogService logService;
+        @Mock NativeLoggerFactory.LogServiceFactory logServiceFactory;
         NativeLoggerFactory sut;
 
         @BeforeEach
         void beforeEach() {
-            sut = new NativeLoggerFactory(Level.ERROR, NativeLoggerFactory.class, logService);
+            sut = new NativeLoggerFactory(Level.ERROR, NativeLoggerFactory.class, logServiceFactory);
             LogServiceManager.INSTANCE.deregister(sut);
         }
 
@@ -73,6 +68,8 @@ class NativeLoggerFactoryTest {
 
         @Test
         void service() {
+            given(logServiceFactory.getLogService()).willReturn(logService);
+
             assertSame(logService, sut.logger().getLogService());
         }
 
@@ -80,11 +77,13 @@ class NativeLoggerFactoryTest {
         class refresh {
             NativeLoggerFactory sut;
 
+            @Mock LogService logService;
+
             @BeforeEach
             void beforeEach() {
                 sut = new NativeLoggerFactory(Level.ERROR,
                         NativeLoggerFactory.class,
-                        new EventingLogService(LogServiceConfiguration.bySetting(new Properties())));
+                        new MockLogServiceFactory(logService));
                 LogServiceManager.INSTANCE.deregister(sut);
             }
 
@@ -107,6 +106,29 @@ class NativeLoggerFactoryTest {
                 sut.refresh();
 
                 assertNotSame(nativeLogger.getLogService(), logService);
+            }
+
+            class MockLogServiceFactory implements NativeLoggerFactory.LogServiceFactory {
+                LogService logService;
+
+                private MockLogServiceFactory(LogService logService) {
+                    this.logService = logService;
+                }
+
+                @Override
+                public LogService getLogService() {
+                    return logService;
+                }
+
+                @Override
+                public void reload() {
+                    logService = mock(LogService.class);
+                }
+
+                @Override
+                public void reset(Properties properties) {
+                    logService = mock(LogService.class);
+                }
             }
         }
     }

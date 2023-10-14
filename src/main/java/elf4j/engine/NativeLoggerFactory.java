@@ -68,7 +68,7 @@ public class NativeLoggerFactory implements LoggerFactory, LogServiceManager.Ref
      * first to get a logger instance of that API.
      */
     @NonNull private final Class<?> serviceAccessClass;
-    @NonNull private LogService logService;
+    @NonNull private final LogServiceFactory logServiceFactory;
 
     /**
      * Default constructor required by {@link java.util.ServiceLoader}
@@ -82,17 +82,15 @@ public class NativeLoggerFactory implements LoggerFactory, LogServiceManager.Ref
      *         the class or interface that the API client application calls first to a logger instance
      */
     public NativeLoggerFactory(@NonNull Class<?> serviceAccessClass) {
-        this(DEFAULT_LOGGER_SEVERITY_LEVEL,
-                serviceAccessClass,
-                new EventingLogService(LogServiceConfiguration.byLoading()));
+        this(DEFAULT_LOGGER_SEVERITY_LEVEL, serviceAccessClass, new ConfiguredLogServiceFactory());
     }
 
     NativeLoggerFactory(@NonNull Level defaultLoggerLevel,
             @NonNull Class<?> serviceAccessClass,
-            @NonNull LogService logService) {
+            @NonNull LogServiceFactory logServiceFactory) {
         this.defaultLoggerLevel = defaultLoggerLevel;
         this.serviceAccessClass = serviceAccessClass;
-        this.logService = logService;
+        this.logServiceFactory = logServiceFactory;
         LogServiceManager.INSTANCE.register(this);
     }
 
@@ -109,20 +107,51 @@ public class NativeLoggerFactory implements LoggerFactory, LogServiceManager.Ref
 
     @Override
     public void refresh(@Nullable Properties properties) {
-        logService = new EventingLogService(LogServiceConfiguration.bySetting(properties));
+        logServiceFactory.reset(properties);
     }
 
     @Override
     public void refresh() {
-        logService = new EventingLogService(LogServiceConfiguration.byLoading());
+        logServiceFactory.reload();
     }
 
     @NonNull LogService getLogService() {
-        return logService;
+        return logServiceFactory.getLogService();
     }
 
     NativeLogger getLogger(Level level, String ownerClassName) {
         return this.nativeLoggers.get(level)
                 .computeIfAbsent(ownerClassName, ownerClass -> new NativeLogger(ownerClass, level, this));
+    }
+
+    interface LogServiceFactory {
+        LogService getLogService();
+
+        void reload();
+
+        void reset(Properties properties);
+    }
+
+    static class ConfiguredLogServiceFactory implements LogServiceFactory {
+        private LogService logService;
+
+        private ConfiguredLogServiceFactory() {
+            logService = new EventingLogService(LogServiceConfiguration.byLoading());
+        }
+
+        @Override
+        public LogService getLogService() {
+            return logService;
+        }
+
+        @Override
+        public void reload() {
+            logService = new EventingLogService(LogServiceConfiguration.byLoading());
+        }
+
+        @Override
+        public void reset(Properties properties) {
+            logService = new EventingLogService(LogServiceConfiguration.bySetting(properties));
+        }
     }
 }
