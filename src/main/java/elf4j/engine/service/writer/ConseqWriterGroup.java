@@ -124,7 +124,7 @@ public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable
             conseqExecutor.execute(() -> soleWriter.write(logEvent), callerThreadId);
             return;
         }
-        conseqExecutor.execute(() -> writers.parallelStream().forEach(writer -> writer.write(logEvent)),
+        conseqExecutor.execute(() -> writers.stream().parallel().forEach(writer -> writer.write(logEvent)),
                 callerThreadId);
     }
 
