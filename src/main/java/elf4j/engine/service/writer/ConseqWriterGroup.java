@@ -52,7 +52,7 @@ public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable
     private Level minimumLevel;
     @ToString.Exclude private Boolean includeCallerDetail;
 
-    private ConseqWriterGroup(List<LogWriter> writers, ConseqExecutor conseqExecutor) {
+    private ConseqWriterGroup(@NonNull List<LogWriter> writers, ConseqExecutor conseqExecutor) {
         this.writers = writers;
         this.conseqExecutor = conseqExecutor;
         IeLogger.INFO.log("{} service writer(s) in {}", writers.size(), this);
@@ -118,14 +118,13 @@ public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable
 
     @Override
     public void write(@NonNull LogEvent logEvent) {
-        long callerThreadId = logEvent.getCallerThread().getId();
-        if (writers.size() == 1) {
-            LogWriter soleWriter = writers.get(0);
-            conseqExecutor.execute(() -> soleWriter.write(logEvent), callerThreadId);
-            return;
-        }
-        conseqExecutor.execute(() -> writers.stream().parallel().forEach(writer -> writer.write(logEvent)),
-                callerThreadId);
+        conseqExecutor.execute(() -> {
+            if (writers.size() == 1) {
+                writers.get(0).write(logEvent);
+                return;
+            }
+            writers.stream().parallel().forEach(writer -> writer.write(logEvent));
+        }, logEvent.getCallerThread().getId());
     }
 
     @Override
