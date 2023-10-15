@@ -126,7 +126,8 @@ public class LogServiceConfiguration {
      * @param prefix
      *         key prefix to search for
      * @return all properties entries whose original keys start with the specified prefix. The prefix is removed from
-     *         the keys of the returned entries.
+     *         the keys of the returned map.
+     * @see #getPropertiesGroupOfType(String)
      */
     public Map<String, String> getChildProperties(String prefix) {
         if (isAbsent()) {
@@ -144,9 +145,10 @@ public class LogServiceConfiguration {
      * Gets properties group of type.
      *
      * @param type
-     *         the properties value whose keys are each used as a parent key prefix
-     * @return a group whose every member is a set of properties entries having a common key prefix of the specified
-     *         type
+     *         the value whose keys are each used as a parent key prefix of a child properties map
+     * @return a child properties map group whose every member is a properties map having a common parent key prefix of
+     *         the specified type
+     * @see #getChildProperties(String)
      */
     public List<Map<String, String>> getPropertiesGroupOfType(String type) {
         if (isAbsent()) {
