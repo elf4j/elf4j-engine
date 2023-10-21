@@ -26,17 +26,21 @@
 package elf4j.engine.service.configuration;
 
 import elf4j.util.IeLogger;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
-import lombok.ToString;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import lombok.ToString;
 
 /**
  * The type Log service configuration.
@@ -44,7 +48,8 @@ import java.util.stream.Collectors;
 @ToString
 @EqualsAndHashCode
 public class LogServiceConfiguration {
-    @Nullable private final Properties properties;
+    @Nullable
+    private final Properties properties;
 
     private LogServiceConfiguration(@Nullable Properties properties) {
         this.properties = properties;
@@ -63,8 +68,7 @@ public class LogServiceConfiguration {
     /**
      * By setting log service configuration.
      *
-     * @param properties
-     *         the properties
+     * @param properties the properties
      * @return the log service configuration
      */
     public static @NonNull LogServiceConfiguration bySetting(Properties properties) {
@@ -84,10 +88,9 @@ public class LogServiceConfiguration {
     /**
      * Takes only digits from the value to form a sequence, and tries to parse the sequence as an {@link Integer}
      *
-     * @param name
-     *         full key in properties
+     * @param name full key in properties
      * @return Integer value of the specified name in the given properties, null if named entry missing or the
-     *         corresponding value contains no digit
+     * corresponding value contains no digit
      */
     @Nullable
     public Integer getAsInteger(String name) {
@@ -106,10 +109,8 @@ public class LogServiceConfiguration {
     /**
      * Gets int or default.
      *
-     * @param name
-     *         full key in properties
-     * @param defaultValue
-     *         the default value to return if the delegate method {@link #getAsInteger} returns null
+     * @param name         full key in properties
+     * @param defaultValue the default value to return if the delegate method {@link #getAsInteger} returns null
      * @return result of the delegate method {@link #getAsInteger} or, if that is null, the specified defaultValue
      */
     public int getIntOrDefault(String name, int defaultValue) {
@@ -123,10 +124,9 @@ public class LogServiceConfiguration {
     /**
      * Gets child properties.
      *
-     * @param prefix
-     *         key prefix to search for
+     * @param prefix key prefix to search for
      * @return all properties entries whose original keys start with the specified prefix. The prefix is removed from
-     *         the keys of the returned map.
+     * the keys of the returned map.
      * @see #getPropertiesGroupOfType(String)
      */
     public Map<String, String> getChildProperties(String prefix) {
@@ -134,28 +134,26 @@ public class LogServiceConfiguration {
             return Collections.emptyMap();
         }
         final String start = prefix + '.';
-        return getProperties().stringPropertyNames()
-                .stream()
+        return getProperties().stringPropertyNames().stream()
                 .filter(name -> name.trim().startsWith(start))
-                .collect(Collectors.toMap(name -> name.substring(start.length()).trim(),
+                .collect(Collectors.toMap(
+                        name -> name.substring(start.length()).trim(),
                         name -> getProperties().getProperty(name).trim()));
     }
 
     /**
      * Gets properties group of type.
      *
-     * @param type
-     *         the value whose keys are each used as a parent key prefix of a child properties map
+     * @param type the value whose keys are each used as a parent key prefix of a child properties map
      * @return a child properties map group whose every member is a properties map having a common parent key prefix of
-     *         the specified type
+     * the specified type
      * @see #getChildProperties(String)
      */
     public List<Map<String, String>> getPropertiesGroupOfType(String type) {
         if (isAbsent()) {
             return Collections.emptyList();
         }
-        return getProperties().stringPropertyNames()
-                .stream()
+        return getProperties().stringPropertyNames().stream()
                 .filter(name -> getProperties().getProperty(name).trim().equals(type))
                 .map(this::getChildProperties)
                 .collect(Collectors.toList());
@@ -175,8 +173,7 @@ public class LogServiceConfiguration {
     }
 
     /**
-     * @param name
-     *         the name to check
+     * @param name the name to check
      * @return true only when the named property exists, and has a true value
      */
     public boolean isTrue(String name) {
@@ -191,8 +188,9 @@ public class LogServiceConfiguration {
          *
          */
         static final String ELF4J_PROPERTIES_LOCATION = "elf4j.properties.location";
+
         private static final String[] DEFAULT_PROPERTIES_LOCATIONS =
-                new String[] { "/elf4j-test.properties", "/elf4j.properties" };
+                new String[] {"/elf4j-test.properties", "/elf4j.properties"};
 
         /**
          * @return configuration properties loaded from either the default or specified location
@@ -219,8 +217,9 @@ public class LogServiceConfiguration {
                 properties.load(propertiesInputStream);
             } catch (IOException e) {
                 throw new UncheckedIOException(
-                        "Error loading properties stream from location: " + (customPropertiesLocation == null ?
-                                "default location" : customPropertiesLocation), e);
+                        "Error loading properties stream from location: "
+                                + (customPropertiesLocation == null ? "default location" : customPropertiesLocation),
+                        e);
             }
             IeLogger.INFO.log("Loaded properties: {}", properties);
             return properties;

@@ -42,8 +42,7 @@ class LevelElement implements PatternElement {
     }
 
     /**
-     * @param patternSegment
-     *         to convert
+     * @param patternSegment to convert
      * @return converted patternSegment object
      */
     public static @NonNull LevelElement from(@NonNull String patternSegment) {

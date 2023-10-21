@@ -25,6 +25,8 @@
 
 package elf4j.engine.service.pattern;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
 import elf4j.engine.NativeLoggerFactory;
@@ -36,26 +38,24 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 @ExtendWith(MockitoExtension.class)
 class MessageAndExceptionPatternTest {
-    @Mock NativeLoggerFactory mockNativeLoggerFactory;
+    @Mock
+    NativeLoggerFactory mockNativeLoggerFactory;
+
     LogEvent mockLogEvent;
     String mockMessage = "testLogMessage {}";
-    Object[] mockArgs = new Object[] { "testArg1" };
+    Object[] mockArgs = new Object[] {"testArg1"};
     Exception mockException = new Exception("testExceptionMessage");
 
     @BeforeEach
     void beforeEach() {
         mockLogEvent = LogEvent.builder()
                 .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, mockNativeLoggerFactory))
-                .callerThread(new LogEvent.ThreadValue(Thread.currentThread().getName(),
-                        Thread.currentThread().getId()))
-                .callerFrame(LogEvent.StackFrameValue.from(new StackTraceElement("testClassName",
-                        "testMethodName",
-                        "testFileName",
-                        42)))
+                .callerThread(new LogEvent.ThreadValue(
+                        Thread.currentThread().getName(), Thread.currentThread().getId()))
+                .callerFrame(LogEvent.StackFrameValue.from(
+                        new StackTraceElement("testClassName", "testMethodName", "testFileName", 42)))
                 .message(mockMessage)
                 .arguments(mockArgs)
                 .throwable(mockException)

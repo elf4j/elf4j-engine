@@ -27,7 +27,6 @@ package elf4j.engine;
 
 import elf4j.Logger;
 import elf4j.engine.service.LogServiceManager;
-
 import java.util.function.Supplier;
 
 public class Main {
@@ -42,12 +41,12 @@ public class Main {
         warn.log("Houston, we do not have {} but let's do {}", "a problem", (Supplier) () -> "a drill");
         Throwable exception = new Exception("This is a drill");
         warn.atError().log(exception);
-        logger.atInfo()
-                .log(exception,
-                        "i.e. Throwable always comes {}, then the following {} message and arguments work {}",
-                        "first",
-                        "optional",
-                        (Supplier) () -> "as usual");
+        logger.atInfo().log(
+                exception,
+                "i.e. Throwable always comes {}, then the following {} message and arguments work {}",
+                "first",
+                "optional",
+                (Supplier) () -> "as usual");
         Logger.instance()
                 .atInfo()
                 .atError()

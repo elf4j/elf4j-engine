@@ -26,22 +26,21 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
+import java.util.Objects;
+import javax.annotation.Nonnull;
 import lombok.NonNull;
 import lombok.Value;
-
-import javax.annotation.Nonnull;
-import java.util.Objects;
 
 /**
  *
  */
 @Value
 class ThreadElement implements PatternElement {
-    @NonNull ThreadElement.DisplayOption threadDisplayOption;
+    @NonNull
+    ThreadElement.DisplayOption threadDisplayOption;
 
     /**
-     * @param patternSegment
-     *         text pattern segment to convert
+     * @param patternSegment text pattern segment to convert
      * @return the thread pattern segment converted from the specified text
      */
     @Nonnull

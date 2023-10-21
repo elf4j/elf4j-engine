@@ -26,14 +26,13 @@
 package elf4j.engine.service;
 
 import elf4j.engine.NativeLogger;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
-
-import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Value;
 
 /**
  * Source data to be rendered to a final log message
@@ -42,14 +41,30 @@ import java.util.function.Supplier;
 @Builder
 public class LogEvent {
     private static final int ADDITIONAL_STRING_BUILDER_CAPACITY = 32;
-    @NonNull NativeLogger nativeLogger;
-    @NonNull ThreadValue callerThread;
-    @NonNull Instant timestamp = Instant.now();
-    @Nullable Object message;
-    @Nullable Object[] arguments;
-    @Nullable Throwable throwable;
-    @Nullable Class<?> serviceInterfaceClass;
-    @Nullable StackFrameValue callerFrame;
+
+    @NonNull
+    NativeLogger nativeLogger;
+
+    @NonNull
+    ThreadValue callerThread;
+
+    @NonNull
+    Instant timestamp = Instant.now();
+
+    @Nullable
+    Object message;
+
+    @Nullable
+    Object[] arguments;
+
+    @Nullable
+    Throwable throwable;
+
+    @Nullable
+    Class<?> serviceInterfaceClass;
+
+    @Nullable
+    StackFrameValue callerFrame;
 
     private static @NonNull CharSequence resolve(Object message, Object[] arguments) {
         String suppliedMessage = Objects.toString(supply(message), "");
@@ -62,7 +77,8 @@ public class LogEvent {
         int j = 0;
         while (i < messageLength) {
             char character = suppliedMessage.charAt(i);
-            if (character == '{' && ((i + 1) < messageLength && suppliedMessage.charAt(i + 1) == '}')
+            if (character == '{'
+                    && ((i + 1) < messageLength && suppliedMessage.charAt(i + 1) == '}')
                     && j < arguments.length) {
                 resolved.append(supply(arguments[j++]));
                 i += 2;
@@ -98,10 +114,16 @@ public class LogEvent {
     @Value
     @Builder
     public static class StackFrameValue {
-        @NonNull String className;
-        @NonNull String methodName;
+        @NonNull
+        String className;
+
+        @NonNull
+        String methodName;
+
         int lineNumber;
-        @Nullable String fileName;
+
+        @Nullable
+        String fileName;
 
         public static StackFrameValue from(StackTraceElement stackTraceElement) {
             return LogEvent.StackFrameValue.builder()
@@ -118,7 +140,9 @@ public class LogEvent {
      */
     @Value
     public static class ThreadValue {
-        @NonNull String name;
+        @NonNull
+        String name;
+
         long id;
     }
 }

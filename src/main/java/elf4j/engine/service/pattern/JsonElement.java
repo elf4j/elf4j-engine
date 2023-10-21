@@ -31,11 +31,6 @@ import com.dslplatform.json.PrettifyOutputStream;
 import com.dslplatform.json.runtime.Settings;
 import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.util.StackTraceUtils;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.ToString;
-import lombok.Value;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -48,6 +43,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.ToString;
+import lombok.Value;
 
 /**
  *
@@ -61,16 +60,17 @@ class JsonElement implements PatternElement {
     private static final String CALLER_THREAD = "caller-thread";
     private static final String PRETTY = "pretty";
     private static final Set<String> DISPLAY_OPTIONS =
-            Arrays.stream(new String[] { CALLER_THREAD, CALLER_DETAIL, PRETTY }).collect(Collectors.toSet());
+            Arrays.stream(new String[] {CALLER_THREAD, CALLER_DETAIL, PRETTY}).collect(Collectors.toSet());
     boolean includeCallerThread;
     boolean includeCallerDetail;
     boolean prettyPrint;
-    @ToString.Exclude DslJson<Object> dslJson =
+
+    @ToString.Exclude
+    DslJson<Object> dslJson =
             new DslJson<>(Settings.basicSetup().skipDefaultValues(true).includeServiceLoader());
 
     /**
-     * @param patternSegment
-     *         to convert
+     * @param patternSegment to convert
      * @return converted patternSegment object
      */
     public static JsonElement from(@NonNull String patternSegment) {
@@ -98,8 +98,8 @@ class JsonElement implements PatternElement {
     @Override
     public void render(LogEvent logEvent, @NonNull StringBuilder target) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(JSON_BYTES_INIT_SIZE);
-        try (OutputStream outputStream = this.prettyPrint ? new PrettifyOutputStream(byteArrayOutputStream) :
-                byteArrayOutputStream) {
+        try (OutputStream outputStream =
+                prettyPrint ? new PrettifyOutputStream(byteArrayOutputStream) : byteArrayOutputStream) {
             dslJson.serialize(JsonLogEntry.from(logEvent, this), outputStream);
             target.append(byteArrayOutputStream.toString(UTF_8));
         } catch (IOException e) {
@@ -128,8 +128,10 @@ class JsonElement implements PatternElement {
                     .callerDetail(
                             jsonPattern.includeCallerDetail ? Objects.requireNonNull(logEvent.getCallerFrame()) : null)
                     .message(logEvent.getResolvedMessage())
-                    .exception(logEvent.getThrowable() == null ? null :
-                            StackTraceUtils.getTraceAsBuffer(logEvent.getThrowable()))
+                    .exception(
+                            logEvent.getThrowable() == null
+                                    ? null
+                                    : StackTraceUtils.getTraceAsBuffer(logEvent.getThrowable()))
                     .build();
         }
     }

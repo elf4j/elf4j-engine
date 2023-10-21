@@ -31,26 +31,32 @@ import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.LogServiceManager;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.util.IeLogger;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Properties;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.ToString;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * In general, log events are asynchronously written/rendered in parallel by multiple concurrent threads. However,
  * events issued by the same caller application thread are rendered sequentially with the {@link ConseqExecutor} API.
  * Thus, logs by different caller threads may arrive at the final destination (e.g. system Console or a log file) in any
  * order; meanwhile, logs from the same caller thread will arrive sequentially in the same order as they are called in
- * the orginal thread.
+ * the original thread.
  */
 public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable {
     private static final int DEFAULT_CONSEQ_CONCURRENCY = Runtime.getRuntime().availableProcessors();
     private final List<LogWriter> writers;
     private final ConseqExecutor conseqExecutor;
     private Level minimumLevel;
-    @ToString.Exclude private Boolean includeCallerDetail;
+
+    @ToString.Exclude
+    private Boolean includeCallerDetail;
 
     private ConseqWriterGroup(@NonNull List<LogWriter> writers, ConseqExecutor conseqExecutor) {
         this.writers = writers;
@@ -60,9 +66,8 @@ public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable
     }
 
     /**
-     * @param logServiceConfiguration
-     *         entire configuration
-     * @return the composite writer containing all writers configured in the specified properties
+     * @param logServiceConfiguration entire configuration @return the composite writer containing all writers
+     *                                configured in the specified properties
      */
     @NonNull
     public static ConseqWriterGroup from(LogServiceConfiguration logServiceConfiguration) {
@@ -95,36 +100,46 @@ public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable
         if (writerTypes == null) {
             return Collections.emptyList();
         }
-        return Arrays.stream(writerTypes.split(",")).map(String::trim).map(fqcn -> {
-            try {
-                return (LogWriterType) Class.forName(fqcn).getDeclaredConstructor().newInstance();
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                     NoSuchMethodException | ClassNotFoundException e) {
-                throw new IllegalArgumentException("Error instantiating: " + fqcn, e);
-            }
-        }).collect(Collectors.toList());
+        return Arrays.stream(writerTypes.split(","))
+                .map(String::trim)
+                .map(fqcn -> {
+                    try {
+                        return (LogWriterType)
+                                Class.forName(fqcn).getDeclaredConstructor().newInstance();
+                    } catch (InstantiationException
+                            | IllegalAccessException
+                            | InvocationTargetException
+                            | NoSuchMethodException
+                            | ClassNotFoundException e) {
+                        throw new IllegalArgumentException("Error instantiating: " + fqcn, e);
+                    }
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
     public Level getMinimumOutputLevel() {
         if (minimumLevel == null) {
-            minimumLevel = Level.values()[writers.stream()
-                    .mapToInt(writer -> writer.getMinimumOutputLevel().ordinal())
-                    .min()
-                    .orElseThrow(NoSuchElementException::new)];
+            minimumLevel = Level.values()[
+                    writers.stream()
+                            .mapToInt(writer -> writer.getMinimumOutputLevel().ordinal())
+                            .min()
+                            .orElseThrow(NoSuchElementException::new)];
         }
         return minimumLevel;
     }
 
     @Override
     public void write(@NonNull LogEvent logEvent) {
-        conseqExecutor.execute(() -> {
-            if (writers.size() == 1) {
-                writers.get(0).write(logEvent);
-                return;
-            }
-            writers.stream().parallel().forEach(writer -> writer.write(logEvent));
-        }, logEvent.getCallerThread().getId());
+        conseqExecutor.execute(
+                () -> {
+                    if (writers.size() == 1) {
+                        writers.get(0).write(logEvent);
+                        return;
+                    }
+                    writers.stream().parallel().forEach(writer -> writer.write(logEvent));
+                },
+                logEvent.getCallerThread().getId());
     }
 
     @Override

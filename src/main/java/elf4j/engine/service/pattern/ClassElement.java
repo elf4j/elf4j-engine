@@ -26,10 +26,9 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
+import javax.annotation.Nonnull;
 import lombok.NonNull;
 import lombok.Value;
-
-import javax.annotation.Nonnull;
 
 /**
  *
@@ -37,11 +36,12 @@ import javax.annotation.Nonnull;
 @Value
 class ClassElement implements PatternElement {
     private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.SIMPLE;
-    @NonNull DisplayOption classDisplayOption;
+
+    @NonNull
+    DisplayOption classDisplayOption;
 
     /**
-     * @param patternSegment
-     *         text patternSegment to convert
+     * @param patternSegment text patternSegment to convert
      * @return converted patternSegment object
      */
     @Nonnull
@@ -53,8 +53,8 @@ class ClassElement implements PatternElement {
 
     /**
      * @return <code>false</code> assuming the logger's owner class is the same as the caller class. Therefore, unlike
-     *         the {@link MethodElement}, it does not take a stack trace walk to locate the caller class - the owner
-     *         class is taken instead.
+     * the {@link MethodElement}, it does not take a stack trace walk to locate the caller class - the owner class is
+     * taken instead.
      */
     @Override
     public boolean includeCallerDetail() {

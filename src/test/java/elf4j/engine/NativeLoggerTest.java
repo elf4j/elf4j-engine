@@ -25,25 +25,26 @@
 
 package elf4j.engine;
 
+import static elf4j.Level.INFO;
+import static elf4j.Level.WARN;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+
 import elf4j.Logger;
 import elf4j.engine.service.LogService;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.function.Supplier;
-
-import static elf4j.Level.INFO;
-import static elf4j.Level.WARN;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class NativeLoggerTest {
@@ -96,12 +97,16 @@ class NativeLoggerTest {
 
     @Nested
     class logDelegateToService {
-        @Mock LogService logService;
-        @Mock NativeLoggerFactory nativeLoggerFactory;
+        @Mock
+        LogService logService;
+
+        @Mock
+        NativeLoggerFactory nativeLoggerFactory;
+
         NativeLogger sut;
         String plainTextMessage = "plainTextMessage";
         String textMessageWithArgHolders = "textMessage with 2 task holders of values {} and {}";
-        Object[] args = new Object[] { "1stArgOfObjectType", (Supplier) () -> "2ndArgOfSupplierType" };
+        Object[] args = new Object[] {"1stArgOfObjectType", (Supplier) () -> "2ndArgOfSupplierType"};
         Throwable exception = new Exception("Test exception message");
 
         @BeforeEach
@@ -121,7 +126,8 @@ class NativeLoggerTest {
         void exceptionWithMessage() {
             sut.log(exception, plainTextMessage);
 
-            then(logService).should()
+            then(logService)
+                    .should()
                     .log(same(sut), same(NativeLogger.class), same(exception), same(plainTextMessage), isNull());
         }
 
@@ -129,8 +135,10 @@ class NativeLoggerTest {
         void exceptionWithMessageAndArgs() {
             sut.log(exception, textMessageWithArgHolders, args);
 
-            then(logService).should()
-                    .log(same(sut),
+            then(logService)
+                    .should()
+                    .log(
+                            same(sut),
                             same(NativeLogger.class),
                             same(exception),
                             same(textMessageWithArgHolders),
@@ -141,7 +149,8 @@ class NativeLoggerTest {
         void messageWithArguments() {
             sut.log(textMessageWithArgHolders, args);
 
-            then(logService).should()
+            then(logService)
+                    .should()
                     .log(same(sut), same(NativeLogger.class), isNull(), same(textMessageWithArgHolders), same(args));
         }
 
@@ -149,7 +158,8 @@ class NativeLoggerTest {
         void plainText() {
             sut.log(plainTextMessage);
 
-            then(logService).should()
+            then(logService)
+                    .should()
                     .log(same(sut), same(NativeLogger.class), isNull(), same(plainTextMessage), isNull());
         }
     }

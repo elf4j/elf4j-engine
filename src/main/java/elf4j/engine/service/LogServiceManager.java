@@ -26,15 +26,14 @@
 package elf4j.engine.service;
 
 import elf4j.util.IeLogger;
-import lombok.NonNull;
-import lombok.ToString;
-
-import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.annotation.Nullable;
+import lombok.NonNull;
+import lombok.ToString;
 
 /**
  *
@@ -48,11 +47,12 @@ public enum LogServiceManager {
 
     private final Set<Refreshable> refreshables = new HashSet<>();
     private final Set<Stoppable> stoppables = new HashSet<>();
-    @ToString.Exclude private final Lock lock = new ReentrantLock();
+
+    @ToString.Exclude
+    private final Lock lock = new ReentrantLock();
 
     /**
-     * @param refreshable
-     *         added to be accessible for management
+     * @param refreshable added to be accessible for management
      */
     public void register(Refreshable refreshable) {
         lockAndRun(() -> refreshables.add(refreshable));
@@ -60,8 +60,7 @@ public enum LogServiceManager {
     }
 
     /**
-     * @param stoppable
-     *         added to be accessible for management
+     * @param stoppable added to be accessible for management
      */
     public void register(Stoppable stoppable) {
         lockAndRun(() -> stoppables.add(stoppable));
@@ -81,9 +80,9 @@ public enum LogServiceManager {
     }
 
     /**
-     * @param properties
-     *         if non-null, replaces current configuration with the specified properties, instead of reloading from the
-     *         original properties source; otherwise, reloads the original properties source for each refreshable.
+     * @param properties if non-null, replaces current configuration with the specified properties, instead of reloading
+     *                   from the original properties source; otherwise, reloads the original properties source for each
+     *                   refreshable.
      */
     public void refresh(Properties properties) {
         IeLogger.INFO.log("Refreshing elf4j service by {} with properties {}", this, properties);
@@ -108,7 +107,7 @@ public enum LogServiceManager {
 
     /**
      * @return a thread that orderly stops the entire log service. As an alternative to calling {@link #shutdown()}, the
-     *         returned thread can be registered as a JVM shutdown hook.
+     * returned thread can be registered as a JVM shutdown hook.
      */
     @NonNull
     public Thread getShutdownHookThread() {
@@ -134,10 +133,9 @@ public enum LogServiceManager {
      */
     public interface Refreshable {
         /**
-         * @param properties
-         *         used to refresh the logging configuration. If <code>null</code>, only properties reloaded from the
-         *         configuration file will be used. Otherwise, the specified properties will replace all current
-         *         properties and configuration file is ignored.
+         * @param properties used to refresh the logging configuration. If <code>null</code>, only properties reloaded
+         *                   from the configuration file will be used. Otherwise, the specified properties will replace
+         *                   all current properties and configuration file is ignored.
          */
         void refresh(@Nullable Properties properties);
 

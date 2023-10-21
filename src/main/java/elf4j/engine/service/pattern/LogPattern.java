@@ -26,12 +26,11 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
-import lombok.NonNull;
-import lombok.Value;
-
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nonnull;
+import lombok.NonNull;
+import lombok.Value;
 
 /**
  * Composite of individual patterns, intended to form the entire log layout
@@ -41,8 +40,7 @@ public class LogPattern implements PatternElement {
     List<PatternElement> patternElements;
 
     /**
-     * @param pattern
-     *         layout pattern text for entire log entry from configuration
+     * @param pattern layout pattern text for entire log entry from configuration
      * @return composite pattern object for the entire final log message output layout
      */
     public static @Nonnull LogPattern from(@NonNull String pattern) {

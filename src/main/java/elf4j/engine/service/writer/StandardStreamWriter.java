@@ -30,18 +30,21 @@ import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.pattern.LogPattern;
 import elf4j.engine.service.pattern.PatternElement;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.ToString;
-
-import javax.annotation.concurrent.ThreadSafe;
-import java.io.*;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.annotation.concurrent.ThreadSafe;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.ToString;
 
 /**
  *
@@ -94,14 +97,12 @@ public class StandardStreamWriter implements LogWriter {
     @ThreadSafe
     public interface StandardOutput {
         /**
-         * @param bytes
-         *         to be written to the out stream
+         * @param bytes to be written to the out stream
          */
         void out(byte[] bytes);
 
         /**
-         * @param bytes
-         *         to be written to the out stream
+         * @param bytes to be written to the out stream
          */
         void err(byte[] bytes);
     }
@@ -144,12 +145,15 @@ public class StandardStreamWriter implements LogWriter {
         private static StandardStreamWriter getDefaultWriter(@NonNull LogServiceConfiguration logServiceConfiguration) {
             Properties properties = logServiceConfiguration.getProperties();
             return StandardStreamWriter.builder()
-                    .minimumLevel(Level.valueOf(properties.getProperty("level", DEFAULT_MINIMUM_LEVEL)
+                    .minimumLevel(Level.valueOf(properties
+                            .getProperty("level", DEFAULT_MINIMUM_LEVEL)
                             .trim()
                             .toUpperCase()))
                     .logPattern(LogPattern.from(properties.getProperty("pattern", DEFAULT_PATTERN)))
-                    .outStreamType(OutStreamType.valueOf(properties.getProperty("stream",
-                            DEFAULT_OUT_STREAM_TYPE.name()).trim().toUpperCase()))
+                    .outStreamType(OutStreamType.valueOf(properties
+                            .getProperty("stream", DEFAULT_OUT_STREAM_TYPE.name())
+                            .trim()
+                            .toUpperCase()))
                     .build();
         }
 

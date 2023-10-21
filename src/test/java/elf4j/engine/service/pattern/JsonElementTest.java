@@ -25,6 +25,9 @@
 
 package elf4j.engine.service.pattern;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
 import elf4j.engine.NativeLoggerFactory;
@@ -36,12 +39,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 @ExtendWith(MockitoExtension.class)
 class JsonElementTest {
-    @Mock NativeLoggerFactory mockNativeLoggerFactory;
+    @Mock
+    NativeLoggerFactory mockNativeLoggerFactory;
+
     LogEvent mockLogEvent;
     String mockMessage = "testLogMessage {}";
 
@@ -49,15 +51,13 @@ class JsonElementTest {
     void beforeEach() {
         mockLogEvent = LogEvent.builder()
                 .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, mockNativeLoggerFactory))
-                .callerThread(new LogEvent.ThreadValue(Thread.currentThread().getName(),
-                        Thread.currentThread().getId()))
-                .callerFrame(LogEvent.StackFrameValue.from(new StackTraceElement("testClassName",
-                        "testMethodName",
-                        "testFileName",
-                        42)))
+                .callerThread(new LogEvent.ThreadValue(
+                        Thread.currentThread().getName(), Thread.currentThread().getId()))
+                .callerFrame(LogEvent.StackFrameValue.from(
+                        new StackTraceElement("testClassName", "testMethodName", "testFileName", 42)))
                 .serviceInterfaceClass(this.getClass())
                 .message(mockMessage)
-                .arguments(new Object[] { "testArg1" })
+                .arguments(new Object[] {"testArg1"})
                 .throwable(new Exception("testExceptionMessage"))
                 .build();
     }

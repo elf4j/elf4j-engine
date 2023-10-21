@@ -32,10 +32,9 @@ import elf4j.engine.service.configuration.OverridingCallerLevels;
 import elf4j.engine.service.util.StackTraceUtils;
 import elf4j.engine.service.writer.ConseqWriterGroup;
 import elf4j.engine.service.writer.LogWriter;
-import lombok.NonNull;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.NonNull;
 
 /**
  * converts a log request into an event for async processing
@@ -76,7 +75,8 @@ public class EventingLogService implements LogService {
     }
 
     @Override
-    public void log(@NonNull NativeLogger nativeLogger,
+    public void log(
+            @NonNull NativeLogger nativeLogger,
             @NonNull Class<?> serviceInterfaceClass,
             Throwable throwable,
             Object message,
@@ -92,9 +92,11 @@ public class EventingLogService implements LogService {
                 .message(message)
                 .arguments(arguments)
                 .serviceInterfaceClass(serviceInterfaceClass)
-                .callerFrame(includeCallerDetail() ? LogEvent.StackFrameValue.from(StackTraceUtils.getCallerFrame(
-                        serviceInterfaceClass,
-                        new Throwable().getStackTrace())) : null)
+                .callerFrame(
+                        includeCallerDetail()
+                                ? LogEvent.StackFrameValue.from(StackTraceUtils.getCallerFrame(
+                                        serviceInterfaceClass, new Throwable().getStackTrace()))
+                                : null)
                 .build());
     }
 }

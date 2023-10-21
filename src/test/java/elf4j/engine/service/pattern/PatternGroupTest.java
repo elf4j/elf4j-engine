@@ -25,7 +25,11 @@
 
 package elf4j.engine.service.pattern;
 
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.inOrder;
+
 import elf4j.engine.service.LogEvent;
+import java.util.Arrays;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,18 +37,18 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
-
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.inOrder;
-
 @ExtendWith(MockitoExtension.class)
 class PatternGroupTest {
     @Nested
     class render {
-        @Mock PatternElement mockPattern;
-        @Mock PatternElement mockPattern2;
-        @Mock LogEvent stubLogEvent;
+        @Mock
+        PatternElement mockPattern;
+
+        @Mock
+        PatternElement mockPattern2;
+
+        @Mock
+        LogEvent stubLogEvent;
 
         LogPattern patternGroupEntry;
 

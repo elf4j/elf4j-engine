@@ -25,22 +25,19 @@
 
 package elf4j.engine.service.util;
 
-import lombok.NonNull;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.NoSuchElementException;
+import lombok.NonNull;
 
 /**
  *
  */
 public class StackTraceUtils {
-    private StackTraceUtils() {
-    }
+    private StackTraceUtils() {}
 
     /**
-     * @param calleeClass
-     *         whose caller is being searched for
+     * @param calleeClass whose caller is being searched for
      * @return immediate caller frame of the specified callee class
      */
     public static StackTraceElement callerOf(@NonNull Class<?> calleeClass) {
@@ -49,14 +46,12 @@ public class StackTraceUtils {
     }
 
     /**
-     * @param calleeClass
-     *         whose caller is being searched for
-     * @param stackTrace
-     *         to walk in search for the caller
+     * @param calleeClass whose caller is being searched for
+     * @param stackTrace  to walk in search for the caller
      * @return the caller frame in the stack trace
      */
-    public static StackTraceElement getCallerFrame(@NonNull Class<?> calleeClass,
-            @NonNull StackTraceElement[] stackTrace) {
+    public static StackTraceElement getCallerFrame(
+            @NonNull Class<?> calleeClass, @NonNull StackTraceElement @NonNull [] stackTrace) {
         String calleeClassName = calleeClass.getName();
         for (int depth = 1; depth < stackTrace.length; depth++) {
             if (calleeClassName.equals(stackTrace[depth - 1].getClassName())
@@ -68,8 +63,7 @@ public class StackTraceUtils {
     }
 
     /**
-     * @param throwable
-     *         to extract stack trace text from
+     * @param throwable to extract stack trace text from
      * @return stack trace buffer as the specified throwable prints it
      */
     public static StringBuffer getTraceAsBuffer(@NonNull Throwable throwable) {

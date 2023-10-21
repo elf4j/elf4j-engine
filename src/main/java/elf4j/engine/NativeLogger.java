@@ -28,9 +28,8 @@ package elf4j.engine;
 import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.service.LogService;
-import lombok.NonNull;
-
 import javax.annotation.concurrent.ThreadSafe;
+import lombok.NonNull;
 
 /**
  * Any instance of this class is thread-safe; it can be safely used as static, instance, or local variables. However,
@@ -55,22 +54,20 @@ public class NativeLogger implements Logger {
      * walking is needed only when more caller details (e.g. method name, file name, line number) are required.
      */
     private final @NonNull String ownerClassName;
+
     private final @NonNull Level level;
     private final @NonNull NativeLoggerFactory nativeLoggerFactory;
 
     /**
      * Constructor only meant to be used by {@link NativeLoggerFactory} and this class itself
      *
-     * @param ownerClassName
-     *         name of the owner class that requested this instance via the {@link Logger#instance()} method
-     * @param level
-     *         severity level of this logger instance
-     * @param nativeLoggerFactory
-     *         log service access point from this instance, not reloadable
+     * @param ownerClassName      name of the owner class that requested this instance via the {@link Logger#instance()}
+     *                            method
+     * @param level               severity level of this logger instance
+     * @param nativeLoggerFactory log service access point from this instance, not reloadable
      */
-    public NativeLogger(@NonNull String ownerClassName,
-            @NonNull Level level,
-            @NonNull NativeLoggerFactory nativeLoggerFactory) {
+    public NativeLogger(
+            @NonNull String ownerClassName, @NonNull Level level, @NonNull NativeLoggerFactory nativeLoggerFactory) {
         this.ownerClassName = ownerClassName;
         this.level = level;
         this.nativeLoggerFactory = nativeLoggerFactory;

@@ -28,11 +28,16 @@ package elf4j.engine.service.configuration;
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
 import elf4j.util.IeLogger;
-import lombok.NonNull;
-
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 
 /**
  *
@@ -47,15 +52,13 @@ public class OverridingCallerLevels {
 
     private OverridingCallerLevels(@NonNull Map<String, Level> configuredLevels) {
         this.configuredLevels = new ConcurrentHashMap<>(configuredLevels);
-        this.sortedCallerClassNameSpaces = configuredLevels.keySet()
-                .stream()
+        this.sortedCallerClassNameSpaces = configuredLevels.keySet().stream()
                 .sorted(Comparator.comparingInt(String::length).reversed())
                 .collect(Collectors.toList());
     }
 
     /**
-     * @param logServiceConfiguration
-     *         configuration source of all minimum output levels for caller classes
+     * @param logServiceConfiguration configuration source of all minimum output levels for caller classes
      * @return the overriding caller levels
      */
     @NonNull
@@ -63,27 +66,27 @@ public class OverridingCallerLevels {
         Map<String, Level> configuredLevels = new HashMap<>();
         Properties properties = logServiceConfiguration.getProperties();
         getAsLevel("level", properties).ifPresent(level -> configuredLevels.put(ROOT_CLASS_NAME_SPACE, level));
-        configuredLevels.putAll(properties.stringPropertyNames()
-                .stream()
+        configuredLevels.putAll(properties.stringPropertyNames().stream()
                 .filter(name -> name.trim().startsWith("level@"))
-                .collect(Collectors.toMap(name -> name.split("@", 2)[1].trim(),
-                        name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
+                .collect(Collectors.toMap(name -> name.split("@", 2)[1].trim(), name -> getAsLevel(name, properties)
+                        .orElseThrow(NoSuchElementException::new))));
         IeLogger.INFO.log("{} overriding caller level(s): {}", configuredLevels.size(), configuredLevels);
         return new OverridingCallerLevels(configuredLevels);
     }
 
     private static Optional<Level> getAsLevel(String levelKey, @NonNull Properties properties) {
         String levelValue = properties.getProperty(levelKey);
-        return levelValue == null ? Optional.empty() : Optional.of(Level.valueOf(levelValue.trim().toUpperCase()));
+        return levelValue == null
+                ? Optional.empty()
+                : Optional.of(Level.valueOf(levelValue.trim().toUpperCase()));
     }
 
     /**
      * Assuming the owner and caller class of the specified logger is the same
      *
-     * @param nativeLogger
-     *         to search for configured minimum output level
+     * @param nativeLogger to search for configured minimum output level
      * @return configured min output level for the specified logger's caller/owner class, or the default level if not
-     *         configured
+     * configured
      */
     public Level getMinimumOutputLevel(NativeLogger nativeLogger) {
         return this.sortedCallerClassNameSpaces.stream()

@@ -26,21 +26,20 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
+import javax.annotation.Nonnull;
 import lombok.NonNull;
 import lombok.Value;
-
-import javax.annotation.Nonnull;
 
 /**
  *
  */
 @Value
 class VerbatimElement implements PatternElement {
-    @NonNull String text;
+    @NonNull
+    String text;
 
     /**
-     * @param patternSegment
-     *         text pattern segment to convert
+     * @param patternSegment text pattern segment to convert
      * @return converted pattern segment object
      */
     @Nonnull

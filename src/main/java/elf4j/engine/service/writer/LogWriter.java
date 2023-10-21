@@ -29,36 +29,30 @@ import elf4j.Level;
 import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.PerformanceSensitive;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
-
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.List;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Implementation should be thread-safe
  */
 @ThreadSafe
 public interface LogWriter extends PerformanceSensitive {
-
-    /**
-     * @return the minimum output level of this writer
-     */
-    Level getMinimumOutputLevel();
-
-    /**
-     * @param logEvent
-     *         the log data entry to write out
-     */
-    void write(LogEvent logEvent);
-
     /**
      *
      */
     interface LogWriterType {
         /**
-         * @param logServiceConfiguration
-         *         entire configuration
+         * @param logServiceConfiguration entire configuration
          * @return all log writers of the enclosing writer type from the given configuration
          */
         List<LogWriter> getLogWriters(LogServiceConfiguration logServiceConfiguration);
     }
+    /**
+     * @return the minimum output level of this writer
+     */
+    Level getMinimumOutputLevel();
+    /**
+     * @param logEvent the log data entry to write out
+     */
+    void write(LogEvent logEvent);
 }

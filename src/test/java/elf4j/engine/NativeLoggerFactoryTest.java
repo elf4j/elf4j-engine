@@ -25,9 +25,16 @@
 
 package elf4j.engine;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
 import elf4j.Level;
 import elf4j.engine.service.LogService;
 import elf4j.engine.service.LogServiceManager;
+import java.util.Properties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,19 +42,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Properties;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-
 @ExtendWith(MockitoExtension.class)
 class NativeLoggerFactoryTest {
     @Nested
     class customizedFactory {
 
-        @Mock LogService logService;
-        @Mock NativeLoggerFactory.LogServiceFactory logServiceFactory;
+        @Mock
+        LogService logService;
+
+        @Mock
+        NativeLoggerFactory.LogServiceFactory logServiceFactory;
+
         NativeLoggerFactory sut;
 
         @BeforeEach
@@ -77,13 +82,13 @@ class NativeLoggerFactoryTest {
         class refresh {
             NativeLoggerFactory sut;
 
-            @Mock LogService logService;
+            @Mock
+            LogService logService;
 
             @BeforeEach
             void beforeEach() {
-                sut = new NativeLoggerFactory(Level.ERROR,
-                        NativeLoggerFactory.class,
-                        new MockLogServiceFactory(logService));
+                sut = new NativeLoggerFactory(
+                        Level.ERROR, NativeLoggerFactory.class, new MockLogServiceFactory(logService));
                 LogServiceManager.INSTANCE.deregister(sut);
             }
 

@@ -1,20 +1,18 @@
 package elf4j.engine.service.pattern;
 
-import lombok.NonNull;
-
 import java.util.EnumSet;
 import java.util.Optional;
+import lombok.NonNull;
 
 class PatternElements {
     private static final EnumSet<PredefinedPatternElement> PREDEFINED_PATTERN_ELEMENT_TYPES =
             EnumSet.allOf(PredefinedPatternElement.class);
 
-    private PatternElements() {
-    }
+    private PatternElements() {}
 
     /**
-     * @param patternElement
-     *         entire text of an individual pattern element, including pattern element name and possibly options
+     * @param patternElement entire text of an individual pattern element, including pattern element name and possibly
+     *                       options
      * @return the option portion of the pattern element text if present; otherwise, empty Optional
      */
     static Optional<String> getPatternElementDisplayOption(@NonNull String patternElement) {
@@ -26,8 +24,8 @@ class PatternElements {
         return PREDEFINED_PATTERN_ELEMENT_TYPES.stream()
                 .filter(type -> type.isTargetTypeOf(predefinedPatternElement))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Predefined pattern element: '" + predefinedPatternElement + "'"))
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Predefined pattern element: '" + predefinedPatternElement + "'"))
                 .parse(predefinedPatternElement);
     }
 
@@ -129,15 +127,13 @@ class PatternElements {
         };
 
         /**
-         * @param patternElement
-         *         text to translate
+         * @param patternElement text to translate
          * @return pattern element object of the specified text
          */
         abstract PatternElement parse(String patternElement);
 
         /**
-         * @param patternElement
-         *         text configuration of an individual pattern element
+         * @param patternElement text configuration of an individual pattern element
          * @return true if this pattern element type is the target type of the specified pattern element text
          */
         private boolean isTargetTypeOf(String patternElement) {

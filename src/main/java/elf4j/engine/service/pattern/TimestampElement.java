@@ -26,13 +26,12 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
-import lombok.NonNull;
-import lombok.Value;
-
-import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import javax.annotation.Nonnull;
+import lombok.NonNull;
+import lombok.Value;
 
 /**
  *
@@ -44,14 +43,15 @@ class TimestampElement implements PatternElement {
     DateTimeFormatter dateTimeFormatter;
 
     /**
-     * @param patternSegment
-     *         text pattern segment to convert
+     * @param patternSegment text pattern segment to convert
      * @return converted pattern segment object
      */
     @Nonnull
     public static TimestampElement from(@NonNull String patternSegment) {
-        return new TimestampElement(DateTimeFormatter.ofPattern(PatternElements.getPatternElementDisplayOption(
-                patternSegment).orElse(DEFAULT_DATETIME_PATTERN)).withZone(DISPLAY_TIME_ZONE));
+        return new TimestampElement(
+                DateTimeFormatter.ofPattern(PatternElements.getPatternElementDisplayOption(patternSegment)
+                                .orElse(DEFAULT_DATETIME_PATTERN))
+                        .withZone(DISPLAY_TIME_ZONE));
     }
 
     @Override
