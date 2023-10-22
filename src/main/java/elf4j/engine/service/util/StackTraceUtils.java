@@ -25,10 +25,11 @@
 
 package elf4j.engine.service.util;
 
+import lombok.NonNull;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.NoSuchElementException;
-import lombok.NonNull;
 
 /**
  *

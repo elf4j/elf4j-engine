@@ -26,9 +26,10 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
-import java.util.Objects;
 import lombok.NonNull;
 import lombok.Value;
+
+import java.util.Objects;
 
 /**
  *

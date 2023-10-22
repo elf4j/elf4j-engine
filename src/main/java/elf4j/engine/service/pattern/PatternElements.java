@@ -1,8 +1,9 @@
 package elf4j.engine.service.pattern;
 
+import lombok.NonNull;
+
 import java.util.EnumSet;
 import java.util.Optional;
-import lombok.NonNull;
 
 class PatternElements {
     private static final EnumSet<PredefinedPatternElement> PREDEFINED_PATTERN_ELEMENT_TYPES =

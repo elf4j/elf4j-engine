@@ -26,12 +26,13 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
+import lombok.NonNull;
+import lombok.Value;
+
+import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import javax.annotation.Nonnull;
-import lombok.NonNull;
-import lombok.Value;
 
 /**
  *

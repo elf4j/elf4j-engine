@@ -25,12 +25,12 @@
 
 package elf4j.engine.service.pattern;
 
+import elf4j.engine.service.LogEvent;
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
-
-import elf4j.engine.service.LogEvent;
-import org.junit.jupiter.api.Test;
 
 class VerbatimPatternTest {
 

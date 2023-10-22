@@ -31,16 +31,12 @@ import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.LogServiceManager;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.util.IeLogger;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Properties;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.ToString;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * In general, log events are asynchronously written/rendered in parallel by multiple concurrent threads. However,
@@ -66,8 +62,8 @@ public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable
     }
 
     /**
-     * @param logServiceConfiguration entire configuration @return the composite writer containing all writers
-     *                                configured in the specified properties
+     * @param logServiceConfiguration entire configuration
+     * @return the composite writer containing all writers configured in the specified properties
      */
     @NonNull
     public static ConseqWriterGroup from(LogServiceConfiguration logServiceConfiguration) {

@@ -28,16 +28,11 @@ package elf4j.engine.service.configuration;
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
 import elf4j.util.IeLogger;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Properties;
+import lombok.NonNull;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import lombok.NonNull;
 
 /**
  *
@@ -88,7 +83,7 @@ public class OverridingCallerLevels {
      * @return configured min output level for the specified logger's caller/owner class, or the default level if not
      * configured
      */
-    public Level getMinimumOutputLevel(NativeLogger nativeLogger) {
+    public Level getMinimumOutputLevel(@NonNull NativeLogger nativeLogger) {
         return this.sortedCallerClassNameSpaces.stream()
                 .filter(classNameSpace -> nativeLogger.getOwnerClassName().startsWith(classNameSpace))
                 .findFirst()

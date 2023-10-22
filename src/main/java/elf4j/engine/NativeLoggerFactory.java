@@ -25,8 +25,6 @@
 
 package elf4j.engine;
 
-import static java.util.stream.Collectors.toMap;
-
 import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.service.EventingLogService;
@@ -35,13 +33,16 @@ import elf4j.engine.service.LogServiceManager;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.util.StackTraceUtils;
 import elf4j.spi.LoggerFactory;
+import lombok.NonNull;
+
+import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import javax.annotation.Nullable;
-import lombok.NonNull;
+
+import static java.util.stream.Collectors.toMap;
 
 /**
  *
