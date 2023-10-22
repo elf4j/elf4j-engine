@@ -39,8 +39,12 @@ class IntegrationTest {
             Logger logger = Logger.instance();
 
             logger.atInfo().log("Hello, world!");
-            Exception issue = new Exception("Test ex message");
-            logger.atWarn().log(issue, "Testing issue '{}' in {}", issue, this.getClass());
+            logger.atWarn()
+                    .log(
+                            new Exception("Test ex message"),
+                            "Testing issue '{}' in {}",
+                            new Exception("Test ex message"),
+                            this.getClass());
 
             assertEquals(this.getClass().getName(), ((NativeLogger) logger).getOwnerClassName());
         }

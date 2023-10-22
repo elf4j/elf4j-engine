@@ -44,7 +44,7 @@ public class Main {
         warn.atError().log(exception);
         logger.atInfo().log(
                 exception,
-                "i.e. Throwable always comes {}, then the following {} message and arguments work {}",
+                "When being logged, the Throwable always comes {}, then the following {} message and arguments work {}",
                 "first",
                 "optional",
                 (Supplier) () -> "as usual");
