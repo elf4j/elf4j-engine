@@ -40,7 +40,7 @@ public interface PatternElement extends PerformanceSensitive {
      * appends the result to the specified target aggregator of the final log message
      *
      * @param logEvent entire log content data source to render
-     * @param target   logging text aggregator of the final log message
+     * @param target logging text aggregator of the final log message
      */
     void render(LogEvent logEvent, StringBuilder target);
 }

@@ -104,7 +104,7 @@ public class LogServiceConfiguration {
     /**
      * Gets int or default.
      *
-     * @param name         full key in properties
+     * @param name full key in properties
      * @param defaultValue the default value to return if the delegate method {@link #getAsInteger} returns null
      * @return result of the delegate method {@link #getAsInteger} or, if that is null, the specified defaultValue
      */

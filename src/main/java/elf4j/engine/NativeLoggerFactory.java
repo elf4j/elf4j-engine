@@ -83,7 +83,7 @@ public class NativeLoggerFactory implements LoggerFactory, LogServiceManager.Ref
 
     /**
      * @param serviceAccessClass the class or interface that the API client application calls first to a logger
-     *                           instance
+     * instance
      */
     public NativeLoggerFactory(@NonNull Class<?> serviceAccessClass) {
         this(DEFAULT_LOGGER_SEVERITY_LEVEL, serviceAccessClass, new ConfiguredLogServiceFactory());

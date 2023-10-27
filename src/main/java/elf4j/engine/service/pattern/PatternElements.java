@@ -12,7 +12,7 @@ class PatternElements {
 
     /**
      * @param patternElement entire text of an individual pattern element, including pattern element name and possibly
-     *                       options
+     * options
      * @return the option portion of the pattern element text if present; otherwise, empty Optional
      */
     static Optional<String> getPatternElementDisplayOption(@NonNull String patternElement) {

@@ -47,7 +47,7 @@ public class StackTraceUtils {
 
     /**
      * @param calleeClass whose caller is being searched for
-     * @param stackTrace  to walk in search for the caller
+     * @param stackTrace to walk in search for the caller
      * @return the caller frame in the stack trace
      */
     public static StackTraceElement getCallerFrame(

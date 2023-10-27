@@ -46,6 +46,7 @@ public interface LogWriter extends PerformanceSensitive {
      * @param logEvent the log data entry to write out
      */
     void write(LogEvent logEvent);
+
     /**
      *
      */

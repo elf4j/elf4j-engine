@@ -81,8 +81,7 @@ public enum LogServiceManager {
 
     /**
      * @param properties if non-null, replaces current configuration with the specified properties, instead of reloading
-     *                   from the original properties source; otherwise, reloads the original properties source for each
-     *                   refreshable.
+     * from the original properties source; otherwise, reloads the original properties source for each refreshable.
      */
     public void refresh(Properties properties) {
         IeLogger.INFO.log("Refreshing elf4j service by {} with properties {}", this, properties);
@@ -134,8 +133,8 @@ public enum LogServiceManager {
     public interface Refreshable {
         /**
          * @param properties used to refresh the logging configuration. If <code>null</code>, only properties reloaded
-         *                   from the configuration file will be used. Otherwise, the specified properties will replace
-         *                   all current properties and configuration file is ignored.
+         * from the configuration file will be used. Otherwise, the specified properties will replace all current
+         * properties and configuration file is ignored.
          */
         void refresh(@Nullable Properties properties);
 
