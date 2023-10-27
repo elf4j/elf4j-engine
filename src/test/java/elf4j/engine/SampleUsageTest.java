@@ -26,10 +26,9 @@
 package elf4j.engine;
 
 import elf4j.Logger;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import java.util.function.Supplier;
 
 class SampleUsageTest {
     static Logger logger = Logger.instance();

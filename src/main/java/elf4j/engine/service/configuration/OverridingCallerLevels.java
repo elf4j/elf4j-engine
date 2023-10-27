@@ -28,11 +28,10 @@ package elf4j.engine.service.configuration;
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
 import elf4j.util.IeLogger;
-import lombok.NonNull;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import lombok.NonNull;
 
 /**
  *
@@ -56,8 +55,7 @@ public class OverridingCallerLevels {
      * @param logServiceConfiguration configuration source of all minimum output levels for caller classes
      * @return the overriding caller levels
      */
-    @NonNull
-    public static OverridingCallerLevels from(@NonNull LogServiceConfiguration logServiceConfiguration) {
+    public static @NonNull OverridingCallerLevels from(@NonNull LogServiceConfiguration logServiceConfiguration) {
         Map<String, Level> configuredLevels = new HashMap<>();
         Properties properties = logServiceConfiguration.getProperties();
         getAsLevel("level", properties).ifPresent(level -> configuredLevels.put(ROOT_CLASS_NAME_SPACE, level));

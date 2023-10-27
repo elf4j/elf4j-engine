@@ -31,12 +31,11 @@ import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.LogServiceManager;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.util.IeLogger;
-import lombok.NonNull;
-import lombok.ToString;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
+import lombok.NonNull;
+import lombok.ToString;
 
 /**
  * In general, log events are asynchronously written/rendered in parallel by multiple concurrent threads. However,

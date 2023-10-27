@@ -29,9 +29,8 @@ import elf4j.Level;
 import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.PerformanceSensitive;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
-
-import javax.annotation.concurrent.ThreadSafe;
 import java.util.List;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Implementation should be thread-safe

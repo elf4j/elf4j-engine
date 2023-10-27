@@ -25,17 +25,6 @@
 
 package elf4j.engine;
 
-import elf4j.Logger;
-import elf4j.engine.service.LogService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.function.Supplier;
-
 import static elf4j.Level.INFO;
 import static elf4j.Level.WARN;
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,6 +33,16 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+
+import elf4j.Logger;
+import elf4j.engine.service.LogService;
+import java.util.function.Supplier;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class NativeLoggerTest {

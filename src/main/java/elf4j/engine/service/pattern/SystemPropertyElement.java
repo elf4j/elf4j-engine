@@ -26,10 +26,9 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
-import lombok.Value;
-
-import javax.annotation.Nonnull;
 import java.util.NoSuchElementException;
+import javax.annotation.Nonnull;
+import lombok.Value;
 
 /**
  *

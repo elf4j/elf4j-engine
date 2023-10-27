@@ -26,15 +26,14 @@
 package elf4j.engine.service;
 
 import elf4j.util.IeLogger;
-import lombok.NonNull;
-import lombok.ToString;
-
-import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.annotation.Nullable;
+import lombok.NonNull;
+import lombok.ToString;
 
 /**
  *

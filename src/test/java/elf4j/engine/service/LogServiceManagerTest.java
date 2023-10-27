@@ -1,15 +1,14 @@
 package elf4j.engine.service;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import elf4j.Logger;
+import java.util.Properties;
+import java.util.concurrent.RejectedExecutionException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import java.util.Properties;
-import java.util.concurrent.RejectedExecutionException;
-
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LogServiceManagerTest {
 

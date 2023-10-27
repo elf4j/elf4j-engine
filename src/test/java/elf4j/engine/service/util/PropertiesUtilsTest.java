@@ -25,15 +25,14 @@
 
 package elf4j.engine.service.util;
 
-import elf4j.engine.service.configuration.LogServiceConfiguration;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
+import elf4j.engine.service.configuration.LogServiceConfiguration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 class PropertiesUtilsTest {
 

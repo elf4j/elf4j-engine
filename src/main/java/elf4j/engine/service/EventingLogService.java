@@ -32,10 +32,9 @@ import elf4j.engine.service.configuration.OverridingCallerLevels;
 import elf4j.engine.service.util.StackTraceUtils;
 import elf4j.engine.service.writer.ConseqWriterGroup;
 import elf4j.engine.service.writer.LogWriter;
-import lombok.NonNull;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.NonNull;
 
 /**
  * converts a log request into an event for async processing

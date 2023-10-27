@@ -26,14 +26,13 @@
 package elf4j.engine.service;
 
 import elf4j.engine.NativeLogger;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
-
-import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Value;
 
 /**
  * Source data to be rendered to a final log message
