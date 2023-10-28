@@ -61,9 +61,9 @@ public class NativeLogger implements Logger {
     /**
      * Constructor only meant to be used by {@link NativeLoggerFactory} and this class itself
      *
-     * @param declaringClassName  name of the declaring class that requested this instance via the
-     *                            {@link Logger#instance()} method
-     * @param level               severity level of this logger instance
+     * @param declaringClassName name of the declaring class that requested this instance via the
+     * {@link Logger#instance()} method
+     * @param level severity level of this logger instance
      * @param nativeLoggerFactory log service access point from this instance, not reloadable
      */
     public NativeLogger(

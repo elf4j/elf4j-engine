@@ -52,9 +52,9 @@ class ClassElement implements PatternElement {
     }
 
     /**
-     * @return <code>false</code> assuming the logger's declaring class is the same as the caller class. Therefore, unlike
-     * the {@link MethodElement}, it does not take a stack trace walk to locate the caller class - the declaring class is
-     * taken instead.
+     * @return <code>false</code> assuming the logger's declaring class is the same as the caller class. Therefore,
+     * unlike the {@link MethodElement}, it does not take a stack trace walk to locate the caller class - the declaring
+     * class is taken instead.
      */
     @Override
     public boolean includeCallerDetail() {
