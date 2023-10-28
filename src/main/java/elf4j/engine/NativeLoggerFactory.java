@@ -47,9 +47,6 @@ import lombok.NonNull;
  *
  */
 public class NativeLoggerFactory implements LoggerFactory, LogServiceManager.Refreshable {
-    /**
-     * Default to TRACE for this native implementation
-     */
     private static final Level DEFAULT_LOGGER_SEVERITY_LEVEL = Level.INFO;
     /**
      * Made injectable for extensions other than this native ELF4J implementation
