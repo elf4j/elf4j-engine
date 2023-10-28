@@ -28,8 +28,8 @@ package elf4j.engine;
 import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.service.LogService;
-import javax.annotation.concurrent.ThreadSafe;
 import lombok.NonNull;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Any instance of this class is thread-safe; it can be safely used as static, instance, or local variables. However,
@@ -116,7 +116,7 @@ public class NativeLogger implements Logger {
     }
 
     /**
-     * @return directly callable log service, useful for log APIs than elf4j to use this engine
+     * @return directly callable log service, useful for other logging frameworks to use this engine
      */
     public LogService getLogService() {
         return this.nativeLoggerFactory.getLogService();
