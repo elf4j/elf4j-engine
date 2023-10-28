@@ -32,23 +32,23 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.NonNull;
+import lombok.ToString;
 
 /**
  *
  */
+@ToString
 public class OverridingCallerLevels {
-    private static final String ROOT_CLASS_NAME_SPACE = "";
+    private static final String DEFAULT_OVERRIDING_CALLER_CLASS_NAME_SPACE = "";
     private final Map<String, Level> configuredLevels;
-    /**
-     * Longest first
-     */
     private final List<String> sortedCallerClassNameSpaces;
 
     private OverridingCallerLevels(@NonNull Map<String, Level> configuredLevels) {
         this.configuredLevels = new ConcurrentHashMap<>(configuredLevels);
         this.sortedCallerClassNameSpaces = configuredLevels.keySet().stream()
-                .sorted(Comparator.comparingInt(String::length).reversed())
+                .sorted(new ByClassNameSpace())
                 .collect(Collectors.toList());
+        IeLogger.INFO.log("{} overriding caller level(s) in {}", configuredLevels.size(), this);
     }
 
     /**
@@ -58,12 +58,12 @@ public class OverridingCallerLevels {
     public static @NonNull OverridingCallerLevels from(@NonNull LogServiceConfiguration logServiceConfiguration) {
         Map<String, Level> configuredLevels = new HashMap<>();
         Properties properties = logServiceConfiguration.getProperties();
-        getAsLevel("level", properties).ifPresent(level -> configuredLevels.put(ROOT_CLASS_NAME_SPACE, level));
+        getAsLevel("level", properties)
+                .ifPresent(level -> configuredLevels.put(DEFAULT_OVERRIDING_CALLER_CLASS_NAME_SPACE, level));
         configuredLevels.putAll(properties.stringPropertyNames().stream()
                 .filter(name -> name.trim().startsWith("level@"))
                 .collect(Collectors.toMap(name -> name.split("@", 2)[1].trim(), name -> getAsLevel(name, properties)
                         .orElseThrow(NoSuchElementException::new))));
-        IeLogger.INFO.log("{} overriding caller level(s): {}", configuredLevels.size(), configuredLevels);
         return new OverridingCallerLevels(configuredLevels);
     }
 
@@ -78,14 +78,39 @@ public class OverridingCallerLevels {
      * Assuming the declaring and caller class of the specified logger is the same
      *
      * @param nativeLogger to search for configured minimum output level
-     * @return configured min output level for the specified logger's caller/declaring class, or the default level if not
-     * configured
+     * @return If overriding level is configured for the nativeLogger's caller class, return the overriding min level.
+     * Otherwise, if no overriding level configured, return the nativeLogger's level.
      */
     public Level getMinimumOutputLevel(@NonNull NativeLogger nativeLogger) {
         return this.sortedCallerClassNameSpaces.stream()
-                .filter(classNameSpace -> nativeLogger.getDeclaringClassName().startsWith(classNameSpace))
+                .filter(sortedNameSpace -> nativeLogger.getDeclaringClassName().startsWith(sortedNameSpace))
                 .findFirst()
                 .map(this.configuredLevels::get)
                 .orElse(nativeLogger.getLevel());
+    }
+
+    static class ByClassNameSpace implements Comparator<String> {
+        private static int getPackageLevels(@NonNull String classNameSpace) {
+            return classNameSpace.split("\\.").length;
+        }
+
+        /**
+         * More specific name space goes first.
+         *
+         * <p></p>
+         * Note: this comparator imposes orderings that are inconsistent with equals.
+         *
+         * @param classNameSpace1 can be fqcn or just package name
+         * @param classNameSpace2 can be fqcn or just package name
+         */
+        @Override
+        public int compare(@NonNull String classNameSpace1, @NonNull String classNameSpace2) {
+            int packageLevelDifference = getPackageLevels(classNameSpace2) - getPackageLevels(classNameSpace1);
+            if (packageLevelDifference != 0) return packageLevelDifference;
+            return Comparator.comparingInt(String::length)
+                    .reversed()
+                    .thenComparing(String::compareTo)
+                    .compare(classNameSpace1, classNameSpace2);
+        }
     }
 }
