@@ -52,8 +52,8 @@ class ClassElement implements PatternElement {
     }
 
     /**
-     * @return <code>false</code> assuming the logger's owner class is the same as the caller class. Therefore, unlike
-     * the {@link MethodElement}, it does not take a stack trace walk to locate the caller class - the owner class is
+     * @return <code>false</code> assuming the logger's declaring class is the same as the caller class. Therefore, unlike
+     * the {@link MethodElement}, it does not take a stack trace walk to locate the caller class - the declaring class is
      * taken instead.
      */
     @Override

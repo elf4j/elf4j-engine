@@ -58,7 +58,7 @@ public class NativeLoggerFactory implements LoggerFactory, LogServiceManager.Ref
             EnumSet.allOf(Level.class).stream().collect(toMap(Function.identity(), level -> new ConcurrentHashMap<>()));
     /**
      * The class or interface that the API client calls first to get a logger instance. The client caller class of this
-     * class will be the "owner class" of the logger instances this factory produces.
+     * class will be the declaring class of the logger instances this factory produces.
      * <p></p>
      * For this native implementation, the service access class is the {@link Logger} interface itself as the client
      * calls the static factory method {@link Logger#instance()} first to get a logger instance. If this library is used
@@ -97,7 +97,7 @@ public class NativeLoggerFactory implements LoggerFactory, LogServiceManager.Ref
     }
 
     /**
-     * More expensive logger instance creation as it uses stack trace to locate the client class (owner class)
+     * More expensive logger instance creation as it uses stack trace to locate the client class (declaring class)
      * requesting the Logger instance.
      *
      * @return new instance of {@link NativeLogger}
@@ -123,10 +123,8 @@ public class NativeLoggerFactory implements LoggerFactory, LogServiceManager.Ref
         return logServiceFactory.getLogService();
     }
 
-    NativeLogger getLogger(Level level, String ownerClassName) {
-        return nativeLoggers
-                .get(level)
-                .computeIfAbsent(ownerClassName, ownerClass -> new NativeLogger(ownerClass, level, this));
+    NativeLogger getLogger(Level level, String declaringClassName) {
+        return nativeLoggers.get(level).computeIfAbsent(declaringClassName, k -> new NativeLogger(k, level, this));
     }
 
     interface LogServiceFactory {
