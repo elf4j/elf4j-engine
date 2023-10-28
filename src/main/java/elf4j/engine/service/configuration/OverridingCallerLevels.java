@@ -83,7 +83,7 @@ public class OverridingCallerLevels {
      */
     public Level getMinimumOutputLevel(@NonNull NativeLogger nativeLogger) {
         return this.sortedCallerClassNameSpaces.stream()
-                .filter(classNameSpace -> nativeLogger.getOwnerClassName().startsWith(classNameSpace))
+                .filter(classNameSpace -> nativeLogger.getDeclaringClassName().startsWith(classNameSpace))
                 .findFirst()
                 .map(this.configuredLevels::get)
                 .orElse(nativeLogger.getLevel());

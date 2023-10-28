@@ -98,7 +98,7 @@ public class LogEvent {
      * @return the name of the application client class calling the logging method of this logger instance
      */
     public String getCallerClassName() {
-        return callerFrame != null ? callerFrame.getClassName() : nativeLogger.getOwnerClassName();
+        return callerFrame != null ? callerFrame.getClassName() : nativeLogger.getDeclaringClassName();
     }
 
     /**

@@ -31,7 +31,7 @@
 
     <groupId>io.github.elf4j</groupId>
     <artifactId>elf4j-engine</artifactId>
-    <version>13.0.9</version>
+    <version>13.0.10</version>
     <packaging>jar</packaging>
     <name>elf4j-engine</name>
     <description>A stand-alone Java log engine implementing the ELF4J (Easy Logging Facade for Java) API</description>
@@ -219,6 +219,15 @@
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
                 <version>2.40.0</version>
+                <executions>
+                    <execution>
+                        <id>spotless-apply-id</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>apply</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
                     <java>
                         <palantirJavaFormat>

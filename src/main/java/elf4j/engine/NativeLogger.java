@@ -40,20 +40,20 @@ import lombok.NonNull;
 @ThreadSafe
 public class NativeLogger implements Logger {
     /**
-     * Name of this logger's "owner class" - the logging service client class that first requested this logger instance
-     * via the {@link Logger#instance()} service access method. The owner class is usually the same as the "caller
-     * class" - the client class that calls the service interface methods such as {@link Logger#log(Object)}.
+     * Name of this logger's declaring class - the logging service client class that first requested this logger
+     * instance via the {@link Logger#instance()} service access method. The declaring class is usually the same as the
+     * "caller class" - the client class that calls the service interface methods such as {@link Logger#log(Object)}.
      * <p>
-     * In rare and not-recommended scenarios, the owner class can be different from the caller class: e.g. the owner
-     * class could pass a reference of this logger instance out to a different/caller class. Once set, though, the value
-     * of this field will never change even when the owner class is different from the caller class.
+     * In rare and not-recommended scenarios, the declaring class can be different from the caller class: e.g. the
+     * declaring class could pass a reference of this logger instance out to a different/caller class. Once set, though,
+     * the value of this field will never change even when the declaring class is different from the caller class.
      * <p>
      * To reduce the frequency of having to walk the call stack in order to locate the caller class, this native ELF4J
-     * implementation assumes the owner and caller class to be one and the same. Thus, for logging output that requires
-     * only the caller class name, this field will be used in liu of checking the stack trace; i.e. the stack trace
-     * walking is needed only when more caller details (e.g. method name, file name, line number) are required.
+     * implementation assumes the declaring and caller class to be one and the same. Thus, for logging output that
+     * requires only the caller class name, this field will be used in liu of checking the stack trace; i.e. the stack
+     * trace walking is needed only when more caller details (e.g. method name, file name, line number) are required.
      */
-    private final @NonNull String ownerClassName;
+    private final @NonNull String declaringClassName;
 
     private final @NonNull Level level;
     private final @NonNull NativeLoggerFactory nativeLoggerFactory;
@@ -61,21 +61,23 @@ public class NativeLogger implements Logger {
     /**
      * Constructor only meant to be used by {@link NativeLoggerFactory} and this class itself
      *
-     * @param ownerClassName name of the owner class that requested this instance via the {@link Logger#instance()}
-     * method
-     * @param level severity level of this logger instance
+     * @param declaringClassName  name of the declaring class that requested this instance via the
+     *                            {@link Logger#instance()} method
+     * @param level               severity level of this logger instance
      * @param nativeLoggerFactory log service access point from this instance, not reloadable
      */
     public NativeLogger(
-            @NonNull String ownerClassName, @NonNull Level level, @NonNull NativeLoggerFactory nativeLoggerFactory) {
-        this.ownerClassName = ownerClassName;
+            @NonNull String declaringClassName,
+            @NonNull Level level,
+            @NonNull NativeLoggerFactory nativeLoggerFactory) {
+        this.declaringClassName = declaringClassName;
         this.level = level;
         this.nativeLoggerFactory = nativeLoggerFactory;
     }
 
     @Override
     public NativeLogger atLevel(Level level) {
-        return this.level == level ? this : this.nativeLoggerFactory.getLogger(level, this.ownerClassName);
+        return this.level == level ? this : this.nativeLoggerFactory.getLogger(level, this.declaringClassName);
     }
 
     @Override
@@ -121,10 +123,10 @@ public class NativeLogger implements Logger {
     }
 
     /**
-     * @return owner/caller class of this logger instance
+     * @return declaring/caller class of this logger instance
      */
-    public @NonNull String getOwnerClassName() {
-        return this.ownerClassName;
+    public @NonNull String getDeclaringClassName() {
+        return this.declaringClassName;
     }
 
     private void service(Throwable throwable, Object message, Object[] arguments) {

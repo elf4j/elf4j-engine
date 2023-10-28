@@ -66,7 +66,7 @@ class NativeLoggerFactoryTest {
 
         @Test
         void name() {
-            assertSame(this.getClass().getName(), sut.logger().getOwnerClassName());
+            assertSame(this.getClass().getName(), sut.logger().getDeclaringClassName());
         }
 
         @Test
