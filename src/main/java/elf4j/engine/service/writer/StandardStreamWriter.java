@@ -48,23 +48,23 @@ import lombok.ToString;
 @Builder
 @ToString
 public class StandardStreamWriter implements LogWriter {
-    private static final String DEFAULT_MINIMUM_LEVEL = "trace";
+    private static final String DEFAULT_THRESHOLD_OUTPUT_LEVEL = "trace";
     private static final String DEFAULT_PATTERN = "{timestamp} {level} {class} - {message}";
     private static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
     private static final String LINE_FEED = System.lineSeparator();
     private final StandardOutput standardOutput = new FileStreamStandardOutput();
-    private final Level minimumLevel;
+    private final Level thresholdOutputLevel;
     private final PatternElement logPattern;
     private final OutStreamType outStreamType;
 
     @Override
-    public Level getMinimumOutputLevel() {
-        return minimumLevel;
+    public Level getThresholdOutputLevel() {
+        return thresholdOutputLevel;
     }
 
     @Override
     public void write(@NonNull LogEvent logEvent) {
-        if (logEvent.getNativeLogger().getLevel().compareTo(this.minimumLevel) < 0) {
+        if (logEvent.getNativeLogger().getLevel().compareTo(this.thresholdOutputLevel) < 0) {
             return;
         }
         StringBuilder target = new StringBuilder();
@@ -141,8 +141,8 @@ public class StandardStreamWriter implements LogWriter {
         private static StandardStreamWriter getDefaultWriter(@NonNull LogServiceConfiguration logServiceConfiguration) {
             Properties properties = logServiceConfiguration.getProperties();
             return StandardStreamWriter.builder()
-                    .minimumLevel(Level.valueOf(properties
-                            .getProperty("level", DEFAULT_MINIMUM_LEVEL)
+                    .thresholdOutputLevel(Level.valueOf(properties
+                            .getProperty("level", DEFAULT_THRESHOLD_OUTPUT_LEVEL)
                             .trim()
                             .toUpperCase()))
                     .logPattern(LogPattern.from(properties.getProperty("pattern", DEFAULT_PATTERN)))

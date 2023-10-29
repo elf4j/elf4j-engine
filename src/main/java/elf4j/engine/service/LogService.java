@@ -33,7 +33,7 @@ import elf4j.engine.NativeLogger;
 public interface LogService extends PerformanceSensitive {
     /**
      * @param nativeLogger to check for enablement
-     * @return true if the logger's level is at or above configured minimum
+     * @return true if the logger's level is at or above configured threshold
      */
     boolean isEnabled(NativeLogger nativeLogger);
 

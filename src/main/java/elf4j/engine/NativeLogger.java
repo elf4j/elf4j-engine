@@ -28,8 +28,9 @@ package elf4j.engine;
 import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.service.LogService;
-import lombok.NonNull;
 import javax.annotation.concurrent.ThreadSafe;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 
 /**
  * Any instance of this class is thread-safe; it can be safely used as static, instance, or local variables. However,
@@ -38,6 +39,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * of variables.
  */
 @ThreadSafe
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class NativeLogger implements Logger {
     /**
      * Name of this logger's declaring class - the logging service client class that first requested this logger
@@ -53,6 +55,7 @@ public class NativeLogger implements Logger {
      * requires only the caller class name, this field will be used in liu of checking the stack trace; i.e. the stack
      * trace walking is needed only when more caller details (e.g. method name, file name, line number) are required.
      */
+    @EqualsAndHashCode.Include
     private final @NonNull String declaringClassName;
 
     private final @NonNull Level level;

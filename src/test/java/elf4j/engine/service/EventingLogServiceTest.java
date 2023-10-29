@@ -73,7 +73,7 @@ class EventingLogServiceTest {
             LogWriter mockLogWriter = mock(LogWriter.class);
             ReflectionTestUtils.setField(logService, "logWriter", mockLogWriter);
             NativeLogger stubLogger = mock(NativeLogger.class);
-            given(mockLogWriter.getMinimumOutputLevel()).willReturn(Level.INFO);
+            given(mockLogWriter.getThresholdOutputLevel()).willReturn(Level.INFO);
             given(stubLogger.getLevel()).willReturn(Level.INFO);
 
             logService.log(stubLogger, this.getClass(), null, null, null);
@@ -89,7 +89,7 @@ class EventingLogServiceTest {
             ReflectionTestUtils.setField(sut, "logWriter", logWriter);
             given(logWriter.includeCallerDetail()).willReturn(true);
             given(nativeLogger.getLevel()).willReturn(Level.INFO);
-            given(logWriter.getMinimumOutputLevel()).willReturn(Level.INFO);
+            given(logWriter.getThresholdOutputLevel()).willReturn(Level.INFO);
             ArgumentCaptor<LogEvent> logEvent = ArgumentCaptor.forClass(LogEvent.class);
 
             sut.log(nativeLogger, this.getClass(), null, null, null);
@@ -113,7 +113,7 @@ class EventingLogServiceTest {
             ReflectionTestUtils.setField(sut, "logWriter", logWriter);
             given(logWriter.includeCallerDetail()).willReturn(false);
             given(nativeLogger.getLevel()).willReturn(Level.INFO);
-            given(logWriter.getMinimumOutputLevel()).willReturn(Level.INFO);
+            given(logWriter.getThresholdOutputLevel()).willReturn(Level.INFO);
             ArgumentCaptor<LogEvent> logEvent = ArgumentCaptor.forClass(LogEvent.class);
 
             sut.log(nativeLogger, this.getClass(), null, null, null);
@@ -138,7 +138,7 @@ class EventingLogServiceTest {
             Level loggerLevel = Level.TRACE;
             given(nativeLogger.getLevel()).willReturn(loggerLevel);
             Level writerLevel = Level.INFO;
-            given(logWriter.getMinimumOutputLevel()).willReturn(writerLevel);
+            given(logWriter.getThresholdOutputLevel()).willReturn(writerLevel);
 
             sut.log(nativeLogger, this.getClass(), null, null, null);
 

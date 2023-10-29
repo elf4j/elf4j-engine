@@ -48,7 +48,7 @@ public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable
     private static final int DEFAULT_CONSEQ_CONCURRENCY = Runtime.getRuntime().availableProcessors();
     private final List<LogWriter> writers;
     private final ConseqExecutor conseqExecutor;
-    private Level minimumLevel;
+    private Level thresholdOutputLevel;
 
     @ToString.Exclude
     private Boolean includeCallerDetail;
@@ -113,15 +113,15 @@ public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable
     }
 
     @Override
-    public Level getMinimumOutputLevel() {
-        if (minimumLevel == null) {
-            minimumLevel = Level.values()[
+    public Level getThresholdOutputLevel() {
+        if (thresholdOutputLevel == null) {
+            thresholdOutputLevel = Level.values()[
                     writers.stream()
-                            .mapToInt(writer -> writer.getMinimumOutputLevel().ordinal())
+                            .mapToInt(writer -> writer.getThresholdOutputLevel().ordinal())
                             .min()
                             .orElseThrow(NoSuchElementException::new)];
         }
-        return minimumLevel;
+        return thresholdOutputLevel;
     }
 
     @Override

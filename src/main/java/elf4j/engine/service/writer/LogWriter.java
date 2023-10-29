@@ -38,9 +38,9 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public interface LogWriter extends PerformanceSensitive {
     /**
-     * @return the minimum output level of this writer
+     * @return the threshold output level of this writer
      */
-    Level getMinimumOutputLevel();
+    Level getThresholdOutputLevel();
 
     /**
      * @param logEvent the log data entry to write out

@@ -38,12 +38,13 @@ import lombok.ToString;
  *
  */
 @ToString
-public class OverridingCallerLevels {
-    private static final String DEFAULT_OVERRIDING_CALLER_CLASS_NAME_SPACE = "";
+public class LoggerOutputLevelThreshold {
+    private static final String CONFIGURED_ROOT_LOGGER_NAME_SPACE = "";
+    private static final Level DEFAULT_THRESHOLD_OUTPUT_LEVEL = Level.TRACE;
     private final Map<String, Level> configuredLevels;
     private final List<String> sortedCallerClassNameSpaces;
 
-    private OverridingCallerLevels(@NonNull Map<String, Level> configuredLevels) {
+    private LoggerOutputLevelThreshold(@NonNull Map<String, Level> configuredLevels) {
         this.configuredLevels = new ConcurrentHashMap<>(configuredLevels);
         this.sortedCallerClassNameSpaces = configuredLevels.keySet().stream()
                 .sorted(new ByClassNameSpace())
@@ -52,19 +53,19 @@ public class OverridingCallerLevels {
     }
 
     /**
-     * @param logServiceConfiguration configuration source of all minimum output levels for caller classes
+     * @param logServiceConfiguration configuration source of all threshold output levels for caller classes
      * @return the overriding caller levels
      */
-    public static @NonNull OverridingCallerLevels from(@NonNull LogServiceConfiguration logServiceConfiguration) {
+    public static @NonNull LoggerOutputLevelThreshold from(@NonNull LogServiceConfiguration logServiceConfiguration) {
         Map<String, Level> configuredLevels = new HashMap<>();
         Properties properties = logServiceConfiguration.getProperties();
         getAsLevel("level", properties)
-                .ifPresent(level -> configuredLevels.put(DEFAULT_OVERRIDING_CALLER_CLASS_NAME_SPACE, level));
+                .ifPresent(level -> configuredLevels.put(CONFIGURED_ROOT_LOGGER_NAME_SPACE, level));
         configuredLevels.putAll(properties.stringPropertyNames().stream()
                 .filter(name -> name.trim().startsWith("level@"))
                 .collect(Collectors.toMap(name -> name.split("@", 2)[1].trim(), name -> getAsLevel(name, properties)
                         .orElseThrow(NoSuchElementException::new))));
-        return new OverridingCallerLevels(configuredLevels);
+        return new LoggerOutputLevelThreshold(configuredLevels);
     }
 
     private static Optional<Level> getAsLevel(String levelKey, @NonNull Properties properties) {
@@ -77,16 +78,16 @@ public class OverridingCallerLevels {
     /**
      * Assuming the declaring and caller class of the specified logger is the same
      *
-     * @param nativeLogger to search for configured minimum output level
-     * @return If overriding level is configured for the nativeLogger's caller class, return the overriding min level.
-     * Otherwise, if no overriding level configured, return the nativeLogger's level.
+     * @param nativeLogger to search for configured threshold output level
+     * @return If the threshold level is configured for the nativeLogger's caller class, return the configured level.
+     * Otherwise, if no threshold level configured, return the default threshold level.
      */
-    public Level getMinimumOutputLevel(@NonNull NativeLogger nativeLogger) {
+    public Level getThresholdOutputLevel(@NonNull NativeLogger nativeLogger) {
         return this.sortedCallerClassNameSpaces.stream()
                 .filter(sortedNameSpace -> nativeLogger.getDeclaringClassName().startsWith(sortedNameSpace))
                 .findFirst()
                 .map(this.configuredLevels::get)
-                .orElse(nativeLogger.getLevel());
+                .orElse(DEFAULT_THRESHOLD_OUTPUT_LEVEL);
     }
 
     static class ByClassNameSpace implements Comparator<String> {

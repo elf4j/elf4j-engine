@@ -28,7 +28,7 @@ package elf4j.engine.service;
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
-import elf4j.engine.service.configuration.OverridingCallerLevels;
+import elf4j.engine.service.configuration.LoggerOutputLevelThreshold;
 import elf4j.engine.service.util.StackTraceUtils;
 import elf4j.engine.service.writer.ConseqWriterGroup;
 import elf4j.engine.service.writer.LogWriter;
@@ -42,19 +42,19 @@ import lombok.NonNull;
 public class EventingLogService implements LogService {
     private final boolean noop;
     private final LogWriter logWriter;
-    private final OverridingCallerLevels overridingCallerLevels;
+    private final LoggerOutputLevelThreshold loggerOutputLevelThreshold;
     private final Map<NativeLogger, Boolean> loggerEnabled = new ConcurrentHashMap<>();
 
     public EventingLogService(@NonNull LogServiceConfiguration logServiceConfiguration) {
         if (logServiceConfiguration.isAbsent() || logServiceConfiguration.isTrue("noop")) {
             noop = true;
             logWriter = null;
-            overridingCallerLevels = null;
+            loggerOutputLevelThreshold = null;
             return;
         }
         noop = false;
         logWriter = ConseqWriterGroup.from(logServiceConfiguration);
-        overridingCallerLevels = OverridingCallerLevels.from(logServiceConfiguration);
+        loggerOutputLevelThreshold = LoggerOutputLevelThreshold.from(logServiceConfiguration);
     }
 
     @Override
@@ -67,10 +67,10 @@ public class EventingLogService implements LogService {
         if (noop) {
             return false;
         }
-        return loggerEnabled.computeIfAbsent(nativeLogger, k -> {
-            Level level = k.getLevel();
-            return level.compareTo(overridingCallerLevels.getMinimumOutputLevel(k)) >= 0
-                    && level.compareTo(logWriter.getMinimumOutputLevel()) >= 0;
+        return loggerEnabled.computeIfAbsent(nativeLogger, logger -> {
+            Level level = logger.getLevel();
+            return level.compareTo(loggerOutputLevelThreshold.getThresholdOutputLevel(logger)) >= 0
+                    && level.compareTo(logWriter.getThresholdOutputLevel()) >= 0;
         });
     }
 

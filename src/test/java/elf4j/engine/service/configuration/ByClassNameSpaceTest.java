@@ -8,7 +8,8 @@ import org.junit.jupiter.api.Test;
 class ByClassNameSpaceTest {
     @Nested
     class compare {
-        OverridingCallerLevels.ByClassNameSpace byClassNameSpace = new OverridingCallerLevels.ByClassNameSpace();
+        LoggerOutputLevelThreshold.ByClassNameSpace byClassNameSpace =
+                new LoggerOutputLevelThreshold.ByClassNameSpace();
 
         @Test
         void whenMorePackageLevels_thenGoesFirst() {
