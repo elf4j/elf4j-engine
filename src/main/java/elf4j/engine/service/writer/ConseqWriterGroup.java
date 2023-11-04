@@ -45,7 +45,7 @@ import lombok.ToString;
  * the original thread.
  */
 public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable {
-    private static final int DEFAULT_CONSEQ_CONCURRENCY = Runtime.getRuntime().availableProcessors();
+    private static final int DEFAULT_CONCURRENCY = Runtime.getRuntime().availableProcessors();
     private final List<LogWriter> writers;
     private final ConseqExecutor conseqExecutor;
     private Level thresholdOutputLevel;
@@ -77,7 +77,7 @@ public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable
     }
 
     private static int getConcurrency(@NonNull LogServiceConfiguration logServiceConfiguration) {
-        int concurrency = logServiceConfiguration.getIntOrDefault("concurrency", DEFAULT_CONSEQ_CONCURRENCY);
+        int concurrency = logServiceConfiguration.getIntOrDefault("concurrency", DEFAULT_CONCURRENCY);
         IeLogger.INFO.log("Concurrency: {}", concurrency);
         if (concurrency < 1) {
             IeLogger.ERROR.log("Unexpected concurrency: {}, cannot be less than 1", concurrency);
