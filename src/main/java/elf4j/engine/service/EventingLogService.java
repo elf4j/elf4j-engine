@@ -32,6 +32,7 @@ import elf4j.engine.service.configuration.LoggerOutputLevelThreshold;
 import elf4j.engine.service.util.StackTraceUtils;
 import elf4j.engine.service.writer.ConseqWriterGroup;
 import elf4j.engine.service.writer.LogWriter;
+import elf4j.util.IeLogger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
@@ -48,6 +49,7 @@ public class EventingLogService implements LogService {
     public EventingLogService(@NonNull LogServiceConfiguration logServiceConfiguration) {
         if (logServiceConfiguration.isAbsent() || logServiceConfiguration.isTrue("noop")) {
             noop = true;
+            IeLogger.WARN.log("No-op per configuration {}", logServiceConfiguration);
             logWriter = null;
             loggerOutputLevelThreshold = null;
             return;

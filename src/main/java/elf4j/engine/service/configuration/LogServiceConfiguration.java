@@ -40,7 +40,7 @@ import lombok.ToString;
 /**
  * The type Log service configuration.
  */
-@ToString
+@ToString(doNotUseGetters = true)
 @EqualsAndHashCode
 public class LogServiceConfiguration {
     @Nullable
@@ -198,7 +198,7 @@ public class LogServiceConfiguration {
             if (customPropertiesLocation == null) {
                 propertiesInputStream = fromDefaultPropertiesLocation();
                 if (propertiesInputStream == null) {
-                    IeLogger.WARN.log("No configuration file located");
+                    IeLogger.WARN.log("No configuration file located!");
                     return null;
                 }
             } else {
