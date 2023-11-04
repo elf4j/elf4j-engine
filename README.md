@@ -18,20 +18,6 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
 ## Getting started...
 
 1. Install
-
-   ```html
-   ...
-   <dependency>
-      <groupId>io.github.elf4j</groupId>
-      <artifactId>elf4j</artifactId>
-      <scope>compile</scope>
-   </dependency>
-   <dependency>
-      <groupId>io.github.elf4j</groupId>
-      <artifactId>elf4j-provider</artifactId>
-      <scope>runtime</scope>
-   </dependency>
-   ...
    ```
    See installation details [here](https://github.com/elf4j/elf4j-provider#installation), and use the latest versions
    from Maven Central.
