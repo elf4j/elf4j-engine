@@ -18,9 +18,10 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
 ## Getting started...
 
 1. Install
-   ```
-   See installation details [here](https://github.com/elf4j/elf4j-provider#installation), and use the latest versions
-   from Maven Central.
+
+   To use this as a logging service provider in your application, see installation
+   details [here](https://github.com/elf4j/elf4j-provider#installation)
+
 2. Use it for logging in the application:
    ```java 
    class Scratch {
