@@ -28,7 +28,7 @@ package elf4j.engine.service.writer;
 import conseq4j.execute.ConseqExecutor;
 import elf4j.Level;
 import elf4j.engine.service.LogEvent;
-import elf4j.engine.service.LogServiceManager;
+import elf4j.engine.service.NativeLogServiceManager;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.util.IeLogger;
 import java.lang.reflect.InvocationTargetException;
@@ -44,7 +44,7 @@ import lombok.ToString;
  * order; meanwhile, logs from the same caller thread will arrive sequentially in the same order as they are called in
  * the original thread.
  */
-public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable {
+public class ConseqWriterGroup implements LogWriter, NativeLogServiceManager.Stoppable {
     private static final int DEFAULT_CONCURRENCY = Runtime.getRuntime().availableProcessors();
     private final List<LogWriter> writers;
     private final ConseqExecutor conseqExecutor;
@@ -57,7 +57,7 @@ public class ConseqWriterGroup implements LogWriter, LogServiceManager.Stoppable
         this.writers = writers;
         this.conseqExecutor = conseqExecutor;
         IeLogger.INFO.log("{} service writer(s) in {}", writers.size(), this);
-        LogServiceManager.INSTANCE.register(this);
+        NativeLogServiceManager.INSTANCE.register(this);
     }
 
     /**

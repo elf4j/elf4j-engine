@@ -39,7 +39,7 @@ import lombok.ToString;
  *
  */
 @ToString
-public enum LogServiceManager {
+public enum NativeLogServiceManager {
     /**
      *
      */

@@ -29,8 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import elf4j.Level;
+import elf4j.engine.NativeLogServiceProvider;
 import elf4j.engine.NativeLogger;
-import elf4j.engine.NativeLoggerFactory;
 import elf4j.engine.service.LogEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -42,7 +42,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class JsonElementTest {
     @Mock
-    NativeLoggerFactory mockNativeLoggerFactory;
+    NativeLogServiceProvider mockNativeLogServiceProvider;
 
     LogEvent mockLogEvent;
     String mockMessage = "testLogMessage {}";
@@ -50,7 +50,7 @@ class JsonElementTest {
     @BeforeEach
     void beforeEach() {
         mockLogEvent = LogEvent.builder()
-                .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, mockNativeLoggerFactory))
+                .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, mockNativeLogServiceProvider))
                 .callerThread(new LogEvent.ThreadValue(
                         Thread.currentThread().getName(), Thread.currentThread().getId()))
                 .callerFrame(LogEvent.StackFrameValue.from(

@@ -25,7 +25,7 @@
 
 package elf4j.engine.service.util;
 
-import elf4j.engine.service.LogServiceManager;
+import elf4j.engine.service.NativeLogServiceManager;
 import elf4j.util.IeLogger;
 import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestPlan;
@@ -38,6 +38,6 @@ public class Elf4jPostTestProcessor implements TestExecutionListener {
     @Override
     public void testPlanExecutionFinished(TestPlan testPlan) {
         IeLogger.INFO.log("Shutting down elf4j service after finishing {}", testPlan);
-        LogServiceManager.INSTANCE.shutdown();
+        NativeLogServiceManager.INSTANCE.shutdown();
     }
 }

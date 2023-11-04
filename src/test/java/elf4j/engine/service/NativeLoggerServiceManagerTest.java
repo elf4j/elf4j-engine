@@ -10,11 +10,11 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-class LogServiceManagerTest {
+class NativeLoggerServiceManagerTest {
 
     @AfterAll
     static void cleanUp() {
-        LogServiceManager.INSTANCE.refresh();
+        NativeLogServiceManager.INSTANCE.refresh();
     }
 
     @Nested
@@ -24,7 +24,7 @@ class LogServiceManagerTest {
             elf4j.Logger logger = Logger.instance();
             logger.log("before shutdown");
 
-            LogServiceManager.INSTANCE.shutdown();
+            NativeLogServiceManager.INSTANCE.shutdown();
 
             assertThrows(RejectedExecutionException.class, () -> logger.log("after shutdown"));
         }
@@ -50,7 +50,7 @@ class LogServiceManagerTest {
             Logger logger = Logger.instance();
             logger.log("before noop set true, this is showing up in system console");
 
-            LogServiceManager.INSTANCE.refresh(null);
+            NativeLogServiceManager.INSTANCE.refresh(null);
 
             logger.log("after noop set true, this is not showing in system console");
         }
@@ -62,7 +62,7 @@ class LogServiceManagerTest {
                     "before refresh, {} is to print with withLoadedProperties properties configuration",
                     withLoadedProperties);
 
-            LogServiceManager.INSTANCE.refresh(new Properties());
+            NativeLogServiceManager.INSTANCE.refresh(new Properties());
 
             Logger withSetProperties = Logger.instance();
             assertSame(withLoadedProperties, withSetProperties);

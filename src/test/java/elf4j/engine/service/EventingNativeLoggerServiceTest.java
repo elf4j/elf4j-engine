@@ -45,17 +45,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-class EventingLogServiceTest {
+class EventingNativeLoggerServiceTest {
     @AfterAll
     static void afterAll() {
-        LogServiceManager.INSTANCE.refresh();
+        NativeLogServiceManager.INSTANCE.refresh();
     }
 
     @Nested
     class isEnabled {
         @Test
         void whenInvokingLog() {
-            EventingLogService logService = spy(new EventingLogService(LogServiceConfiguration.bySetting(null)));
+            EventingNativeLoggerService logService =
+                    spy(new EventingNativeLoggerService(LogServiceConfiguration.bySetting(null)));
             NativeLogger stubLogger = mock(NativeLogger.class);
 
             logService.log(stubLogger, this.getClass(), null, null, null);
@@ -69,21 +70,23 @@ class EventingLogServiceTest {
 
         @Test
         void callWriter() {
-            LogService logService = new EventingLogService(LogServiceConfiguration.bySetting(new Properties()));
+            NativeLoggerService nativeLoggerService =
+                    new EventingNativeLoggerService(LogServiceConfiguration.bySetting(new Properties()));
             LogWriter mockLogWriter = mock(LogWriter.class);
-            ReflectionTestUtils.setField(logService, "logWriter", mockLogWriter);
+            ReflectionTestUtils.setField(nativeLoggerService, "logWriter", mockLogWriter);
             NativeLogger stubLogger = mock(NativeLogger.class);
             given(mockLogWriter.getThresholdOutputLevel()).willReturn(Level.INFO);
             given(stubLogger.getLevel()).willReturn(Level.INFO);
 
-            logService.log(stubLogger, this.getClass(), null, null, null);
+            nativeLoggerService.log(stubLogger, this.getClass(), null, null, null);
 
             then(mockLogWriter).should().write(any(LogEvent.class));
         }
 
         @Test
         void whenCallerDetailRequired() {
-            LogService sut = new EventingLogService(LogServiceConfiguration.bySetting(new Properties()));
+            NativeLoggerService sut =
+                    new EventingNativeLoggerService(LogServiceConfiguration.bySetting(new Properties()));
             NativeLogger nativeLogger = mock(NativeLogger.class);
             LogWriter logWriter = mock(LogWriter.class);
             ReflectionTestUtils.setField(sut, "logWriter", logWriter);
@@ -107,7 +110,8 @@ class EventingLogServiceTest {
 
         @Test
         void whenCallerDetailNotRequired() {
-            LogService sut = new EventingLogService(LogServiceConfiguration.bySetting(new Properties()));
+            NativeLoggerService sut =
+                    new EventingNativeLoggerService(LogServiceConfiguration.bySetting(new Properties()));
             NativeLogger nativeLogger = mock(NativeLogger.class);
             LogWriter logWriter = mock(LogWriter.class);
             ReflectionTestUtils.setField(sut, "logWriter", logWriter);
@@ -131,7 +135,8 @@ class EventingLogServiceTest {
 
         @Test
         void onlyLogWhenEnabled() {
-            LogService sut = new EventingLogService(LogServiceConfiguration.bySetting(new Properties()));
+            NativeLoggerService sut =
+                    new EventingNativeLoggerService(LogServiceConfiguration.bySetting(new Properties()));
             NativeLogger nativeLogger = mock(NativeLogger.class);
             LogWriter logWriter = mock(LogWriter.class);
             ReflectionTestUtils.setField(sut, "logWriter", logWriter);

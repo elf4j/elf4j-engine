@@ -27,7 +27,7 @@ package elf4j.engine;
 
 import elf4j.Level;
 import elf4j.Logger;
-import elf4j.engine.service.LogService;
+import elf4j.engine.service.NativeLoggerService;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.NonNull;
 
@@ -56,28 +56,28 @@ public class NativeLogger implements Logger {
     private final @NonNull String declaringClassName;
 
     private final @NonNull Level level;
-    private final @NonNull NativeLoggerFactory nativeLoggerFactory;
+    private final @NonNull NativeLogServiceProvider nativeLogServiceProvider;
 
     /**
-     * Constructor only meant to be used by {@link NativeLoggerFactory} and this class itself
+     * Constructor only meant to be used by {@link NativeLogServiceProvider} and this class itself
      *
      * @param declaringClassName name of the declaring class that requested this instance via the
      * {@link Logger#instance()} method
      * @param level severity level of this logger instance
-     * @param nativeLoggerFactory log service access point from this instance, not reloadable
+     * @param nativeLogServiceProvider log service access point from this instance, not reloadable
      */
     public NativeLogger(
             @NonNull String declaringClassName,
             @NonNull Level level,
-            @NonNull NativeLoggerFactory nativeLoggerFactory) {
+            @NonNull NativeLogServiceProvider nativeLogServiceProvider) {
         this.declaringClassName = declaringClassName;
         this.level = level;
-        this.nativeLoggerFactory = nativeLoggerFactory;
+        this.nativeLogServiceProvider = nativeLogServiceProvider;
     }
 
     @Override
     public NativeLogger atLevel(Level level) {
-        return this.level == level ? this : this.nativeLoggerFactory.getLogger(level, this.declaringClassName);
+        return this.level == level ? this : this.nativeLogServiceProvider.getLogger(level, this.declaringClassName);
     }
 
     @Override
@@ -118,8 +118,8 @@ public class NativeLogger implements Logger {
     /**
      * @return directly callable log service, useful for other logging frameworks to use this engine
      */
-    public LogService getLogService() {
-        return this.nativeLoggerFactory.getLogService();
+    public NativeLoggerService getLogService() {
+        return this.nativeLogServiceProvider.getLogService();
     }
 
     /**

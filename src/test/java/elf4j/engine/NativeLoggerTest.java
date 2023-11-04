@@ -35,7 +35,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
 import elf4j.Logger;
-import elf4j.engine.service.LogService;
+import elf4j.engine.service.NativeLoggerService;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -82,24 +82,24 @@ class NativeLoggerTest {
 
         @Test
         void delegateToService() {
-            NativeLoggerFactory nativeLoggerFactory = mock(NativeLoggerFactory.class);
-            LogService logService = mock(LogService.class);
-            given(nativeLoggerFactory.getLogService()).willReturn(logService);
-            NativeLogger sut = new NativeLogger(this.getClass().getName(), INFO, nativeLoggerFactory);
+            NativeLogServiceProvider nativeLogServiceProvider = mock(NativeLogServiceProvider.class);
+            NativeLoggerService nativeLoggerService = mock(NativeLoggerService.class);
+            given(nativeLogServiceProvider.getLogService()).willReturn(nativeLoggerService);
+            NativeLogger sut = new NativeLogger(this.getClass().getName(), INFO, nativeLogServiceProvider);
 
             sut.isEnabled();
 
-            then(logService).should().isEnabled(sut);
+            then(nativeLoggerService).should().isEnabled(sut);
         }
     }
 
     @Nested
     class logDelegateToService {
         @Mock
-        LogService logService;
+        NativeLoggerService nativeLoggerService;
 
         @Mock
-        NativeLoggerFactory nativeLoggerFactory;
+        NativeLogServiceProvider nativeLogServiceProvider;
 
         NativeLogger sut;
         String plainTextMessage = "plainTextMessage";
@@ -109,22 +109,24 @@ class NativeLoggerTest {
 
         @BeforeEach
         void beforeEach() {
-            given(nativeLoggerFactory.getLogService()).willReturn(logService);
-            sut = new NativeLogger(NativeLoggerTest.class.getName(), INFO, nativeLoggerFactory);
+            given(nativeLogServiceProvider.getLogService()).willReturn(nativeLoggerService);
+            sut = new NativeLogger(NativeLoggerTest.class.getName(), INFO, nativeLogServiceProvider);
         }
 
         @Test
         void exception() {
             sut.log(exception);
 
-            then(logService).should().log(same(sut), same(NativeLogger.class), same(exception), isNull(), isNull());
+            then(nativeLoggerService)
+                    .should()
+                    .log(same(sut), same(NativeLogger.class), same(exception), isNull(), isNull());
         }
 
         @Test
         void exceptionWithMessage() {
             sut.log(exception, plainTextMessage);
 
-            then(logService)
+            then(nativeLoggerService)
                     .should()
                     .log(same(sut), same(NativeLogger.class), same(exception), same(plainTextMessage), isNull());
         }
@@ -133,7 +135,7 @@ class NativeLoggerTest {
         void exceptionWithMessageAndArgs() {
             sut.log(exception, textMessageWithArgHolders, args);
 
-            then(logService)
+            then(nativeLoggerService)
                     .should()
                     .log(
                             same(sut),
@@ -147,7 +149,7 @@ class NativeLoggerTest {
         void messageWithArguments() {
             sut.log(textMessageWithArgHolders, args);
 
-            then(logService)
+            then(nativeLoggerService)
                     .should()
                     .log(same(sut), same(NativeLogger.class), isNull(), same(textMessageWithArgHolders), same(args));
         }
@@ -156,7 +158,7 @@ class NativeLoggerTest {
         void plainText() {
             sut.log(plainTextMessage);
 
-            then(logService)
+            then(nativeLoggerService)
                     .should()
                     .log(same(sut), same(NativeLogger.class), isNull(), same(plainTextMessage), isNull());
         }

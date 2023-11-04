@@ -40,13 +40,13 @@ import lombok.NonNull;
 /**
  * converts a log request into an event for async processing
  */
-public class EventingLogService implements LogService {
+public class EventingNativeLoggerService implements NativeLoggerService {
     private final boolean noop;
     private final LogWriter logWriter;
     private final LoggerOutputLevelThreshold loggerOutputLevelThreshold;
     private final Map<NativeLogger, Boolean> loggerEnabled = new ConcurrentHashMap<>();
 
-    public EventingLogService(@NonNull LogServiceConfiguration logServiceConfiguration) {
+    public EventingNativeLoggerService(@NonNull LogServiceConfiguration logServiceConfiguration) {
         if (logServiceConfiguration.isAbsent() || logServiceConfiguration.isTrue("noop")) {
             noop = true;
             IeLogger.WARN.log("No-op per configuration {}", logServiceConfiguration);
