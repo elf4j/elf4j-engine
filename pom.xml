@@ -233,7 +233,7 @@
                         <palantirJavaFormat>
                             <version>2.38.0</version>
                         </palantirJavaFormat>
-                        <!--                        <formatAnnotations/>-->
+                        <formatAnnotations/>
                     </java>
                 </configuration>
             </plugin>

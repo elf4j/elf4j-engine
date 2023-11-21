@@ -36,8 +36,7 @@ import lombok.Value;
  */
 @Value
 class ThreadElement implements PatternElement {
-    @NonNull
-    ThreadElement.DisplayOption threadDisplayOption;
+    @NonNull ThreadElement.DisplayOption threadDisplayOption;
 
     /**
      * @param patternSegment text pattern segment to convert

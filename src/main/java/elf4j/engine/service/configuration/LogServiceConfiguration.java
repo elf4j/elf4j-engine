@@ -43,8 +43,7 @@ import lombok.ToString;
 @ToString(doNotUseGetters = true)
 @EqualsAndHashCode
 public class LogServiceConfiguration {
-    @Nullable
-    private final Properties properties;
+    @Nullable private final Properties properties;
 
     private LogServiceConfiguration(@Nullable Properties properties) {
         this.properties = properties;
@@ -87,8 +86,7 @@ public class LogServiceConfiguration {
      * @return Integer value of the specified name in the given properties, null if named entry missing or the
      * corresponding value contains no digit
      */
-    @Nullable
-    public Integer getAsInteger(String name) {
+    @Nullable public Integer getAsInteger(String name) {
         String value = getProperties().getProperty(name);
         if (value == null) {
             return null;
@@ -190,8 +188,7 @@ public class LogServiceConfiguration {
         /**
          * @return configuration properties loaded from either the default or specified location
          */
-        @Nullable
-        public Properties load() {
+        @Nullable public Properties load() {
             Properties properties = new Properties();
             InputStream propertiesInputStream;
             final String customPropertiesLocation = System.getProperty(ELF4J_PROPERTIES_LOCATION);

@@ -42,29 +42,21 @@ import lombok.Value;
 public class LogEvent {
     private static final int ADDITIONAL_STRING_BUILDER_CAPACITY = 32;
 
-    @NonNull
-    NativeLogger nativeLogger;
+    @NonNull NativeLogger nativeLogger;
 
-    @NonNull
-    ThreadValue callerThread;
+    @NonNull ThreadValue callerThread;
 
-    @NonNull
-    Instant timestamp = Instant.now();
+    @NonNull Instant timestamp = Instant.now();
 
-    @Nullable
-    Object message;
+    @Nullable Object message;
 
-    @Nullable
-    Object[] arguments;
+    @Nullable Object[] arguments;
 
-    @Nullable
-    Throwable throwable;
+    @Nullable Throwable throwable;
 
-    @Nullable
-    Class<?> serviceInterfaceClass;
+    @Nullable Class<?> serviceInterfaceClass;
 
-    @Nullable
-    StackFrameValue callerFrame;
+    @Nullable StackFrameValue callerFrame;
 
     private static @NonNull CharSequence resolve(Object message, Object[] arguments) {
         String suppliedMessage = Objects.toString(supply(message), "");
@@ -114,16 +106,13 @@ public class LogEvent {
     @Value
     @Builder
     public static class StackFrameValue {
-        @NonNull
-        String className;
+        @NonNull String className;
 
-        @NonNull
-        String methodName;
+        @NonNull String methodName;
 
         int lineNumber;
 
-        @Nullable
-        String fileName;
+        @Nullable String fileName;
 
         public static StackFrameValue from(StackTraceElement stackTraceElement) {
             return LogEvent.StackFrameValue.builder()
@@ -140,8 +129,7 @@ public class LogEvent {
      */
     @Value
     public static class ThreadValue {
-        @NonNull
-        String name;
+        @NonNull String name;
 
         long id;
     }

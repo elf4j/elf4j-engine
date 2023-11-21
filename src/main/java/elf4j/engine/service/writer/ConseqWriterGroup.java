@@ -64,8 +64,7 @@ public class ConseqWriterGroup implements LogWriter, NativeLogServiceManager.Sto
      * @param logServiceConfiguration entire configuration
      * @return the composite writer containing all writers configured in the specified properties
      */
-    @NonNull
-    public static ConseqWriterGroup from(LogServiceConfiguration logServiceConfiguration) {
+    @NonNull public static ConseqWriterGroup from(LogServiceConfiguration logServiceConfiguration) {
         List<LogWriterType> logWriterTypes = new ArrayList<>(getLogWriterTypes(logServiceConfiguration));
         if (logWriterTypes.isEmpty()) {
             logWriterTypes.add(new StandardStreamWriter.Type());

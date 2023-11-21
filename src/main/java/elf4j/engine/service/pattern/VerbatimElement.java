@@ -35,8 +35,7 @@ import lombok.Value;
  */
 @Value
 class VerbatimElement implements PatternElement {
-    @NonNull
-    String text;
+    @NonNull String text;
 
     /**
      * @param patternSegment text pattern segment to convert

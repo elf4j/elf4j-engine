@@ -51,8 +51,7 @@ public class NativeLogServiceProvider implements LogServiceProvider, NativeLogSe
     /**
      * Made injectable for extensions other than this native ELF4J implementation
      */
-    @NonNull
-    private final Level defaultLoggerLevel;
+    @NonNull private final Level defaultLoggerLevel;
 
     private final Map<Level, Map<String, NativeLogger>> nativeLoggers =
             EnumSet.allOf(Level.class).stream().collect(toMap(Function.identity(), level -> new ConcurrentHashMap<>()));
@@ -65,11 +64,9 @@ public class NativeLogServiceProvider implements LogServiceProvider, NativeLogSe
      * as the engine of another logging API, then this access class would be the class in that API that the client calls
      * first to get a logger instance of that API.
      */
-    @NonNull
-    private final Class<?> serviceAccessClass;
+    @NonNull private final Class<?> serviceAccessClass;
 
-    @NonNull
-    private final NativeLogServiceProvider.NativeLoggerServiceFactory nativeLoggerServiceFactory;
+    @NonNull private final NativeLogServiceProvider.NativeLoggerServiceFactory nativeLoggerServiceFactory;
 
     /**
      * Default constructor required by {@link java.util.ServiceLoader}
@@ -118,8 +115,7 @@ public class NativeLogServiceProvider implements LogServiceProvider, NativeLogSe
         nativeLoggerServiceFactory.reload();
     }
 
-    @NonNull
-    NativeLoggerService getLogService() {
+    @NonNull NativeLoggerService getLogService() {
         return nativeLoggerServiceFactory.getLogService();
     }
 

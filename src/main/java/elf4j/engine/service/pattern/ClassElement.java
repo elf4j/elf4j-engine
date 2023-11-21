@@ -37,8 +37,7 @@ import lombok.Value;
 class ClassElement implements PatternElement {
     private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.SIMPLE;
 
-    @NonNull
-    DisplayOption classDisplayOption;
+    @NonNull DisplayOption classDisplayOption;
 
     /**
      * @param patternSegment text patternSegment to convert

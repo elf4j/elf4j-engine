@@ -108,8 +108,7 @@ public enum NativeLogServiceManager {
      * @return a thread that orderly stops the entire log service. As an alternative to calling {@link #shutdown()}, the
      * returned thread can be registered as a JVM shutdown hook.
      */
-    @NonNull
-    public Thread getShutdownHookThread() {
+    @NonNull public Thread getShutdownHookThread() {
         return new Thread(this::shutdown);
     }
 
