@@ -36,6 +36,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.ToString;
+import org.slf4j.MDC;
 
 /**
  * In general, log events are asynchronously written/rendered in parallel by multiple concurrent threads. However,
@@ -126,14 +127,25 @@ public class ConseqWriterGroup implements LogWriter, NativeLogServiceManager.Sto
     @Override
     public void write(@NonNull LogEvent logEvent) {
         conseqExecutor.execute(
-                () -> {
+                withMdcContext(() -> {
                     if (writers.size() == 1) {
                         writers.get(0).write(logEvent);
                         return;
                     }
                     writers.stream().parallel().forEach(writer -> writer.write(logEvent));
-                },
+                }),
                 logEvent.getCallerThread().getId());
+    }
+
+    private static Runnable withMdcContext(Runnable task) {
+        Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
+        return (copyOfContextMap == null)
+                ? task
+                : () -> {
+                    MDC.clear();
+                    MDC.setContextMap(copyOfContextMap);
+                    task.run();
+                };
     }
 
     @Override

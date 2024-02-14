@@ -28,11 +28,13 @@ package elf4j.engine;
 import elf4j.Logger;
 import elf4j.engine.service.NativeLogServiceManager;
 import java.util.function.Supplier;
+import org.slf4j.MDC;
 
 public class Main {
     static Logger logger = Logger.instance();
 
     public static void main(String[] args) {
+        MDC.put("ctx-key", "ctx-value");
         logger.log("Hello, world!");
         logger.atTrace().log("It's a beautiful day");
         Logger info = logger.atInfo();

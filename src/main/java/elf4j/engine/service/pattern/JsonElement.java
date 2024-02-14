@@ -38,15 +38,13 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.ToString;
 import lombok.Value;
+import org.slf4j.MDC;
 
 /**
  *
@@ -112,11 +110,12 @@ class JsonElement implements PatternElement {
     @CompiledJson
     static class JsonLogEntry {
         OffsetDateTime timestamp;
-        LogEvent.ThreadValue callerThread;
         String level;
-        CharSequence message;
+        LogEvent.ThreadValue callerThread;
         String callerClass;
         LogEvent.StackFrameValue callerDetail;
+        Map<String, String> context;
+        CharSequence message;
         CharSequence exception;
 
         static JsonLogEntry from(@NonNull LogEvent logEvent, @NonNull JsonElement jsonPattern) {
@@ -128,6 +127,7 @@ class JsonElement implements PatternElement {
                     .callerDetail(
                             jsonPattern.includeCallerDetail ? Objects.requireNonNull(logEvent.getCallerFrame()) : null)
                     .message(logEvent.getResolvedMessage())
+                    .context(MDC.getCopyOfContextMap())
                     .exception(
                             logEvent.getThrowable() == null
                                     ? null

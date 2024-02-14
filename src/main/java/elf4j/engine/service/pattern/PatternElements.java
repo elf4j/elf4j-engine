@@ -1,12 +1,10 @@
 package elf4j.engine.service.pattern;
 
-import java.util.EnumSet;
+import java.util.Arrays;
 import java.util.Optional;
 import lombok.NonNull;
 
 class PatternElements {
-    private static final EnumSet<PredefinedPatternElement> PREDEFINED_PATTERN_ELEMENT_TYPES =
-            EnumSet.allOf(PredefinedPatternElement.class);
 
     private PatternElements() {}
 
@@ -21,7 +19,7 @@ class PatternElements {
     }
 
     static PatternElement parsePredefinedPatternELement(String predefinedPatternElement) {
-        return PREDEFINED_PATTERN_ELEMENT_TYPES.stream()
+        return Arrays.stream(PredefinedPatternElement.values())
                 .filter(type -> type.isTargetTypeOf(predefinedPatternElement))
                 .findFirst()
                 .orElseThrow(() ->
@@ -123,6 +121,12 @@ class PatternElements {
             @Override
             PatternElement parse(String patternElement) {
                 return SystemEnvironmentElement.from(patternElement);
+            }
+        },
+        CONTEXT {
+            @Override
+            PatternElement parse(String patternElement) {
+                return ContextElement.from(patternElement);
             }
         };
 

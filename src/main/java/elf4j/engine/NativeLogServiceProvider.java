@@ -42,6 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import lombok.NonNull;
+import org.slf4j.MdcAdapterInitializer;
 
 /**
  *
@@ -87,6 +88,7 @@ public class NativeLogServiceProvider implements LogServiceProvider, NativeLogSe
             @NonNull Level defaultLoggerLevel,
             @NonNull Class<?> serviceAccessClass,
             @NonNull NativeLogServiceProvider.NativeLoggerServiceFactory nativeLoggerServiceFactory) {
+        MdcAdapterInitializer.initialize();
         this.defaultLoggerLevel = defaultLoggerLevel;
         this.serviceAccessClass = serviceAccessClass;
         this.nativeLoggerServiceFactory = nativeLoggerServiceFactory;
