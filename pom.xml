@@ -189,7 +189,7 @@
             <plugin>
                 <groupId>io.github.q3769</groupId>
                 <artifactId>semver-maven-plugin</artifactId>
-                <version>20240116.0.2024</version>
+                <version>20240116.0.202402</version>
             </plugin>
             <plugin>
                 <groupId>org.projectlombok</groupId>
