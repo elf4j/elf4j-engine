@@ -43,13 +43,13 @@ public class NativeLogger implements Logger {
      * Name of this logger's declaring class - the logging service client class that first requested this logger
      * instance via the {@link Logger#instance()} service access method. The declaring class is usually the same as the
      * "caller class" - the client class that calls the service interface methods such as {@link Logger#log(Object)}.
-     * <p>
-     * In rare and not-recommended scenarios, the declaring class can be different from the caller class: e.g. the
+     *
+     * <p>In rare and not-recommended scenarios, the declaring class can be different from the caller class: e.g. the
      * declaring class could pass a reference of this logger instance out to a different/caller class. Once set, though,
      * the value of this field will never change even when the declaring class is different from the caller class.
-     * <p>
-     * To reduce the frequency of having to walk the call stack in order to locate the caller class, this native ELF4J
-     * implementation assumes the declaring and caller class to be one and the same. Thus, for logging output that
+     *
+     * <p>To reduce the frequency of having to walk the call stack in order to locate the caller class, this native
+     * ELF4J implementation assumes the declaring and caller class to be one and the same. Thus, for logging output that
      * requires only the caller class name, this field will be used in liu of checking the stack trace; i.e. the stack
      * trace walking is needed only when more caller details (e.g. method name, file name, line number) are required.
      */
@@ -62,7 +62,7 @@ public class NativeLogger implements Logger {
      * Constructor only meant to be used by {@link NativeLogServiceProvider} and this class itself
      *
      * @param declaringClassName name of the declaring class that requested this instance via the
-     * {@link Logger#instance()} method
+     *     {@link Logger#instance()} method
      * @param level severity level of this logger instance
      * @param nativeLogServiceProvider log service access point from this instance, not reloadable
      */
@@ -115,16 +115,12 @@ public class NativeLogger implements Logger {
         this.service(throwable, message, arguments);
     }
 
-    /**
-     * @return directly callable log service, useful for other logging frameworks to use this engine
-     */
+    /** @return directly callable log service, useful for other logging frameworks to use this engine */
     public NativeLoggerService getLogService() {
         return this.nativeLogServiceProvider.getLogService();
     }
 
-    /**
-     * @return declaring/caller class of this logger instance
-     */
+    /** @return declaring/caller class of this logger instance */
     public @NonNull String getDeclaringClassName() {
         return this.declaringClassName;
     }

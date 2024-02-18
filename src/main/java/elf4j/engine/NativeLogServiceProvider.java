@@ -44,14 +44,10 @@ import javax.annotation.Nullable;
 import lombok.NonNull;
 import org.slf4j.MdcAdapterInitializer;
 
-/**
- *
- */
+/** */
 public class NativeLogServiceProvider implements LogServiceProvider, NativeLogServiceManager.Refreshable {
     private static final Level DEFAULT_LOGGER_SEVERITY_LEVEL = Level.INFO;
-    /**
-     * Made injectable for extensions other than this native ELF4J implementation
-     */
+    /** Made injectable for extensions other than this native ELF4J implementation */
     @NonNull private final Level defaultLoggerLevel;
 
     private final Map<Level, Map<String, NativeLogger>> nativeLoggers =
@@ -59,8 +55,8 @@ public class NativeLogServiceProvider implements LogServiceProvider, NativeLogSe
     /**
      * The class or interface that the API client calls first to get a logger instance. The client caller class of this
      * class will be the declaring class of the logger instances this factory produces.
-     * <p></p>
-     * For this native implementation, the service access class is the {@link Logger} interface itself as the client
+     *
+     * <p>For this native implementation, the service access class is the {@link Logger} interface itself as the client
      * calls the static factory method {@link Logger#instance()} first to get a logger instance. If this library is used
      * as the engine of another logging API, then this access class would be the class in that API that the client calls
      * first to get a logger instance of that API.
@@ -69,16 +65,13 @@ public class NativeLogServiceProvider implements LogServiceProvider, NativeLogSe
 
     @NonNull private final NativeLogServiceProvider.NativeLoggerServiceFactory nativeLoggerServiceFactory;
 
-    /**
-     * Default constructor required by {@link java.util.ServiceLoader}
-     */
+    /** Default constructor required by {@link java.util.ServiceLoader} */
     public NativeLogServiceProvider() {
         this(Logger.class);
     }
 
     /**
-     * @param serviceAccessClass the class or interface that the API client application calls first to a logger
-     * instance
+     * @param serviceAccessClass the class or interface that the API client application calls first to a logger instance
      */
     public NativeLogServiceProvider(@NonNull Class<?> serviceAccessClass) {
         this(DEFAULT_LOGGER_SEVERITY_LEVEL, serviceAccessClass, new ConfiguredNativeLoggerServiceFactory());

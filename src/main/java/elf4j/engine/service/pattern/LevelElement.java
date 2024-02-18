@@ -29,9 +29,7 @@ import elf4j.engine.service.LogEvent;
 import lombok.NonNull;
 import lombok.Value;
 
-/**
- *
- */
+/** */
 @Value
 class LevelElement implements PatternElement {
     private static final int UNSPECIFIED = -1;

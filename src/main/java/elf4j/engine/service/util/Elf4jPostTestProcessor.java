@@ -30,9 +30,7 @@ import elf4j.util.IeLogger;
 import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestPlan;
 
-/**
- *
- */
+/** */
 public class Elf4jPostTestProcessor implements TestExecutionListener {
 
     @Override

@@ -28,15 +28,19 @@ package elf4j.engine.service.configuration;
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
 import elf4j.util.IeLogger;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.ToString;
 
-/**
- *
- */
+/** */
 @ToString
 public class LoggerOutputLevelThreshold {
     private static final String CONFIGURED_ROOT_LOGGER_NAME_SPACE = "";
@@ -80,7 +84,7 @@ public class LoggerOutputLevelThreshold {
      *
      * @param nativeLogger to search for configured threshold output level
      * @return If the threshold level is configured for the nativeLogger's caller class, return the configured level.
-     * Otherwise, if no threshold level configured, return the default threshold level.
+     *     Otherwise, if no threshold level configured, return the default threshold level.
      */
     public Level getThresholdOutputLevel(@NonNull NativeLogger nativeLogger) {
         return this.sortedCallerClassNameSpaces.stream()
@@ -98,8 +102,7 @@ public class LoggerOutputLevelThreshold {
         /**
          * More specific name space goes first.
          *
-         * <p></p>
-         * Note: this comparator imposes orderings that are inconsistent with equals.
+         * <p>Note: this comparator imposes orderings that are inconsistent with equals.
          *
          * @param classNameSpace1 can be fqcn or just package name
          * @param classNameSpace2 can be fqcn or just package name

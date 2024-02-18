@@ -30,9 +30,7 @@ import java.util.Objects;
 import lombok.NonNull;
 import lombok.Value;
 
-/**
- *
- */
+/** */
 @Value
 class LineNumberElement implements PatternElement {
     @Override

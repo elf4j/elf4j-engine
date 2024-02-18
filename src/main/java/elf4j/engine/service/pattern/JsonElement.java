@@ -38,7 +38,11 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
@@ -46,9 +50,7 @@ import lombok.ToString;
 import lombok.Value;
 import org.slf4j.MDC;
 
-/**
- *
- */
+/** */
 @Value
 @Builder
 class JsonElement implements PatternElement {

@@ -34,9 +34,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
 
-/**
- * Source data to be rendered to a final log message
- */
+/** Source data to be rendered to a final log message */
 @Value
 @Builder
 public class LogEvent {
@@ -86,23 +84,17 @@ public class LogEvent {
         return o instanceof Supplier<?> ? ((Supplier<?>) o).get() : o;
     }
 
-    /**
-     * @return the name of the application client class calling the logging method of this logger instance
-     */
+    /** @return the name of the application client class calling the logging method of this logger instance */
     public String getCallerClassName() {
         return callerFrame != null ? callerFrame.getClassName() : nativeLogger.getDeclaringClassName();
     }
 
-    /**
-     * @return log message text with all placeholder arguments resolved and replaced by final values
-     */
+    /** @return log message text with all placeholder arguments resolved and replaced by final values */
     public CharSequence getResolvedMessage() {
         return resolve(this.message, this.arguments);
     }
 
-    /**
-     *
-     */
+    /** */
     @Value
     @Builder
     public static class StackFrameValue {
@@ -124,9 +116,7 @@ public class LogEvent {
         }
     }
 
-    /**
-     *
-     */
+    /** */
     @Value
     public static class ThreadValue {
         @NonNull String name;

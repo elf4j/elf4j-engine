@@ -30,7 +30,11 @@ import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.pattern.LogPattern;
 import elf4j.engine.service.pattern.PatternElement;
-import java.io.*;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -42,9 +46,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.ToString;
 
-/**
- *
- */
+/** */
 @Builder
 @ToString
 public class StandardStreamWriter implements LogWriter {
@@ -87,25 +89,17 @@ public class StandardStreamWriter implements LogWriter {
         STDERR
     }
 
-    /**
-     *
-     */
+    /** */
     @ThreadSafe
     public interface StandardOutput {
-        /**
-         * @param bytes to be written to the out stream
-         */
+        /** @param bytes to be written to the out stream */
         void out(byte[] bytes);
 
-        /**
-         * @param bytes to be written to the out stream
-         */
+        /** @param bytes to be written to the out stream */
         void err(byte[] bytes);
     }
 
-    /**
-     *
-     */
+    /** */
     @ToString
     public static class FileStreamStandardOutput implements StandardOutput {
         private final OutputStream stdout = new FileOutputStream(FileDescriptor.out);
@@ -134,9 +128,7 @@ public class StandardStreamWriter implements LogWriter {
         }
     }
 
-    /**
-     *
-     */
+    /** */
     static class Type implements LogWriterType {
         private static StandardStreamWriter getDefaultWriter(@NonNull LogServiceConfiguration logServiceConfiguration) {
             Properties properties = logServiceConfiguration.getProperties();

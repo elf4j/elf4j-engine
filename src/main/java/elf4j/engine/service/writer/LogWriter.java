@@ -32,24 +32,16 @@ import elf4j.engine.service.configuration.LogServiceConfiguration;
 import java.util.List;
 import javax.annotation.concurrent.ThreadSafe;
 
-/**
- * Implementation should be thread-safe
- */
+/** Implementation should be thread-safe */
 @ThreadSafe
 public interface LogWriter extends PerformanceSensitive {
-    /**
-     * @return the threshold output level of this writer
-     */
+    /** @return the threshold output level of this writer */
     Level getThresholdOutputLevel();
 
-    /**
-     * @param logEvent the log data entry to write out
-     */
+    /** @param logEvent the log data entry to write out */
     void write(LogEvent logEvent);
 
-    /**
-     *
-     */
+    /** */
     interface LogWriterType {
         /**
          * @param logServiceConfiguration entire configuration

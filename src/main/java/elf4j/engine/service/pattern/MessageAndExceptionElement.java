@@ -30,9 +30,7 @@ import elf4j.engine.service.util.StackTraceUtils;
 import lombok.NonNull;
 import lombok.Value;
 
-/**
- *
- */
+/** */
 @Value
 class MessageAndExceptionElement implements PatternElement {
     @Override

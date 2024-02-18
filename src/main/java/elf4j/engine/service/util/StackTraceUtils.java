@@ -30,9 +30,7 @@ import java.io.StringWriter;
 import java.util.NoSuchElementException;
 import lombok.NonNull;
 
-/**
- *
- */
+/** */
 public class StackTraceUtils {
     private StackTraceUtils() {}
 

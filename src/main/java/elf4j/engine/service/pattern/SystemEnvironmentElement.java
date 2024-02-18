@@ -30,9 +30,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import lombok.Value;
 
-/**
- *
- */
+/** */
 @Value
 class SystemEnvironmentElement implements PatternElement {
     String key;

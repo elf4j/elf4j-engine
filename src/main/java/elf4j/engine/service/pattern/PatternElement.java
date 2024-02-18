@@ -29,9 +29,7 @@ import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.PerformanceSensitive;
 import javax.annotation.concurrent.ThreadSafe;
 
-/**
- * Implementation should be thread-safe
- */
+/** Implementation should be thread-safe */
 @ThreadSafe
 public interface PatternElement extends PerformanceSensitive {
 

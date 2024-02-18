@@ -32,9 +32,7 @@ import javax.annotation.Nonnull;
 import lombok.NonNull;
 import lombok.Value;
 
-/**
- * Composite of individual patterns, intended to form the entire log layout
- */
+/** Composite of individual patterns, intended to form the entire log layout */
 @Value
 public class LogPattern implements PatternElement {
     List<PatternElement> patternElements;

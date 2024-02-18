@@ -25,12 +25,8 @@
 
 package elf4j.engine.service;
 
-/**
- *
- */
+/** */
 public interface PerformanceSensitive {
-    /**
-     * @return true if log should include caller detail such as method, line number...
-     */
+    /** @return true if log should include caller detail such as method, line number... */
     boolean includeCallerDetail();
 }

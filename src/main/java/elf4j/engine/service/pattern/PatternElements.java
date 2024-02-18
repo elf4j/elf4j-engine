@@ -10,7 +10,7 @@ class PatternElements {
 
     /**
      * @param patternElement entire text of an individual pattern element, including pattern element name and possibly
-     * options
+     *     options
      * @return the option portion of the pattern element text if present; otherwise, empty Optional
      */
     static Optional<String> getPatternElementDisplayOption(@NonNull String patternElement) {
@@ -31,49 +31,37 @@ class PatternElements {
         return patternElement.split(":", 2)[0].trim();
     }
 
-    /**
-     *
-     */
+    /** */
     enum PredefinedPatternElement {
-        /**
-         *
-         */
+        /** */
         TIMESTAMP {
             @Override
             PatternElement parse(String patternElement) {
                 return TimestampElement.from(patternElement);
             }
         },
-        /**
-         *
-         */
+        /** */
         LEVEL {
             @Override
             PatternElement parse(String patternElement) {
                 return LevelElement.from(patternElement);
             }
         },
-        /**
-         *
-         */
+        /** */
         THREAD {
             @Override
             PatternElement parse(String patternElement) {
                 return ThreadElement.from(patternElement);
             }
         },
-        /**
-         *
-         */
+        /** */
         CLASS {
             @Override
             PatternElement parse(String patternElement) {
                 return ClassElement.from(patternElement);
             }
         },
-        /**
-         *
-         */
+        /** */
         METHOD {
             @Override
             PatternElement parse(String patternElement) {
@@ -93,18 +81,14 @@ class PatternElements {
             }
         },
 
-        /**
-         *
-         */
+        /** */
         MESSAGE {
             @Override
             PatternElement parse(String patternElement) {
                 return new MessageAndExceptionElement();
             }
         },
-        /**
-         *
-         */
+        /** */
         JSON {
             @Override
             PatternElement parse(String patternElement) {

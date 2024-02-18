@@ -29,7 +29,12 @@ import elf4j.util.IeLogger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,9 +42,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 
-/**
- * The type Log service configuration.
- */
+/** The type Log service configuration. */
 @ToString(doNotUseGetters = true)
 @EqualsAndHashCode
 public class LogServiceConfiguration {
@@ -84,7 +87,7 @@ public class LogServiceConfiguration {
      *
      * @param name full key in properties
      * @return Integer value of the specified name in the given properties, null if named entry missing or the
-     * corresponding value contains no digit
+     *     corresponding value contains no digit
      */
     @Nullable public Integer getAsInteger(String name) {
         String value = getProperties().getProperty(name);
@@ -119,7 +122,7 @@ public class LogServiceConfiguration {
      *
      * @param prefix key prefix to search for
      * @return all properties entries whose original keys start with the specified prefix. The prefix is removed from
-     * the keys of the returned map.
+     *     the keys of the returned map.
      * @see #getPropertiesGroupOfType(String)
      */
     public Map<String, String> getChildProperties(String prefix) {
@@ -139,7 +142,7 @@ public class LogServiceConfiguration {
      *
      * @param type the value whose keys are each used as a parent key prefix of a child properties map
      * @return a child properties map group whose every member is a properties map having a common parent key prefix of
-     * the specified type
+     *     the specified type
      * @see #getChildProperties(String)
      */
     public List<Map<String, String>> getPropertiesGroupOfType(String type) {
@@ -173,21 +176,15 @@ public class LogServiceConfiguration {
         return Boolean.parseBoolean(getProperties().getProperty(name));
     }
 
-    /**
-     * The type Properties file loader.
-     */
+    /** The type Properties file loader. */
     static class PropertiesFileLoader {
-        /**
-         *
-         */
+        /** */
         static final String ELF4J_PROPERTIES_LOCATION = "elf4j.properties.location";
 
         private static final String[] DEFAULT_PROPERTIES_LOCATIONS =
                 new String[] {"/elf4j-test.properties", "/elf4j.properties"};
 
-        /**
-         * @return configuration properties loaded from either the default or specified location
-         */
+        /** @return configuration properties loaded from either the default or specified location */
         @Nullable public Properties load() {
             Properties properties = new Properties();
             InputStream propertiesInputStream;

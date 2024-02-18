@@ -30,9 +30,7 @@ import javax.annotation.Nonnull;
 import lombok.NonNull;
 import lombok.Value;
 
-/**
- *
- */
+/** */
 @Value
 class VerbatimElement implements PatternElement {
     @NonNull String text;

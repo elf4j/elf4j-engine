@@ -25,7 +25,9 @@
 
 package elf4j.engine.service.util;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import java.util.List;

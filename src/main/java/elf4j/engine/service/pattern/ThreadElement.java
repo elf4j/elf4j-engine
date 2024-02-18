@@ -31,9 +31,7 @@ import javax.annotation.Nonnull;
 import lombok.NonNull;
 import lombok.Value;
 
-/**
- *
- */
+/** */
 @Value
 class ThreadElement implements PatternElement {
     @NonNull ThreadElement.DisplayOption threadDisplayOption;

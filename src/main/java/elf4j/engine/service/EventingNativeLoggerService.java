@@ -37,9 +37,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 
-/**
- * converts a log request into an event for async processing
- */
+/** converts a log request into an event for async processing */
 public class EventingNativeLoggerService implements NativeLoggerService {
     private final boolean noop;
     private final LogWriter logWriter;

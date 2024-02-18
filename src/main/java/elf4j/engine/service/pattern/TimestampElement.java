@@ -33,9 +33,7 @@ import javax.annotation.Nonnull;
 import lombok.NonNull;
 import lombok.Value;
 
-/**
- *
- */
+/** */
 @Value
 class TimestampElement implements PatternElement {
     private static final String DEFAULT_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";

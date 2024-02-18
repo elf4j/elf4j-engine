@@ -22,7 +22,6 @@ public class ContextElement implements PatternElement {
                 .orElseThrow(() -> new NoSuchElementException("No key configured in 'context' pattern element")));
     }
     /**
-     *
      * @param logEvent entire log content data source to render
      * @param target logging text aggregator of the final log message
      */

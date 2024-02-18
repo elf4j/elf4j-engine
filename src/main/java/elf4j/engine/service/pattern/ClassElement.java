@@ -30,9 +30,7 @@ import javax.annotation.Nonnull;
 import lombok.NonNull;
 import lombok.Value;
 
-/**
- *
- */
+/** */
 @Value
 class ClassElement implements PatternElement {
     private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.SIMPLE;
@@ -52,8 +50,8 @@ class ClassElement implements PatternElement {
 
     /**
      * @return <code>false</code> assuming the logger's declaring class is the same as the caller class. Therefore,
-     * unlike the {@link MethodElement}, it does not take a stack trace walk to locate the caller class - the declaring
-     * class is taken instead.
+     *     unlike the {@link MethodElement}, it does not take a stack trace walk to locate the caller class - the
+     *     declaring class is taken instead.
      */
     @Override
     public boolean includeCallerDetail() {
