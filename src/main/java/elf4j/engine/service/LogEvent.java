@@ -106,7 +106,7 @@ public class LogEvent {
 
         @Nullable String fileName;
 
-        public static StackFrameValue from(StackTraceElement stackTraceElement) {
+        public static StackFrameValue from(@NonNull StackTraceElement stackTraceElement) {
             return LogEvent.StackFrameValue.builder()
                     .fileName(stackTraceElement.getFileName())
                     .className(stackTraceElement.getClassName())

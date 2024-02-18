@@ -28,6 +28,7 @@ package elf4j.engine.service.pattern;
 import elf4j.engine.service.LogEvent;
 import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
+import lombok.NonNull;
 import lombok.Value;
 
 /** */
@@ -52,7 +53,7 @@ class SystemEnvironmentElement implements PatternElement {
     }
 
     @Override
-    public void render(LogEvent logEvent, StringBuilder target) {
+    public void render(LogEvent logEvent, @NonNull StringBuilder target) {
         target.append(this.value);
     }
 

@@ -132,15 +132,9 @@ public class ConseqWriterGroup implements LogWriter, NativeLogServiceManager.Sto
 
     @Override
     public void write(@NonNull LogEvent logEvent) {
-        conseqExecutor.execute(
-                withMdcContext(() -> {
-                    if (writers.size() == 1) {
-                        writers.get(0).write(logEvent);
-                        return;
-                    }
-                    writers.stream().parallel().forEach(writer -> writer.write(logEvent));
-                }),
-                logEvent.getCallerThread().getId());
+        writers.forEach(writer -> conseqExecutor.execute(
+                withMdcContext(() -> writer.write(logEvent)),
+                logEvent.getCallerThread().getId()));
     }
 
     private static Runnable withMdcContext(Runnable task) {
@@ -150,7 +144,11 @@ public class ConseqWriterGroup implements LogWriter, NativeLogServiceManager.Sto
                 : () -> {
                     MDC.clear();
                     MDC.setContextMap(copyOfContextMap);
-                    task.run();
+                    try {
+                        task.run();
+                    } finally {
+                        MDC.clear();
+                    }
                 };
     }
 
