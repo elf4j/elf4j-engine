@@ -30,7 +30,7 @@ import elf4j.engine.NativeLogger;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.configuration.LoggerOutputLevelThreshold;
 import elf4j.engine.service.util.StackTraceUtils;
-import elf4j.engine.service.writer.ConseqWriterGroup;
+import elf4j.engine.service.writer.GroupWriter;
 import elf4j.engine.service.writer.LogWriter;
 import elf4j.util.IeLogger;
 import java.util.Map;
@@ -53,7 +53,7 @@ public class EventingNativeLoggerService implements NativeLoggerService {
             return;
         }
         noop = false;
-        logWriter = ConseqWriterGroup.from(logServiceConfiguration);
+        logWriter = GroupWriter.from(logServiceConfiguration);
         loggerOutputLevelThreshold = LoggerOutputLevelThreshold.from(logServiceConfiguration);
     }
 

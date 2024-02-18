@@ -51,7 +51,7 @@ import org.slf4j.MDC;
  * order; meanwhile, logs from the same caller thread will arrive sequentially in the same order as they are called in
  * the original thread.
  */
-public class ConseqWriterGroup implements LogWriter, NativeLogServiceManager.Stoppable {
+public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable {
     private static final int DEFAULT_CONCURRENCY = Runtime.getRuntime().availableProcessors();
     private final List<LogWriter> writers;
     private final ConseqExecutor conseqExecutor;
@@ -60,7 +60,7 @@ public class ConseqWriterGroup implements LogWriter, NativeLogServiceManager.Sto
     @ToString.Exclude
     private Boolean includeCallerDetail;
 
-    private ConseqWriterGroup(@NonNull List<LogWriter> writers, ConseqExecutor conseqExecutor) {
+    private GroupWriter(@NonNull List<LogWriter> writers, ConseqExecutor conseqExecutor) {
         this.writers = writers;
         this.conseqExecutor = conseqExecutor;
         IeLogger.INFO.log("{} service writer(s) in {}", writers.size(), this);
@@ -71,7 +71,7 @@ public class ConseqWriterGroup implements LogWriter, NativeLogServiceManager.Sto
      * @param logServiceConfiguration entire configuration
      * @return the composite writer containing all writers configured in the specified properties
      */
-    @NonNull public static ConseqWriterGroup from(LogServiceConfiguration logServiceConfiguration) {
+    @NonNull public static GroupWriter from(LogServiceConfiguration logServiceConfiguration) {
         List<LogWriterType> logWriterTypes = new ArrayList<>(getLogWriterTypes(logServiceConfiguration));
         if (logWriterTypes.isEmpty()) {
             logWriterTypes.add(new StandardStreamWriter.Type());
@@ -79,7 +79,7 @@ public class ConseqWriterGroup implements LogWriter, NativeLogServiceManager.Sto
         List<LogWriter> logWriters = logWriterTypes.stream()
                 .flatMap(t -> t.getLogWriters(logServiceConfiguration).stream())
                 .collect(Collectors.toList());
-        return new ConseqWriterGroup(logWriters, ConseqExecutor.instance(getConcurrency(logServiceConfiguration)));
+        return new GroupWriter(logWriters, ConseqExecutor.instance(getConcurrency(logServiceConfiguration)));
     }
 
     private static int getConcurrency(@NonNull LogServiceConfiguration logServiceConfiguration) {
