@@ -30,7 +30,7 @@ import com.dslplatform.json.DslJson;
 import com.dslplatform.json.PrettifyOutputStream;
 import com.dslplatform.json.runtime.Settings;
 import elf4j.engine.service.LogEvent;
-import elf4j.engine.service.util.StackTraceUtils;
+import elf4j.engine.service.util.StackTraces;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -133,7 +133,7 @@ class JsonElement implements PatternElement {
                     .exception(
                             logEvent.getThrowable() == null
                                     ? null
-                                    : StackTraceUtils.getTraceAsBuffer(logEvent.getThrowable()))
+                                    : StackTraces.getTraceAsBuffer(logEvent.getThrowable()))
                     .build();
         }
     }

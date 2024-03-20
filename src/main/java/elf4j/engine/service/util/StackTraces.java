@@ -31,8 +31,8 @@ import java.util.NoSuchElementException;
 import lombok.NonNull;
 
 /** */
-public class StackTraceUtils {
-    private StackTraceUtils() {}
+public class StackTraces {
+    private StackTraces() {}
 
     /**
      * @param calleeClass whose caller is being searched for

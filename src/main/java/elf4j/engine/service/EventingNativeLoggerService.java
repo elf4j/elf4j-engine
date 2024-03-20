@@ -29,7 +29,7 @@ import elf4j.Level;
 import elf4j.engine.NativeLogger;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.engine.service.configuration.LoggerOutputLevelThreshold;
-import elf4j.engine.service.util.StackTraceUtils;
+import elf4j.engine.service.util.StackTraces;
 import elf4j.engine.service.writer.GroupWriter;
 import elf4j.engine.service.writer.LogWriter;
 import elf4j.util.IeLogger;
@@ -94,7 +94,7 @@ public class EventingNativeLoggerService implements NativeLoggerService {
                 .serviceInterfaceClass(serviceInterfaceClass)
                 .callerFrame(
                         includeCallerDetail()
-                                ? LogEvent.StackFrameValue.from(StackTraceUtils.getCallerFrame(
+                                ? LogEvent.StackFrameValue.from(StackTraces.getCallerFrame(
                                         serviceInterfaceClass, new Throwable().getStackTrace()))
                                 : null)
                 .build());

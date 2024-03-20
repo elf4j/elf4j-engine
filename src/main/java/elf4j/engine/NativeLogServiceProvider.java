@@ -33,7 +33,7 @@ import elf4j.engine.service.EventingNativeLoggerService;
 import elf4j.engine.service.NativeLogServiceManager;
 import elf4j.engine.service.NativeLoggerService;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
-import elf4j.engine.service.util.StackTraceUtils;
+import elf4j.engine.service.util.StackTraces;
 import elf4j.spi.LogServiceProvider;
 import java.util.EnumSet;
 import java.util.Map;
@@ -97,7 +97,7 @@ public class NativeLogServiceProvider implements LogServiceProvider, NativeLogSe
     @Override
     public NativeLogger logger() {
         return getLogger(
-                defaultLoggerLevel, StackTraceUtils.callerOf(serviceAccessClass).getClassName());
+                defaultLoggerLevel, StackTraces.callerOf(serviceAccessClass).getClassName());
     }
 
     @Override

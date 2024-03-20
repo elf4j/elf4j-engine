@@ -26,7 +26,7 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
-import elf4j.engine.service.util.StackTraceUtils;
+import elf4j.engine.service.util.StackTraces;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -45,6 +45,6 @@ class MessageAndExceptionElement implements PatternElement {
         if (t == null) {
             return;
         }
-        target.append(System.lineSeparator()).append(StackTraceUtils.getTraceAsBuffer(t));
+        target.append(System.lineSeparator()).append(StackTraces.getTraceAsBuffer(t));
     }
 }

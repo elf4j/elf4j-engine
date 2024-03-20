@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-class StackTraceUtilsTest {
+class StackTracesTest {
 
     @Nested
     class getCallerFrame {
@@ -14,7 +14,7 @@ class StackTraceUtilsTest {
         void whenCalleeClassIsNotFoundInCallStack() {
             assertThrows(
                     NoSuchElementException.class,
-                    () -> StackTraceUtils.getCallerFrame(NotInCallstack.class, new Throwable().getStackTrace()));
+                    () -> StackTraces.getCallerFrame(NotInCallstack.class, new Throwable().getStackTrace()));
         }
 
         class NotInCallstack {}
