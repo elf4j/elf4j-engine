@@ -43,12 +43,8 @@ public class Main {
         warn.log("Houston, we do not have {} but let's do {}", "a problem", (Supplier) () -> "a drill");
         Throwable exception = new Exception("This is a drill");
         warn.atError().log(exception);
-        logger.atInfo().log(
-                exception,
-                "When being logged, the Throwable always comes {}, then the following {} message and arguments work {}",
-                "first",
-                "optional",
-                (Supplier) () -> "as usual");
+        logger.atInfo().log(exception, "When being logged, the Throwable always comes {}", "first");
+        logger.atInfo().log(exception, "The log {} and {} work as usual", () -> "message", () -> "arguments");
         Logger.instance()
                 .atInfo()
                 .atError()
