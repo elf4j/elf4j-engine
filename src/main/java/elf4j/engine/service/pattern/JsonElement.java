@@ -117,8 +117,8 @@ class JsonElement implements PatternElement {
         String callerClass;
         LogEvent.StackFrameValue callerDetail;
         Map<String, String> context;
-        CharSequence message;
-        CharSequence exception;
+        String message;
+        String exception;
 
         static JsonLogEntry from(@NonNull LogEvent logEvent, @NonNull JsonElement jsonPattern) {
             return JsonLogEntry.builder()
@@ -128,12 +128,13 @@ class JsonElement implements PatternElement {
                     .callerThread(jsonPattern.includeCallerThread ? logEvent.getCallerThread() : null)
                     .callerDetail(
                             jsonPattern.includeCallerDetail ? Objects.requireNonNull(logEvent.getCallerFrame()) : null)
-                    .message(logEvent.getResolvedMessage())
+                    .message(logEvent.getResolvedMessage().toString())
                     .context(MDC.getCopyOfContextMap())
                     .exception(
                             logEvent.getThrowable() == null
                                     ? null
-                                    : StackTraces.getTraceAsBuffer(logEvent.getThrowable()))
+                                    : StackTraces.getTraceAsBuffer(logEvent.getThrowable())
+                                            .toString())
                     .build();
         }
     }
