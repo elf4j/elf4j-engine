@@ -154,10 +154,10 @@
                         </annotationProcessor>
                     </annotationProcessors>
                     <compilerArgs>
-                        <Adsljson.loglevel>DEBUG</Adsljson.loglevel>
-                        <!--Adsljson.annotation>EXPLICIT</Adsljson.annotation-->
-                        <Adsljson.unknown>ALLOW</Adsljson.unknown>
-                        <!--Adsljson.configuration>com.dslplatform.maven.DslJsonConfiguration</Adsljson.configuration-->
+                        <!--                        <dsljson.loglevel>DEBUG</dsljson.loglevel>-->
+                        <!--                        <dsljson.annotation>EXPLICIT</dsljson.annotation>-->
+                        <dsljson.unknown>ALLOW</dsljson.unknown>
+                        <!--                        <dsljson.configuration>com.dslplatform.maven.DslJsonConfiguration</dsljson.configuration>-->
                     </compilerArgs>
                 </configuration>
                 <dependencies>
