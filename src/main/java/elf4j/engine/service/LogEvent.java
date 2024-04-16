@@ -106,6 +106,10 @@ public class LogEvent {
 
         @Nullable String fileName;
 
+        /**
+         * @param stackTraceElement call stack element
+         * @return log render-able value representing the call stack element
+         */
         public static StackFrameValue from(@NonNull StackTraceElement stackTraceElement) {
             return LogEvent.StackFrameValue.builder()
                     .fileName(stackTraceElement.getFileName())

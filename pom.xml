@@ -153,12 +153,12 @@
                         <annotationProcessor>com.dslplatform.json.processor.CompiledJsonAnnotationProcessor
                         </annotationProcessor>
                     </annotationProcessors>
-                    <compilerArguments>
+                    <compilerArgs>
                         <Adsljson.loglevel>DEBUG</Adsljson.loglevel>
                         <!--Adsljson.annotation>EXPLICIT</Adsljson.annotation-->
                         <Adsljson.unknown>ALLOW</Adsljson.unknown>
                         <!--Adsljson.configuration>com.dslplatform.maven.DslJsonConfiguration</Adsljson.configuration-->
-                    </compilerArguments>
+                    </compilerArgs>
                 </configuration>
                 <dependencies>
                     <dependency>

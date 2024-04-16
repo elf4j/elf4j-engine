@@ -44,6 +44,7 @@ public class EventingNativeLoggerService implements NativeLoggerService {
     private final LoggerOutputLevelThreshold loggerOutputLevelThreshold;
     private final Map<NativeLogger, Boolean> loggerEnabled = new ConcurrentHashMap<>();
 
+    /** @param logServiceConfiguration parsed configuration for the logger service */
     public EventingNativeLoggerService(@NonNull LogServiceConfiguration logServiceConfiguration) {
         if (logServiceConfiguration.isAbsent() || logServiceConfiguration.isTrue("noop")) {
             noop = true;

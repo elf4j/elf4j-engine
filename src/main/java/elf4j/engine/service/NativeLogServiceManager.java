@@ -100,6 +100,7 @@ public enum NativeLogServiceManager {
         return new Thread(this::shutdown);
     }
 
+    /** @param refreshable to be deregistered */
     public void deregister(Refreshable refreshable) {
         lockAndRun(() -> refreshables.remove(refreshable));
         IeLogger.INFO.log("De-registered Refreshable {}", refreshable);
