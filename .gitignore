@@ -45,3 +45,4 @@ buildNumber.properties
 
 .idea/
 *.iml
+*.ipr
