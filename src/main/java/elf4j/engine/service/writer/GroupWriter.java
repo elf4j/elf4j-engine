@@ -118,6 +118,27 @@ public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable
                 .collect(Collectors.toList());
     }
 
+    private static Runnable withMdcContext(Runnable task) {
+        Map<String, String> callerContext = MDC.getCopyOfContextMap();
+        return (callerContext == null)
+                ? task
+                : () -> {
+                    Map<String, String> workerContext = replaceContextWith(callerContext);
+                    MDC.setContextMap(callerContext);
+                    try {
+                        task.run();
+                    } finally {
+                        MDC.setContextMap(workerContext);
+                    }
+                };
+    }
+
+    private static Map<String, String> replaceContextWith(Map<String, String> targetContext) {
+        Map<String, String> replaced = MDC.getCopyOfContextMap();
+        MDC.setContextMap(targetContext);
+        return replaced;
+    }
+
     @Override
     public Level getThresholdOutputLevel() {
         if (thresholdOutputLevel == null) {
@@ -135,21 +156,6 @@ public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable
         writers.forEach(writer -> conseqExecutor.execute(
                 withMdcContext(() -> writer.write(logEvent)),
                 logEvent.getCallerThread().getId()));
-    }
-
-    private static Runnable withMdcContext(Runnable task) {
-        Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
-        return (copyOfContextMap == null)
-                ? task
-                : () -> {
-                    MDC.clear();
-                    MDC.setContextMap(copyOfContextMap);
-                    try {
-                        task.run();
-                    } finally {
-                        MDC.clear();
-                    }
-                };
     }
 
     @Override
