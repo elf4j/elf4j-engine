@@ -120,7 +120,7 @@ public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable
 
     private static Runnable withMdcContext(Runnable task) {
         Map<String, String> callerContext = MDC.getCopyOfContextMap();
-        return (callerContext == null)
+        return (callerContext == null || callerContext.isEmpty())
                 ? task
                 : () -> {
                     Map<String, String> workerContext = replaceContextWith(callerContext);
