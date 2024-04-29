@@ -66,6 +66,7 @@ public class NativeLogServiceProvider implements LogServiceProvider, NativeLogSe
     @NonNull private final NativeLogServiceProvider.NativeLoggerServiceFactory nativeLoggerServiceFactory;
 
     /** Default constructor required by {@link java.util.ServiceLoader} */
+    @SuppressWarnings("unused")
     public NativeLogServiceProvider() {
         this(Logger.class);
     }

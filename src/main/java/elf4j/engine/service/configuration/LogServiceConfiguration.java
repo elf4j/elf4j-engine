@@ -29,12 +29,7 @@ import elf4j.util.IeLogger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -141,8 +136,8 @@ public class LogServiceConfiguration {
      * Gets properties group of type.
      *
      * @param type the value whose keys are each used as a parent key prefix of a child properties map
-     * @return a child properties map group whose every member is a properties map having a common parent key prefix of
-     *     the specified type
+     * @return a child properties map group of which every member is a properties map having a common parent key prefix
+     *     of the specified type
      * @see #getChildProperties(String)
      */
     public List<Map<String, String>> getPropertiesGroupOfType(String type) {
