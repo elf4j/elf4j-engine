@@ -31,7 +31,7 @@
 
     <groupId>io.github.elf4j</groupId>
     <artifactId>elf4j-engine</artifactId>
-    <version>15.2.6</version>
+    <version>15.2.7</version>
     <packaging>jar</packaging>
     <name>elf4j-engine</name>
     <description>A stand-alone Java log engine implementing the ELF4J (Easy Logging Facade for Java) API</description>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>io.github.q3769</groupId>
             <artifactId>conseq4j</artifactId>
-            <version>20231102.0.20231105</version>
+            <version>20230922.20230924.20240521</version>
         </dependency>
         <dependency>
             <groupId>com.dslplatform</groupId>
