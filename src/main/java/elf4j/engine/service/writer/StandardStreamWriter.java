@@ -46,7 +46,10 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.ToString;
 
-/** */
+/**
+ * A log writer implementation that writes log events to the standard output or standard error stream. The log pattern,
+ * threshold output level, and target stream (stdout or stderr) can be configured.
+ */
 @Builder
 @ToString
 public class StandardStreamWriter implements LogWriter {
@@ -59,11 +62,22 @@ public class StandardStreamWriter implements LogWriter {
     private final PatternElement logPattern;
     private final OutStreamType outStreamType;
 
+    /**
+     * Returns the threshold output level for this log writer.
+     *
+     * @return the threshold output level
+     */
     @Override
     public Level getThresholdOutputLevel() {
         return thresholdOutputLevel;
     }
 
+    /**
+     * Writes the given log event to the configured output stream (stdout or stderr) if the log event's level is greater
+     * than or equal to the configured threshold output level.
+     *
+     * @param logEvent the log event to write
+     */
     @Override
     public void write(@NonNull LogEvent logEvent) {
         if (logEvent.getNativeLogger().getLevel().compareTo(this.thresholdOutputLevel) < 0) {
@@ -79,27 +93,44 @@ public class StandardStreamWriter implements LogWriter {
         }
     }
 
+    /**
+     * Returns whether the log pattern includes caller detail (e.g., source code location).
+     *
+     * @return true if the log pattern includes caller detail, false otherwise
+     */
     @Override
     public boolean includeCallerDetail() {
         return logPattern.includeCallerDetail();
     }
 
+    /** Enum representing the output stream type (stdout or stderr). */
     enum OutStreamType {
         STDOUT,
         STDERR
     }
 
-    /** */
+    /** Interface for writing bytes to the standard output or standard error stream. */
     @ThreadSafe
     public interface StandardOutput {
-        /** @param bytes to be written to the out stream */
+        /**
+         * Writes the given bytes to the standard output stream.
+         *
+         * @param bytes the bytes to write
+         */
         void out(byte[] bytes);
 
-        /** @param bytes to be written to the out stream */
+        /**
+         * Writes the given bytes to the standard error stream.
+         *
+         * @param bytes the bytes to write
+         */
         void err(byte[] bytes);
     }
 
-    /** */
+    /**
+     * Implementation of the StandardOutput interface that writes to the standard output and standard error streams
+     * using FileOutputStream and synchronizes access using a ReentrantLock.
+     */
     @ToString
     public static class FileStreamStandardOutput implements StandardOutput {
         private final OutputStream stdout = new FileOutputStream(FileDescriptor.out);
@@ -128,7 +159,10 @@ public class StandardStreamWriter implements LogWriter {
         }
     }
 
-    /** */
+    /**
+     * Implementation of the LogWriterType interface that provides a default StandardStreamWriter instance based on the
+     * provided LogServiceConfiguration.
+     */
     static class Type implements LogWriterType {
         private static StandardStreamWriter getDefaultWriter(@NonNull LogServiceConfiguration logServiceConfiguration) {
             Properties properties = logServiceConfiguration.getProperties();

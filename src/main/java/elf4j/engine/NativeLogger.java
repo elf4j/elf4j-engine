@@ -115,12 +115,21 @@ public class NativeLogger implements Logger {
         this.service(throwable, message, arguments);
     }
 
-    /** @return directly callable log service, useful for other logging frameworks to use this engine */
+    /**
+     * Returns the log service associated with this logger, which can be used by other logging frameworks to leverage
+     * the underlying logging engine.
+     *
+     * @return directly callable log service, useful for other logging frameworks to use this engine
+     */
     public NativeLoggerService getLogService() {
         return this.nativeLogServiceProvider.getLogService();
     }
 
-    /** @return declaring/caller class of this logger instance */
+    /**
+     * Returns the fully qualified name of the class that declared this logger instance.
+     *
+     * @return declaring/caller class of this logger instance
+     */
     public @NonNull String getDeclaringClassName() {
         return this.declaringClassName;
     }
