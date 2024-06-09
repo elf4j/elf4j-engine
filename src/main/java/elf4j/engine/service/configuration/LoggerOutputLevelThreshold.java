@@ -40,7 +40,11 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.ToString;
 
-/** */
+/**
+ * The LoggerOutputLevelThreshold class is responsible for managing the threshold output levels for caller classes. It
+ * provides methods to get the threshold output level for a given logger and to create a new instance from a given
+ * configuration.
+ */
 @ToString
 public class LoggerOutputLevelThreshold {
     private static final String CONFIGURED_ROOT_LOGGER_NAME_SPACE = "";
@@ -48,6 +52,11 @@ public class LoggerOutputLevelThreshold {
     private final Map<String, Level> configuredLevels;
     private final List<String> sortedCallerClassNameSpaces;
 
+    /**
+     * Constructor for the LoggerOutputLevelThreshold class.
+     *
+     * @param configuredLevels a map of configured levels
+     */
     private LoggerOutputLevelThreshold(@NonNull Map<String, Level> configuredLevels) {
         this.configuredLevels = new ConcurrentHashMap<>(configuredLevels);
         this.sortedCallerClassNameSpaces = configuredLevels.keySet().stream()
@@ -57,6 +66,8 @@ public class LoggerOutputLevelThreshold {
     }
 
     /**
+     * Creates a new LoggerOutputLevelThreshold instance from a given configuration.
+     *
      * @param logServiceConfiguration configuration source of all threshold output levels for caller classes
      * @return the overriding caller levels
      */
@@ -72,6 +83,13 @@ public class LoggerOutputLevelThreshold {
         return new LoggerOutputLevelThreshold(configuredLevels);
     }
 
+    /**
+     * Converts a given level key to a Level instance.
+     *
+     * @param levelKey the level key
+     * @param properties the properties
+     * @return an Optional containing the Level instance if the level key is valid, otherwise an empty Optional
+     */
     private static Optional<Level> getAsLevel(String levelKey, @NonNull Properties properties) {
         String levelValue = properties.getProperty(levelKey);
         return levelValue == null
@@ -80,7 +98,7 @@ public class LoggerOutputLevelThreshold {
     }
 
     /**
-     * Assuming the declaring and caller class of the specified logger is the same
+     * Returns the threshold output level for a given logger.
      *
      * @param nativeLogger to search for configured threshold output level
      * @return If the threshold level is configured for the nativeLogger's caller class, return the configured level.
@@ -94,18 +112,30 @@ public class LoggerOutputLevelThreshold {
                 .orElse(DEFAULT_THRESHOLD_OUTPUT_LEVEL);
     }
 
+    /**
+     * The ByClassNameSpace class is a comparator for class name spaces. It sorts class name spaces by the number of
+     * package levels and then by length and lexicographic order.
+     */
     static class ByClassNameSpace implements Comparator<String> {
+        /**
+         * Returns the number of package levels in a given class name space.
+         *
+         * @param classNameSpace the class name space
+         * @return the number of package levels
+         */
         private static int getPackageLevels(@NonNull String classNameSpace) {
             return classNameSpace.split("\\.").length;
         }
 
         /**
-         * More specific name space goes first.
+         * Compares two class name spaces. More specific name space goes first.
          *
          * <p>Note: this comparator imposes orderings that are inconsistent with equals.
          *
          * @param classNameSpace1 can be fqcn or just package name
          * @param classNameSpace2 can be fqcn or just package name
+         * @return a negative integer, zero, or a positive integer as the first argument is less than, equal to, or
+         *     greater than the second.
          */
         @Override
         public int compare(@NonNull String classNameSpace1, @NonNull String classNameSpace2) {

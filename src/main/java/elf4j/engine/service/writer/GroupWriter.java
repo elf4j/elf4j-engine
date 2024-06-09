@@ -68,6 +68,8 @@ public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable
     }
 
     /**
+     * Creates a GroupWriter instance from the provided LogServiceConfiguration.
+     *
      * @param logServiceConfiguration entire configuration
      * @return the composite writer containing all writers configured in the specified properties
      */

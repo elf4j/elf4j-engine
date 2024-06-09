@@ -164,6 +164,8 @@ public class LogServiceConfiguration {
     }
 
     /**
+     * Checks if a named property exists and has a true value.
+     *
      * @param name the name to check
      * @return true only when the named property exists, and has a true value
      */

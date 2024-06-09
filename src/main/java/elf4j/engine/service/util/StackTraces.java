@@ -30,11 +30,17 @@ import java.io.StringWriter;
 import java.util.NoSuchElementException;
 import lombok.NonNull;
 
-/** */
+/**
+ * The StackTraces class provides utility methods for working with stack traces. It provides methods for getting the
+ * caller of a specified class and for getting the stack trace of a throwable as a string.
+ */
 public class StackTraces {
+    // Private constructor to prevent instantiation of utility class
     private StackTraces() {}
 
     /**
+     * Returns the immediate caller frame of the specified callee class.
+     *
      * @param calleeClass whose caller is being searched for
      * @return immediate caller frame of the specified callee class
      */
@@ -44,6 +50,8 @@ public class StackTraces {
     }
 
     /**
+     * Returns the caller frame of the specified callee class in the given stack trace.
+     *
      * @param calleeClass whose caller is being searched for
      * @param stackTrace to walk in search for the caller
      * @return the caller frame in the stack trace
@@ -61,6 +69,8 @@ public class StackTraces {
     }
 
     /**
+     * Returns the stack trace of the specified throwable as a string.
+     *
      * @param throwable to extract stack trace text from
      * @return stack trace buffer as the specified throwable prints it
      */

@@ -37,14 +37,22 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 
-/** converts a log request into an event for async processing */
+/**
+ * The EventingNativeLoggerService class implements the NativeLoggerService interface and is responsible for converting
+ * a log request into an event for async processing. It provides methods for checking if the log should include caller
+ * detail, for checking if a logger is enabled, and for logging a log event.
+ */
 public class EventingNativeLoggerService implements NativeLoggerService {
     private final boolean noop;
     private final LogWriter logWriter;
     private final LoggerOutputLevelThreshold loggerOutputLevelThreshold;
     private final Map<NativeLogger, Boolean> loggerEnabled = new ConcurrentHashMap<>();
 
-    /** @param logServiceConfiguration parsed configuration for the logger service */
+    /**
+     * Constructor for the EventingNativeLoggerService class.
+     *
+     * @param logServiceConfiguration parsed configuration for the logger service
+     */
     public EventingNativeLoggerService(@NonNull LogServiceConfiguration logServiceConfiguration) {
         if (logServiceConfiguration.isAbsent() || logServiceConfiguration.isTrue("noop")) {
             noop = true;
@@ -58,11 +66,22 @@ public class EventingNativeLoggerService implements NativeLoggerService {
         loggerOutputLevelThreshold = LoggerOutputLevelThreshold.from(logServiceConfiguration);
     }
 
+    /**
+     * Checks if the log should include caller detail such as method, line number, etc.
+     *
+     * @return false as the context element does not include caller detail
+     */
     @Override
     public boolean includeCallerDetail() {
         return logWriter.includeCallerDetail();
     }
 
+    /**
+     * Checks if a logger is enabled.
+     *
+     * @param nativeLogger the logger to check
+     * @return true if the logger is enabled, false otherwise
+     */
     @Override
     public boolean isEnabled(NativeLogger nativeLogger) {
         if (noop) {
@@ -75,6 +94,15 @@ public class EventingNativeLoggerService implements NativeLoggerService {
         });
     }
 
+    /**
+     * Logs a log event.
+     *
+     * @param nativeLogger the logger to use
+     * @param serviceInterfaceClass the class of the service interface
+     * @param throwable the throwable to log
+     * @param message the message to log
+     * @param arguments the arguments to the message
+     */
     @Override
     public void log(
             @NonNull NativeLogger nativeLogger,

@@ -30,9 +30,19 @@ import elf4j.util.IeLogger;
 import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestPlan;
 
-/** */
+/**
+ * The Elf4jPostTestProcessor class implements the TestExecutionListener interface and is responsible for shutting down
+ * the elf4j service after a test plan execution is finished. This is particularly useful in a testing environment where
+ * resources need to be cleaned up after tests are run to prevent memory leaks or other issues.
+ */
 public class Elf4jPostTestProcessor implements TestExecutionListener {
-
+    /**
+     * This method is called when the execution of a test plan is finished. It logs the completion of the test plan and
+     * then shuts down the elf4j service. This ensures that the service does not continue running and consuming
+     * resources after the tests have completed.
+     *
+     * @param testPlan the TestPlan object representing the finished test plan
+     */
     @Override
     public void testPlanExecutionFinished(TestPlan testPlan) {
         IeLogger.INFO.log("Shutting down elf4j service after finishing {}", testPlan);

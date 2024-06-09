@@ -35,10 +35,13 @@ import javax.annotation.Nullable;
 import lombok.NonNull;
 import lombok.ToString;
 
-/** */
+/**
+ * The NativeLogServiceManager class is responsible for managing the log service. It provides methods for registering
+ * and deregistering Refreshable and Stoppable instances, refreshing the configuration, and shutting down the service.
+ */
 @ToString
 public enum NativeLogServiceManager {
-    /** */
+    /** The singleton instance of the NativeLogServiceManager. */
     INSTANCE;
 
     private final Set<Refreshable> refreshables = new HashSet<>();
@@ -47,13 +50,21 @@ public enum NativeLogServiceManager {
     @ToString.Exclude
     private final Lock lock = new ReentrantLock();
 
-    /** @param refreshable added to be accessible for management */
+    /**
+     * Registers a Refreshable instance with the NativeLogServiceManager.
+     *
+     * @param refreshable added to be accessible for management
+     */
     public void register(Refreshable refreshable) {
         lockAndRun(() -> refreshables.add(refreshable));
         IeLogger.INFO.log("Registered Refreshable {} in {}", refreshable, this);
     }
 
-    /** @param stoppable added to be accessible for management */
+    /**
+     * Registers a Stoppable instance with the NativeLogServiceManager.
+     *
+     * @param stoppable added to be accessible for management
+     */
     public void register(Stoppable stoppable) {
         lockAndRun(() -> stoppables.add(stoppable));
         IeLogger.INFO.log("Registered Stoppable {} in {}", stoppable, this);
@@ -70,6 +81,8 @@ public enum NativeLogServiceManager {
     }
 
     /**
+     * Refreshes the configuration for each registered Refreshable instance.
+     *
      * @param properties if non-null, replaces current configuration with the specified properties, instead of reloading
      *     from the original properties source; otherwise, reloads the original properties source for each refreshable.
      */
@@ -82,7 +95,7 @@ public enum NativeLogServiceManager {
         IeLogger.INFO.log("Refreshed elf4j service by {} with properties {}", this, properties);
     }
 
-    /** */
+    /** Stops all registered Stoppable instances and clears the set of registered Stoppable instances. */
     public void shutdown() {
         IeLogger.INFO.log("Start shutting down elf4j service by {}", this);
         lockAndRun(() -> {
@@ -93,6 +106,9 @@ public enum NativeLogServiceManager {
     }
 
     /**
+     * Returns a thread that orderly stops the entire log service. As an alternative to calling {@link #shutdown()}, the
+     * returned thread can be registered as a JVM shutdown hook.
+     *
      * @return a thread that orderly stops the entire log service. As an alternative to calling {@link #shutdown()}, the
      *     returned thread can be registered as a JVM shutdown hook.
      */
@@ -100,7 +116,11 @@ public enum NativeLogServiceManager {
         return new Thread(this::shutdown);
     }
 
-    /** @param refreshable to be deregistered */
+    /**
+     * Deregisters the specified Refreshable instance from the NativeLogServiceManager.
+     *
+     * @param refreshable to be deregistered
+     */
     public void deregister(Refreshable refreshable) {
         lockAndRun(() -> refreshables.remove(refreshable));
         IeLogger.INFO.log("De-registered Refreshable {}", refreshable);
@@ -115,9 +135,11 @@ public enum NativeLogServiceManager {
         }
     }
 
-    /** */
+    /** The Refreshable interface defines the contract for components that can refresh their configuration. */
     public interface Refreshable {
         /**
+         * Refreshes the configuration of the component.
+         *
          * @param properties used to refresh the logging configuration. If <code>null</code>, only properties reloaded
          *     from the configuration file will be used. Otherwise, the specified properties will replace all current
          *     properties and configuration file is ignored.
@@ -128,9 +150,9 @@ public enum NativeLogServiceManager {
         void refresh();
     }
 
-    /** */
+    /** The Stoppable interface defines the contract for components that can be stopped. */
     public interface Stoppable {
-        /** */
+        /** Stops the component. */
         void stop();
     }
 }

@@ -84,17 +84,25 @@ public class LogEvent {
         return o instanceof Supplier<?> ? ((Supplier<?>) o).get() : o;
     }
 
-    /** @return the name of the application client class calling the logging method of this logger instance */
+    /**
+     * Returns the name of the application client class calling the logging method of this logger instance.
+     *
+     * @return the name of the caller class
+     */
     public String getCallerClassName() {
         return callerFrame != null ? callerFrame.getClassName() : nativeLogger.getDeclaringClassName();
     }
 
-    /** @return log message text with all placeholder arguments resolved and replaced by final values */
+    /**
+     * Returns the log message text with all placeholder arguments resolved and replaced by final values.
+     *
+     * @return the resolved log message
+     */
     public CharSequence getResolvedMessage() {
         return resolve(this.message, this.arguments);
     }
 
-    /** */
+    /** Represents a value representing a call stack element. */
     @Value
     @Builder
     public static class StackFrameValue {
@@ -107,6 +115,8 @@ public class LogEvent {
         @Nullable String fileName;
 
         /**
+         * Creates a StackFrameValue instance from a StackTraceElement.
+         *
          * @param stackTraceElement call stack element
          * @return log render-able value representing the call stack element
          */
@@ -120,7 +130,7 @@ public class LogEvent {
         }
     }
 
-    /** */
+    /** Represents the value of a thread. */
     @Value
     public static class ThreadValue {
         @NonNull String name;

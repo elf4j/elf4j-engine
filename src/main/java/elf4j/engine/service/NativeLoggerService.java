@@ -27,15 +27,23 @@ package elf4j.engine.service;
 
 import elf4j.engine.NativeLogger;
 
-/** */
+/**
+ * The NativeLoggerService interface is a part of the ELF4J logging service. It provides methods for checking if a
+ * logger is enabled and for logging a message with the specified logger, service interface class, throwable, message,
+ * and arguments.
+ */
 public interface NativeLoggerService extends PerformanceSensitive {
     /**
-     * @param nativeLogger to check for enablement
-     * @return true if the logger's level is at or above configured threshold
+     * Checks if the logger's level is at or above the configured threshold.
+     *
+     * @param nativeLogger the logger to check for enablement
+     * @return true if the logger's level is at or above the configured threshold, false otherwise
      */
     boolean isEnabled(NativeLogger nativeLogger);
 
     /**
+     * Logs a message with the specified logger, service interface class, throwable, message, and arguments.
+     *
      * @param nativeLogger the serviced logger
      * @param serviceInterfaceClass The concrete logging service (logger) implementation class that the client calls
      *     directly at runtime to make log requests. For the native ELF4J service implementation, this is always the

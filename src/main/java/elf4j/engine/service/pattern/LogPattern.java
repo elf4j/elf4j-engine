@@ -32,14 +32,21 @@ import javax.annotation.Nonnull;
 import lombok.NonNull;
 import lombok.Value;
 
-/** Composite of individual patterns, intended to form the entire log layout */
+/**
+ * The LogPattern class implements the PatternElement interface and represents a composite of individual patterns,
+ * intended to form the entire log layout. It provides methods for checking if the log should include caller detail, for
+ * creating a new instance from a pattern segment, and for rendering the log event.
+ */
 @Value
 public class LogPattern implements PatternElement {
     List<PatternElement> patternElements;
 
     /**
+     * Creates a new LogPattern instance from a given pattern segment.
+     *
      * @param pattern layout pattern text for entire log entry from configuration
      * @return composite pattern object for the entire final log message output layout
+     * @throws IllegalArgumentException if the pattern is blank
      */
     public static @Nonnull LogPattern from(@NonNull String pattern) {
         if (pattern.trim().isEmpty()) {
@@ -76,11 +83,22 @@ public class LogPattern implements PatternElement {
         return new LogPattern(elements);
     }
 
+    /**
+     * Checks if the log should include caller detail such as method, line number, etc.
+     *
+     * @return true if any of the pattern elements include caller detail, false otherwise
+     */
     @Override
     public boolean includeCallerDetail() {
         return patternElements.stream().anyMatch(PatternElement::includeCallerDetail);
     }
 
+    /**
+     * Renders the log event and appends it to the specified StringBuilder.
+     *
+     * @param logEvent the log event to render
+     * @param target the StringBuilder to append the rendered log event to
+     */
     @Override
     public void render(LogEvent logEvent, StringBuilder target) {
         for (PatternElement pattern : patternElements) {
