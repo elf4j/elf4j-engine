@@ -57,7 +57,7 @@ public enum NativeLogServiceManager {
      */
     public void register(Refreshable refreshable) {
         lockAndRun(() -> refreshables.add(refreshable));
-        IeLogger.INFO.log("Registered Refreshable {} in {}", refreshable, this);
+        IeLogger.INFO.log("Registered {} in {}", refreshable, this);
     }
 
     /**
@@ -67,17 +67,17 @@ public enum NativeLogServiceManager {
      */
     public void register(Stoppable stoppable) {
         lockAndRun(() -> stoppables.add(stoppable));
-        IeLogger.INFO.log("Registered Stoppable {} in {}", stoppable, this);
+        IeLogger.INFO.log("Registered {} in {}", stoppable, this);
     }
 
     /** reloads properties source for each refreshable */
     public void refresh() {
-        IeLogger.INFO.log("Refreshing elf4j service by {} via reloading properties", this);
+        IeLogger.INFO.log("Refreshing {} by reloading properties", this);
         lockAndRun(() -> {
             shutdown();
             refreshables.forEach(Refreshable::refresh);
         });
-        IeLogger.INFO.log("Refreshed elf4j service by {} via reloading properties", this);
+        IeLogger.INFO.log("Refreshed {} via reloading properties", this);
     }
 
     /**
@@ -87,22 +87,22 @@ public enum NativeLogServiceManager {
      *     from the original properties source; otherwise, reloads the original properties source for each refreshable.
      */
     public void refresh(Properties properties) {
-        IeLogger.INFO.log("Refreshing elf4j service by {} with properties {}", this, properties);
+        IeLogger.INFO.log("Refreshing {} with properties {}", this, properties);
         lockAndRun(() -> {
             shutdown();
             refreshables.forEach(refreshable -> refreshable.refresh(properties));
         });
-        IeLogger.INFO.log("Refreshed elf4j service by {} with properties {}", this, properties);
+        IeLogger.INFO.log("Refreshed {} with properties {}", this, properties);
     }
 
     /** Stops all registered Stoppable instances and clears the set of registered Stoppable instances. */
     public void shutdown() {
-        IeLogger.INFO.log("Start shutting down elf4j service by {}", this);
+        IeLogger.INFO.log("Start shutting down {}", this);
         lockAndRun(() -> {
             stoppables.forEach(Stoppable::stop);
             stoppables.clear();
         });
-        IeLogger.INFO.log("End shutting down elf4j service by {}", this);
+        IeLogger.INFO.log("End shutting down {}", this);
     }
 
     /**
