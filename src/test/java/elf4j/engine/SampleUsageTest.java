@@ -66,14 +66,12 @@ class SampleUsageTest {
     void lazyAndEagerArgumentsCanBeMixed() {
       info.log("Message can have any number of arguments of {} type", Object.class.getTypeName());
       info.log(
-          "Lazy arguments, of {} type, whose values may be {} can be mixed with eager arguments of"
-              + " non-Supplier types",
+          "Lazy arguments, of {} type, whose values may be {} can be mixed with eager arguments of non-Supplier types",
           Supplier.class.getTypeName(),
           (Supplier) () -> "expensive to compute");
       info.atWarn()
           .log(
-              "The Supplier downcast is mandatory per lambda syntax because arguments are declared as"
-                  + " generic Object rather than functional interface");
+              "The Supplier downcast is mandatory per lambda syntax because arguments are declared as generic Object rather than functional interface");
     }
   }
 
@@ -86,8 +84,7 @@ class SampleUsageTest {
       logger.atError().log(exception, "Optional log message");
       logger.atInfo().log(
           exception,
-          "Exception is always the first argument to a logging method. The {} log message and following"
-              + " arguments work the same way {}.",
+          "Exception is always the first argument to a logging method. The {} log message and following arguments work the same way {}.",
           "optional",
           (Supplier) () -> "as usual");
     }
