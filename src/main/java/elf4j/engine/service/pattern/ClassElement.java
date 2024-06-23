@@ -33,58 +33,58 @@ import lombok.Value;
 /** */
 @Value
 class ClassElement implements PatternElement {
-    private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.SIMPLE;
+  private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.SIMPLE;
 
-    @NonNull DisplayOption classDisplayOption;
+  @NonNull DisplayOption classDisplayOption;
 
-    /**
-     * @param patternSegment text patternSegment to convert
-     * @return converted patternSegment object
-     */
-    @Nonnull
-    public static ClassElement from(@NonNull String patternSegment) {
-        return new ClassElement(PatternElements.getPatternElementDisplayOption(patternSegment)
-                .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
-                .orElse(DEFAULT_DISPLAY_OPTION));
-    }
+  /**
+   * @param patternSegment text patternSegment to convert
+   * @return converted patternSegment object
+   */
+  @Nonnull
+  public static ClassElement from(@NonNull String patternSegment) {
+    return new ClassElement(PatternElements.getPatternElementDisplayOption(patternSegment)
+        .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
+        .orElse(DEFAULT_DISPLAY_OPTION));
+  }
 
-    /**
-     * @return <code>false</code> assuming the logger's declaring class is the same as the caller class. Therefore,
-     *     unlike the {@link MethodElement}, it does not take a stack trace walk to locate the caller class - the
-     *     declaring class is taken instead.
-     */
-    @Override
-    public boolean includeCallerDetail() {
-        return false;
-    }
+  /**
+   * @return <code>false</code> assuming the logger's declaring class is the same as the caller
+   *     class. Therefore, unlike the {@link MethodElement}, it does not take a stack trace walk to
+   *     locate the caller class - the declaring class is taken instead.
+   */
+  @Override
+  public boolean includeCallerDetail() {
+    return false;
+  }
 
-    @Override
-    public void render(@NonNull LogEvent logEvent, StringBuilder target) {
-        String fullName = logEvent.getCallerClassName();
-        switch (classDisplayOption) {
-            case FULL:
-                target.append(fullName);
-                return;
-            case SIMPLE:
-                target.append(fullName.substring(fullName.lastIndexOf('.') + 1));
-                return;
-            case COMPRESSED: {
-                String[] tokens = fullName.split("\\.");
-                String simpleName = tokens[tokens.length - 1];
-                for (int i = 0; i < tokens.length - 1; i++) {
-                    target.append(tokens[i].charAt(0)).append('.');
-                }
-                target.append(simpleName);
-                return;
-            }
-            default:
-                throw new IllegalArgumentException("class display option: " + classDisplayOption);
+  @Override
+  public void render(@NonNull LogEvent logEvent, StringBuilder target) {
+    String fullName = logEvent.getCallerClassName();
+    switch (classDisplayOption) {
+      case FULL:
+        target.append(fullName);
+        return;
+      case SIMPLE:
+        target.append(fullName.substring(fullName.lastIndexOf('.') + 1));
+        return;
+      case COMPRESSED: {
+        String[] tokens = fullName.split("\\.");
+        String simpleName = tokens[tokens.length - 1];
+        for (int i = 0; i < tokens.length - 1; i++) {
+          target.append(tokens[i].charAt(0)).append('.');
         }
+        target.append(simpleName);
+        return;
+      }
+      default:
+        throw new IllegalArgumentException("class display option: " + classDisplayOption);
     }
+  }
 
-    enum DisplayOption {
-        FULL,
-        SIMPLE,
-        COMPRESSED
-    }
+  enum DisplayOption {
+    FULL,
+    SIMPLE,
+    COMPRESSED
+  }
 }

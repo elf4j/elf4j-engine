@@ -33,12 +33,12 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public interface PatternElement extends PerformanceSensitive {
 
-    /**
-     * Extracts the content of particular interest to this log pattern instance from the specified log event, and
-     * appends the result to the specified target aggregator of the final log message
-     *
-     * @param logEvent entire log content data source to render
-     * @param target logging text aggregator of the final log message
-     */
-    void render(LogEvent logEvent, StringBuilder target);
+  /**
+   * Extracts the content of particular interest to this log pattern instance from the specified log
+   * event, and appends the result to the specified target aggregator of the final log message
+   *
+   * @param logEvent entire log content data source to render
+   * @param target logging text aggregator of the final log message
+   */
+  void render(LogEvent logEvent, StringBuilder target);
 }

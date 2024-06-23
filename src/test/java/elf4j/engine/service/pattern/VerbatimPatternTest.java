@@ -34,16 +34,16 @@ import org.junit.jupiter.api.Test;
 
 class VerbatimPatternTest {
 
-    @Test
-    void appendPatternTextAsIs() {
-        LogEvent mockEntry = mock(LogEvent.class);
-        String verbatimTextToAppend = "text";
-        String inputLogText = "inputLogText";
-        StringBuilder logTextBuilder = new StringBuilder(inputLogText);
+  @Test
+  void appendPatternTextAsIs() {
+    LogEvent mockEntry = mock(LogEvent.class);
+    String verbatimTextToAppend = "text";
+    String inputLogText = "inputLogText";
+    StringBuilder logTextBuilder = new StringBuilder(inputLogText);
 
-        new VerbatimElement(verbatimTextToAppend).render(mockEntry, logTextBuilder);
+    new VerbatimElement(verbatimTextToAppend).render(mockEntry, logTextBuilder);
 
-        verifyNoInteractions(mockEntry);
-        assertEquals(inputLogText + verbatimTextToAppend, logTextBuilder.toString());
-    }
+    verifyNoInteractions(mockEntry);
+    assertEquals(inputLogText + verbatimTextToAppend, logTextBuilder.toString());
+  }
 }

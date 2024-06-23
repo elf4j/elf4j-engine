@@ -26,14 +26,15 @@
 package elf4j.engine.service;
 
 /**
- * The PerformanceSensitive interface defines the contract for components that are sensitive to performance. It provides
- * a method to check if the log should include caller detail such as method, line number, etc.
+ * The PerformanceSensitive interface defines the contract for components that are sensitive to
+ * performance. It provides a method to check if the log should include caller detail such as
+ * method, line number, etc.
  */
 public interface PerformanceSensitive {
-    /**
-     * Checks if the log should include caller detail such as method, line number, etc.
-     *
-     * @return true if the log should include caller detail, false otherwise
-     */
-    boolean includeCallerDetail();
+  /**
+   * Checks if the log should include caller detail such as method, line number, etc.
+   *
+   * @return true if the log should include caller detail, false otherwise
+   */
+  boolean includeCallerDetail();
 }

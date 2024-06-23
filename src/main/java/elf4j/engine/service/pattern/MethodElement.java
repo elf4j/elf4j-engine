@@ -33,13 +33,13 @@ import lombok.Value;
 /** */
 @Value
 class MethodElement implements PatternElement {
-    @Override
-    public boolean includeCallerDetail() {
-        return true;
-    }
+  @Override
+  public boolean includeCallerDetail() {
+    return true;
+  }
 
-    @Override
-    public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
-        target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getMethodName());
-    }
+  @Override
+  public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
+    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getMethodName());
+  }
 }

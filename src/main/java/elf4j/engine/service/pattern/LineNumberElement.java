@@ -33,13 +33,13 @@ import lombok.Value;
 /** */
 @Value
 class LineNumberElement implements PatternElement {
-    @Override
-    public boolean includeCallerDetail() {
-        return true;
-    }
+  @Override
+  public boolean includeCallerDetail() {
+    return true;
+  }
 
-    @Override
-    public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
-        target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getLineNumber());
-    }
+  @Override
+  public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
+    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getLineNumber());
+  }
 }

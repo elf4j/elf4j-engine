@@ -33,39 +33,40 @@ import java.util.List;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * An interface representing a log writer responsible for writing log events to an output destination. Implementations
- * of this interface should be thread-safe.
+ * An interface representing a log writer responsible for writing log events to an output
+ * destination. Implementations of this interface should be thread-safe.
  *
  * @see PerformanceSensitive
  */
 @ThreadSafe
 public interface LogWriter extends PerformanceSensitive {
-    /**
-     * Returns the threshold output level for this log writer. Log events with a level lower than the threshold will not
-     * be written.
-     *
-     * @return the threshold output level of this writer
-     */
-    Level getThresholdOutputLevel();
+  /**
+   * Returns the threshold output level for this log writer. Log events with a level lower than the
+   * threshold will not be written.
+   *
+   * @return the threshold output level of this writer
+   */
+  Level getThresholdOutputLevel();
 
-    /**
-     * Writes the given log event to the output destination(s) configured for this log writer.
-     *
-     * @param logEvent the log data entry to write out
-     */
-    void write(LogEvent logEvent);
+  /**
+   * Writes the given log event to the output destination(s) configured for this log writer.
+   *
+   * @param logEvent the log data entry to write out
+   */
+  void write(LogEvent logEvent);
 
+  /**
+   * An interface representing a type of log writer that can provide one or more instances of
+   * {@link LogWriter} based on the given log service configuration.
+   */
+  interface LogWriterType {
     /**
-     * An interface representing a type of log writer that can provide one or more instances of {@link LogWriter} based
-     * on the given log service configuration.
+     * Returns a list of log writers of the enclosing writer type based on the provided log service
+     * configuration.
+     *
+     * @param logServiceConfiguration the entire log service configuration
+     * @return all log writers of the enclosing writer type from the given configuration
      */
-    interface LogWriterType {
-        /**
-         * Returns a list of log writers of the enclosing writer type based on the provided log service configuration.
-         *
-         * @param logServiceConfiguration the entire log service configuration
-         * @return all log writers of the enclosing writer type from the given configuration
-         */
-        List<LogWriter> getLogWriters(LogServiceConfiguration logServiceConfiguration);
-    }
+    List<LogWriter> getLogWriters(LogServiceConfiguration logServiceConfiguration);
+  }
 }

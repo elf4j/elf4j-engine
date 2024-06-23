@@ -7,11 +7,12 @@ import org.junit.jupiter.api.Test;
 
 class LogPatternTest {
 
-    @Nested
-    class parsePattern {
-        @Test
-        void whenPredefinedElementIsUnrecognized() {
-            assertThrows(IllegalArgumentException.class, () -> LogPattern.from("{testUnrecognizedPredefined}"));
-        }
+  @Nested
+  class parsePattern {
+    @Test
+    void whenPredefinedElementIsUnrecognized() {
+      assertThrows(
+          IllegalArgumentException.class, () -> LogPattern.from("{testUnrecognizedPredefined}"));
     }
+  }
 }

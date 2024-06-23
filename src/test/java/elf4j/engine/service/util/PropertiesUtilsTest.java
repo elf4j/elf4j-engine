@@ -38,78 +38,78 @@ import org.junit.jupiter.api.Test;
 
 class PropertiesUtilsTest {
 
-    @Nested
-    class getChildProperties {
-        @Test
-        void noSuchPrefix() {
-            Properties properties = new Properties();
+  @Nested
+  class getChildProperties {
+    @Test
+    void noSuchPrefix() {
+      Properties properties = new Properties();
 
-            assertTrue(LogServiceConfiguration.bySetting(properties)
-                    .getChildProperties("writer1")
-                    .isEmpty());
+      assertTrue(LogServiceConfiguration.bySetting(properties)
+          .getChildProperties("writer1")
+          .isEmpty());
 
-            properties.setProperty("writerA", "fooValue");
+      properties.setProperty("writerA", "fooValue");
 
-            assertTrue(LogServiceConfiguration.bySetting(properties)
-                    .getChildProperties("writer1")
-                    .isEmpty());
-        }
-
-        @Test
-        void allChildren() {
-            Properties properties = new Properties();
-            properties.setProperty("writer1", "standard");
-            properties.setProperty("writer1.level", "info");
-            properties.setProperty("writer1.pattern", "{json}");
-
-            Map<String, String> childProperties =
-                    LogServiceConfiguration.bySetting(properties).getChildProperties("writer1");
-
-            assertEquals(2, childProperties.size());
-            assertEquals("info", childProperties.get("level"));
-            assertEquals("{json}", childProperties.get("pattern"));
-        }
-
-        @Test
-        void onlyChildren() {
-            Properties properties = new Properties();
-            properties.setProperty("writer", "standard.id.foo");
-            properties.setProperty("writer1", "standard");
-            properties.setProperty("writer1.level", "info");
-            properties.setProperty("writer1.pattern", "{json}");
-
-            Map<String, String> childProperties =
-                    LogServiceConfiguration.bySetting(properties).getChildProperties("writer1");
-
-            assertFalse(childProperties.containsKey("writer"));
-            assertFalse(childProperties.containsKey("writer1"));
-        }
+      assertTrue(LogServiceConfiguration.bySetting(properties)
+          .getChildProperties("writer1")
+          .isEmpty());
     }
 
-    @Nested
-    class getPropertiesGroupOfType {
-        @Test
-        void nonExistingType() {
-            Properties properties = new Properties();
-            properties.setProperty("writer2", "standard");
+    @Test
+    void allChildren() {
+      Properties properties = new Properties();
+      properties.setProperty("writer1", "standard");
+      properties.setProperty("writer1.level", "info");
+      properties.setProperty("writer1.pattern", "{json}");
 
-            assertTrue(LogServiceConfiguration.bySetting(properties)
-                    .getPropertiesGroupOfType("fileWriters")
-                    .isEmpty());
-        }
+      Map<String, String> childProperties =
+          LogServiceConfiguration.bySetting(properties).getChildProperties("writer1");
 
-        @Test
-        void existingButNoFurtherConfigurations() {
-            Properties properties = new Properties();
-            properties.setProperty("writer", "standard");
-            properties.setProperty("writer2", "standard");
-
-            List<Map<String, String>> declaredWriter =
-                    LogServiceConfiguration.bySetting(properties).getPropertiesGroupOfType("standard");
-
-            assertEquals(2, declaredWriter.size());
-            assertTrue(declaredWriter.get(0).isEmpty());
-            assertTrue(declaredWriter.get(1).isEmpty());
-        }
+      assertEquals(2, childProperties.size());
+      assertEquals("info", childProperties.get("level"));
+      assertEquals("{json}", childProperties.get("pattern"));
     }
+
+    @Test
+    void onlyChildren() {
+      Properties properties = new Properties();
+      properties.setProperty("writer", "standard.id.foo");
+      properties.setProperty("writer1", "standard");
+      properties.setProperty("writer1.level", "info");
+      properties.setProperty("writer1.pattern", "{json}");
+
+      Map<String, String> childProperties =
+          LogServiceConfiguration.bySetting(properties).getChildProperties("writer1");
+
+      assertFalse(childProperties.containsKey("writer"));
+      assertFalse(childProperties.containsKey("writer1"));
+    }
+  }
+
+  @Nested
+  class getPropertiesGroupOfType {
+    @Test
+    void nonExistingType() {
+      Properties properties = new Properties();
+      properties.setProperty("writer2", "standard");
+
+      assertTrue(LogServiceConfiguration.bySetting(properties)
+          .getPropertiesGroupOfType("fileWriters")
+          .isEmpty());
+    }
+
+    @Test
+    void existingButNoFurtherConfigurations() {
+      Properties properties = new Properties();
+      properties.setProperty("writer", "standard");
+      properties.setProperty("writer2", "standard");
+
+      List<Map<String, String>> declaredWriter =
+          LogServiceConfiguration.bySetting(properties).getPropertiesGroupOfType("standard");
+
+      assertEquals(2, declaredWriter.size());
+      assertTrue(declaredWriter.get(0).isEmpty());
+      assertTrue(declaredWriter.get(1).isEmpty());
+    }
+  }
 }

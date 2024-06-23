@@ -32,38 +32,38 @@ import lombok.Value;
 /** */
 @Value
 class LevelElement implements PatternElement {
-    private static final int UNSPECIFIED = -1;
-    int displayLength;
+  private static final int UNSPECIFIED = -1;
+  int displayLength;
 
-    private LevelElement(int displayLength) {
-        this.displayLength = displayLength;
-    }
+  private LevelElement(int displayLength) {
+    this.displayLength = displayLength;
+  }
 
-    /**
-     * @param patternSegment to convert
-     * @return converted patternSegment object
-     */
-    public static @NonNull LevelElement from(@NonNull String patternSegment) {
-        return new LevelElement(PatternElements.getPatternElementDisplayOption(patternSegment)
-                .map(Integer::parseInt)
-                .orElse(UNSPECIFIED));
-    }
+  /**
+   * @param patternSegment to convert
+   * @return converted patternSegment object
+   */
+  public static @NonNull LevelElement from(@NonNull String patternSegment) {
+    return new LevelElement(PatternElements.getPatternElementDisplayOption(patternSegment)
+        .map(Integer::parseInt)
+        .orElse(UNSPECIFIED));
+  }
 
-    @Override
-    public boolean includeCallerDetail() {
-        return false;
-    }
+  @Override
+  public boolean includeCallerDetail() {
+    return false;
+  }
 
-    @Override
-    public void render(@NonNull LogEvent logEvent, StringBuilder target) {
-        String level = logEvent.getNativeLogger().getLevel().name();
-        if (displayLength == UNSPECIFIED) {
-            target.append(level);
-            return;
-        }
-        char[] levelChars = level.toCharArray();
-        for (int i = 0; i < displayLength; i++) {
-            target.append(i < levelChars.length ? levelChars[i] : ' ');
-        }
+  @Override
+  public void render(@NonNull LogEvent logEvent, StringBuilder target) {
+    String level = logEvent.getNativeLogger().getLevel().name();
+    if (displayLength == UNSPECIFIED) {
+      target.append(level);
+      return;
     }
+    char[] levelChars = level.toCharArray();
+    for (int i = 0; i < displayLength; i++) {
+      target.append(i < levelChars.length ? levelChars[i] : ' ');
+    }
+  }
 }

@@ -40,40 +40,40 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class MessageAndExceptionPatternTest {
-    @Mock
-    NativeLogServiceProvider mockNativeLogServiceProvider;
+  @Mock
+  NativeLogServiceProvider mockNativeLogServiceProvider;
 
-    LogEvent mockLogEvent;
-    String mockMessage = "testLogMessage {}";
-    Object[] mockArgs = new Object[] {"testArg1"};
-    Exception mockException = new Exception("testExceptionMessage");
+  LogEvent mockLogEvent;
+  String mockMessage = "testLogMessage {}";
+  Object[] mockArgs = new Object[] {"testArg1"};
+  Exception mockException = new Exception("testExceptionMessage");
 
-    @BeforeEach
-    void beforeEach() {
-        mockLogEvent = LogEvent.builder()
-                .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, mockNativeLogServiceProvider))
-                .callerThread(new LogEvent.ThreadValue(
-                        Thread.currentThread().getName(), Thread.currentThread().getId()))
-                .callerFrame(LogEvent.StackFrameValue.from(
-                        new StackTraceElement("testClassName", "testMethodName", "testFileName", 42)))
-                .message(mockMessage)
-                .arguments(mockArgs)
-                .throwable(mockException)
-                .build();
+  @BeforeEach
+  void beforeEach() {
+    mockLogEvent = LogEvent.builder()
+        .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, mockNativeLogServiceProvider))
+        .callerThread(new LogEvent.ThreadValue(
+            Thread.currentThread().getName(), Thread.currentThread().getId()))
+        .callerFrame(LogEvent.StackFrameValue.from(
+            new StackTraceElement("testClassName", "testMethodName", "testFileName", 42)))
+        .message(mockMessage)
+        .arguments(mockArgs)
+        .throwable(mockException)
+        .build();
+  }
+
+  @Nested
+  class render {
+    @Test
+    void includeBothMessageAndException() {
+      MessageAndExceptionElement messageAndExceptionPattern = new MessageAndExceptionElement();
+      StringBuilder logText = new StringBuilder();
+
+      messageAndExceptionPattern.render(mockLogEvent, logText);
+      String rendered = logText.toString();
+
+      assertTrue(rendered.contains(mockLogEvent.getResolvedMessage()));
+      assertTrue(rendered.contains(mockException.getMessage()));
     }
-
-    @Nested
-    class render {
-        @Test
-        void includeBothMessageAndException() {
-            MessageAndExceptionElement messageAndExceptionPattern = new MessageAndExceptionElement();
-            StringBuilder logText = new StringBuilder();
-
-            messageAndExceptionPattern.render(mockLogEvent, logText);
-            String rendered = logText.toString();
-
-            assertTrue(rendered.contains(mockLogEvent.getResolvedMessage()));
-            assertTrue(rendered.contains(mockException.getMessage()));
-        }
-    }
+  }
 }

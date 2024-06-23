@@ -41,71 +41,71 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class JsonElementTest {
-    @Mock
-    NativeLogServiceProvider mockNativeLogServiceProvider;
+  @Mock
+  NativeLogServiceProvider mockNativeLogServiceProvider;
 
-    LogEvent mockLogEvent;
-    String mockMessage = "testLogMessage {}";
+  LogEvent mockLogEvent;
+  String mockMessage = "testLogMessage {}";
 
-    @BeforeEach
-    void beforeEach() {
-        mockLogEvent = LogEvent.builder()
-                .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, mockNativeLogServiceProvider))
-                .callerThread(new LogEvent.ThreadValue(
-                        Thread.currentThread().getName(), Thread.currentThread().getId()))
-                .callerFrame(LogEvent.StackFrameValue.from(
-                        new StackTraceElement("testClassName", "testMethodName", "testFileName", 42)))
-                .serviceInterfaceClass(this.getClass())
-                .message(mockMessage)
-                .arguments(new Object[] {"testArg1"})
-                .throwable(new Exception("testExceptionMessage"))
-                .build();
+  @BeforeEach
+  void beforeEach() {
+    mockLogEvent = LogEvent.builder()
+        .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, mockNativeLogServiceProvider))
+        .callerThread(new LogEvent.ThreadValue(
+            Thread.currentThread().getName(), Thread.currentThread().getId()))
+        .callerFrame(LogEvent.StackFrameValue.from(
+            new StackTraceElement("testClassName", "testMethodName", "testFileName", 42)))
+        .serviceInterfaceClass(this.getClass())
+        .message(mockMessage)
+        .arguments(new Object[] {"testArg1"})
+        .throwable(new Exception("testExceptionMessage"))
+        .build();
+  }
+
+  @Nested
+  class from {
+    @Test
+    void noPatternOptionDefaults() {
+      JsonElement jsonPattern = JsonElement.from("json");
+
+      assertFalse(jsonPattern.includeCallerDetail());
     }
 
-    @Nested
-    class from {
-        @Test
-        void noPatternOptionDefaults() {
-            JsonElement jsonPattern = JsonElement.from("json");
+    @Test
+    void includeCallerOption() {
+      JsonElement jsonPattern = JsonElement.from("json:caller-detail");
 
-            assertFalse(jsonPattern.includeCallerDetail());
-        }
-
-        @Test
-        void includeCallerOption() {
-            JsonElement jsonPattern = JsonElement.from("json:caller-detail");
-
-            assertTrue(jsonPattern.includeCallerDetail());
-        }
-
-        @Test
-        void includeThreadOption() {
-            JsonElement jsonPattern = JsonElement.from("json:caller-thread");
-
-            assertFalse(jsonPattern.includeCallerDetail());
-        }
-
-        @Test
-        void includeCallerAndThreadOptions() {
-            JsonElement jsonPattern = JsonElement.from("json:caller-thread,caller-detail");
-
-            assertTrue(jsonPattern.includeCallerDetail());
-        }
+      assertTrue(jsonPattern.includeCallerDetail());
     }
 
-    @Nested
-    class render {
-        JsonElement jsonPattern = JsonElement.from("json");
+    @Test
+    void includeThreadOption() {
+      JsonElement jsonPattern = JsonElement.from("json:caller-thread");
 
-        @Test
-        void resolveMessage() {
-            StringBuilder layout = new StringBuilder();
-
-            jsonPattern.render(mockLogEvent, layout);
-            String rendered = layout.toString();
-
-            assertFalse(rendered.contains("testLogMessage {}"));
-            assertTrue(rendered.contains(mockLogEvent.getResolvedMessage()));
-        }
+      assertFalse(jsonPattern.includeCallerDetail());
     }
+
+    @Test
+    void includeCallerAndThreadOptions() {
+      JsonElement jsonPattern = JsonElement.from("json:caller-thread,caller-detail");
+
+      assertTrue(jsonPattern.includeCallerDetail());
+    }
+  }
+
+  @Nested
+  class render {
+    JsonElement jsonPattern = JsonElement.from("json");
+
+    @Test
+    void resolveMessage() {
+      StringBuilder layout = new StringBuilder();
+
+      jsonPattern.render(mockLogEvent, layout);
+      String rendered = layout.toString();
+
+      assertFalse(rendered.contains("testLogMessage {}"));
+      assertTrue(rendered.contains(mockLogEvent.getResolvedMessage()));
+    }
+  }
 }

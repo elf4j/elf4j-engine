@@ -34,32 +34,33 @@ import lombok.Value;
 /** */
 @Value
 class ThreadElement implements PatternElement {
-    @NonNull ThreadElement.DisplayOption threadDisplayOption;
+  @NonNull ThreadElement.DisplayOption threadDisplayOption;
 
-    /**
-     * @param patternSegment text pattern segment to convert
-     * @return the thread pattern segment converted from the specified text
-     */
-    @Nonnull
-    public static ThreadElement from(@NonNull String patternSegment) {
-        return new ThreadElement(PatternElements.getPatternElementDisplayOption(patternSegment)
-                .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
-                .orElse(DisplayOption.NAME));
-    }
+  /**
+   * @param patternSegment text pattern segment to convert
+   * @return the thread pattern segment converted from the specified text
+   */
+  @Nonnull
+  public static ThreadElement from(@NonNull String patternSegment) {
+    return new ThreadElement(PatternElements.getPatternElementDisplayOption(patternSegment)
+        .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
+        .orElse(DisplayOption.NAME));
+  }
 
-    @Override
-    public boolean includeCallerDetail() {
-        return false;
-    }
+  @Override
+  public boolean includeCallerDetail() {
+    return false;
+  }
 
-    @Override
-    public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
-        LogEvent.ThreadValue callerThread = Objects.requireNonNull(logEvent.getCallerThread());
-        target.append(threadDisplayOption == DisplayOption.ID ? callerThread.getId() : callerThread.getName());
-    }
+  @Override
+  public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
+    LogEvent.ThreadValue callerThread = Objects.requireNonNull(logEvent.getCallerThread());
+    target.append(
+        threadDisplayOption == DisplayOption.ID ? callerThread.getId() : callerThread.getName());
+  }
 
-    enum DisplayOption {
-        ID,
-        NAME
-    }
+  enum DisplayOption {
+    ID,
+    NAME
+  }
 }

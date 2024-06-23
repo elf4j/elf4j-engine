@@ -34,31 +34,32 @@ import lombok.Value;
 /** */
 @Value
 class SystemEnvironmentElement implements PatternElement {
-    String key;
-    String value;
+  String key;
+  String value;
 
-    private SystemEnvironmentElement(String key) {
-        this.key = key;
-        this.value = System.getenv(key);
-    }
+  private SystemEnvironmentElement(String key) {
+    this.key = key;
+    this.value = System.getenv(key);
+  }
 
-    /**
-     * @param patternSegment text patternSegment to convert
-     * @return converted patternSegment object
-     */
-    @Nonnull
-    public static SystemEnvironmentElement from(String patternSegment) {
-        return new SystemEnvironmentElement(PatternElements.getPatternElementDisplayOption(patternSegment)
-                .orElseThrow(NoSuchElementException::new));
-    }
+  /**
+   * @param patternSegment text patternSegment to convert
+   * @return converted patternSegment object
+   */
+  @Nonnull
+  public static SystemEnvironmentElement from(String patternSegment) {
+    return new SystemEnvironmentElement(
+        PatternElements.getPatternElementDisplayOption(patternSegment)
+            .orElseThrow(NoSuchElementException::new));
+  }
 
-    @Override
-    public void render(LogEvent logEvent, @NonNull StringBuilder target) {
-        target.append(this.value);
-    }
+  @Override
+  public void render(LogEvent logEvent, @NonNull StringBuilder target) {
+    target.append(this.value);
+  }
 
-    @Override
-    public boolean includeCallerDetail() {
-        return false;
-    }
+  @Override
+  public boolean includeCallerDetail() {
+    return false;
+  }
 }

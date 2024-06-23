@@ -36,123 +36,130 @@ import lombok.NonNull;
 import lombok.ToString;
 
 /**
- * The NativeLogServiceManager class is responsible for managing the log service. It provides methods for registering
- * and deregistering Refreshable and Stoppable instances, refreshing the configuration, and shutting down the service.
+ * The NativeLogServiceManager class is responsible for managing the log service. It provides
+ * methods for registering and deregistering Refreshable and Stoppable instances, refreshing the
+ * configuration, and shutting down the service.
  */
 @ToString
 public enum NativeLogServiceManager {
-    /** The singleton instance of the NativeLogServiceManager. */
-    INSTANCE;
+  /** The singleton instance of the NativeLogServiceManager. */
+  INSTANCE;
 
-    private final Set<Refreshable> refreshables = new HashSet<>();
-    private final Set<Stoppable> stoppables = new HashSet<>();
+  private final Set<Refreshable> refreshables = new HashSet<>();
+  private final Set<Stoppable> stoppables = new HashSet<>();
 
-    @ToString.Exclude
-    private final Lock lock = new ReentrantLock();
+  @ToString.Exclude
+  private final Lock lock = new ReentrantLock();
 
+  /**
+   * Registers a Refreshable instance with the NativeLogServiceManager.
+   *
+   * @param refreshable added to be accessible for management
+   */
+  public void register(Refreshable refreshable) {
+    lockAndRun(() -> refreshables.add(refreshable));
+    IeLogger.INFO.log("Registered {} in {}", refreshable, this);
+  }
+
+  /**
+   * Registers a Stoppable instance with the NativeLogServiceManager.
+   *
+   * @param stoppable added to be accessible for management
+   */
+  public void register(Stoppable stoppable) {
+    lockAndRun(() -> stoppables.add(stoppable));
+    IeLogger.INFO.log("Registered {} in {}", stoppable, this);
+  }
+
+  /** reloads properties source for each refreshable */
+  public void refresh() {
+    IeLogger.INFO.log("Refreshing {} by reloading properties", this);
+    lockAndRun(() -> {
+      shutdown();
+      refreshables.forEach(Refreshable::refresh);
+    });
+    IeLogger.INFO.log("Refreshed {} via reloading properties", this);
+  }
+
+  /**
+   * Refreshes the configuration for each registered Refreshable instance.
+   *
+   * @param properties if non-null, replaces current configuration with the specified properties,
+   *     instead of reloading from the original properties source; otherwise, reloads the original
+   *     properties source for each refreshable.
+   */
+  public void refresh(Properties properties) {
+    IeLogger.INFO.log("Refreshing {} with properties {}", this, properties);
+    lockAndRun(() -> {
+      shutdown();
+      refreshables.forEach(refreshable -> refreshable.refresh(properties));
+    });
+    IeLogger.INFO.log("Refreshed {} with properties {}", this, properties);
+  }
+
+  /**
+   * Stops all registered Stoppable instances and clears the set of registered Stoppable instances.
+   */
+  public void shutdown() {
+    IeLogger.INFO.log("Start shutting down {}", this);
+    lockAndRun(() -> {
+      stoppables.forEach(Stoppable::stop);
+      stoppables.clear();
+    });
+    IeLogger.INFO.log("End shutting down {}", this);
+  }
+
+  /**
+   * Returns a thread that orderly stops the entire log service. As an alternative to calling
+   * {@link #shutdown()}, the returned thread can be registered as a JVM shutdown hook.
+   *
+   * @return a thread that orderly stops the entire log service. As an alternative to calling
+   *     {@link #shutdown()}, the returned thread can be registered as a JVM shutdown hook.
+   */
+  @NonNull public Thread getShutdownHookThread() {
+    return new Thread(this::shutdown);
+  }
+
+  /**
+   * Deregisters the specified Refreshable instance from the NativeLogServiceManager.
+   *
+   * @param refreshable to be deregistered
+   */
+  public void deregister(Refreshable refreshable) {
+    lockAndRun(() -> refreshables.remove(refreshable));
+    IeLogger.INFO.log("De-registered Refreshable {}", refreshable);
+  }
+
+  private void lockAndRun(@NonNull Runnable runnable) {
+    lock.lock();
+    try {
+      runnable.run();
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  /**
+   * The Refreshable interface defines the contract for components that can refresh their
+   * configuration.
+   */
+  public interface Refreshable {
     /**
-     * Registers a Refreshable instance with the NativeLogServiceManager.
+     * Refreshes the configuration of the component.
      *
-     * @param refreshable added to be accessible for management
+     * @param properties used to refresh the logging configuration. If <code>null</code>, only
+     *     properties reloaded from the configuration file will be used. Otherwise, the specified
+     *     properties will replace all current properties and configuration file is ignored.
      */
-    public void register(Refreshable refreshable) {
-        lockAndRun(() -> refreshables.add(refreshable));
-        IeLogger.INFO.log("Registered {} in {}", refreshable, this);
-    }
+    void refresh(@Nullable Properties properties);
 
-    /**
-     * Registers a Stoppable instance with the NativeLogServiceManager.
-     *
-     * @param stoppable added to be accessible for management
-     */
-    public void register(Stoppable stoppable) {
-        lockAndRun(() -> stoppables.add(stoppable));
-        IeLogger.INFO.log("Registered {} in {}", stoppable, this);
-    }
+    /** reloads from original source of properties */
+    void refresh();
+  }
 
-    /** reloads properties source for each refreshable */
-    public void refresh() {
-        IeLogger.INFO.log("Refreshing {} by reloading properties", this);
-        lockAndRun(() -> {
-            shutdown();
-            refreshables.forEach(Refreshable::refresh);
-        });
-        IeLogger.INFO.log("Refreshed {} via reloading properties", this);
-    }
-
-    /**
-     * Refreshes the configuration for each registered Refreshable instance.
-     *
-     * @param properties if non-null, replaces current configuration with the specified properties, instead of reloading
-     *     from the original properties source; otherwise, reloads the original properties source for each refreshable.
-     */
-    public void refresh(Properties properties) {
-        IeLogger.INFO.log("Refreshing {} with properties {}", this, properties);
-        lockAndRun(() -> {
-            shutdown();
-            refreshables.forEach(refreshable -> refreshable.refresh(properties));
-        });
-        IeLogger.INFO.log("Refreshed {} with properties {}", this, properties);
-    }
-
-    /** Stops all registered Stoppable instances and clears the set of registered Stoppable instances. */
-    public void shutdown() {
-        IeLogger.INFO.log("Start shutting down {}", this);
-        lockAndRun(() -> {
-            stoppables.forEach(Stoppable::stop);
-            stoppables.clear();
-        });
-        IeLogger.INFO.log("End shutting down {}", this);
-    }
-
-    /**
-     * Returns a thread that orderly stops the entire log service. As an alternative to calling {@link #shutdown()}, the
-     * returned thread can be registered as a JVM shutdown hook.
-     *
-     * @return a thread that orderly stops the entire log service. As an alternative to calling {@link #shutdown()}, the
-     *     returned thread can be registered as a JVM shutdown hook.
-     */
-    @NonNull public Thread getShutdownHookThread() {
-        return new Thread(this::shutdown);
-    }
-
-    /**
-     * Deregisters the specified Refreshable instance from the NativeLogServiceManager.
-     *
-     * @param refreshable to be deregistered
-     */
-    public void deregister(Refreshable refreshable) {
-        lockAndRun(() -> refreshables.remove(refreshable));
-        IeLogger.INFO.log("De-registered Refreshable {}", refreshable);
-    }
-
-    private void lockAndRun(@NonNull Runnable runnable) {
-        lock.lock();
-        try {
-            runnable.run();
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    /** The Refreshable interface defines the contract for components that can refresh their configuration. */
-    public interface Refreshable {
-        /**
-         * Refreshes the configuration of the component.
-         *
-         * @param properties used to refresh the logging configuration. If <code>null</code>, only properties reloaded
-         *     from the configuration file will be used. Otherwise, the specified properties will replace all current
-         *     properties and configuration file is ignored.
-         */
-        void refresh(@Nullable Properties properties);
-
-        /** reloads from original source of properties */
-        void refresh();
-    }
-
-    /** The Stoppable interface defines the contract for components that can be stopped. */
-    public interface Stoppable {
-        /** Stops the component. */
-        void stop();
-    }
+  /** The Stoppable interface defines the contract for components that can be stopped. */
+  public interface Stoppable {
+    /** Stops the component. */
+    void stop();
+  }
 }

@@ -49,120 +49,131 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class NativeLoggerTest {
 
-    @Nested
-    class atLevels {
-        @Test
-        void instanceForDifferentLevel() {
-            NativeLogger sut = (NativeLogger) Logger.instance();
-            NativeLogger info = (NativeLogger) sut.atInfo();
-            NativeLogger warn = (NativeLogger) info.atWarn();
+  @Nested
+  class atLevels {
+    @Test
+    void instanceForDifferentLevel() {
+      NativeLogger sut = (NativeLogger) Logger.instance();
+      NativeLogger info = (NativeLogger) sut.atInfo();
+      NativeLogger warn = (NativeLogger) info.atWarn();
 
-            assertNotSame(warn, info);
-            assertEquals(info.getDeclaringClassName(), warn.getDeclaringClassName());
-            assertEquals(WARN, warn.getLevel());
-        }
-
-        @Test
-        void instanceForSameLevel() {
-            NativeLogger sut = (NativeLogger) Logger.instance();
-            NativeLogger trace = (NativeLogger) sut.atTrace();
-            NativeLogger debug = (NativeLogger) sut.atDebug();
-            NativeLogger info = (NativeLogger) sut.atInfo();
-            NativeLogger warn = (NativeLogger) sut.atWarn();
-            NativeLogger error = (NativeLogger) sut.atError();
-
-            assertSame(trace, trace.atTrace());
-            assertSame(debug, debug.atDebug());
-            assertSame(info, info.atInfo());
-            assertSame(warn, warn.atWarn());
-            assertSame(error, error.atError());
-        }
+      assertNotSame(warn, info);
+      assertEquals(info.getDeclaringClassName(), warn.getDeclaringClassName());
+      assertEquals(WARN, warn.getLevel());
     }
 
-    @Nested
-    class isEnabled {
+    @Test
+    void instanceForSameLevel() {
+      NativeLogger sut = (NativeLogger) Logger.instance();
+      NativeLogger trace = (NativeLogger) sut.atTrace();
+      NativeLogger debug = (NativeLogger) sut.atDebug();
+      NativeLogger info = (NativeLogger) sut.atInfo();
+      NativeLogger warn = (NativeLogger) sut.atWarn();
+      NativeLogger error = (NativeLogger) sut.atError();
 
-        @Test
-        void delegateToService() {
-            NativeLogServiceProvider nativeLogServiceProvider = mock(NativeLogServiceProvider.class);
-            NativeLoggerService nativeLoggerService = mock(NativeLoggerService.class);
-            given(nativeLogServiceProvider.getLogService()).willReturn(nativeLoggerService);
-            NativeLogger sut = new NativeLogger(this.getClass().getName(), INFO, nativeLogServiceProvider);
+      assertSame(trace, trace.atTrace());
+      assertSame(debug, debug.atDebug());
+      assertSame(info, info.atInfo());
+      assertSame(warn, warn.atWarn());
+      assertSame(error, error.atError());
+    }
+  }
 
-            sut.isEnabled();
+  @Nested
+  class isEnabled {
 
-            then(nativeLoggerService).should().isEnabled(sut);
-        }
+    @Test
+    void delegateToService() {
+      NativeLogServiceProvider nativeLogServiceProvider = mock(NativeLogServiceProvider.class);
+      NativeLoggerService nativeLoggerService = mock(NativeLoggerService.class);
+      given(nativeLogServiceProvider.getLogService()).willReturn(nativeLoggerService);
+      NativeLogger sut =
+          new NativeLogger(this.getClass().getName(), INFO, nativeLogServiceProvider);
+
+      sut.isEnabled();
+
+      then(nativeLoggerService).should().isEnabled(sut);
+    }
+  }
+
+  @Nested
+  class logDelegateToService {
+    @Mock
+    NativeLoggerService nativeLoggerService;
+
+    @Mock
+    NativeLogServiceProvider nativeLogServiceProvider;
+
+    NativeLogger sut;
+    String plainTextMessage = "plainTextMessage";
+    String textMessageWithArgHolders = "textMessage with 2 task holders of values {} and {}";
+    Object[] args = new Object[] {"1stArgOfObjectType", (Supplier) () -> "2ndArgOfSupplierType"};
+    Throwable exception = new Exception("Test exception message");
+
+    @BeforeEach
+    void beforeEach() {
+      given(nativeLogServiceProvider.getLogService()).willReturn(nativeLoggerService);
+      sut = new NativeLogger(NativeLoggerTest.class.getName(), INFO, nativeLogServiceProvider);
     }
 
-    @Nested
-    class logDelegateToService {
-        @Mock
-        NativeLoggerService nativeLoggerService;
+    @Test
+    void exception() {
+      sut.log(exception);
 
-        @Mock
-        NativeLogServiceProvider nativeLogServiceProvider;
-
-        NativeLogger sut;
-        String plainTextMessage = "plainTextMessage";
-        String textMessageWithArgHolders = "textMessage with 2 task holders of values {} and {}";
-        Object[] args = new Object[] {"1stArgOfObjectType", (Supplier) () -> "2ndArgOfSupplierType"};
-        Throwable exception = new Exception("Test exception message");
-
-        @BeforeEach
-        void beforeEach() {
-            given(nativeLogServiceProvider.getLogService()).willReturn(nativeLoggerService);
-            sut = new NativeLogger(NativeLoggerTest.class.getName(), INFO, nativeLogServiceProvider);
-        }
-
-        @Test
-        void exception() {
-            sut.log(exception);
-
-            then(nativeLoggerService)
-                    .should()
-                    .log(same(sut), same(NativeLogger.class), same(exception), isNull(), isNull());
-        }
-
-        @Test
-        void exceptionWithMessage() {
-            sut.log(exception, plainTextMessage);
-
-            then(nativeLoggerService)
-                    .should()
-                    .log(same(sut), same(NativeLogger.class), same(exception), same(plainTextMessage), isNull());
-        }
-
-        @Test
-        void exceptionWithMessageAndArgs() {
-            sut.log(exception, textMessageWithArgHolders, args);
-
-            then(nativeLoggerService)
-                    .should()
-                    .log(
-                            same(sut),
-                            same(NativeLogger.class),
-                            same(exception),
-                            same(textMessageWithArgHolders),
-                            same(args));
-        }
-
-        @Test
-        void messageWithArguments() {
-            sut.log(textMessageWithArgHolders, args);
-
-            then(nativeLoggerService)
-                    .should()
-                    .log(same(sut), same(NativeLogger.class), isNull(), same(textMessageWithArgHolders), same(args));
-        }
-
-        @Test
-        void plainText() {
-            sut.log(plainTextMessage);
-
-            then(nativeLoggerService)
-                    .should()
-                    .log(same(sut), same(NativeLogger.class), isNull(), same(plainTextMessage), isNull());
-        }
+      then(nativeLoggerService)
+          .should()
+          .log(same(sut), same(NativeLogger.class), same(exception), isNull(), isNull());
     }
+
+    @Test
+    void exceptionWithMessage() {
+      sut.log(exception, plainTextMessage);
+
+      then(nativeLoggerService)
+          .should()
+          .log(
+              same(sut),
+              same(NativeLogger.class),
+              same(exception),
+              same(plainTextMessage),
+              isNull());
+    }
+
+    @Test
+    void exceptionWithMessageAndArgs() {
+      sut.log(exception, textMessageWithArgHolders, args);
+
+      then(nativeLoggerService)
+          .should()
+          .log(
+              same(sut),
+              same(NativeLogger.class),
+              same(exception),
+              same(textMessageWithArgHolders),
+              same(args));
+    }
+
+    @Test
+    void messageWithArguments() {
+      sut.log(textMessageWithArgHolders, args);
+
+      then(nativeLoggerService)
+          .should()
+          .log(
+              same(sut),
+              same(NativeLogger.class),
+              isNull(),
+              same(textMessageWithArgHolders),
+              same(args));
+    }
+
+    @Test
+    void plainText() {
+      sut.log(plainTextMessage);
+
+      then(nativeLoggerService)
+          .should()
+          .log(same(sut), same(NativeLogger.class), isNull(), same(plainTextMessage), isNull());
+    }
+  }
 }

@@ -32,21 +32,22 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class IntegrationTest {
-    @Nested
-    class defaultLogger {
-        @Test
-        void hey() {
-            Logger logger = Logger.instance();
+  @Nested
+  class defaultLogger {
+    @Test
+    void hey() {
+      Logger logger = Logger.instance();
 
-            logger.atInfo().log("Hello, world!");
-            logger.atWarn()
-                    .log(
-                            new Exception("Test ex message"),
-                            "Testing issue '{}' in {}",
-                            new Exception("Test ex message"),
-                            this.getClass());
+      logger.atInfo().log("Hello, world!");
+      logger
+          .atWarn()
+          .log(
+              new Exception("Test ex message"),
+              "Testing issue '{}' in {}",
+              new Exception("Test ex message"),
+              this.getClass());
 
-            assertEquals(this.getClass().getName(), ((NativeLogger) logger).getDeclaringClassName());
-        }
+      assertEquals(this.getClass().getName(), ((NativeLogger) logger).getDeclaringClassName());
     }
+  }
 }

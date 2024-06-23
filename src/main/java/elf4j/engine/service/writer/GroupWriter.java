@@ -45,133 +45,135 @@ import lombok.ToString;
 import org.slf4j.MDC;
 
 /**
- * In general, log events are asynchronously written/rendered in parallel by multiple concurrent threads. However,
- * events issued by the same caller application thread are rendered sequentially with the {@link ConseqExecutor} API.
- * Thus, logs by different caller threads may arrive at the final destination (e.g. system Console or a log file) in any
- * order; meanwhile, logs from the same caller thread will arrive sequentially in the same order as they are called in
- * the original thread.
+ * In general, log events are asynchronously written/rendered in parallel by multiple concurrent
+ * threads. However, events issued by the same caller application thread are rendered sequentially
+ * with the {@link ConseqExecutor} API. Thus, logs by different caller threads may arrive at the
+ * final destination (e.g. system Console or a log file) in any order; meanwhile, logs from the same
+ * caller thread will arrive sequentially in the same order as they are called in the original
+ * thread.
  */
 public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable {
-    private static final int DEFAULT_CONCURRENCY = Runtime.getRuntime().availableProcessors();
-    private final List<LogWriter> writers;
-    private final ConseqExecutor conseqExecutor;
-    private Level thresholdOutputLevel;
+  private static final int DEFAULT_CONCURRENCY = Runtime.getRuntime().availableProcessors();
+  private final List<LogWriter> writers;
+  private final ConseqExecutor conseqExecutor;
+  private Level thresholdOutputLevel;
 
-    @ToString.Exclude
-    private Boolean includeCallerDetail;
+  @ToString.Exclude
+  private Boolean includeCallerDetail;
 
-    private GroupWriter(@NonNull List<LogWriter> writers, ConseqExecutor conseqExecutor) {
-        this.writers = writers;
-        this.conseqExecutor = conseqExecutor;
-        IeLogger.INFO.log("{} service writer(s) in {}", writers.size(), this);
-        NativeLogServiceManager.INSTANCE.register(this);
+  private GroupWriter(@NonNull List<LogWriter> writers, ConseqExecutor conseqExecutor) {
+    this.writers = writers;
+    this.conseqExecutor = conseqExecutor;
+    IeLogger.INFO.log("{} service writer(s) in {}", writers.size(), this);
+    NativeLogServiceManager.INSTANCE.register(this);
+  }
+
+  /**
+   * Creates a GroupWriter instance from the provided LogServiceConfiguration.
+   *
+   * @param logServiceConfiguration entire configuration
+   * @return the composite writer containing all writers configured in the specified properties
+   */
+  @NonNull public static GroupWriter from(LogServiceConfiguration logServiceConfiguration) {
+    List<LogWriterType> logWriterTypes =
+        new ArrayList<>(getLogWriterTypes(logServiceConfiguration));
+    if (logWriterTypes.isEmpty()) {
+      logWriterTypes.add(new StandardStreamWriter.Type());
     }
+    List<LogWriter> logWriters = logWriterTypes.stream()
+        .flatMap(t -> t.getLogWriters(logServiceConfiguration).stream())
+        .collect(Collectors.toList());
+    return new GroupWriter(
+        logWriters, ConseqExecutor.instance(getConcurrency(logServiceConfiguration)));
+  }
 
-    /**
-     * Creates a GroupWriter instance from the provided LogServiceConfiguration.
-     *
-     * @param logServiceConfiguration entire configuration
-     * @return the composite writer containing all writers configured in the specified properties
-     */
-    @NonNull public static GroupWriter from(LogServiceConfiguration logServiceConfiguration) {
-        List<LogWriterType> logWriterTypes = new ArrayList<>(getLogWriterTypes(logServiceConfiguration));
-        if (logWriterTypes.isEmpty()) {
-            logWriterTypes.add(new StandardStreamWriter.Type());
-        }
-        List<LogWriter> logWriters = logWriterTypes.stream()
-                .flatMap(t -> t.getLogWriters(logServiceConfiguration).stream())
-                .collect(Collectors.toList());
-        return new GroupWriter(logWriters, ConseqExecutor.instance(getConcurrency(logServiceConfiguration)));
+  private static int getConcurrency(@NonNull LogServiceConfiguration logServiceConfiguration) {
+    int concurrency = logServiceConfiguration.getIntOrDefault("concurrency", DEFAULT_CONCURRENCY);
+    IeLogger.INFO.log("Concurrency: {}", concurrency);
+    if (concurrency < 1) {
+      IeLogger.ERROR.log("Unexpected concurrency: {}, cannot be less than 1", concurrency);
+      throw new IllegalArgumentException("concurrency: " + concurrency);
     }
+    return concurrency;
+  }
 
-    private static int getConcurrency(@NonNull LogServiceConfiguration logServiceConfiguration) {
-        int concurrency = logServiceConfiguration.getIntOrDefault("concurrency", DEFAULT_CONCURRENCY);
-        IeLogger.INFO.log("Concurrency: {}", concurrency);
-        if (concurrency < 1) {
-            IeLogger.ERROR.log("Unexpected concurrency: {}, cannot be less than 1", concurrency);
-            throw new IllegalArgumentException("concurrency: " + concurrency);
-        }
-        return concurrency;
+  private static List<LogWriterType> getLogWriterTypes(
+      @NonNull LogServiceConfiguration logServiceConfiguration) {
+    if (logServiceConfiguration.isAbsent()) {
+      return Collections.emptyList();
     }
+    Properties properties = logServiceConfiguration.getProperties();
+    String writerTypes = properties.getProperty("writer.types");
+    if (writerTypes == null) {
+      return Collections.emptyList();
+    }
+    return Arrays.stream(writerTypes.split(","))
+        .map(String::trim)
+        .map(fqcn -> {
+          try {
+            return (LogWriterType) Class.forName(fqcn).getDeclaredConstructor().newInstance();
+          } catch (InstantiationException
+              | IllegalAccessException
+              | InvocationTargetException
+              | NoSuchMethodException
+              | ClassNotFoundException e) {
+            throw new IllegalArgumentException("Error instantiating: " + fqcn, e);
+          }
+        })
+        .collect(Collectors.toList());
+  }
 
-    private static List<LogWriterType> getLogWriterTypes(@NonNull LogServiceConfiguration logServiceConfiguration) {
-        if (logServiceConfiguration.isAbsent()) {
-            return Collections.emptyList();
-        }
-        Properties properties = logServiceConfiguration.getProperties();
-        String writerTypes = properties.getProperty("writer.types");
-        if (writerTypes == null) {
-            return Collections.emptyList();
-        }
-        return Arrays.stream(writerTypes.split(","))
-                .map(String::trim)
-                .map(fqcn -> {
-                    try {
-                        return (LogWriterType)
-                                Class.forName(fqcn).getDeclaredConstructor().newInstance();
-                    } catch (InstantiationException
-                            | IllegalAccessException
-                            | InvocationTargetException
-                            | NoSuchMethodException
-                            | ClassNotFoundException e) {
-                        throw new IllegalArgumentException("Error instantiating: " + fqcn, e);
-                    }
-                })
-                .collect(Collectors.toList());
-    }
+  private static @NonNull Runnable withMdcContext(Runnable task) {
+    Map<String, String> callerContext = MDC.getCopyOfContextMap();
+    return () -> {
+      Map<String, String> workerContext = switchContextTo(callerContext);
+      MDC.setContextMap(callerContext);
+      try {
+        task.run();
+      } finally {
+        MDC.setContextMap(workerContext);
+      }
+    };
+  }
 
-    private static @NonNull Runnable withMdcContext(Runnable task) {
-        Map<String, String> callerContext = MDC.getCopyOfContextMap();
-        return () -> {
-            Map<String, String> workerContext = switchContextTo(callerContext);
-            MDC.setContextMap(callerContext);
-            try {
-                task.run();
-            } finally {
-                MDC.setContextMap(workerContext);
-            }
-        };
-    }
+  private static Map<String, String> switchContextTo(Map<String, String> targetContext) {
+    Map<String, String> replaced = MDC.getCopyOfContextMap();
+    MDC.setContextMap(targetContext);
+    return replaced;
+  }
 
-    private static Map<String, String> switchContextTo(Map<String, String> targetContext) {
-        Map<String, String> replaced = MDC.getCopyOfContextMap();
-        MDC.setContextMap(targetContext);
-        return replaced;
+  @Override
+  public Level getThresholdOutputLevel() {
+    if (thresholdOutputLevel == null) {
+      thresholdOutputLevel = Level.values()[
+          writers.stream()
+              .mapToInt(writer -> writer.getThresholdOutputLevel().ordinal())
+              .min()
+              .orElseThrow(NoSuchElementException::new)];
     }
+    return thresholdOutputLevel;
+  }
 
-    @Override
-    public Level getThresholdOutputLevel() {
-        if (thresholdOutputLevel == null) {
-            thresholdOutputLevel = Level.values()[
-                    writers.stream()
-                            .mapToInt(writer -> writer.getThresholdOutputLevel().ordinal())
-                            .min()
-                            .orElseThrow(NoSuchElementException::new)];
-        }
-        return thresholdOutputLevel;
-    }
+  @Override
+  public void write(@NonNull LogEvent logEvent) {
+    writers.forEach(writer -> conseqExecutor.execute(
+        withMdcContext(() -> writer.write(logEvent)), logEvent.getCallerThread().getId()));
+  }
 
-    @Override
-    public void write(@NonNull LogEvent logEvent) {
-        writers.forEach(writer -> conseqExecutor.execute(
-                withMdcContext(() -> writer.write(logEvent)),
-                logEvent.getCallerThread().getId()));
+  @Override
+  public boolean includeCallerDetail() {
+    if (includeCallerDetail == null) {
+      includeCallerDetail = writers.stream().anyMatch(LogWriter::includeCallerDetail);
     }
+    return includeCallerDetail;
+  }
 
-    @Override
-    public boolean includeCallerDetail() {
-        if (includeCallerDetail == null) {
-            includeCallerDetail = writers.stream().anyMatch(LogWriter::includeCallerDetail);
-        }
-        return includeCallerDetail;
+  @Override
+  public void stop() {
+    if (conseqExecutor.isTerminated()) {
+      return;
     }
-
-    @Override
-    public void stop() {
-        if (conseqExecutor.isTerminated()) {
-            return;
-        }
-        IeLogger.INFO.log("Stopping {}", this);
-        conseqExecutor.close();
-    }
+    IeLogger.INFO.log("Stopping {}", this);
+    conseqExecutor.close();
+  }
 }

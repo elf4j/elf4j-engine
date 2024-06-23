@@ -44,99 +44,101 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class NativeLoggerServiceProviderTest {
-    @Nested
-    class customizedFactory {
+  @Nested
+  class customizedFactory {
 
-        @Mock
+    @Mock
+    NativeLoggerService nativeLoggerService;
+
+    @Mock
+    NativeLogServiceProvider.NativeLoggerServiceFactory nativeLoggerServiceFactory;
+
+    NativeLogServiceProvider sut;
+
+    @BeforeEach
+    void beforeEach() {
+      sut = new NativeLogServiceProvider(
+          Level.ERROR, NativeLogServiceProvider.class, nativeLoggerServiceFactory);
+      NativeLogServiceManager.INSTANCE.deregister(sut);
+    }
+
+    @Test
+    void level() {
+      assertEquals(Level.ERROR, sut.logger().getLevel());
+    }
+
+    @Test
+    void name() {
+      assertSame(this.getClass().getName(), sut.logger().getDeclaringClassName());
+    }
+
+    @Test
+    void service() {
+      given(nativeLoggerServiceFactory.getLogService()).willReturn(nativeLoggerService);
+
+      assertSame(nativeLoggerService, sut.logger().getLogService());
+    }
+
+    @Nested
+    class refresh {
+      NativeLogServiceProvider sut;
+
+      @Mock
+      NativeLoggerService nativeLoggerService;
+
+      @BeforeEach
+      void beforeEach() {
+        sut = new NativeLogServiceProvider(
+            Level.ERROR,
+            NativeLogServiceProvider.class,
+            new MockNativeLoggerServiceFactory(nativeLoggerService));
+        NativeLogServiceManager.INSTANCE.deregister(sut);
+      }
+
+      @Test
+      void whenRefreshedBySetting() {
+        Properties properties = new Properties();
+        NativeLogger nativeLogger = sut.logger();
+        NativeLoggerService nativeLoggerService = nativeLogger.getLogService();
+
+        sut.refresh(properties);
+
+        assertNotSame(nativeLogger.getLogService(), nativeLoggerService);
+      }
+
+      @Test
+      void whenRefreshedByLoading() {
+        NativeLogger nativeLogger = sut.logger();
+        NativeLoggerService nativeLoggerService = nativeLogger.getLogService();
+
+        sut.refresh();
+
+        assertNotSame(nativeLogger.getLogService(), nativeLoggerService);
+      }
+
+      class MockNativeLoggerServiceFactory
+          implements NativeLogServiceProvider.NativeLoggerServiceFactory {
         NativeLoggerService nativeLoggerService;
 
-        @Mock
-        NativeLogServiceProvider.NativeLoggerServiceFactory nativeLoggerServiceFactory;
-
-        NativeLogServiceProvider sut;
-
-        @BeforeEach
-        void beforeEach() {
-            sut = new NativeLogServiceProvider(Level.ERROR, NativeLogServiceProvider.class, nativeLoggerServiceFactory);
-            NativeLogServiceManager.INSTANCE.deregister(sut);
+        private MockNativeLoggerServiceFactory(NativeLoggerService nativeLoggerService) {
+          this.nativeLoggerService = nativeLoggerService;
         }
 
-        @Test
-        void level() {
-            assertEquals(Level.ERROR, sut.logger().getLevel());
+        @Override
+        public NativeLoggerService getLogService() {
+          return nativeLoggerService;
         }
 
-        @Test
-        void name() {
-            assertSame(this.getClass().getName(), sut.logger().getDeclaringClassName());
+        @Override
+        public void reload() {
+          nativeLoggerService = mock(NativeLoggerService.class);
         }
 
-        @Test
-        void service() {
-            given(nativeLoggerServiceFactory.getLogService()).willReturn(nativeLoggerService);
-
-            assertSame(nativeLoggerService, sut.logger().getLogService());
+        @Override
+        public void reset(Properties properties) {
+          nativeLoggerService = mock(NativeLoggerService.class);
         }
-
-        @Nested
-        class refresh {
-            NativeLogServiceProvider sut;
-
-            @Mock
-            NativeLoggerService nativeLoggerService;
-
-            @BeforeEach
-            void beforeEach() {
-                sut = new NativeLogServiceProvider(
-                        Level.ERROR,
-                        NativeLogServiceProvider.class,
-                        new MockNativeLoggerServiceFactory(nativeLoggerService));
-                NativeLogServiceManager.INSTANCE.deregister(sut);
-            }
-
-            @Test
-            void whenRefreshedBySetting() {
-                Properties properties = new Properties();
-                NativeLogger nativeLogger = sut.logger();
-                NativeLoggerService nativeLoggerService = nativeLogger.getLogService();
-
-                sut.refresh(properties);
-
-                assertNotSame(nativeLogger.getLogService(), nativeLoggerService);
-            }
-
-            @Test
-            void whenRefreshedByLoading() {
-                NativeLogger nativeLogger = sut.logger();
-                NativeLoggerService nativeLoggerService = nativeLogger.getLogService();
-
-                sut.refresh();
-
-                assertNotSame(nativeLogger.getLogService(), nativeLoggerService);
-            }
-
-            class MockNativeLoggerServiceFactory implements NativeLogServiceProvider.NativeLoggerServiceFactory {
-                NativeLoggerService nativeLoggerService;
-
-                private MockNativeLoggerServiceFactory(NativeLoggerService nativeLoggerService) {
-                    this.nativeLoggerService = nativeLoggerService;
-                }
-
-                @Override
-                public NativeLoggerService getLogService() {
-                    return nativeLoggerService;
-                }
-
-                @Override
-                public void reload() {
-                    nativeLoggerService = mock(NativeLoggerService.class);
-                }
-
-                @Override
-                public void reset(Properties properties) {
-                    nativeLoggerService = mock(NativeLoggerService.class);
-                }
-            }
-        }
+      }
     }
+  }
 }

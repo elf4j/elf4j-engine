@@ -33,18 +33,18 @@ import lombok.Value;
 /** */
 @Value
 class MessageAndExceptionElement implements PatternElement {
-    @Override
-    public boolean includeCallerDetail() {
-        return false;
-    }
+  @Override
+  public boolean includeCallerDetail() {
+    return false;
+  }
 
-    @Override
-    public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
-        target.append(logEvent.getResolvedMessage());
-        Throwable t = logEvent.getThrowable();
-        if (t == null) {
-            return;
-        }
-        target.append(System.lineSeparator()).append(StackTraces.getTraceAsBuffer(t));
+  @Override
+  public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
+    target.append(logEvent.getResolvedMessage());
+    Throwable t = logEvent.getThrowable();
+    if (t == null) {
+      return;
     }
+    target.append(System.lineSeparator()).append(StackTraces.getTraceAsBuffer(t));
+  }
 }

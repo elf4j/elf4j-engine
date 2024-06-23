@@ -33,24 +33,24 @@ import lombok.Value;
 /** */
 @Value
 class VerbatimElement implements PatternElement {
-    @NonNull String text;
+  @NonNull String text;
 
-    /**
-     * @param patternSegment text pattern segment to convert
-     * @return converted pattern segment object
-     */
-    @Nonnull
-    public static VerbatimElement from(String patternSegment) {
-        return new VerbatimElement(patternSegment);
-    }
+  /**
+   * @param patternSegment text pattern segment to convert
+   * @return converted pattern segment object
+   */
+  @Nonnull
+  public static VerbatimElement from(String patternSegment) {
+    return new VerbatimElement(patternSegment);
+  }
 
-    @Override
-    public boolean includeCallerDetail() {
-        return false;
-    }
+  @Override
+  public boolean includeCallerDetail() {
+    return false;
+  }
 
-    @Override
-    public void render(LogEvent logEvent, @NonNull StringBuilder target) {
-        target.append(text);
-    }
+  @Override
+  public void render(LogEvent logEvent, @NonNull StringBuilder target) {
+    target.append(text);
+  }
 }

@@ -38,103 +38,105 @@ import lombok.Value;
 @Value
 @Builder
 public class LogEvent {
-    private static final int ADDITIONAL_STRING_BUILDER_CAPACITY = 32;
+  private static final int ADDITIONAL_STRING_BUILDER_CAPACITY = 32;
 
-    @NonNull NativeLogger nativeLogger;
+  @NonNull NativeLogger nativeLogger;
 
-    @NonNull ThreadValue callerThread;
+  @NonNull ThreadValue callerThread;
 
-    @NonNull Instant timestamp = Instant.now();
+  @NonNull Instant timestamp = Instant.now();
 
-    @Nullable Object message;
+  @Nullable Object message;
 
-    @Nullable Object[] arguments;
+  @Nullable Object[] arguments;
 
-    @Nullable Throwable throwable;
+  @Nullable Throwable throwable;
 
-    @Nullable Class<?> serviceInterfaceClass;
+  @Nullable Class<?> serviceInterfaceClass;
 
-    @Nullable StackFrameValue callerFrame;
+  @Nullable StackFrameValue callerFrame;
 
-    private static @NonNull CharSequence resolve(Object message, Object[] arguments) {
-        String suppliedMessage = Objects.toString(supply(message), "");
-        if (arguments == null || arguments.length == 0) {
-            return suppliedMessage;
-        }
-        int messageLength = suppliedMessage.length();
-        StringBuilder resolved = new StringBuilder(messageLength + ADDITIONAL_STRING_BUILDER_CAPACITY);
-        int i = 0;
-        int j = 0;
-        while (i < messageLength) {
-            char character = suppliedMessage.charAt(i);
-            if (character == '{'
-                    && ((i + 1) < messageLength && suppliedMessage.charAt(i + 1) == '}')
-                    && j < arguments.length) {
-                resolved.append(supply(arguments[j++]));
-                i += 2;
-            } else {
-                resolved.append(character);
-                i += 1;
-            }
-        }
-        return resolved;
+  private static @NonNull CharSequence resolve(Object message, Object[] arguments) {
+    String suppliedMessage = Objects.toString(supply(message), "");
+    if (arguments == null || arguments.length == 0) {
+      return suppliedMessage;
     }
-
-    private static @Nullable Object supply(@Nullable Object o) {
-        return o instanceof Supplier<?> ? ((Supplier<?>) o).get() : o;
+    int messageLength = suppliedMessage.length();
+    StringBuilder resolved = new StringBuilder(messageLength + ADDITIONAL_STRING_BUILDER_CAPACITY);
+    int i = 0;
+    int j = 0;
+    while (i < messageLength) {
+      char character = suppliedMessage.charAt(i);
+      if (character == '{'
+          && ((i + 1) < messageLength && suppliedMessage.charAt(i + 1) == '}')
+          && j < arguments.length) {
+        resolved.append(supply(arguments[j++]));
+        i += 2;
+      } else {
+        resolved.append(character);
+        i += 1;
+      }
     }
+    return resolved;
+  }
+
+  private static @Nullable Object supply(@Nullable Object o) {
+    return o instanceof Supplier<?> ? ((Supplier<?>) o).get() : o;
+  }
+
+  /**
+   * Returns the name of the application client class calling the logging method of this logger
+   * instance.
+   *
+   * @return the name of the caller class
+   */
+  public String getCallerClassName() {
+    return callerFrame != null ? callerFrame.getClassName() : nativeLogger.getDeclaringClassName();
+  }
+
+  /**
+   * Returns the log message text with all placeholder arguments resolved and replaced by final
+   * values.
+   *
+   * @return the resolved log message
+   */
+  public CharSequence getResolvedMessage() {
+    return resolve(this.message, this.arguments);
+  }
+
+  /** Represents a value representing a call stack element. */
+  @Value
+  @Builder
+  public static class StackFrameValue {
+    @NonNull String className;
+
+    @NonNull String methodName;
+
+    int lineNumber;
+
+    @Nullable String fileName;
 
     /**
-     * Returns the name of the application client class calling the logging method of this logger instance.
+     * Creates a StackFrameValue instance from a StackTraceElement.
      *
-     * @return the name of the caller class
+     * @param stackTraceElement call stack element
+     * @return log render-able value representing the call stack element
      */
-    public String getCallerClassName() {
-        return callerFrame != null ? callerFrame.getClassName() : nativeLogger.getDeclaringClassName();
+    public static StackFrameValue from(@NonNull StackTraceElement stackTraceElement) {
+      return LogEvent.StackFrameValue.builder()
+          .fileName(stackTraceElement.getFileName())
+          .className(stackTraceElement.getClassName())
+          .methodName(stackTraceElement.getMethodName())
+          .lineNumber(stackTraceElement.getLineNumber())
+          .build();
     }
+  }
 
-    /**
-     * Returns the log message text with all placeholder arguments resolved and replaced by final values.
-     *
-     * @return the resolved log message
-     */
-    public CharSequence getResolvedMessage() {
-        return resolve(this.message, this.arguments);
-    }
+  /** Represents the value of a thread. */
+  @Value
+  public static class ThreadValue {
+    @NonNull String name;
 
-    /** Represents a value representing a call stack element. */
-    @Value
-    @Builder
-    public static class StackFrameValue {
-        @NonNull String className;
-
-        @NonNull String methodName;
-
-        int lineNumber;
-
-        @Nullable String fileName;
-
-        /**
-         * Creates a StackFrameValue instance from a StackTraceElement.
-         *
-         * @param stackTraceElement call stack element
-         * @return log render-able value representing the call stack element
-         */
-        public static StackFrameValue from(@NonNull StackTraceElement stackTraceElement) {
-            return LogEvent.StackFrameValue.builder()
-                    .fileName(stackTraceElement.getFileName())
-                    .className(stackTraceElement.getClassName())
-                    .methodName(stackTraceElement.getMethodName())
-                    .lineNumber(stackTraceElement.getLineNumber())
-                    .build();
-        }
-    }
-
-    /** Represents the value of a thread. */
-    @Value
-    public static class ThreadValue {
-        @NonNull String name;
-
-        long id;
-    }
+    long id;
+  }
 }

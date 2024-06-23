@@ -8,15 +8,15 @@ import org.junit.jupiter.api.Test;
 
 class StackTracesTest {
 
-    @Nested
-    class getCallerFrame {
-        @Test
-        void whenCalleeClassIsNotFoundInCallStack() {
-            assertThrows(
-                    NoSuchElementException.class,
-                    () -> StackTraces.getCallerFrame(NotInCallstack.class, new Throwable().getStackTrace()));
-        }
-
-        class NotInCallstack {}
+  @Nested
+  class getCallerFrame {
+    @Test
+    void whenCalleeClassIsNotFoundInCallStack() {
+      assertThrows(
+          NoSuchElementException.class,
+          () -> StackTraces.getCallerFrame(NotInCallstack.class, new Throwable().getStackTrace()));
     }
+
+    class NotInCallstack {}
+  }
 }

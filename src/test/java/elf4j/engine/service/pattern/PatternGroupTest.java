@@ -39,29 +39,29 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class PatternGroupTest {
-    @Nested
-    class render {
-        @Mock
-        PatternElement mockPattern;
+  @Nested
+  class render {
+    @Mock
+    PatternElement mockPattern;
 
-        @Mock
-        PatternElement mockPattern2;
+    @Mock
+    PatternElement mockPattern2;
 
-        @Mock
-        LogEvent stubLogEvent;
+    @Mock
+    LogEvent stubLogEvent;
 
-        LogPattern patternGroupEntry;
+    LogPattern patternGroupEntry;
 
-        @Test
-        void dispatchAll() {
-            patternGroupEntry = new LogPattern(Arrays.asList(mockPattern2, mockPattern));
-            StringBuilder stringBuilder = new StringBuilder();
+    @Test
+    void dispatchAll() {
+      patternGroupEntry = new LogPattern(Arrays.asList(mockPattern2, mockPattern));
+      StringBuilder stringBuilder = new StringBuilder();
 
-            patternGroupEntry.render(stubLogEvent, stringBuilder);
+      patternGroupEntry.render(stubLogEvent, stringBuilder);
 
-            InOrder inOrder = inOrder(mockPattern, mockPattern2);
-            then(mockPattern2).should(inOrder).render(stubLogEvent, stringBuilder);
-            then(mockPattern).should(inOrder).render(stubLogEvent, stringBuilder);
-        }
+      InOrder inOrder = inOrder(mockPattern, mockPattern2);
+      then(mockPattern2).should(inOrder).render(stubLogEvent, stringBuilder);
+      then(mockPattern).should(inOrder).render(stubLogEvent, stringBuilder);
     }
+  }
 }

@@ -31,54 +31,56 @@ import java.util.NoSuchElementException;
 import lombok.NonNull;
 
 /**
- * The StackTraces class provides utility methods for working with stack traces. It provides methods for getting the
- * caller of a specified class and for getting the stack trace of a throwable as a string.
+ * The StackTraces class provides utility methods for working with stack traces. It provides methods
+ * for getting the caller of a specified class and for getting the stack trace of a throwable as a
+ * string.
  */
 public class StackTraces {
-    // Private constructor to prevent instantiation of utility class
-    private StackTraces() {}
+  // Private constructor to prevent instantiation of utility class
+  private StackTraces() {}
 
-    /**
-     * Returns the immediate caller frame of the specified callee class.
-     *
-     * @param calleeClass whose caller is being searched for
-     * @return immediate caller frame of the specified callee class
-     */
-    public static StackTraceElement callerOf(@NonNull Class<?> calleeClass) {
-        StackTraceElement[] stackTrace = new Throwable().getStackTrace();
-        return getCallerFrame(calleeClass, stackTrace);
-    }
+  /**
+   * Returns the immediate caller frame of the specified callee class.
+   *
+   * @param calleeClass whose caller is being searched for
+   * @return immediate caller frame of the specified callee class
+   */
+  public static StackTraceElement callerOf(@NonNull Class<?> calleeClass) {
+    StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+    return getCallerFrame(calleeClass, stackTrace);
+  }
 
-    /**
-     * Returns the caller frame of the specified callee class in the given stack trace.
-     *
-     * @param calleeClass whose caller is being searched for
-     * @param stackTrace to walk in search for the caller
-     * @return the caller frame in the stack trace
-     */
-    public static StackTraceElement getCallerFrame(
-            @NonNull Class<?> calleeClass, @NonNull StackTraceElement @NonNull [] stackTrace) {
-        String calleeClassName = calleeClass.getName();
-        for (int depth = 1; depth < stackTrace.length; depth++) {
-            if (calleeClassName.equals(stackTrace[depth - 1].getClassName())
-                    && !calleeClassName.equals(stackTrace[depth].getClassName())) {
-                return stackTrace[depth];
-            }
-        }
-        throw new NoSuchElementException(String.format("Caller of '%s' not found in call stack", calleeClass));
+  /**
+   * Returns the caller frame of the specified callee class in the given stack trace.
+   *
+   * @param calleeClass whose caller is being searched for
+   * @param stackTrace to walk in search for the caller
+   * @return the caller frame in the stack trace
+   */
+  public static StackTraceElement getCallerFrame(
+      @NonNull Class<?> calleeClass, @NonNull StackTraceElement @NonNull [] stackTrace) {
+    String calleeClassName = calleeClass.getName();
+    for (int depth = 1; depth < stackTrace.length; depth++) {
+      if (calleeClassName.equals(stackTrace[depth - 1].getClassName())
+          && !calleeClassName.equals(stackTrace[depth].getClassName())) {
+        return stackTrace[depth];
+      }
     }
+    throw new NoSuchElementException(
+        String.format("Caller of '%s' not found in call stack", calleeClass));
+  }
 
-    /**
-     * Returns the stack trace of the specified throwable as a string.
-     *
-     * @param throwable to extract stack trace text from
-     * @return stack trace buffer as the specified throwable prints it
-     */
-    public static StringBuffer getTraceAsBuffer(@NonNull Throwable throwable) {
-        StringWriter stringWriter = new StringWriter();
-        try (PrintWriter printWriter = new PrintWriter(stringWriter)) {
-            throwable.printStackTrace(printWriter);
-            return stringWriter.getBuffer();
-        }
+  /**
+   * Returns the stack trace of the specified throwable as a string.
+   *
+   * @param throwable to extract stack trace text from
+   * @return stack trace buffer as the specified throwable prints it
+   */
+  public static StringBuffer getTraceAsBuffer(@NonNull Throwable throwable) {
+    StringWriter stringWriter = new StringWriter();
+    try (PrintWriter printWriter = new PrintWriter(stringWriter)) {
+      throwable.printStackTrace(printWriter);
+      return stringWriter.getBuffer();
     }
+  }
 }

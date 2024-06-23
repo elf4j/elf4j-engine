@@ -36,34 +36,34 @@ import lombok.Value;
 /** */
 @Value
 class TimestampElement implements PatternElement {
-    private static final String DEFAULT_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
-    private static final ZoneId DISPLAY_TIME_ZONE = ZoneId.systemDefault();
-    DateTimeFormatter dateTimeFormatter;
+  private static final String DEFAULT_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+  private static final ZoneId DISPLAY_TIME_ZONE = ZoneId.systemDefault();
+  DateTimeFormatter dateTimeFormatter;
 
-    /**
-     * @param patternSegment text pattern segment to convert
-     * @return converted pattern segment object
-     */
-    @Nonnull
-    public static TimestampElement from(@NonNull String patternSegment) {
-        return new TimestampElement(
-                DateTimeFormatter.ofPattern(PatternElements.getPatternElementDisplayOption(patternSegment)
-                                .orElse(DEFAULT_DATETIME_PATTERN))
-                        .withZone(DISPLAY_TIME_ZONE));
-    }
+  /**
+   * @param patternSegment text pattern segment to convert
+   * @return converted pattern segment object
+   */
+  @Nonnull
+  public static TimestampElement from(@NonNull String patternSegment) {
+    return new TimestampElement(
+        DateTimeFormatter.ofPattern(PatternElements.getPatternElementDisplayOption(patternSegment)
+                .orElse(DEFAULT_DATETIME_PATTERN))
+            .withZone(DISPLAY_TIME_ZONE));
+  }
 
-    @Override
-    public String toString() {
-        return "TimestampElement{" + "sample=" + dateTimeFormatter.format(Instant.now()) + '}';
-    }
+  @Override
+  public String toString() {
+    return "TimestampElement{" + "sample=" + dateTimeFormatter.format(Instant.now()) + '}';
+  }
 
-    @Override
-    public boolean includeCallerDetail() {
-        return false;
-    }
+  @Override
+  public boolean includeCallerDetail() {
+    return false;
+  }
 
-    @Override
-    public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
-        dateTimeFormatter.formatTo(logEvent.getTimestamp(), target);
-    }
+  @Override
+  public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
+    dateTimeFormatter.formatTo(logEvent.getTimestamp(), target);
+  }
 }

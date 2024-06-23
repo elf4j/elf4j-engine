@@ -31,27 +31,28 @@ import java.util.function.Supplier;
 import org.slf4j.MDC;
 
 public class Main {
-    static Logger logger = Logger.instance();
+  static Logger logger = Logger.instance();
 
-    public static void main(String[] args) {
-        MDC.put("ctx-key", "ctx-value");
-        logger.log("Hello, world!");
-        logger.atTrace().log("It's a beautiful day");
-        Logger info = logger.atInfo();
-        info.log("... no matter on what level you say it");
-        Logger warn = info.atWarn();
-        warn.log("Houston, we do not have {} but let's do {}", "a problem", (Supplier) () -> "a drill");
-        Throwable exception = new Exception("This is a drill");
-        warn.atError().log(exception);
-        logger.atInfo().log(exception, "When being logged, the Throwable always comes {}", "first");
-        logger.atInfo().log(exception, "The log {} and {} work as usual", () -> "message", () -> "arguments");
-        Logger.instance()
-                .atInfo()
-                .atError()
-                .atWarn()
-                .atTrace()
-                .atDebug()
-                .log("Not a practical example but now the severity level is DEBUG");
-        NativeLogServiceManager.INSTANCE.shutdown();
-    }
+  public static void main(String[] args) {
+    MDC.put("ctx-key", "ctx-value");
+    logger.log("Hello, world!");
+    logger.atTrace().log("It's a beautiful day");
+    Logger info = logger.atInfo();
+    info.log("... no matter on what level you say it");
+    Logger warn = info.atWarn();
+    warn.log("Houston, we do not have {} but let's do {}", "a problem", (Supplier) () -> "a drill");
+    Throwable exception = new Exception("This is a drill");
+    warn.atError().log(exception);
+    logger.atInfo().log(exception, "When being logged, the Throwable always comes {}", "first");
+    logger.atInfo().log(
+        exception, "The log {} and {} work as usual", () -> "message", () -> "arguments");
+    Logger.instance()
+        .atInfo()
+        .atError()
+        .atWarn()
+        .atTrace()
+        .atDebug()
+        .log("Not a practical example but now the severity level is DEBUG");
+    NativeLogServiceManager.INSTANCE.shutdown();
+  }
 }
