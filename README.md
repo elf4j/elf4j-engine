@@ -15,9 +15,7 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
 * It is also a log engine for the Java Platform Logging ([JPL](https://openjdk.org/jeps/264)) API introduced since Java
   9, as in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
 
-## Getting started...
-
-### Pre-requisites
+## Use
 
 1. Install
 
@@ -130,6 +128,17 @@ and [sample usage](https://github.com/elf4j/elf4j#use-it---for-log-service-api-c
 For details of using this as a runtime log engine, see [elf4j-provider](https://github.com/elf4j/elf4j-provider)
 for [features](https://github.com/elf4j/elf4j-provider#features)
 and [configuration](https://github.com/elf4j/elf4j-provider#configuration).
+
+## Build
+
+### Prerequisites
+* Java 8+ for versions prior to 16.0.0 (exclusive) 
+* Java 21+ for versions post to 16.0.0 (inclusive)
+
+```shell
+./mvnw clean install
+```
+
 
 ## ["The performance talk"](https://github.com/elf4j/elf4j-provider#performance)
 
