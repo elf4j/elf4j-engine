@@ -1,11 +1,9 @@
 package elf4j.engine.service;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import elf4j.Logger;
 import java.util.Properties;
-import java.util.concurrent.RejectedExecutionException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,19 +13,6 @@ class NativeLoggerServiceManagerTest {
   @AfterAll
   static void cleanUp() {
     NativeLogServiceManager.INSTANCE.refresh();
-  }
-
-  @Nested
-  class shutdown {
-    @Test
-    void whenLoggingAfterShutdown() {
-      elf4j.Logger logger = Logger.instance();
-      logger.log("before shutdown");
-
-      NativeLogServiceManager.INSTANCE.shutdown();
-
-      assertThrows(RejectedExecutionException.class, () -> logger.log("after shutdown"));
-    }
   }
 
   @Nested

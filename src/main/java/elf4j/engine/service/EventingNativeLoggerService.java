@@ -116,7 +116,7 @@ public class EventingNativeLoggerService implements NativeLoggerService {
     }
     Thread callerThread = Thread.currentThread();
     logWriter.write(LogEvent.builder()
-        .callerThread(new LogEvent.ThreadValue(callerThread.getName(), callerThread.getId()))
+        .callerThread(new LogEvent.ThreadValue(callerThread.getName(), callerThread.threadId()))
         .nativeLogger(nativeLogger)
         .throwable(throwable)
         .message(message)

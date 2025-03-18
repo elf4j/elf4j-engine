@@ -13,9 +13,9 @@ public class MdcAdapterInitializer {
    * adapter is a NOPMDCAdapter, it sets the MDC adapter to a BasicMDCAdapter instance.
    */
   public static void initialize() {
-    MDCAdapter byOtherSlf4jProvider = MDC.mdcAdapter;
+    MDCAdapter byOtherSlf4jProvider = MDC.getMDCAdapter();
     if (byOtherSlf4jProvider == null || byOtherSlf4jProvider instanceof NOPMDCAdapter) {
-      MDC.mdcAdapter = new BasicMDCAdapter();
+      MDC.setMDCAdapter(new BasicMDCAdapter());
     }
   }
 }

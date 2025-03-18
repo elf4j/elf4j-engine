@@ -22,6 +22,10 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
    To use this as a logging service provider in your application, see installation
    details [here](https://github.com/elf4j/elf4j-provider#installation)
 
+### Pre-requisites
+Java 8+ is required for versions earlier than 16.0.0 (exclusive)
+Java 21+ is required for versions later than 16.0.0 (inclusive)
+
 2. Use it for logging in the application:
    ```java 
    class Scratch {
@@ -61,11 +65,11 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
    2023-04-04T09:56:41.693-05:00 WARN Main - Houston, we do not have a problem but let's do a drill
    2023-04-04T09:56:41.693-05:00 ERROR Main - 
    java.lang.Exception: This is a drill
-       at elf4j.engine.Main.main(Main.java:45)
+       at elf4j.engine.MdcTest.main(Main.java:45)
    
    2023-04-04T09:56:41.693-05:00 INFO Main - i.e. Throwable always comes first, then the following optional message and arguments work as usual
    java.lang.Exception: This is a drill
-       at elf4j.engine.Main.main(Main.java:45)
+       at elf4j.engine.MdcTest.main(Main.java:45)
    
    2023-04-04T09:56:41.694-05:00 DEBUG Main - Not a practical example but now the severity level is DEBUG
    ```
@@ -82,19 +86,19 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
    The output is:
 
    ```
-   2023-04-04T09:55:04.857-05:00 INFO  elf4j.engine.Main#main(L39@Main.java) - Hello, world!
-   2023-04-04T09:55:04.864-05:00 TRACE elf4j.engine.Main#main(L40@Main.java) - It's a beautiful day
-   2023-04-04T09:55:04.864-05:00 INFO  elf4j.engine.Main#main(L42@Main.java) - ... no matter on what level you say it
-   2023-04-04T09:55:04.864-05:00 WARN  elf4j.engine.Main#main(L44@Main.java) - Houston, we do not have a problem but let's do a drill
-   2023-04-04T09:55:04.865-05:00 ERROR elf4j.engine.Main#main(L46@Main.java) - 
+   2023-04-04T09:55:04.857-05:00 INFO  elf4j.engine.MdcTest#main(L39@Main.java) - Hello, world!
+   2023-04-04T09:55:04.864-05:00 TRACE elf4j.engine.MdcTest#main(L40@Main.java) - It's a beautiful day
+   2023-04-04T09:55:04.864-05:00 INFO  elf4j.engine.MdcTest#main(L42@Main.java) - ... no matter on what level you say it
+   2023-04-04T09:55:04.864-05:00 WARN  elf4j.engine.MdcTest#main(L44@Main.java) - Houston, we do not have a problem but let's do a drill
+   2023-04-04T09:55:04.865-05:00 ERROR elf4j.engine.MdcTest#main(L46@Main.java) - 
    java.lang.Exception: This is a drill
-       at elf4j.engine.Main.main(Main.java:45)
+       at elf4j.engine.MdcTest.main(Main.java:45)
    
-   2023-04-04T09:55:04.865-05:00 INFO  elf4j.engine.Main#main(L48@Main.java) - i.e. Throwable always comes first, then the following optional message and arguments work as usual
+   2023-04-04T09:55:04.865-05:00 INFO  elf4j.engine.MdcTest#main(L48@Main.java) - i.e. Throwable always comes first, then the following optional message and arguments work as usual
    java.lang.Exception: This is a drill
-       at elf4j.engine.Main.main(Main.java:45)
+       at elf4j.engine.MdcTest.main(Main.java:45)
    
-   2023-04-04T09:55:04.865-05:00 DEBUG elf4j.engine.Main#main(L59@Main.java) - Not a practical example but now the severity level is DEBUG
+   2023-04-04T09:55:04.865-05:00 DEBUG elf4j.engine.MdcTest#main(L59@Main.java) - Not a practical example but now the severity level is DEBUG
    ```
 
    With the `elf4j.properties` file:
@@ -106,13 +110,13 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
    The output becomes:
 
    ```
-   {"timestamp":"2023-10-07T20:11:44.0345848-05:00","message":"Hello, world!","level":"INFO","callerClass":"elf4j.engine.Main"}
-   {"timestamp":"2023-10-07T20:11:44.0375856-05:00","message":"It's a beautiful day","level":"TRACE","callerClass":"elf4j.engine.Main"}
-   {"timestamp":"2023-10-07T20:11:44.038585-05:00","message":"... no matter on what level you say it","level":"INFO","callerClass":"elf4j.engine.Main"}
-   {"timestamp":"2023-10-07T20:11:44.038585-05:00","message":"Houston, we do not have a problem but let's do a drill","level":"WARN","callerClass":"elf4j.engine.Main"}
-   {"timestamp":"2023-10-07T20:11:44.038585-05:00","message":"","level":"ERROR","callerClass":"elf4j.engine.Main","exception":"java.lang.Exception: This is a drill\r\n\tat elf4j.engine.Main.main(Main.java:43)\r\n"}
-   {"timestamp":"2023-10-07T20:11:44.038585-05:00","message":"i.e. Throwable always comes first, then the following optional message and arguments work as usual","level":"INFO","callerClass":"elf4j.engine.Main","exception":"java.lang.Exception: This is a drill\r\n\tat elf4j.engine.Main.main(Main.java:43)\r\n"}
-   {"timestamp":"2023-10-07T20:11:44.038585-05:00","message":"Not a practical example but now the severity level is DEBUG","level":"DEBUG","callerClass":"elf4j.engine.Main"}
+   {"timestamp":"2023-10-07T20:11:44.0345848-05:00","message":"Hello, world!","level":"INFO","callerClass":"elf4j.engine.MdcTest"}
+   {"timestamp":"2023-10-07T20:11:44.0375856-05:00","message":"It's a beautiful day","level":"TRACE","callerClass":"elf4j.engine.MdcTest"}
+   {"timestamp":"2023-10-07T20:11:44.038585-05:00","message":"... no matter on what level you say it","level":"INFO","callerClass":"elf4j.engine.MdcTest"}
+   {"timestamp":"2023-10-07T20:11:44.038585-05:00","message":"Houston, we do not have a problem but let's do a drill","level":"WARN","callerClass":"elf4j.engine.MdcTest"}
+   {"timestamp":"2023-10-07T20:11:44.038585-05:00","message":"","level":"ERROR","callerClass":"elf4j.engine.MdcTest","exception":"java.lang.Exception: This is a drill\r\n\tat elf4j.engine.MdcTest.main(Main.java:43)\r\n"}
+   {"timestamp":"2023-10-07T20:11:44.038585-05:00","message":"i.e. Throwable always comes first, then the following optional message and arguments work as usual","level":"INFO","callerClass":"elf4j.engine.MdcTest","exception":"java.lang.Exception: This is a drill\r\n\tat elf4j.engine.MdcTest.main(Main.java:43)\r\n"}
+   {"timestamp":"2023-10-07T20:11:44.038585-05:00","message":"Not a practical example but now the severity level is DEBUG","level":"DEBUG","callerClass":"elf4j.engine.MdcTest"}
    ```
 
    The JSON pattern can be configured to pretty-print format, and/or mixed with other patterns.

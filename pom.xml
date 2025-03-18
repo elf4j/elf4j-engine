@@ -31,7 +31,7 @@
 
     <groupId>io.github.elf4j</groupId>
     <artifactId>elf4j-engine</artifactId>
-    <version>15.2.9</version>
+    <version>16.0.0</version>
     <packaging>jar</packaging>
     <name>elf4j-engine</name>
     <description>A stand-alone Java log engine implementing the ELF4J (Easy Logging Facade for Java) API</description>
@@ -59,7 +59,7 @@
     </developers>
 
     <properties>
-        <maven.compiler.release>8</maven.compiler.release>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>io.github.q3769</groupId>
             <artifactId>conseq4j</artifactId>
-            <version>20230922.20230924.20240521</version>
+            <version>20250317.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.dslplatform</groupId>
@@ -82,7 +82,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.16</version>
+            <version>2.0.17</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -135,7 +135,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>6.1.13</version>
+            <version>6.2.4</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -205,7 +205,7 @@
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
-                <version>2.43.0</version>
+                <version>2.44.3</version>
                 <executions>
                     <execution>
                         <id>spotless-apply-id</id>
@@ -218,15 +218,34 @@
                 <configuration>
                     <java>
                         <palantirJavaFormat>
-                            <version>2.47.0</version>                     <!-- optional -->
-                            <style>GOOGLE</style>                       <!-- or AOSP/GOOGLE (optional) -->
-                            <formatJavadoc>true
-                            </formatJavadoc>          <!-- defaults to false (optional, requires at least Palantir 2.39.0) -->
+                            <version>2.58.0</version>
+                            <style>GOOGLE</style>
+                            <formatJavadoc>true</formatJavadoc>
                         </palantirJavaFormat>
                         <removeUnusedImports/>
                         <formatAnnotations/>
                     </java>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven-version</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>[3.9,)</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
