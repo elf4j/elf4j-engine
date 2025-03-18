@@ -17,14 +17,14 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
 
 ## Getting started...
 
+### Pre-requisites
+
 1. Install
 
    To use this as a logging service provider in your application, see installation
    details [here](https://github.com/elf4j/elf4j-provider#installation)
-
-### Pre-requisites
-Java 8+ is required for versions earlier than 16.0.0 (exclusive)
-Java 21+ is required for versions later than 16.0.0 (inclusive)
+  
+   Note: Pay attention to the version compatibility between JDK and elf4j-provider.
 
 2. Use it for logging in the application:
    ```java 
