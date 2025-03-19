@@ -100,10 +100,10 @@ class EventingNativeLoggerServiceTest {
       then(logWriter).should().write(logEvent.capture());
       assertEquals(
           Thread.currentThread().getName(),
-          Objects.requireNonNull(logEvent.getValue().getCallerThread()).getName());
+          Objects.requireNonNull(logEvent.getValue().getCallerThread()).name());
       assertEquals(
           Thread.currentThread().threadId(),
-          logEvent.getValue().getCallerThread().getId());
+          logEvent.getValue().getCallerThread().id());
       assertNotNull(logEvent.getValue().getCallerFrame());
     }
 
@@ -124,10 +124,10 @@ class EventingNativeLoggerServiceTest {
       then(logWriter).should().write(logEvent.capture());
       assertEquals(
           Thread.currentThread().getName(),
-          Objects.requireNonNull(logEvent.getValue().getCallerThread()).getName());
+          Objects.requireNonNull(logEvent.getValue().getCallerThread()).name());
       assertEquals(
           Thread.currentThread().threadId(),
-          logEvent.getValue().getCallerThread().getId());
+          logEvent.getValue().getCallerThread().id());
       assertNull(logEvent.getValue().getCallerFrame());
     }
 

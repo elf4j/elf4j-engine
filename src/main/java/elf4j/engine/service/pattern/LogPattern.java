@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import lombok.NonNull;
-import lombok.Value;
 
 /**
  * The LogPattern class implements the PatternElement interface and represents a composite of
@@ -38,10 +37,7 @@ import lombok.Value;
  * the log should include caller detail, for creating a new instance from a pattern segment, and for
  * rendering the log event.
  */
-@Value
-public class LogPattern implements PatternElement {
-  List<PatternElement> patternElements;
-
+public record LogPattern(List<PatternElement> patternElements) implements PatternElement {
   /**
    * Creates a new LogPattern instance from a given pattern segment.
    *

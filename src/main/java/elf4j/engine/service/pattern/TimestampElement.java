@@ -31,14 +31,11 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import javax.annotation.Nonnull;
 import lombok.NonNull;
-import lombok.Value;
 
 /** */
-@Value
-class TimestampElement implements PatternElement {
+record TimestampElement(DateTimeFormatter dateTimeFormatter) implements PatternElement {
   private static final String DEFAULT_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
   private static final ZoneId DISPLAY_TIME_ZONE = ZoneId.systemDefault();
-  DateTimeFormatter dateTimeFormatter;
 
   /**
    * @param patternSegment text pattern segment to convert

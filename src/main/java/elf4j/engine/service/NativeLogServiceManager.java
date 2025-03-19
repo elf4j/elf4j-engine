@@ -46,6 +46,7 @@ public enum NativeLogServiceManager {
   INSTANCE;
 
   private final Set<Refreshable> refreshables = new HashSet<>();
+  private final Set<Stoppable> stoppables = new HashSet<>();
 
   @ToString.Exclude
   private final Lock lock = new ReentrantLock();
@@ -60,10 +61,23 @@ public enum NativeLogServiceManager {
     IeLogger.INFO.log("Registered {} in {}", refreshable, this);
   }
 
+  /**
+   * Registers a Stoppable instance with the NativeLogServiceManager.
+   *
+   * @param stoppable added to be accessible for management
+   */
+  public void register(Stoppable stoppable) {
+    lockAndRun(() -> stoppables.add(stoppable));
+    IeLogger.INFO.log("Registered {} in {}", stoppable, this);
+  }
+
   /** reloads properties source for each refreshable */
   public void refresh() {
     IeLogger.INFO.log("Refreshing {} by reloading properties", this);
-    lockAndRun(() -> refreshables.forEach(Refreshable::refresh));
+    lockAndRun(() -> {
+      shutdown();
+      refreshables.forEach(Refreshable::refresh);
+    });
     IeLogger.INFO.log("Refreshed {} via reloading properties", this);
   }
 
@@ -76,8 +90,34 @@ public enum NativeLogServiceManager {
    */
   public void refresh(Properties properties) {
     IeLogger.INFO.log("Refreshing {} with properties {}", this, properties);
-    lockAndRun(() -> refreshables.forEach(refreshable -> refreshable.refresh(properties)));
+    lockAndRun(() -> {
+      shutdown();
+      refreshables.forEach(refreshable -> refreshable.refresh(properties));
+    });
     IeLogger.INFO.log("Refreshed {} with properties {}", this, properties);
+  }
+
+  /**
+   * Stops all registered Stoppable instances and clears the set of registered Stoppable instances.
+   */
+  public void shutdown() {
+    IeLogger.INFO.log("Start shutting down {}", this);
+    lockAndRun(() -> {
+      stoppables.forEach(Stoppable::stop);
+      stoppables.clear();
+    });
+    IeLogger.INFO.log("End shutting down {}", this);
+  }
+
+  /**
+   * Returns a thread that orderly stops the entire log service. As an alternative to calling
+   * {@link #shutdown()}, the returned thread can be registered as a JVM shutdown hook.
+   *
+   * @return a thread that orderly stops the entire log service. As an alternative to calling
+   *     {@link #shutdown()}, the returned thread can be registered as a JVM shutdown hook.
+   */
+  @NonNull public Thread getShutdownHookThread() {
+    return new Thread(this::shutdown);
   }
 
   /**
@@ -115,5 +155,11 @@ public enum NativeLogServiceManager {
 
     /** reloads from original source of properties */
     void refresh();
+  }
+
+  /** The Stoppable interface defines the contract for components that can be stopped. */
+  public interface Stoppable {
+    /** Stops the component. */
+    void stop();
   }
 }

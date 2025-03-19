@@ -28,14 +28,12 @@ package elf4j.engine.service.pattern;
 import elf4j.engine.service.LogEvent;
 import javax.annotation.Nonnull;
 import lombok.NonNull;
-import lombok.Value;
 
 /** */
-@Value
-class ClassElement implements PatternElement {
+record ClassElement(
+    elf4j.engine.service.pattern.ClassElement.@NonNull DisplayOption classDisplayOption)
+    implements PatternElement {
   private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.SIMPLE;
-
-  @NonNull DisplayOption classDisplayOption;
 
   /**
    * @param patternSegment text patternSegment to convert

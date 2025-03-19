@@ -56,7 +56,7 @@ class ThreadElement implements PatternElement {
   public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
     LogEvent.ThreadValue callerThread = Objects.requireNonNull(logEvent.getCallerThread());
     target.append(
-        threadDisplayOption == DisplayOption.ID ? callerThread.getId() : callerThread.getName());
+        threadDisplayOption == DisplayOption.ID ? callerThread.id() : callerThread.name());
   }
 
   enum DisplayOption {

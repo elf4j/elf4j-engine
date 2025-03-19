@@ -116,7 +116,7 @@ class NativeLoggerServiceProviderTest {
         assertNotSame(nativeLogger.getLogService(), nativeLoggerService);
       }
 
-      class MockNativeLoggerServiceFactory
+      static class MockNativeLoggerServiceFactory
           implements NativeLogServiceProvider.NativeLoggerServiceFactory {
         NativeLoggerService nativeLoggerService;
 

@@ -52,7 +52,7 @@ class JsonElementTest {
     mockLogEvent = LogEvent.builder()
         .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, mockNativeLogServiceProvider))
         .callerThread(new LogEvent.ThreadValue(
-            Thread.currentThread().getName(), Thread.currentThread().getId()))
+            Thread.currentThread().getName(), Thread.currentThread().threadId()))
         .callerFrame(LogEvent.StackFrameValue.from(
             new StackTraceElement("testClassName", "testMethodName", "testFileName", 42)))
         .serviceInterfaceClass(this.getClass())

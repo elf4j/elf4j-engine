@@ -26,15 +26,14 @@
 package elf4j.engine;
 
 import elf4j.Logger;
+import elf4j.engine.service.NativeLogServiceManager;
 import java.util.function.Supplier;
-import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 
-public class MdcTest {
+public class Main {
   static Logger logger = Logger.instance();
 
-  @Test
-  void withMdc() {
+  public static void main(String[] args) throws InterruptedException {
     MDC.put("ctx-key", "ctx-value");
     logger.log("Hello, world!");
     logger.atTrace().log("It's a beautiful day");
@@ -54,5 +53,7 @@ public class MdcTest {
         .atTrace()
         .atDebug()
         .log("Not a practical example but now the severity level is DEBUG");
+    Thread.sleep(1000);
+    NativeLogServiceManager.INSTANCE.shutdown();
   }
 }

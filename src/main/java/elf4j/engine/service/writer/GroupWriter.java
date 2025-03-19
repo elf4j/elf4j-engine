@@ -28,6 +28,7 @@ package elf4j.engine.service.writer;
 import conseq4j.execute.ConseqExecutor;
 import elf4j.Level;
 import elf4j.engine.service.LogEvent;
+import elf4j.engine.service.NativeLogServiceManager;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.util.IeLogger;
 import java.lang.reflect.InvocationTargetException;
@@ -51,7 +52,7 @@ import org.slf4j.MDC;
  * caller thread will arrive sequentially in the same order as they are called in the original
  * thread.
  */
-public class GroupWriter implements LogWriter {
+public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable {
   private static final int DEFAULT_CONCURRENCY = Runtime.getRuntime().availableProcessors();
   private final List<LogWriter> writers;
   private final ConseqExecutor conseqExecutor;
@@ -64,6 +65,7 @@ public class GroupWriter implements LogWriter {
     this.writers = writers;
     this.conseqExecutor = conseqExecutor;
     IeLogger.INFO.log("{} service writer(s) in {}", writers.size(), this);
+    NativeLogServiceManager.INSTANCE.register(this);
   }
 
   /**
@@ -155,7 +157,7 @@ public class GroupWriter implements LogWriter {
   @Override
   public void write(@NonNull LogEvent logEvent) {
     writers.forEach(writer -> conseqExecutor.execute(
-        withMdcContext(() -> writer.write(logEvent)), logEvent.getCallerThread().getId()));
+        withMdcContext(() -> writer.write(logEvent)), logEvent.getCallerThread().id()));
   }
 
   @Override
@@ -164,5 +166,14 @@ public class GroupWriter implements LogWriter {
       includeCallerDetail = writers.stream().anyMatch(LogWriter::includeCallerDetail);
     }
     return includeCallerDetail;
+  }
+
+  @Override
+  public void stop() {
+    if (conseqExecutor.isTerminated()) {
+      return;
+    }
+    IeLogger.INFO.log("Stopping {}", this);
+    conseqExecutor.close();
   }
 }

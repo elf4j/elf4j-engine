@@ -133,10 +133,5 @@ public class LogEvent {
   }
 
   /** Represents the value of a thread. */
-  @Value
-  public static class ThreadValue {
-    @NonNull String name;
-
-    long id;
-  }
+  public record ThreadValue(@NonNull String name, long id) {}
 }
