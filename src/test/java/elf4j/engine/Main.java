@@ -26,7 +26,6 @@
 package elf4j.engine;
 
 import elf4j.Logger;
-import elf4j.engine.service.NativeLogServiceManager;
 import java.util.function.Supplier;
 import org.slf4j.MDC;
 
@@ -53,7 +52,6 @@ public class Main {
         .atTrace()
         .atDebug()
         .log("Not a practical example but now the severity level is DEBUG");
-    Thread.sleep(1000);
-    NativeLogServiceManager.INSTANCE.shutdown();
+    Thread.sleep(50);
   }
 }

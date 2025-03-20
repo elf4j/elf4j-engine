@@ -48,7 +48,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 class EventingNativeLoggerServiceTest {
   @AfterAll
   static void afterAll() {
-    NativeLogServiceManager.INSTANCE.refresh();
+    NativeLogServiceManager.INSTANCE.restart();
   }
 
   @Nested

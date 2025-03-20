@@ -32,13 +32,7 @@ import elf4j.engine.service.NativeLogServiceManager;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
 import elf4j.util.IeLogger;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.ToString;
@@ -52,8 +46,8 @@ import org.slf4j.MDC;
  * caller thread will arrive sequentially in the same order as they are called in the original
  * thread.
  */
+@ToString
 public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable {
-  private static final int DEFAULT_CONCURRENCY = Runtime.getRuntime().availableProcessors();
   private final List<LogWriter> writers;
   private final ConseqExecutor conseqExecutor;
   private Level thresholdOutputLevel;
@@ -84,17 +78,10 @@ public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable
         .flatMap(t -> t.getLogWriters(logServiceConfiguration).stream())
         .collect(Collectors.toList());
     return new GroupWriter(
-        logWriters, ConseqExecutor.instance(getConcurrency(logServiceConfiguration)));
-  }
-
-  private static int getConcurrency(@NonNull LogServiceConfiguration logServiceConfiguration) {
-    int concurrency = logServiceConfiguration.getIntOrDefault("concurrency", DEFAULT_CONCURRENCY);
-    IeLogger.INFO.log("Concurrency: {}", concurrency);
-    if (concurrency < 1) {
-      IeLogger.ERROR.log("Unexpected concurrency: {}, cannot be less than 1", concurrency);
-      throw new IllegalArgumentException("concurrency: " + concurrency);
-    }
-    return concurrency;
+        logWriters,
+        Optional.ofNullable(logServiceConfiguration.getAsInteger("concurrency"))
+            .map(ConseqExecutor::instance)
+            .orElse(ConseqExecutor.instance()));
   }
 
   private static List<LogWriterType> getLogWriterTypes(

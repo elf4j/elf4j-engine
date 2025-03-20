@@ -14,7 +14,7 @@ class NativeLoggerServiceManagerTest {
 
   @AfterAll
   static void cleanUp() {
-    NativeLogServiceManager.INSTANCE.refresh();
+    NativeLogServiceManager.INSTANCE.restart();
   }
 
   @Nested
@@ -50,7 +50,7 @@ class NativeLoggerServiceManagerTest {
       Logger logger = Logger.instance();
       logger.log("before noop set true, this is showing up in system console");
 
-      NativeLogServiceManager.INSTANCE.refresh(null);
+      NativeLogServiceManager.INSTANCE.restart(null);
 
       logger.log("after noop set true, this is not showing in system console");
     }
@@ -62,7 +62,7 @@ class NativeLoggerServiceManagerTest {
           "before refresh, {} is to print with withLoadedProperties properties configuration",
           withLoadedProperties);
 
-      NativeLogServiceManager.INSTANCE.refresh(new Properties());
+      NativeLogServiceManager.INSTANCE.restart(new Properties());
 
       Logger withSetProperties = Logger.instance();
       assertSame(withLoadedProperties, withSetProperties);

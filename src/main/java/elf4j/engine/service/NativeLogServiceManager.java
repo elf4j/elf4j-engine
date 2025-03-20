@@ -48,6 +48,10 @@ public enum NativeLogServiceManager {
   private final Set<Refreshable> refreshables = new HashSet<>();
   private final Set<Stoppable> stoppables = new HashSet<>();
 
+  NativeLogServiceManager() {
+    Runtime.getRuntime().addShutdownHook(getShutdownHookThread());
+  }
+
   @ToString.Exclude
   private final Lock lock = new ReentrantLock();
 
@@ -58,7 +62,7 @@ public enum NativeLogServiceManager {
    */
   public void register(Refreshable refreshable) {
     lockAndRun(() -> refreshables.add(refreshable));
-    IeLogger.INFO.log("Registered {} in {}", refreshable, this);
+    IeLogger.INFO.log("Registered refreshable {} in {}", refreshable, this);
   }
 
   /**
@@ -68,45 +72,45 @@ public enum NativeLogServiceManager {
    */
   public void register(Stoppable stoppable) {
     lockAndRun(() -> stoppables.add(stoppable));
-    IeLogger.INFO.log("Registered {} in {}", stoppable, this);
+    IeLogger.INFO.log("Registered stoppable {} in {}", stoppable, this);
   }
 
-  /** reloads properties source for each refreshable */
-  public void refresh() {
-    IeLogger.INFO.log("Refreshing {} by reloading properties", this);
+  /** Orderly shutdown the current log service, reload properties source, and resume the service */
+  public void restart() {
     lockAndRun(() -> {
       shutdown();
       refreshables.forEach(Refreshable::refresh);
     });
-    IeLogger.INFO.log("Refreshed {} via reloading properties", this);
+    IeLogger.INFO.log("Restarted {} by reloading properties", this);
   }
 
   /**
-   * Refreshes the configuration for each registered Refreshable instance.
+   * Orderly shutdown current log service, then resume it after setting the specified properties as
+   * replacement configuration for all registered refreshables
    *
    * @param properties if non-null, replaces current configuration with the specified properties,
    *     instead of reloading from the original properties source; otherwise, reloads the original
    *     properties source for each refreshable.
    */
-  public void refresh(Properties properties) {
-    IeLogger.INFO.log("Refreshing {} with properties {}", this, properties);
+  public void restart(Properties properties) {
     lockAndRun(() -> {
       shutdown();
       refreshables.forEach(refreshable -> refreshable.refresh(properties));
     });
-    IeLogger.INFO.log("Refreshed {} with properties {}", this, properties);
+    IeLogger.INFO.log("Restarted {} with properties {}", this, properties);
   }
 
   /**
    * Stops all registered Stoppable instances and clears the set of registered Stoppable instances.
    */
   public void shutdown() {
-    IeLogger.INFO.log("Start shutting down {}", this);
     lockAndRun(() -> {
       stoppables.forEach(Stoppable::stop);
+      // clear stoppables as stopped writers won't accept new tasks
       stoppables.clear();
+      // keep refreshables as new writers will be created upon refresh
     });
-    IeLogger.INFO.log("End shutting down {}", this);
+    IeLogger.INFO.log("Shut down {}", this);
   }
 
   /**
