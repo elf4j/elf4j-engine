@@ -2,7 +2,6 @@ package org.slf4j;
 
 import org.slf4j.helpers.BasicMDCAdapter;
 import org.slf4j.helpers.NOPMDCAdapter;
-import org.slf4j.spi.MDCAdapter;
 
 /** Initializes the SLF4J's MDC implementation */
 public class MdcAdapterInitializer {
@@ -13,8 +12,8 @@ public class MdcAdapterInitializer {
    * adapter is a NOPMDCAdapter, it sets the MDC adapter to a BasicMDCAdapter instance.
    */
   public static void initialize() {
-    MDCAdapter byOtherSlf4jProvider = MDC.getMDCAdapter();
-    if (byOtherSlf4jProvider == null || byOtherSlf4jProvider instanceof NOPMDCAdapter) {
+    var mdcAdapter = MDC.getMDCAdapter();
+    if (mdcAdapter == null || mdcAdapter instanceof NOPMDCAdapter) {
       MDC.setMDCAdapter(new BasicMDCAdapter());
     }
   }

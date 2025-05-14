@@ -25,6 +25,9 @@
 
 package elf4j.engine;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import elf4j.Level;
 import elf4j.Logger;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Nested;
@@ -40,7 +43,9 @@ class SampleUsageTest {
       logger.log(
           "Logger instance is thread-safe so it can be declared and used as a local, instance, or static"
               + " variable");
-      logger.log("Default severity level is decided by the logging provider implementation");
+      logger.log(
+          "Default severity level is decided by this logging provider implementation: {}",
+          logger.getLevel());
       Logger trace = logger.atTrace();
       trace.log("Explicit severity level is specified by user i.e. TRACE");
       Logger.instance().atTrace().log("Same explicit level TRACE");
@@ -55,6 +60,23 @@ class SampleUsageTest {
           .atWarn()
           .atInfo()
           .log("Not a practical example but the severity level is INFO");
+    }
+
+    @Test
+    void convenienceShorthands() {
+      var message = "Test log message";
+      logger.atInfo().log(message + " can be shorthanded");
+      logger.info(message);
+      var debugLogger = logger.atDebug();
+      assertTrue(
+          debugLogger.isDebugEnabled(),
+          "Assuming minimum severity level configured is TRACE, thus DEBUG level should be enabled");
+      if (debugLogger.isDebugEnabled()) {
+        debugLogger.debug(
+            "The DEBUG level log message '{}' will print here as the default minimum severity level is {}",
+            message,
+            Level.TRACE);
+      }
     }
   }
 
