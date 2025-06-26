@@ -9,6 +9,6 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
-    ignore:
-      - dependency-name: "io.github.q3769:conseq4j"
-        versions: [ ">=20230923.0.0" ]
+    # ignore:
+    #   - dependency-name: "io.github.q3769:conseq4j"
+    #     versions: [ ">=20230923.0.0" ]
