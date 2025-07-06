@@ -30,9 +30,9 @@ import elf4j.Level;
 import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.NativeLogServiceManager;
 import elf4j.engine.service.configuration.LogServiceConfiguration;
-import elf4j.util.IeLogger;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import lombok.ToString;
 import org.jspecify.annotations.Nullable;
@@ -48,6 +48,7 @@ import org.slf4j.MDC;
  */
 @ToString
 public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable {
+  private static final Logger LOGGER = Logger.getLogger(GroupWriter.class.getName());
   private final List<LogWriter> writers;
   private final ConseqExecutor conseqExecutor;
   private @Nullable Level thresholdOutputLevel;
@@ -58,7 +59,7 @@ public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable
   private GroupWriter(List<LogWriter> writers, ConseqExecutor conseqExecutor) {
     this.writers = writers;
     this.conseqExecutor = conseqExecutor;
-    IeLogger.INFO.log("{} service writer(s) in {}", writers.size(), this);
+    LOGGER.info("%s service writer(s) in %s".formatted(writers.size(), this));
     NativeLogServiceManager.INSTANCE.register(this);
   }
 
@@ -160,7 +161,7 @@ public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable
     if (conseqExecutor.isTerminated()) {
       return;
     }
-    IeLogger.INFO.log("Stopping {}", this);
+    LOGGER.info("Stopping %s".formatted(this));
     conseqExecutor.close();
   }
 }

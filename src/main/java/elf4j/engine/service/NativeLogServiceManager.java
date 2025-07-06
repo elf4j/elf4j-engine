@@ -25,12 +25,12 @@
 
 package elf4j.engine.service;
 
-import elf4j.util.IeLogger;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
 import lombok.ToString;
 import org.jspecify.annotations.Nullable;
 
@@ -43,6 +43,8 @@ import org.jspecify.annotations.Nullable;
 public enum NativeLogServiceManager {
   /** The singleton instance of the NativeLogServiceManager. */
   INSTANCE;
+
+  private static final Logger LOGGER = Logger.getLogger(NativeLogServiceManager.class.getName());
 
   private final Set<Refreshable> refreshables = new HashSet<>();
   private final Set<Stoppable> stoppables = new HashSet<>();
@@ -61,7 +63,7 @@ public enum NativeLogServiceManager {
    */
   public void register(Refreshable refreshable) {
     lockAndRun(() -> refreshables.add(refreshable));
-    IeLogger.INFO.log("Registered refreshable {} in {}", refreshable, this);
+    LOGGER.info("Registered refreshable %s in %s".formatted(refreshable, this));
   }
 
   /**
@@ -71,7 +73,7 @@ public enum NativeLogServiceManager {
    */
   public void register(Stoppable stoppable) {
     lockAndRun(() -> stoppables.add(stoppable));
-    IeLogger.INFO.log("Registered stoppable {} in {}", stoppable, this);
+    LOGGER.info("Registered stoppable %s in %s".formatted(stoppable, this));
   }
 
   /** Orderly shutdown the current log service, reload properties source, and resume the service */
@@ -80,7 +82,7 @@ public enum NativeLogServiceManager {
       shutdown();
       refreshables.forEach(Refreshable::refresh);
     });
-    IeLogger.INFO.log("Restarted {} by reloading properties", this);
+    LOGGER.info("Restarted %s by reloading properties".formatted(this));
   }
 
   /**
@@ -96,7 +98,7 @@ public enum NativeLogServiceManager {
       shutdown();
       refreshables.forEach(refreshable -> refreshable.refresh(properties));
     });
-    IeLogger.INFO.log("Restarted {} with properties {}", this, properties);
+    LOGGER.info("Restarted %s with properties %s".formatted(this, properties));
   }
 
   /**
@@ -109,7 +111,7 @@ public enum NativeLogServiceManager {
       stoppables.clear();
       // keep refreshables as new writers will be created upon refresh
     });
-    IeLogger.INFO.log("Shut down {}", this);
+    LOGGER.info("Shut down %s".formatted(this));
   }
 
   /**
@@ -130,7 +132,7 @@ public enum NativeLogServiceManager {
    */
   public void deregister(Refreshable refreshable) {
     lockAndRun(() -> refreshables.remove(refreshable));
-    IeLogger.INFO.log("De-registered Refreshable {}", refreshable);
+    LOGGER.info("De-registered Refreshable %s".formatted(refreshable));
   }
 
   private void lockAndRun(Runnable runnable) {

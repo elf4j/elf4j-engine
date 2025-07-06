@@ -32,9 +32,9 @@ import elf4j.engine.service.configuration.LoggerOutputLevelThreshold;
 import elf4j.engine.service.util.StackTraces;
 import elf4j.engine.service.writer.GroupWriter;
 import elf4j.engine.service.writer.LogWriter;
-import elf4j.util.IeLogger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -44,6 +44,8 @@ import org.jspecify.annotations.Nullable;
  * for logging a log event.
  */
 public class EventingNativeLoggerService implements NativeLoggerService {
+  private static final Logger LOGGER =
+      Logger.getLogger(EventingNativeLoggerService.class.getName());
   private final boolean noop;
   private final @Nullable LogWriter logWriter;
   private final @Nullable LoggerOutputLevelThreshold loggerOutputLevelThreshold;
@@ -57,7 +59,7 @@ public class EventingNativeLoggerService implements NativeLoggerService {
   public EventingNativeLoggerService(LogServiceConfiguration logServiceConfiguration) {
     if (logServiceConfiguration.isAbsent() || logServiceConfiguration.isTrue("noop")) {
       noop = true;
-      IeLogger.WARN.log("No-op per configuration {}", logServiceConfiguration);
+      LOGGER.warning("No-op per configuration %s".formatted(logServiceConfiguration));
       logWriter = null;
       loggerOutputLevelThreshold = null;
       return;
