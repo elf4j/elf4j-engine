@@ -6,10 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import elf4j.Logger;
 import java.util.Properties;
 import java.util.concurrent.RejectedExecutionException;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 class NativeLoggerServiceManagerTest {
 
   @AfterAll
@@ -18,6 +17,7 @@ class NativeLoggerServiceManagerTest {
   }
 
   @Nested
+  @Order(Integer.MAX_VALUE) // run shutdown the last
   class shutdown {
     @Test
     void whenLoggingAfterShutdown() {

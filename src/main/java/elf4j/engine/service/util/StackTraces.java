@@ -28,7 +28,6 @@ package elf4j.engine.service.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.NoSuchElementException;
-import lombok.NonNull;
 
 /**
  * The StackTraces class provides utility methods for working with stack traces. It provides methods
@@ -45,7 +44,7 @@ public class StackTraces {
    * @param calleeClass whose caller is being searched for
    * @return immediate caller frame of the specified callee class
    */
-  public static StackTraceElement callerOf(@NonNull Class<?> calleeClass) {
+  public static StackTraceElement callerOf(Class<?> calleeClass) {
     StackTraceElement[] stackTrace = new Throwable().getStackTrace();
     return getCallerFrame(calleeClass, stackTrace);
   }
@@ -58,7 +57,7 @@ public class StackTraces {
    * @return the caller frame in the stack trace
    */
   public static StackTraceElement getCallerFrame(
-      @NonNull Class<?> calleeClass, @NonNull StackTraceElement @NonNull [] stackTrace) {
+      Class<?> calleeClass, StackTraceElement[] stackTrace) {
     String calleeClassName = calleeClass.getName();
     for (int depth = 1; depth < stackTrace.length; depth++) {
       if (calleeClassName.equals(stackTrace[depth - 1].getClassName())
@@ -76,7 +75,7 @@ public class StackTraces {
    * @param throwable to extract stack trace text from
    * @return stack trace buffer as the specified throwable prints it
    */
-  public static StringBuffer getTraceAsBuffer(@NonNull Throwable throwable) {
+  public static StringBuffer getTraceAsBuffer(Throwable throwable) {
     StringWriter stringWriter = new StringWriter();
     try (PrintWriter printWriter = new PrintWriter(stringWriter)) {
       throwable.printStackTrace(printWriter);

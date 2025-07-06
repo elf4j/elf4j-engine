@@ -26,6 +26,7 @@
 package elf4j.engine.service;
 
 import elf4j.engine.NativeLogger;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The NativeLoggerService interface is a part of the ELF4J logging service. It provides methods for
@@ -61,7 +62,7 @@ public interface NativeLoggerService extends PerformanceSensitive {
   void log(
       NativeLogger nativeLogger,
       Class<?> serviceInterfaceClass,
-      Throwable throwable,
-      Object message,
-      Object[] arguments);
+      @Nullable Throwable throwable,
+      @Nullable Object message,
+      Object @Nullable [] arguments);
 }

@@ -31,9 +31,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import javax.annotation.Nullable;
-import lombok.NonNull;
 import lombok.ToString;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The NativeLogServiceManager class is responsible for managing the log service. It provides
@@ -92,7 +91,7 @@ public enum NativeLogServiceManager {
    *     instead of reloading from the original properties source; otherwise, reloads the original
    *     properties source for each refreshable.
    */
-  public void restart(Properties properties) {
+  public void restart(@Nullable Properties properties) {
     lockAndRun(() -> {
       shutdown();
       refreshables.forEach(refreshable -> refreshable.refresh(properties));
@@ -120,7 +119,7 @@ public enum NativeLogServiceManager {
    * @return a thread that orderly stops the entire log service. As an alternative to calling
    *     {@link #shutdown()}, the returned thread can be registered as a JVM shutdown hook.
    */
-  @NonNull public Thread getShutdownHookThread() {
+  public Thread getShutdownHookThread() {
     return new Thread(this::shutdown);
   }
 
@@ -134,7 +133,7 @@ public enum NativeLogServiceManager {
     IeLogger.INFO.log("De-registered Refreshable {}", refreshable);
   }
 
-  private void lockAndRun(@NonNull Runnable runnable) {
+  private void lockAndRun(Runnable runnable) {
     lock.lock();
     try {
       runnable.run();

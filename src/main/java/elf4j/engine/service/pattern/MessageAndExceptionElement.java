@@ -27,7 +27,6 @@ package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
 import elf4j.engine.service.util.StackTraces;
-import lombok.NonNull;
 import lombok.Value;
 
 /** */
@@ -39,7 +38,7 @@ class MessageAndExceptionElement implements PatternElement {
   }
 
   @Override
-  public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
+  public void render(LogEvent logEvent, StringBuilder target) {
     target.append(logEvent.getResolvedMessage());
     Throwable t = logEvent.getThrowable();
     if (t == null) {

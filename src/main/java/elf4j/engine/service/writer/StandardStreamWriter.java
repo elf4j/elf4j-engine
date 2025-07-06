@@ -43,7 +43,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
-import lombok.NonNull;
 import lombok.ToString;
 
 /**
@@ -80,7 +79,7 @@ public class StandardStreamWriter implements LogWriter {
    * @param logEvent the log event to write
    */
   @Override
-  public void write(@NonNull LogEvent logEvent) {
+  public void write(LogEvent logEvent) {
     if (logEvent.getNativeLogger().getLevel().compareTo(this.thresholdOutputLevel) < 0) {
       return;
     }
@@ -148,7 +147,7 @@ public class StandardStreamWriter implements LogWriter {
       write(bytes, stderr);
     }
 
-    private void write(byte[] bytes, @NonNull OutputStream outputStream) {
+    private void write(byte[] bytes, OutputStream outputStream) {
       lock.lock();
       try {
         outputStream.write(bytes);
@@ -166,7 +165,7 @@ public class StandardStreamWriter implements LogWriter {
    */
   static class Type implements LogWriterType {
     private static StandardStreamWriter getDefaultWriter(
-        @NonNull LogServiceConfiguration logServiceConfiguration) {
+        LogServiceConfiguration logServiceConfiguration) {
       Properties properties = logServiceConfiguration.getProperties();
       return StandardStreamWriter.builder()
           .thresholdOutputLevel(Level.valueOf(properties
@@ -182,7 +181,7 @@ public class StandardStreamWriter implements LogWriter {
     }
 
     @Override
-    public List<LogWriter> getLogWriters(@NonNull LogServiceConfiguration logServiceConfiguration) {
+    public List<LogWriter> getLogWriters(LogServiceConfiguration logServiceConfiguration) {
       return Collections.singletonList(getDefaultWriter(logServiceConfiguration));
     }
   }

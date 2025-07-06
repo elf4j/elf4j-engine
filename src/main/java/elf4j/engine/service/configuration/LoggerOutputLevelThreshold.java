@@ -37,7 +37,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import lombok.NonNull;
 import lombok.ToString;
 
 /**
@@ -57,7 +56,7 @@ public class LoggerOutputLevelThreshold {
    *
    * @param configuredLevels a map of configured levels
    */
-  private LoggerOutputLevelThreshold(@NonNull Map<String, Level> configuredLevels) {
+  private LoggerOutputLevelThreshold(Map<String, Level> configuredLevels) {
     this.configuredLevels = new ConcurrentHashMap<>(configuredLevels);
     this.sortedCallerClassNameSpaces = configuredLevels.keySet().stream()
         .sorted(new ByClassNameSpace())
@@ -72,8 +71,7 @@ public class LoggerOutputLevelThreshold {
    *     classes
    * @return the overriding caller levels
    */
-  public static @NonNull LoggerOutputLevelThreshold from(
-      @NonNull LogServiceConfiguration logServiceConfiguration) {
+  public static LoggerOutputLevelThreshold from(LogServiceConfiguration logServiceConfiguration) {
     Map<String, Level> configuredLevels = new HashMap<>();
     Properties properties = logServiceConfiguration.getProperties();
     getAsLevel("level", properties)
@@ -94,7 +92,7 @@ public class LoggerOutputLevelThreshold {
    * @return an Optional containing the Level instance if the level key is valid, otherwise an empty
    *     Optional
    */
-  private static Optional<Level> getAsLevel(String levelKey, @NonNull Properties properties) {
+  private static Optional<Level> getAsLevel(String levelKey, Properties properties) {
     String levelValue = properties.getProperty(levelKey);
     return levelValue == null
         ? Optional.empty()
@@ -109,7 +107,7 @@ public class LoggerOutputLevelThreshold {
    *     configured level. Otherwise, if no threshold level configured, return the default threshold
    *     level.
    */
-  public Level getThresholdOutputLevel(@NonNull NativeLogger nativeLogger) {
+  public Level getThresholdOutputLevel(NativeLogger nativeLogger) {
     return this.sortedCallerClassNameSpaces.stream()
         .filter(sortedNameSpace -> nativeLogger.getDeclaringClassName().startsWith(sortedNameSpace))
         .findFirst()
@@ -128,7 +126,7 @@ public class LoggerOutputLevelThreshold {
      * @param classNameSpace the class name space
      * @return the number of package levels
      */
-    private static int getPackageLevels(@NonNull String classNameSpace) {
+    private static int getPackageLevels(String classNameSpace) {
       return classNameSpace.split("\\.").length;
     }
 
@@ -143,7 +141,7 @@ public class LoggerOutputLevelThreshold {
      *     equal to, or greater than the second.
      */
     @Override
-    public int compare(@NonNull String classNameSpace1, @NonNull String classNameSpace2) {
+    public int compare(String classNameSpace1, String classNameSpace2) {
       int packageLevelDifference =
           getPackageLevels(classNameSpace2) - getPackageLevels(classNameSpace1);
       if (packageLevelDifference != 0) return packageLevelDifference;

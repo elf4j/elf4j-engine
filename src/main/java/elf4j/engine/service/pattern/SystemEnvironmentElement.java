@@ -27,8 +27,6 @@ package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
 import java.util.NoSuchElementException;
-import javax.annotation.Nonnull;
-import lombok.NonNull;
 import lombok.Value;
 
 /** */
@@ -46,7 +44,6 @@ class SystemEnvironmentElement implements PatternElement {
    * @param patternSegment text patternSegment to convert
    * @return converted patternSegment object
    */
-  @Nonnull
   public static SystemEnvironmentElement from(String patternSegment) {
     return new SystemEnvironmentElement(
         PatternElements.getPatternElementDisplayOption(patternSegment)
@@ -54,7 +51,7 @@ class SystemEnvironmentElement implements PatternElement {
   }
 
   @Override
-  public void render(LogEvent logEvent, @NonNull StringBuilder target) {
+  public void render(LogEvent logEvent, StringBuilder target) {
     target.append(this.value);
   }
 

@@ -26,12 +26,9 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
-import javax.annotation.Nonnull;
-import lombok.NonNull;
 
 /** */
-record ClassElement(
-    elf4j.engine.service.pattern.ClassElement.@NonNull DisplayOption classDisplayOption)
+record ClassElement(elf4j.engine.service.pattern.ClassElement.DisplayOption classDisplayOption)
     implements PatternElement {
   private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.SIMPLE;
 
@@ -39,8 +36,7 @@ record ClassElement(
    * @param patternSegment text patternSegment to convert
    * @return converted patternSegment object
    */
-  @Nonnull
-  public static ClassElement from(@NonNull String patternSegment) {
+  public static ClassElement from(String patternSegment) {
     return new ClassElement(PatternElements.getPatternElementDisplayOption(patternSegment)
         .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
         .orElse(DEFAULT_DISPLAY_OPTION));
@@ -57,7 +53,7 @@ record ClassElement(
   }
 
   @Override
-  public void render(@NonNull LogEvent logEvent, StringBuilder target) {
+  public void render(LogEvent logEvent, StringBuilder target) {
     String fullName = logEvent.getCallerClassName();
     switch (classDisplayOption) {
       case FULL:

@@ -31,11 +31,9 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
 import lombok.ToString;
+import org.jspecify.annotations.Nullable;
 
 /** The type Log service configuration. */
 @ToString(doNotUseGetters = true)
@@ -52,7 +50,7 @@ public class LogServiceConfiguration {
    *
    * @return the log service configuration
    */
-  public static @NonNull LogServiceConfiguration byLoading() {
+  public static LogServiceConfiguration byLoading() {
     IeLogger.INFO.log("Configuring by loading properties");
     return new LogServiceConfiguration(new PropertiesFileLoader().load());
   }
@@ -63,7 +61,7 @@ public class LogServiceConfiguration {
    * @param properties the properties
    * @return the log service configuration
    */
-  public static @NonNull LogServiceConfiguration bySetting(Properties properties) {
+  public static LogServiceConfiguration bySetting(@Nullable Properties properties) {
     IeLogger.INFO.log("Configuring by setting properties: {}", properties);
     return new LogServiceConfiguration(properties);
   }
@@ -85,7 +83,7 @@ public class LogServiceConfiguration {
    * @return Integer value of the specified name in the given properties, null if named entry
    *     missing or the corresponding value contains no digit
    */
-  @Nullable public Integer getAsInteger(String name) {
+  public @Nullable Integer getAsInteger(String name) {
     String value = getProperties().getProperty(name);
     if (value == null) {
       return null;
@@ -96,23 +94,6 @@ public class LogServiceConfiguration {
     }
     int i = Integer.parseInt(digits);
     return value.startsWith("-") ? -i : i;
-  }
-
-  /**
-   * Gets int or default.
-   *
-   * @param name full key in properties
-   * @param defaultValue the default value to return if the delegate method {@link #getAsInteger}
-   *     returns null
-   * @return result of the delegate method {@link #getAsInteger} or, if that is null, the specified
-   *     defaultValue
-   */
-  public int getIntOrDefault(String name, int defaultValue) {
-    Integer value = getAsInteger(name);
-    if (value == null) {
-      return defaultValue;
-    }
-    return value;
   }
 
   /**
@@ -158,7 +139,6 @@ public class LogServiceConfiguration {
    *
    * @return the properties
    */
-  @Nonnull
   public Properties getProperties() {
     if (isAbsent()) {
       throw new IllegalStateException("No elf4j configuration present");
@@ -217,7 +197,7 @@ public class LogServiceConfiguration {
       return properties;
     }
 
-    private InputStream fromDefaultPropertiesLocation() {
+    private @Nullable InputStream fromDefaultPropertiesLocation() {
       return Arrays.stream(DEFAULT_PROPERTIES_LOCATIONS)
           .map(location -> getClass().getResourceAsStream(location))
           .filter(Objects::nonNull)

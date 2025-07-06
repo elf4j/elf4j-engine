@@ -35,7 +35,7 @@ import elf4j.engine.service.writer.LogWriter;
 import elf4j.util.IeLogger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The EventingNativeLoggerService class implements the NativeLoggerService interface and is
@@ -45,8 +45,8 @@ import lombok.NonNull;
  */
 public class EventingNativeLoggerService implements NativeLoggerService {
   private final boolean noop;
-  private final LogWriter logWriter;
-  private final LoggerOutputLevelThreshold loggerOutputLevelThreshold;
+  private final @Nullable LogWriter logWriter;
+  private final @Nullable LoggerOutputLevelThreshold loggerOutputLevelThreshold;
   private final Map<NativeLogger, Boolean> loggerEnabled = new ConcurrentHashMap<>();
 
   /**
@@ -54,7 +54,7 @@ public class EventingNativeLoggerService implements NativeLoggerService {
    *
    * @param logServiceConfiguration parsed configuration for the logger service
    */
-  public EventingNativeLoggerService(@NonNull LogServiceConfiguration logServiceConfiguration) {
+  public EventingNativeLoggerService(LogServiceConfiguration logServiceConfiguration) {
     if (logServiceConfiguration.isAbsent() || logServiceConfiguration.isTrue("noop")) {
       noop = true;
       IeLogger.WARN.log("No-op per configuration {}", logServiceConfiguration);
@@ -74,6 +74,8 @@ public class EventingNativeLoggerService implements NativeLoggerService {
    */
   @Override
   public boolean includeCallerDetail() {
+    assert !noop;
+    assert logWriter != null;
     return logWriter.includeCallerDetail();
   }
 
@@ -88,10 +90,13 @@ public class EventingNativeLoggerService implements NativeLoggerService {
     if (noop) {
       return false;
     }
+    assert loggerOutputLevelThreshold != null;
+    assert logWriter != null;
     return loggerEnabled.computeIfAbsent(nativeLogger, logger -> {
       Level level = logger.getLevel();
-      return level.compareTo(loggerOutputLevelThreshold.getThresholdOutputLevel(logger)) >= 0
-          && level.compareTo(logWriter.getThresholdOutputLevel()) >= 0;
+      if (level.compareTo(loggerOutputLevelThreshold.getThresholdOutputLevel(logger)) < 0)
+        return false;
+      return level.compareTo(logWriter.getThresholdOutputLevel()) >= 0;
     });
   }
 
@@ -106,14 +111,15 @@ public class EventingNativeLoggerService implements NativeLoggerService {
    */
   @Override
   public void log(
-      @NonNull NativeLogger nativeLogger,
-      @NonNull Class<?> serviceInterfaceClass,
-      Throwable throwable,
-      Object message,
-      Object[] arguments) {
+      NativeLogger nativeLogger,
+      Class<?> serviceInterfaceClass,
+      @Nullable Throwable throwable,
+      @Nullable Object message,
+      Object @Nullable [] arguments) {
     if (!this.isEnabled(nativeLogger)) {
       return;
     }
+    assert logWriter != null;
     Thread callerThread = Thread.currentThread();
     logWriter.write(LogEvent.builder()
         .callerThread(new LogEvent.ThreadValue(callerThread.getName(), callerThread.threadId()))

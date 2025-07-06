@@ -29,8 +29,6 @@ import elf4j.engine.service.LogEvent;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import javax.annotation.Nonnull;
-import lombok.NonNull;
 
 /** */
 record TimestampElement(DateTimeFormatter dateTimeFormatter) implements PatternElement {
@@ -41,8 +39,7 @@ record TimestampElement(DateTimeFormatter dateTimeFormatter) implements PatternE
    * @param patternSegment text pattern segment to convert
    * @return converted pattern segment object
    */
-  @Nonnull
-  public static TimestampElement from(@NonNull String patternSegment) {
+  public static TimestampElement from(String patternSegment) {
     return new TimestampElement(
         DateTimeFormatter.ofPattern(PatternElements.getPatternElementDisplayOption(patternSegment)
                 .orElse(DEFAULT_DATETIME_PATTERN))
@@ -60,7 +57,7 @@ record TimestampElement(DateTimeFormatter dateTimeFormatter) implements PatternE
   }
 
   @Override
-  public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
+  public void render(LogEvent logEvent, StringBuilder target) {
     dateTimeFormatter.formatTo(logEvent.getTimestamp(), target);
   }
 }

@@ -26,7 +26,6 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
-import lombok.NonNull;
 import lombok.Value;
 
 /** */
@@ -43,7 +42,7 @@ class LevelElement implements PatternElement {
    * @param patternSegment to convert
    * @return converted patternSegment object
    */
-  public static @NonNull LevelElement from(@NonNull String patternSegment) {
+  public static LevelElement from(String patternSegment) {
     return new LevelElement(PatternElements.getPatternElementDisplayOption(patternSegment)
         .map(Integer::parseInt)
         .orElse(UNSPECIFIED));
@@ -55,7 +54,7 @@ class LevelElement implements PatternElement {
   }
 
   @Override
-  public void render(@NonNull LogEvent logEvent, StringBuilder target) {
+  public void render(LogEvent logEvent, StringBuilder target) {
     String level = logEvent.getNativeLogger().getLevel().name();
     if (displayLength == UNSPECIFIED) {
       target.append(level);

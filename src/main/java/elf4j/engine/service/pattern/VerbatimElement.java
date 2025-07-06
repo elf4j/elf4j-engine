@@ -26,16 +26,13 @@
 package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
-import javax.annotation.Nonnull;
-import lombok.NonNull;
 
 /** */
-record VerbatimElement(@NonNull String text) implements PatternElement {
+record VerbatimElement(String text) implements PatternElement {
   /**
    * @param patternSegment text pattern segment to convert
    * @return converted pattern segment object
    */
-  @Nonnull
   public static VerbatimElement from(String patternSegment) {
     return new VerbatimElement(patternSegment);
   }
@@ -46,7 +43,7 @@ record VerbatimElement(@NonNull String text) implements PatternElement {
   }
 
   @Override
-  public void render(LogEvent logEvent, @NonNull StringBuilder target) {
+  public void render(LogEvent logEvent, StringBuilder target) {
     target.append(text);
   }
 }

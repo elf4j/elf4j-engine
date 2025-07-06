@@ -34,8 +34,8 @@ import elf4j.util.IeLogger;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
-import lombok.NonNull;
 import lombok.ToString;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.MDC;
 
 /**
@@ -50,12 +50,12 @@ import org.slf4j.MDC;
 public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable {
   private final List<LogWriter> writers;
   private final ConseqExecutor conseqExecutor;
-  private Level thresholdOutputLevel;
+  private @Nullable Level thresholdOutputLevel;
 
   @ToString.Exclude
-  private Boolean includeCallerDetail;
+  private @Nullable Boolean includeCallerDetail;
 
-  private GroupWriter(@NonNull List<LogWriter> writers, ConseqExecutor conseqExecutor) {
+  private GroupWriter(List<LogWriter> writers, ConseqExecutor conseqExecutor) {
     this.writers = writers;
     this.conseqExecutor = conseqExecutor;
     IeLogger.INFO.log("{} service writer(s) in {}", writers.size(), this);
@@ -68,7 +68,7 @@ public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable
    * @param logServiceConfiguration entire configuration
    * @return the composite writer containing all writers configured in the specified properties
    */
-  @NonNull public static GroupWriter from(LogServiceConfiguration logServiceConfiguration) {
+  public static GroupWriter from(LogServiceConfiguration logServiceConfiguration) {
     List<LogWriterType> logWriterTypes =
         new ArrayList<>(getLogWriterTypes(logServiceConfiguration));
     if (logWriterTypes.isEmpty()) {
@@ -85,7 +85,7 @@ public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable
   }
 
   private static List<LogWriterType> getLogWriterTypes(
-      @NonNull LogServiceConfiguration logServiceConfiguration) {
+      LogServiceConfiguration logServiceConfiguration) {
     if (logServiceConfiguration.isAbsent()) {
       return Collections.emptyList();
     }
@@ -110,7 +110,7 @@ public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable
         .collect(Collectors.toList());
   }
 
-  private static @NonNull Runnable withMdcContext(Runnable task) {
+  private static Runnable withMdcContext(Runnable task) {
     Map<String, String> callerContext = MDC.getCopyOfContextMap();
     return () -> {
       Map<String, String> workerContext = switchContextTo(callerContext);
@@ -142,7 +142,7 @@ public class GroupWriter implements LogWriter, NativeLogServiceManager.Stoppable
   }
 
   @Override
-  public void write(@NonNull LogEvent logEvent) {
+  public void write(LogEvent logEvent) {
     writers.forEach(writer -> conseqExecutor.execute(
         withMdcContext(() -> writer.write(logEvent)), logEvent.getCallerThread().id()));
   }

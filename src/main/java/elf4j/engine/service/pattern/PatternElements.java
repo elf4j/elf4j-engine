@@ -2,7 +2,6 @@ package elf4j.engine.service.pattern;
 
 import java.util.Arrays;
 import java.util.Optional;
-import lombok.NonNull;
 
 class PatternElements {
 
@@ -13,7 +12,7 @@ class PatternElements {
    *     name and possibly options
    * @return the option portion of the pattern element text if present; otherwise, empty Optional
    */
-  static Optional<String> getPatternElementDisplayOption(@NonNull String patternElement) {
+  static Optional<String> getPatternElementDisplayOption(String patternElement) {
     String[] elements = patternElement.split(":", 2);
     return elements.length == 1 ? Optional.empty() : Optional.of(elements[1].trim());
   }
@@ -27,7 +26,7 @@ class PatternElements {
         .parse(predefinedPatternElement);
   }
 
-  private static @NonNull String getPatternElementName(@NonNull String patternElement) {
+  private static String getPatternElementName(String patternElement) {
     return patternElement.split(":", 2)[0].trim();
   }
 

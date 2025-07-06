@@ -29,10 +29,9 @@ import elf4j.engine.NativeLogger;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 import lombok.Builder;
-import lombok.NonNull;
 import lombok.Value;
+import org.jspecify.annotations.Nullable;
 
 /** Source data to be rendered to a final log message */
 @Value
@@ -40,15 +39,15 @@ import lombok.Value;
 public class LogEvent {
   private static final int ADDITIONAL_STRING_BUILDER_CAPACITY = 32;
 
-  @NonNull NativeLogger nativeLogger;
+  NativeLogger nativeLogger;
 
-  @NonNull ThreadValue callerThread;
+  ThreadValue callerThread;
 
-  @NonNull Instant timestamp = Instant.now();
+  Instant timestamp = Instant.now();
 
   @Nullable Object message;
 
-  @Nullable Object[] arguments;
+  Object @Nullable [] arguments;
 
   @Nullable Throwable throwable;
 
@@ -56,7 +55,7 @@ public class LogEvent {
 
   @Nullable StackFrameValue callerFrame;
 
-  private static @NonNull CharSequence resolve(Object message, Object[] arguments) {
+  private static CharSequence resolve(@Nullable Object message, Object @Nullable [] arguments) {
     String suppliedMessage = Objects.toString(supply(message), "");
     if (arguments == null || arguments.length == 0) {
       return suppliedMessage;
@@ -108,10 +107,8 @@ public class LogEvent {
   @Value
   @Builder
   public static class StackFrameValue {
-    @NonNull String className;
-
-    @NonNull String methodName;
-
+    String className;
+    String methodName;
     int lineNumber;
 
     @Nullable String fileName;
@@ -122,7 +119,7 @@ public class LogEvent {
      * @param stackTraceElement call stack element
      * @return log render-able value representing the call stack element
      */
-    public static StackFrameValue from(@NonNull StackTraceElement stackTraceElement) {
+    public static StackFrameValue from(StackTraceElement stackTraceElement) {
       return LogEvent.StackFrameValue.builder()
           .fileName(stackTraceElement.getFileName())
           .className(stackTraceElement.getClassName())
@@ -133,5 +130,5 @@ public class LogEvent {
   }
 
   /** Represents the value of a thread. */
-  public record ThreadValue(@NonNull String name, long id) {}
+  public record ThreadValue(String name, long id) {}
 }

@@ -40,8 +40,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import javax.annotation.Nullable;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.MdcAdapterInitializer;
 
 /**
@@ -65,7 +64,7 @@ public class NativeLogServiceProvider
     implements LogServiceProvider, NativeLogServiceManager.Refreshable {
   private static final Level DEFAULT_LOGGER_SEVERITY_LEVEL = Level.INFO;
   /** Made injectable for extensions other than this native ELF4J implementation */
-  @NonNull private final Level defaultLoggerLevel;
+  private final Level defaultLoggerLevel;
 
   /** A map of native loggers, categorized by their level. */
   private final Map<Level, Map<String, NativeLogger>> nativeLoggers =
@@ -82,9 +81,9 @@ public class NativeLogServiceProvider
    * class would be the class in that API that the client calls first to get a logger instance of
    * that API.
    */
-  @NonNull private final Class<?> serviceAccessClass;
+  private final Class<?> serviceAccessClass;
 
-  @NonNull private final NativeLogServiceProvider.NativeLoggerServiceFactory nativeLoggerServiceFactory;
+  private final NativeLogServiceProvider.NativeLoggerServiceFactory nativeLoggerServiceFactory;
 
   /** Default constructor required by {@link java.util.ServiceLoader} */
   @SuppressWarnings("unused")
@@ -99,7 +98,7 @@ public class NativeLogServiceProvider
    * @param serviceAccessClass the class or interface that the API client application calls first to
    *     a logger instance
    */
-  public NativeLogServiceProvider(@NonNull Class<?> serviceAccessClass) {
+  public NativeLogServiceProvider(Class<?> serviceAccessClass) {
     this(
         DEFAULT_LOGGER_SEVERITY_LEVEL,
         serviceAccessClass,
@@ -115,9 +114,9 @@ public class NativeLogServiceProvider
    * @param nativeLoggerServiceFactory the factory for creating native logger services
    */
   NativeLogServiceProvider(
-      @NonNull Level defaultLoggerLevel,
-      @NonNull Class<?> serviceAccessClass,
-      @NonNull NativeLogServiceProvider.NativeLoggerServiceFactory nativeLoggerServiceFactory) {
+      Level defaultLoggerLevel,
+      Class<?> serviceAccessClass,
+      NativeLogServiceProvider.NativeLoggerServiceFactory nativeLoggerServiceFactory) {
     MdcAdapterInitializer.initialize();
     this.defaultLoggerLevel = defaultLoggerLevel;
     this.serviceAccessClass = serviceAccessClass;
@@ -158,7 +157,7 @@ public class NativeLogServiceProvider
    *
    * @return the log service
    */
-  @NonNull NativeLoggerService getLogService() {
+  NativeLoggerService getLogService() {
     return nativeLoggerServiceFactory.getLogService();
   }
 
@@ -195,7 +194,7 @@ public class NativeLogServiceProvider
      *
      * @param properties the new properties for the log service
      */
-    void reset(Properties properties);
+    void reset(@Nullable Properties properties);
   }
 
   /**
@@ -233,7 +232,7 @@ public class NativeLogServiceProvider
      * @param properties the new properties for the log service
      */
     @Override
-    public void reset(Properties properties) {
+    public void reset(@Nullable Properties properties) {
       nativeLoggerService =
           new EventingNativeLoggerService(LogServiceConfiguration.bySetting(properties));
     }

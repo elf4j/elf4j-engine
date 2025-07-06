@@ -28,8 +28,6 @@ package elf4j.engine.service.pattern;
 import elf4j.engine.service.LogEvent;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
-import lombok.NonNull;
 
 /**
  * The LogPattern class implements the PatternElement interface and represents a composite of
@@ -45,7 +43,7 @@ public record LogPattern(List<PatternElement> patternElements) implements Patter
    * @return composite pattern object for the entire final log message output layout
    * @throws IllegalArgumentException if the pattern is blank
    */
-  public static @Nonnull LogPattern from(@NonNull String pattern) {
+  public static LogPattern from(String pattern) {
     if (pattern.trim().isEmpty()) {
       throw new IllegalArgumentException("Unexpected blank pattern");
     }

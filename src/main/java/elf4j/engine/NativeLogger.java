@@ -29,7 +29,7 @@ import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.service.NativeLoggerService;
 import javax.annotation.concurrent.ThreadSafe;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Any instance of this class is thread-safe; it can be safely used as static, instance, or local
@@ -56,10 +56,10 @@ public class NativeLogger implements Logger {
    * used in liu of checking the stack trace; i.e. the stack trace walking is needed only when more
    * caller details (e.g. method name, file name, line number) are required.
    */
-  private final @NonNull String declaringClassName;
+  private final String declaringClassName;
 
-  private final @NonNull Level level;
-  private final @NonNull NativeLogServiceProvider nativeLogServiceProvider;
+  private final Level level;
+  private final NativeLogServiceProvider nativeLogServiceProvider;
 
   /**
    * Constructor only meant to be used by {@link NativeLogServiceProvider} and this class itself
@@ -70,9 +70,7 @@ public class NativeLogger implements Logger {
    * @param nativeLogServiceProvider log service access point from this instance, not reloadable
    */
   public NativeLogger(
-      @NonNull String declaringClassName,
-      @NonNull Level level,
-      @NonNull NativeLogServiceProvider nativeLogServiceProvider) {
+      String declaringClassName, Level level, NativeLogServiceProvider nativeLogServiceProvider) {
     this.declaringClassName = declaringClassName;
     this.level = level;
     this.nativeLogServiceProvider = nativeLogServiceProvider;
@@ -86,7 +84,7 @@ public class NativeLogger implements Logger {
   }
 
   @Override
-  public @NonNull Level getLevel() {
+  public Level getLevel() {
     return this.level;
   }
 
@@ -135,11 +133,12 @@ public class NativeLogger implements Logger {
    *
    * @return declaring/caller class of this logger instance
    */
-  public @NonNull String getDeclaringClassName() {
+  public String getDeclaringClassName() {
     return this.declaringClassName;
   }
 
-  private void service(Throwable throwable, Object message, Object[] arguments) {
+  private void service(
+      @Nullable Throwable throwable, @Nullable Object message, Object @Nullable [] arguments) {
     getLogService().log(this, NativeLogger.class, throwable, message, arguments);
   }
 }

@@ -45,9 +45,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
-import lombok.NonNull;
 import lombok.ToString;
 import lombok.Value;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.MDC;
 
 /** */
@@ -74,9 +74,9 @@ class JsonElement implements PatternElement {
    * @param patternSegment to convert
    * @return converted patternSegment object
    */
-  public static JsonElement from(@NonNull String patternSegment) {
+  public static JsonElement from(String patternSegment) {
     Optional<String> displayOption = PatternElements.getPatternElementDisplayOption(patternSegment);
-    if (!displayOption.isPresent()) {
+    if (displayOption.isEmpty()) {
       return JsonElement.builder().build();
     }
     Set<String> options =
@@ -97,7 +97,7 @@ class JsonElement implements PatternElement {
   }
 
   @Override
-  public void render(LogEvent logEvent, @NonNull StringBuilder target) {
+  public void render(LogEvent logEvent, StringBuilder target) {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(JSON_BYTES_INIT_SIZE);
     try (OutputStream outputStream =
         prettyPrint ? new PrettifyOutputStream(byteArrayOutputStream) : byteArrayOutputStream) {
@@ -114,14 +114,17 @@ class JsonElement implements PatternElement {
   static class JsonLogEntry {
     OffsetDateTime timestamp;
     String level;
-    LogEvent.ThreadValue callerThread;
-    String callerClass;
-    LogEvent.StackFrameValue callerDetail;
+    LogEvent.@Nullable ThreadValue callerThread;
+
+    @Nullable String callerClass;
+
+    LogEvent.@Nullable StackFrameValue callerDetail;
     Map<String, String> context;
     String message;
-    String exception;
 
-    static JsonLogEntry from(@NonNull LogEvent logEvent, @NonNull JsonElement jsonPattern) {
+    @Nullable String exception;
+
+    static JsonLogEntry from(LogEvent logEvent, JsonElement jsonPattern) {
       return JsonLogEntry.builder()
           .timestamp(OffsetDateTime.ofInstant(logEvent.getTimestamp(), ZoneId.systemDefault()))
           .callerClass(jsonPattern.includeCallerDetail ? null : logEvent.getCallerClassName())

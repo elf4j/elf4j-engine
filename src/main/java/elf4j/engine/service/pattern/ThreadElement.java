@@ -27,21 +27,18 @@ package elf4j.engine.service.pattern;
 
 import elf4j.engine.service.LogEvent;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import lombok.NonNull;
 import lombok.Value;
 
 /** */
 @Value
 class ThreadElement implements PatternElement {
-  @NonNull ThreadElement.DisplayOption threadDisplayOption;
+  ThreadElement.DisplayOption threadDisplayOption;
 
   /**
    * @param patternSegment text pattern segment to convert
    * @return the thread pattern segment converted from the specified text
    */
-  @Nonnull
-  public static ThreadElement from(@NonNull String patternSegment) {
+  public static ThreadElement from(String patternSegment) {
     return new ThreadElement(PatternElements.getPatternElementDisplayOption(patternSegment)
         .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
         .orElse(DisplayOption.NAME));
@@ -53,7 +50,7 @@ class ThreadElement implements PatternElement {
   }
 
   @Override
-  public void render(@NonNull LogEvent logEvent, @NonNull StringBuilder target) {
+  public void render(LogEvent logEvent, StringBuilder target) {
     LogEvent.ThreadValue callerThread = Objects.requireNonNull(logEvent.getCallerThread());
     target.append(
         threadDisplayOption == DisplayOption.ID ? callerThread.id() : callerThread.name());
