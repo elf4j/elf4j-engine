@@ -27,7 +27,7 @@ package elf4j.engine;
 
 import elf4j.Level;
 import elf4j.Logger;
-import elf4j.engine.service.NativeLoggerService;
+import elf4j.engine.logging.LogHandler;
 import javax.annotation.concurrent.ThreadSafe;
 import org.jspecify.annotations.Nullable;
 
@@ -90,42 +90,42 @@ public class NativeLogger implements Logger {
 
   @Override
   public boolean isEnabled() {
-    return getLogService().isEnabled(this);
+    return getLogHandler().isEnabled(this);
   }
 
   @Override
   public void log(Object message) {
-    this.service(null, message, null);
+    this.handle(null, message, null);
   }
 
   @Override
   public void log(String message, Object... arguments) {
-    this.service(null, message, arguments);
+    this.handle(null, message, arguments);
   }
 
   @Override
   public void log(Throwable throwable) {
-    this.service(throwable, null, null);
+    this.handle(throwable, null, null);
   }
 
   @Override
   public void log(Throwable throwable, Object message) {
-    this.service(throwable, message, null);
+    this.handle(throwable, message, null);
   }
 
   @Override
   public void log(Throwable throwable, String message, Object... arguments) {
-    this.service(throwable, message, arguments);
+    this.handle(throwable, message, arguments);
   }
 
   /**
-   * Returns the log service associated with this logger, which can be used by other logging
+   * Returns the LogHandler associated with this logger, which can be used by other logging
    * frameworks to leverage the underlying logging engine.
    *
-   * @return directly callable log service, useful for other logging frameworks to use this engine
+   * @return directly accessible log handler, useful for other logging frameworks to use this engine
    */
-  public NativeLoggerService getLogService() {
-    return this.nativeLogServiceProvider.getLogService();
+  public LogHandler getLogHandler() {
+    return this.nativeLogServiceProvider.getLogHandler();
   }
 
   /**
@@ -137,8 +137,8 @@ public class NativeLogger implements Logger {
     return this.declaringClassName;
   }
 
-  private void service(
+  private void handle(
       @Nullable Throwable throwable, @Nullable Object message, Object @Nullable [] arguments) {
-    getLogService().log(this, NativeLogger.class, throwable, message, arguments);
+    getLogHandler().log(this, NativeLogger.class, throwable, message, arguments);
   }
 }

@@ -37,7 +37,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
 import elf4j.Logger;
-import elf4j.engine.service.NativeLoggerService;
+import elf4j.engine.logging.LogHandler;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -85,21 +85,21 @@ class NativeLoggerTest {
     @Test
     void delegateToService() {
       NativeLogServiceProvider nativeLogServiceProvider = mock(NativeLogServiceProvider.class);
-      NativeLoggerService nativeLoggerService = mock(NativeLoggerService.class);
-      given(nativeLogServiceProvider.getLogService()).willReturn(nativeLoggerService);
+      LogHandler logHandler = mock(LogHandler.class);
+      given(nativeLogServiceProvider.getLogHandler()).willReturn(logHandler);
       NativeLogger sut =
           new NativeLogger(this.getClass().getName(), INFO, nativeLogServiceProvider);
 
       sut.isEnabled();
 
-      then(nativeLoggerService).should().isEnabled(sut);
+      then(logHandler).should().isEnabled(sut);
     }
   }
 
   @Nested
   class logDelegateToService {
     @Mock
-    NativeLoggerService nativeLoggerService;
+    LogHandler logHandler;
 
     @Mock
     NativeLogServiceProvider nativeLogServiceProvider;
@@ -112,7 +112,7 @@ class NativeLoggerTest {
 
     @BeforeEach
     void beforeEach() {
-      given(nativeLogServiceProvider.getLogService()).willReturn(nativeLoggerService);
+      given(nativeLogServiceProvider.getLogHandler()).willReturn(logHandler);
       sut = new NativeLogger(NativeLoggerTest.class.getName(), INFO, nativeLogServiceProvider);
     }
 
@@ -120,7 +120,7 @@ class NativeLoggerTest {
     void exception() {
       sut.log(exception);
 
-      then(nativeLoggerService)
+      then(logHandler)
           .should()
           .log(same(sut), same(NativeLogger.class), same(exception), isNull(), isNull());
     }
@@ -129,7 +129,7 @@ class NativeLoggerTest {
     void exceptionWithMessage() {
       sut.log(exception, plainTextMessage);
 
-      then(nativeLoggerService)
+      then(logHandler)
           .should()
           .log(
               same(sut),
@@ -143,7 +143,7 @@ class NativeLoggerTest {
     void exceptionWithMessageAndArgs() {
       sut.log(exception, textMessageWithArgHolders, args);
 
-      then(nativeLoggerService)
+      then(logHandler)
           .should()
           .log(
               same(sut),
@@ -157,7 +157,7 @@ class NativeLoggerTest {
     void messageWithArguments() {
       sut.log(textMessageWithArgHolders, args);
 
-      then(nativeLoggerService)
+      then(logHandler)
           .should()
           .log(
               same(sut),
@@ -171,7 +171,7 @@ class NativeLoggerTest {
     void plainText() {
       sut.log(plainTextMessage);
 
-      then(nativeLoggerService)
+      then(logHandler)
           .should()
           .log(same(sut), same(NativeLogger.class), isNull(), same(plainTextMessage), isNull());
     }

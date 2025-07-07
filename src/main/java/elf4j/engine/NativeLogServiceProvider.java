@@ -29,11 +29,11 @@ import static java.util.stream.Collectors.toMap;
 
 import elf4j.Level;
 import elf4j.Logger;
-import elf4j.engine.service.EventingNativeLoggerService;
-import elf4j.engine.service.NativeLogServiceManager;
-import elf4j.engine.service.NativeLoggerService;
-import elf4j.engine.service.configuration.LogServiceConfiguration;
-import elf4j.engine.service.util.StackTraces;
+import elf4j.engine.logging.EventingLogHandler;
+import elf4j.engine.logging.LogHandler;
+import elf4j.engine.logging.NativeLogServiceManager;
+import elf4j.engine.logging.config.ConfigurationProperties;
+import elf4j.engine.logging.util.StackTraces;
 import elf4j.spi.LogServiceProvider;
 import java.util.EnumSet;
 import java.util.Map;
@@ -63,6 +63,7 @@ import org.slf4j.MdcAdapterInitializer;
 public class NativeLogServiceProvider
     implements LogServiceProvider, NativeLogServiceManager.Refreshable {
   private static final Level DEFAULT_LOGGER_SEVERITY_LEVEL = Level.INFO;
+
   /** Made injectable for extensions other than this native ELF4J implementation */
   private final Level defaultLoggerLevel;
 
@@ -70,6 +71,7 @@ public class NativeLogServiceProvider
   private final Map<Level, Map<String, NativeLogger>> nativeLoggers =
       EnumSet.allOf(Level.class).stream()
           .collect(toMap(Function.identity(), level -> new ConcurrentHashMap<>()));
+
   /**
    * The class or interface that the API client calls first to get a logger instance. The client
    * caller class of this class will be the declaring class of the logger instances this factory
@@ -81,9 +83,9 @@ public class NativeLogServiceProvider
    * class would be the class in that API that the client calls first to get a logger instance of
    * that API.
    */
-  private final Class<?> serviceAccessClass;
+  private final Class<?> logServiceAccessClass;
 
-  private final NativeLogServiceProvider.NativeLoggerServiceFactory nativeLoggerServiceFactory;
+  private final LogHandlerFactory logHandlerFactory;
 
   /** Default constructor required by {@link java.util.ServiceLoader} */
   @SuppressWarnings("unused")
@@ -95,32 +97,29 @@ public class NativeLogServiceProvider
    * NativeLogServiceProvider constructor with the default logger level and the service access
    * class.
    *
-   * @param serviceAccessClass the class or interface that the API client application calls first to
-   *     a logger instance
+   * @param logServiceAccessClass the class or interface that the API client application calls first
+   *     to a logger instance
    */
-  public NativeLogServiceProvider(Class<?> serviceAccessClass) {
-    this(
-        DEFAULT_LOGGER_SEVERITY_LEVEL,
-        serviceAccessClass,
-        new ConfiguredNativeLoggerServiceFactory());
+  public NativeLogServiceProvider(Class<?> logServiceAccessClass) {
+    this(DEFAULT_LOGGER_SEVERITY_LEVEL, logServiceAccessClass, new ConfiguredLogHandlerFactory());
   }
 
   /**
    * Constructor for the NativeLogServiceProvider class.
    *
    * @param defaultLoggerLevel the default logger level
-   * @param serviceAccessClass the class or interface that the API client application calls first to
-   *     a logger instance
-   * @param nativeLoggerServiceFactory the factory for creating native logger services
+   * @param logServiceAccessClass the class or interface that the API client application calls first
+   *     to a logger instance
+   * @param logHandlerFactory the factory for creating native logger services
    */
   NativeLogServiceProvider(
       Level defaultLoggerLevel,
-      Class<?> serviceAccessClass,
-      NativeLogServiceProvider.NativeLoggerServiceFactory nativeLoggerServiceFactory) {
+      Class<?> logServiceAccessClass,
+      LogHandlerFactory logHandlerFactory) {
     MdcAdapterInitializer.initialize();
     this.defaultLoggerLevel = defaultLoggerLevel;
-    this.serviceAccessClass = serviceAccessClass;
-    this.nativeLoggerServiceFactory = nativeLoggerServiceFactory;
+    this.logServiceAccessClass = logServiceAccessClass;
+    this.logHandlerFactory = logHandlerFactory;
     NativeLogServiceManager.INSTANCE.register(this);
   }
 
@@ -133,7 +132,7 @@ public class NativeLogServiceProvider
   @Override
   public NativeLogger logger() {
     return getLogger(
-        defaultLoggerLevel, StackTraces.callerOf(serviceAccessClass).getClassName());
+        defaultLoggerLevel, StackTraces.callerOf(logServiceAccessClass).getClassName());
   }
 
   /**
@@ -143,13 +142,13 @@ public class NativeLogServiceProvider
    */
   @Override
   public void refresh(@Nullable Properties properties) {
-    nativeLoggerServiceFactory.reset(properties);
+    logHandlerFactory.reset(properties);
   }
 
   /** Reloads the log service. */
   @Override
   public void refresh() {
-    nativeLoggerServiceFactory.reload();
+    logHandlerFactory.reload();
   }
 
   /**
@@ -157,8 +156,8 @@ public class NativeLogServiceProvider
    *
    * @return the log service
    */
-  NativeLoggerService getLogService() {
-    return nativeLoggerServiceFactory.getLogService();
+  LogHandler getLogHandler() {
+    return logHandlerFactory.getLogHandler();
   }
 
   /**
@@ -175,16 +174,16 @@ public class NativeLogServiceProvider
   }
 
   /**
-   * The NativeLoggerServiceFactory interface provides methods for getting the log service,
-   * reloading the log service, and resetting the log service with the specified properties.
+   * The LogHandlerFactory interface provides methods for getting the log service, reloading the log
+   * service, and resetting the log service with the specified properties.
    */
-  interface NativeLoggerServiceFactory {
+  interface LogHandlerFactory {
     /**
      * Gets the log service.
      *
      * @return the log service
      */
-    NativeLoggerService getLogService();
+    LogHandler getLogHandler();
 
     /** Reloads the log service. */
     void reload();
@@ -198,16 +197,16 @@ public class NativeLogServiceProvider
   }
 
   /**
-   * The ConfiguredNativeLoggerServiceFactory class implements the NativeLoggerServiceFactory
-   * interface and provides a concrete implementation for getting the log service, reloading the log
-   * service, and resetting the log service with the specified properties.
+   * The ConfiguredLogHandlerFactory class implements the LogHandlerFactory interface and provides a
+   * concrete implementation for getting the log service, reloading the log service, and resetting
+   * the log service with the specified properties.
    */
-  static class ConfiguredNativeLoggerServiceFactory implements NativeLoggerServiceFactory {
-    private NativeLoggerService nativeLoggerService;
+  static class ConfiguredLogHandlerFactory implements LogHandlerFactory {
+    private LogHandler logHandler;
 
-    /** Constructor for the ConfiguredNativeLoggerServiceFactory class. */
-    private ConfiguredNativeLoggerServiceFactory() {
-      nativeLoggerService = new EventingNativeLoggerService(LogServiceConfiguration.byLoading());
+    /** Constructor for the ConfiguredLogHandlerFactory class. */
+    private ConfiguredLogHandlerFactory() {
+      logHandler = new EventingLogHandler(ConfigurationProperties.byLoading());
     }
 
     /**
@@ -216,14 +215,14 @@ public class NativeLogServiceProvider
      * @return the log service
      */
     @Override
-    public NativeLoggerService getLogService() {
-      return nativeLoggerService;
+    public LogHandler getLogHandler() {
+      return logHandler;
     }
 
     /** Reloads the log service. */
     @Override
     public void reload() {
-      nativeLoggerService = new EventingNativeLoggerService(LogServiceConfiguration.byLoading());
+      logHandler = new EventingLogHandler(ConfigurationProperties.byLoading());
     }
 
     /**
@@ -233,8 +232,7 @@ public class NativeLogServiceProvider
      */
     @Override
     public void reset(@Nullable Properties properties) {
-      nativeLoggerService =
-          new EventingNativeLoggerService(LogServiceConfiguration.bySetting(properties));
+      logHandler = new EventingLogHandler(ConfigurationProperties.bySetting(properties));
     }
   }
 }
