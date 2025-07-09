@@ -83,15 +83,12 @@ public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOpti
     DEFAULT;
 
     public static TimeZoneOption from(String timeZoneOption) {
-      for (TimeZoneOption value : values()) {
-        if (value.name().equalsIgnoreCase(timeZoneOption)) {
-          return value;
-        }
-      }
-      throw new IllegalArgumentException("Unknown time zone option: "
-          + timeZoneOption
-          + ". Valid options are: "
-          + Arrays.toString(TimeZoneOption.values()));
+      return Arrays.stream(values())
+          .filter(v -> v.name().equalsIgnoreCase(timeZoneOption))
+          .findFirst()
+          .orElseThrow(() ->
+              new IllegalArgumentException("Unknown time zone option: %s. Valid options are: %s"
+                  .formatted(timeZoneOption, Arrays.toString(TimeZoneOption.values()))));
     }
   }
 }

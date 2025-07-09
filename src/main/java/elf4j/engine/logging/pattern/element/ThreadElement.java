@@ -29,6 +29,7 @@ import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
 import elf4j.engine.logging.pattern.PatternElements;
+import java.util.Arrays;
 import java.util.Objects;
 
 public record ThreadElement(DisplayOption threadDisplayOption) implements PatternElement {
@@ -60,15 +61,12 @@ public record ThreadElement(DisplayOption threadDisplayOption) implements Patter
     NAME;
 
     public static DisplayOption from(String displayOption) {
-      for (DisplayOption value : values()) {
-        if (value.name().equalsIgnoreCase(displayOption)) {
-          return value;
-        }
-      }
-      throw new IllegalArgumentException("Invalid thread display option: "
-          + displayOption
-          + ". Valid options are: "
-          + java.util.Arrays.toString(values()));
+      return Arrays.stream(values())
+          .filter(o -> o.name().equalsIgnoreCase(displayOption))
+          .findFirst()
+          .orElseThrow(() -> new IllegalArgumentException(
+              "Unknown thread display option: %s. Valid options are: %s"
+                  .formatted(displayOption, Arrays.toString(values()))));
     }
   }
 }
