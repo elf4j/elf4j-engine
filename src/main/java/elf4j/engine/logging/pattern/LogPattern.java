@@ -26,15 +26,14 @@
 package elf4j.engine.logging.pattern;
 
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.element.VerbatimElement;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * The LogPattern class implements the PatternElement interface and represents a composite of
- * individual patterns, intended to form the entire log layout. It provides methods for checking if
- * the log should include caller detail, for creating a new instance from a pattern element, and for
- * rendering the log event.
+ * individual patterns (elements), intended to form the entire log layout. It provides methods for
+ * checking if the log should include caller detail, for creating a new instance from a pattern
+ * element, and for rendering the log event.
  */
 public record LogPattern(List<PatternElement> patternElements) implements PatternElement {
   /**
@@ -63,7 +62,7 @@ public record LogPattern(List<PatternElement> patternElements) implements Patter
           element = pattern.substring(i);
           i = length;
         }
-        elements.add(PatternElements.parsePredefinedPatternELement(element));
+        elements.add(PredefinedPatternElementType.parsePredefinedPatternELement(element));
       } else {
         j = pattern.indexOf('{', i);
         if (j != -1) {
@@ -73,7 +72,7 @@ public record LogPattern(List<PatternElement> patternElements) implements Patter
           element = pattern.substring(i);
           i = length;
         }
-        elements.add(VerbatimElement.from(element));
+        elements.add(UndefinedPatternElement.from(element));
       }
     }
     return new LogPattern(elements);

@@ -31,7 +31,7 @@ import elf4j.Level;
 import elf4j.engine.NativeLogServiceProvider;
 import elf4j.engine.NativeLogger;
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.element.MessageAndExceptionElement;
+import elf4j.engine.logging.pattern.predefined.MessageAndExceptionElement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

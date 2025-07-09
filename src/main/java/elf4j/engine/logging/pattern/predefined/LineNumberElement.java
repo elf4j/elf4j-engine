@@ -23,25 +23,20 @@
  *
  */
 
-package elf4j.engine.logging.pattern.element;
+package elf4j.engine.logging.pattern.predefined;
 
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.util.StackTraces;
+import java.util.Objects;
 
-public record MessageAndExceptionElement() implements PatternElement {
+public record LineNumberElement() implements PatternElement {
   @Override
   public boolean includeCallerDetail() {
-    return false;
+    return true;
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(logEvent.getResolvedMessage());
-    Throwable t = logEvent.getThrowable();
-    if (t == null) {
-      return;
-    }
-    target.append(System.lineSeparator()).append(StackTraces.getTraceAsBuffer(t));
+    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getLineNumber());
   }
 }

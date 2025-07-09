@@ -57,18 +57,20 @@ class LogHandlerManagerTest {
 
     @Test
     void whenSetWithDifferentPropertiesThanLoaded() {
-      Logger withLoadedProperties = Logger.instance();
-      withLoadedProperties.log(
-          "before refresh, {} is to print with withLoadedProperties properties configuration",
-          withLoadedProperties);
+      Logger logger = Logger.instance();
+      logger.log(
+          "before refresh, {} is to print with configuration properties loaded from configuration file",
+          logger);
 
-      NativeLogServiceManager.INSTANCE.restart(new Properties());
+      Properties properties = new Properties();
+      NativeLogServiceManager.INSTANCE.restart(properties);
 
-      Logger withSetProperties = Logger.instance();
-      assertSame(withLoadedProperties, withSetProperties);
-      withSetProperties.log(
-          "after refresh, the same logger instance {} is to print with newly set properties configuration",
-          withSetProperties);
+      Logger configurationPropertiesChanged = Logger.instance();
+      assertSame(logger, configurationPropertiesChanged);
+      configurationPropertiesChanged.log(
+          "after refresh, the same logger instance {} is to print with newly set configuration properties {}",
+          configurationPropertiesChanged,
+          properties);
     }
   }
 }

@@ -23,11 +23,11 @@
  *
  */
 
-package elf4j.engine.logging.pattern.element;
+package elf4j.engine.logging.pattern.predefined;
 
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PatternElements;
+import elf4j.engine.logging.pattern.PredefinedPatternElementType;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -47,7 +47,7 @@ public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOpti
    */
   public static TimestampElement from(String patternElement) {
     Optional<List<String>> elementDisplayOption =
-        PatternElements.getPatternElementDisplayOptions(patternElement);
+        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement);
     if (elementDisplayOption.isEmpty()) {
       return new TimestampElement(DEFAULT_DATE_TIME_FORMAT, TimeZoneOption.DEFAULT);
     }

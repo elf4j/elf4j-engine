@@ -23,20 +23,43 @@
  *
  */
 
-package elf4j.engine.logging.pattern.element;
+package elf4j.engine.logging.pattern.predefined;
 
+import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import java.util.Objects;
+import elf4j.engine.logging.pattern.PredefinedPatternElementType;
 
-public record LineNumberElement() implements PatternElement {
+public record LevelElement(int displayLength) implements PatternElement {
+  private static final int UNSPECIFIED = -1;
+
+  /**
+   * @param patternElement to convert
+   * @return converted patternElement object
+   */
+  public static LevelElement from(String patternElement) {
+    return new LevelElement(
+        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)
+            .map(Iterables::getOnlyElement)
+            .map(Integer::parseInt)
+            .orElse(UNSPECIFIED));
+  }
+
   @Override
   public boolean includeCallerDetail() {
-    return true;
+    return false;
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getLineNumber());
+    String level = logEvent.getNativeLogger().getLevel().name();
+    if (displayLength == UNSPECIFIED) {
+      target.append(level);
+      return;
+    }
+    char[] levelChars = level.toCharArray();
+    for (int i = 0; i < displayLength; i++) {
+      target.append(i < levelChars.length ? levelChars[i] : ' ');
+    }
   }
 }

@@ -23,50 +23,32 @@
  *
  */
 
-package elf4j.engine.logging.pattern.element;
+package elf4j.engine.logging.pattern.predefined;
 
 import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PatternElements;
-import java.util.Arrays;
-import java.util.Objects;
+import elf4j.engine.logging.pattern.PredefinedPatternElementType;
 
-public record ThreadElement(DisplayOption threadDisplayOption) implements PatternElement {
+public record SystemEnvironmentElement(String key) implements PatternElement {
   /**
-   * @param patternElement text pattern element to convert
-   * @return the thread pattern element converted from the specified text
+   * @param patternElement text patternElement to convert
+   * @return converted patternElement object
    */
-  public static ThreadElement from(String patternElement) {
-    return new ThreadElement(PatternElements.getPatternElementDisplayOptions(patternElement)
-        .map(Iterables::getOnlyElement)
-        .map(DisplayOption::from)
-        .orElse(DisplayOption.NAME));
+  public static SystemEnvironmentElement from(String patternElement) {
+    return new SystemEnvironmentElement(
+        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)
+            .map(Iterables::getOnlyElement)
+            .orElseThrow());
+  }
+
+  @Override
+  public void render(LogEvent logEvent, StringBuilder target) {
+    target.append(System.getenv(key));
   }
 
   @Override
   public boolean includeCallerDetail() {
     return false;
-  }
-
-  @Override
-  public void render(LogEvent logEvent, StringBuilder target) {
-    LogEvent.ThreadValue callerThread = Objects.requireNonNull(logEvent.getCallerThread());
-    target.append(
-        threadDisplayOption == DisplayOption.ID ? callerThread.id() : callerThread.name());
-  }
-
-  enum DisplayOption {
-    ID,
-    NAME;
-
-    public static DisplayOption from(String displayOption) {
-      return Arrays.stream(values())
-          .filter(o -> o.name().equalsIgnoreCase(displayOption))
-          .findFirst()
-          .orElseThrow(() -> new IllegalArgumentException(
-              "Unknown thread display option: %s. Valid options are: %s"
-                  .formatted(displayOption, Arrays.toString(values()))));
-    }
   }
 }

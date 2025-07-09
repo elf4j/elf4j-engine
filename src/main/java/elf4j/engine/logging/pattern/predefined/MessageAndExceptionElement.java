@@ -23,27 +23,13 @@
  *
  */
 
-package elf4j.engine.logging.pattern.element;
+package elf4j.engine.logging.pattern.predefined;
 
-import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PatternElements;
+import elf4j.engine.logging.util.StackTraces;
 
-public record LevelElement(int displayLength) implements PatternElement {
-  private static final int UNSPECIFIED = -1;
-
-  /**
-   * @param patternElement to convert
-   * @return converted patternElement object
-   */
-  public static LevelElement from(String patternElement) {
-    return new LevelElement(PatternElements.getPatternElementDisplayOptions(patternElement)
-        .map(Iterables::getOnlyElement)
-        .map(Integer::parseInt)
-        .orElse(UNSPECIFIED));
-  }
-
+public record MessageAndExceptionElement() implements PatternElement {
   @Override
   public boolean includeCallerDetail() {
     return false;
@@ -51,14 +37,11 @@ public record LevelElement(int displayLength) implements PatternElement {
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    String level = logEvent.getNativeLogger().getLevel().name();
-    if (displayLength == UNSPECIFIED) {
-      target.append(level);
+    target.append(logEvent.getResolvedMessage());
+    Throwable t = logEvent.getThrowable();
+    if (t == null) {
       return;
     }
-    char[] levelChars = level.toCharArray();
-    for (int i = 0; i < displayLength; i++) {
-      target.append(i < levelChars.length ? levelChars[i] : ' ');
-    }
+    target.append(System.lineSeparator()).append(StackTraces.getTraceAsBuffer(t));
   }
 }

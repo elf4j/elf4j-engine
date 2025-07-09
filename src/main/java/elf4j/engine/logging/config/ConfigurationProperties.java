@@ -154,7 +154,7 @@ public class ConfigurationProperties {
 
   /** The type Properties file loader. */
   static class PropertiesFileLoader {
-    /** */
+
     static final String ELF4J_PROPERTIES_LOCATION = "elf4j.properties.location";
 
     private static final String[] DEFAULT_PROPERTIES_LOCATIONS =

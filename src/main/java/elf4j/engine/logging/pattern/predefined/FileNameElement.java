@@ -23,31 +23,21 @@
  *
  */
 
-package elf4j.engine.logging.pattern.element;
+package elf4j.engine.logging.pattern.predefined;
 
-import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PatternElements;
+import java.util.Objects;
 
-public record SystemPropertyElement(String key) implements PatternElement {
-  /**
-   * @param patternElement text patternElement to convert
-   * @return converted patternElement object
-   */
-  public static SystemPropertyElement from(String patternElement) {
-    return new SystemPropertyElement(PatternElements.getPatternElementDisplayOptions(patternElement)
-        .map(Iterables::getOnlyElement)
-        .orElseThrow());
+public record FileNameElement() implements PatternElement {
+
+  @Override
+  public boolean includeCallerDetail() {
+    return true;
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(System.getProperty(this.key));
-  }
-
-  @Override
-  public boolean includeCallerDetail() {
-    return false;
+    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getFileName());
   }
 }

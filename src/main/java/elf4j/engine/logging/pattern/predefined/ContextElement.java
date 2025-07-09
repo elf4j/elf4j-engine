@@ -1,9 +1,9 @@
-package elf4j.engine.logging.pattern.element;
+package elf4j.engine.logging.pattern.predefined;
 
 import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PatternElements;
+import elf4j.engine.logging.pattern.PredefinedPatternElementType;
 import java.util.NoSuchElementException;
 import org.slf4j.MDC;
 
@@ -31,10 +31,11 @@ public record ContextElement(String key) implements PatternElement {
    * @throws NoSuchElementException if no key is configured in the 'context' pattern element
    */
   public static ContextElement from(String patternElement) {
-    return new ContextElement(PatternElements.getPatternElementDisplayOptions(patternElement)
-        .map(Iterables::getOnlyElement)
-        .orElseThrow(
-            () -> new NoSuchElementException("No key configured in 'context' pattern element")));
+    return new ContextElement(
+        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)
+            .map(Iterables::getOnlyElement)
+            .orElseThrow(() ->
+                new NoSuchElementException("No key configured in 'context' pattern element")));
   }
 
   /**

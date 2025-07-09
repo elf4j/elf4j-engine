@@ -23,28 +23,28 @@
  *
  */
 
-package elf4j.engine.logging.pattern.element;
+package elf4j.engine.logging.pattern.predefined;
 
 import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PatternElements;
+import elf4j.engine.logging.pattern.PredefinedPatternElementType;
 
-public record SystemEnvironmentElement(String key) implements PatternElement {
+public record SystemPropertyElement(String key) implements PatternElement {
   /**
    * @param patternElement text patternElement to convert
    * @return converted patternElement object
    */
-  public static SystemEnvironmentElement from(String patternElement) {
-    return new SystemEnvironmentElement(
-        PatternElements.getPatternElementDisplayOptions(patternElement)
+  public static SystemPropertyElement from(String patternElement) {
+    return new SystemPropertyElement(
+        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)
             .map(Iterables::getOnlyElement)
             .orElseThrow());
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(System.getenv(key));
+    target.append(System.getProperty(this.key));
   }
 
   @Override

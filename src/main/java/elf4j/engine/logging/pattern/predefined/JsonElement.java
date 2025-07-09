@@ -23,7 +23,7 @@
  *
  */
 
-package elf4j.engine.logging.pattern.element;
+package elf4j.engine.logging.pattern.predefined;
 
 import com.dslplatform.json.CompiledJson;
 import com.dslplatform.json.DslJson;
@@ -31,7 +31,7 @@ import com.dslplatform.json.PrettifyOutputStream;
 import com.dslplatform.json.runtime.Settings;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PatternElements;
+import elf4j.engine.logging.pattern.PredefinedPatternElementType;
 import elf4j.engine.logging.util.StackTraces;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -67,13 +67,13 @@ public record JsonElement(
    */
   public static JsonElement from(String patternElement) {
     Optional<List<String>> displayOptions =
-        PatternElements.getPatternElementDisplayOptions(patternElement);
+        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement);
     if (displayOptions.isEmpty()) {
       return JsonElement.builder().build();
     }
     Set<String> options = Set.copyOf(displayOptions.get());
-    if (!PatternElements.upperCaseAlphaNumericOnly(DISPLAY_OPTIONS)
-        .containsAll(PatternElements.upperCaseAlphaNumericOnly(options))) {
+    if (!PredefinedPatternElementType.upperCaseAlphaNumericOnly(DISPLAY_OPTIONS)
+        .containsAll(PredefinedPatternElementType.upperCaseAlphaNumericOnly(options))) {
       throw new IllegalArgumentException("Invalid JSON display option inside: " + options);
     }
     return JsonElement.builder()

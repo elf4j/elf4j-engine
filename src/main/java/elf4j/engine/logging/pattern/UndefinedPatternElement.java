@@ -23,18 +23,17 @@
  *
  */
 
-package elf4j.engine.logging.pattern.element;
+package elf4j.engine.logging.pattern;
 
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.PatternElement;
 
-public record VerbatimElement(String text) implements PatternElement {
+public record UndefinedPatternElement(String text) implements PatternElement {
   /**
    * @param patternElement text pattern element to convert
    * @return converted pattern element object
    */
-  public static VerbatimElement from(String patternElement) {
-    return new VerbatimElement(patternElement);
+  public static UndefinedPatternElement from(String patternElement) {
+    return new UndefinedPatternElement(patternElement);
   }
 
   @Override
