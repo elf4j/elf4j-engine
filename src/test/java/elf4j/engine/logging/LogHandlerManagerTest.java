@@ -10,6 +10,10 @@ import org.junit.jupiter.api.*;
 
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 class LogHandlerManagerTest {
+  @BeforeEach
+  void setup() {
+    NativeLogServiceManager.INSTANCE.restart();
+  }
 
   @AfterAll
   static void cleanUp() {
@@ -19,6 +23,7 @@ class LogHandlerManagerTest {
   @Nested
   @Order(Integer.MAX_VALUE) // run shutdown the last
   class shutdown {
+
     @Test
     void whenLoggingAfterShutdown() {
       elf4j.Logger logger = Logger.instance();
@@ -31,6 +36,8 @@ class LogHandlerManagerTest {
   }
 
   @Nested
+  @Order(100)
+  @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
   class refresh {
     //        private final PrintStream standardOut = System.out;
     //        private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
@@ -46,6 +53,7 @@ class LogHandlerManagerTest {
     //        }
 
     @Test
+    @Order(20)
     void whenForcingToNoop() {
       Logger logger = Logger.instance();
       logger.log("before noop set true, this is showing up in system console");
@@ -56,6 +64,7 @@ class LogHandlerManagerTest {
     }
 
     @Test
+    @Order(10)
     void whenSetWithDifferentPropertiesThanLoaded() {
       Logger logger = Logger.instance();
       logger.log(
