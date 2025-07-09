@@ -1,22 +1,18 @@
-package elf4j.engine.logging.pattern;
+package elf4j.engine.logging.pattern.element;
 
+import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.PatternElements;
 import java.util.NoSuchElementException;
 import org.slf4j.MDC;
 
 /**
  * The ContextElement class implements the PatternElement interface and represents a context element
  * in a log pattern. It provides methods for checking if the log should include caller detail, for
- * creating a new instance from a pattern segment, and for rendering the log event.
+ * creating a new instance from a pattern element, and for rendering the log event.
  */
-record ContextElement(String key) implements PatternElement {
-  /**
-   * Constructor for the ContextElement class.
-   *
-   * @param key whose value will be printed out from the thread context
-   */
-  ContextElement {}
-
+public record ContextElement(String key) implements PatternElement {
   /**
    * Checks if the log should include caller detail such as method, line number, etc.
    *
@@ -28,14 +24,15 @@ record ContextElement(String key) implements PatternElement {
   }
 
   /**
-   * Creates a new ContextElement instance from a given pattern segment.
+   * Creates a new ContextElement instance from a given pattern element.
    *
-   * @param patternSegment the pattern text to config the context logging
+   * @param patternElement the pattern text to config the context logging
    * @return the element that can render context log
    * @throws NoSuchElementException if no key is configured in the 'context' pattern element
    */
-  public static ContextElement from(String patternSegment) {
-    return new ContextElement(PatternElements.getPatternElementDisplayOption(patternSegment)
+  public static ContextElement from(String patternElement) {
+    return new ContextElement(PatternElements.getPatternElementDisplayOptions(patternElement)
+        .map(Iterables::getOnlyElement)
         .orElseThrow(
             () -> new NoSuchElementException("No key configured in 'context' pattern element")));
   }

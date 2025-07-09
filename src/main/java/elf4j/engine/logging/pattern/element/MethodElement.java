@@ -23,27 +23,20 @@
  *
  */
 
-package elf4j.engine.logging.pattern;
+package elf4j.engine.logging.pattern.element;
 
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.PatternElement;
+import java.util.Objects;
 
-/** */
-record VerbatimElement(String text) implements PatternElement {
-  /**
-   * @param patternSegment text pattern segment to convert
-   * @return converted pattern segment object
-   */
-  public static VerbatimElement from(String patternSegment) {
-    return new VerbatimElement(patternSegment);
-  }
-
+public record MethodElement() implements PatternElement {
   @Override
   public boolean includeCallerDetail() {
-    return false;
+    return true;
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(text);
+    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getMethodName());
   }
 }

@@ -30,6 +30,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.element.VerbatimElement;
 import org.junit.jupiter.api.Test;
 
 class VerbatimPatternTest {

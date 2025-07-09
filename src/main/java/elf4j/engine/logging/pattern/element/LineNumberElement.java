@@ -23,37 +23,20 @@
  *
  */
 
-package elf4j.engine.logging.pattern;
+package elf4j.engine.logging.pattern.element;
 
 import elf4j.engine.logging.LogEvent;
-import java.util.NoSuchElementException;
-import lombok.Value;
+import elf4j.engine.logging.pattern.PatternElement;
+import java.util.Objects;
 
-/** */
-@Value
-class SystemPropertyElement implements PatternElement {
-  String key;
-
-  private SystemPropertyElement(String key) {
-    this.key = key;
-  }
-
-  /**
-   * @param patternSegment text patternSegment to convert
-   * @return converted patternSegment object
-   */
-  public static SystemPropertyElement from(String patternSegment) {
-    return new SystemPropertyElement(PatternElements.getPatternElementDisplayOption(patternSegment)
-        .orElseThrow(NoSuchElementException::new));
+public record LineNumberElement() implements PatternElement {
+  @Override
+  public boolean includeCallerDetail() {
+    return true;
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(System.getProperty(this.key));
-  }
-
-  @Override
-  public boolean includeCallerDetail() {
-    return false;
+    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getLineNumber());
   }
 }

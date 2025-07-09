@@ -23,32 +23,25 @@
  *
  */
 
-package elf4j.engine.logging.pattern;
+package elf4j.engine.logging.pattern.element;
 
+import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.PatternElements;
 
-/** */
-record TimestampElement(DateTimeFormatter dateTimeFormatter) implements PatternElement {
-  private static final String DEFAULT_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
-  private static final ZoneId DISPLAY_TIME_ZONE = ZoneId.systemDefault();
+public record LevelElement(int displayLength) implements PatternElement {
+  private static final int UNSPECIFIED = -1;
 
   /**
-   * @param patternSegment text pattern segment to convert
-   * @return converted pattern segment object
+   * @param patternElement to convert
+   * @return converted patternElement object
    */
-  public static TimestampElement from(String patternSegment) {
-    return new TimestampElement(
-        DateTimeFormatter.ofPattern(PatternElements.getPatternElementDisplayOption(patternSegment)
-                .orElse(DEFAULT_DATETIME_PATTERN))
-            .withZone(DISPLAY_TIME_ZONE));
-  }
-
-  @Override
-  public String toString() {
-    return "TimestampElement{" + "sample=" + dateTimeFormatter.format(Instant.now()) + '}';
+  public static LevelElement from(String patternElement) {
+    return new LevelElement(PatternElements.getPatternElementDisplayOptions(patternElement)
+        .map(Iterables::getOnlyElement)
+        .map(Integer::parseInt)
+        .orElse(UNSPECIFIED));
   }
 
   @Override
@@ -58,6 +51,14 @@ record TimestampElement(DateTimeFormatter dateTimeFormatter) implements PatternE
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    dateTimeFormatter.formatTo(logEvent.getTimestamp(), target);
+    String level = logEvent.getNativeLogger().getLevel().name();
+    if (displayLength == UNSPECIFIED) {
+      target.append(level);
+      return;
+    }
+    char[] levelChars = level.toCharArray();
+    for (int i = 0; i < displayLength; i++) {
+      target.append(i < levelChars.length ? levelChars[i] : ' ');
+    }
   }
 }

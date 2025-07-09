@@ -23,46 +23,21 @@
  *
  */
 
-package elf4j.engine.logging.pattern;
+package elf4j.engine.logging.pattern.element;
 
 import elf4j.engine.logging.LogEvent;
-import lombok.Value;
+import elf4j.engine.logging.pattern.PatternElement;
+import java.util.Objects;
 
-/** */
-@Value
-class LevelElement implements PatternElement {
-  private static final int UNSPECIFIED = -1;
-  int displayLength;
-
-  private LevelElement(int displayLength) {
-    this.displayLength = displayLength;
-  }
-
-  /**
-   * @param patternSegment to convert
-   * @return converted patternSegment object
-   */
-  public static LevelElement from(String patternSegment) {
-    return new LevelElement(PatternElements.getPatternElementDisplayOption(patternSegment)
-        .map(Integer::parseInt)
-        .orElse(UNSPECIFIED));
-  }
+public record FileNameElement() implements PatternElement {
 
   @Override
   public boolean includeCallerDetail() {
-    return false;
+    return true;
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    String level = logEvent.getNativeLogger().getLevel().name();
-    if (displayLength == UNSPECIFIED) {
-      target.append(level);
-      return;
-    }
-    char[] levelChars = level.toCharArray();
-    for (int i = 0; i < displayLength; i++) {
-      target.append(i < levelChars.length ? levelChars[i] : ' ');
-    }
+    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getFileName());
   }
 }

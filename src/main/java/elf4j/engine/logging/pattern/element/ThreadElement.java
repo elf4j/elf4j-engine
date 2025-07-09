@@ -23,19 +23,23 @@
  *
  */
 
-package elf4j.engine.logging.pattern;
+package elf4j.engine.logging.pattern.element;
 
+import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.PatternElements;
 import java.util.Objects;
 
-record ThreadElement(DisplayOption threadDisplayOption) implements PatternElement {
+public record ThreadElement(DisplayOption threadDisplayOption) implements PatternElement {
   /**
-   * @param patternSegment text pattern segment to convert
-   * @return the thread pattern segment converted from the specified text
+   * @param patternElement text pattern element to convert
+   * @return the thread pattern element converted from the specified text
    */
-  public static ThreadElement from(String patternSegment) {
-    return new ThreadElement(PatternElements.getPatternElementDisplayOption(patternSegment)
-        .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
+  public static ThreadElement from(String patternElement) {
+    return new ThreadElement(PatternElements.getPatternElementDisplayOptions(patternElement)
+        .map(Iterables::getOnlyElement)
+        .map(DisplayOption::from)
         .orElse(DisplayOption.NAME));
   }
 
@@ -53,6 +57,18 @@ record ThreadElement(DisplayOption threadDisplayOption) implements PatternElemen
 
   enum DisplayOption {
     ID,
-    NAME
+    NAME;
+
+    public static DisplayOption from(String displayOption) {
+      for (DisplayOption value : values()) {
+        if (value.name().equalsIgnoreCase(displayOption)) {
+          return value;
+        }
+      }
+      throw new IllegalArgumentException("Invalid thread display option: "
+          + displayOption
+          + ". Valid options are: "
+          + java.util.Arrays.toString(values()));
+    }
   }
 }

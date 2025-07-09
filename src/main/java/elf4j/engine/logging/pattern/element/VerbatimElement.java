@@ -23,40 +23,27 @@
  *
  */
 
-package elf4j.engine.logging.pattern;
+package elf4j.engine.logging.pattern.element;
 
 import elf4j.engine.logging.LogEvent;
-import java.util.NoSuchElementException;
-import lombok.Value;
+import elf4j.engine.logging.pattern.PatternElement;
 
-/** */
-@Value
-class SystemEnvironmentElement implements PatternElement {
-  String key;
-  String value;
-
-  private SystemEnvironmentElement(String key) {
-    this.key = key;
-    this.value = System.getenv(key);
-  }
-
+public record VerbatimElement(String text) implements PatternElement {
   /**
-   * @param patternSegment text patternSegment to convert
-   * @return converted patternSegment object
+   * @param patternElement text pattern element to convert
+   * @return converted pattern element object
    */
-  public static SystemEnvironmentElement from(String patternSegment) {
-    return new SystemEnvironmentElement(
-        PatternElements.getPatternElementDisplayOption(patternSegment)
-            .orElseThrow(NoSuchElementException::new));
-  }
-
-  @Override
-  public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(this.value);
+  public static VerbatimElement from(String patternElement) {
+    return new VerbatimElement(patternElement);
   }
 
   @Override
   public boolean includeCallerDetail() {
     return false;
+  }
+
+  @Override
+  public void render(LogEvent logEvent, StringBuilder target) {
+    target.append(text);
   }
 }

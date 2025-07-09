@@ -23,27 +23,31 @@
  *
  */
 
-package elf4j.engine.logging.pattern;
+package elf4j.engine.logging.pattern.element;
 
+import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.util.StackTraces;
-import lombok.Value;
+import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.PatternElements;
 
-/** */
-@Value
-class MessageAndExceptionElement implements PatternElement {
-  @Override
-  public boolean includeCallerDetail() {
-    return false;
+public record SystemPropertyElement(String key) implements PatternElement {
+  /**
+   * @param patternElement text patternElement to convert
+   * @return converted patternElement object
+   */
+  public static SystemPropertyElement from(String patternElement) {
+    return new SystemPropertyElement(PatternElements.getPatternElementDisplayOptions(patternElement)
+        .map(Iterables::getOnlyElement)
+        .orElseThrow());
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(logEvent.getResolvedMessage());
-    Throwable t = logEvent.getThrowable();
-    if (t == null) {
-      return;
-    }
-    target.append(System.lineSeparator()).append(StackTraces.getTraceAsBuffer(t));
+    target.append(System.getProperty(this.key));
+  }
+
+  @Override
+  public boolean includeCallerDetail() {
+    return false;
   }
 }

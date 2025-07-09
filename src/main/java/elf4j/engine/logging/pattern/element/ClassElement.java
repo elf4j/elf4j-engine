@@ -23,21 +23,26 @@
  *
  */
 
-package elf4j.engine.logging.pattern;
+package elf4j.engine.logging.pattern.element;
 
+import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.PatternElements;
 
 /** */
-record ClassElement(ClassElement.DisplayOption classDisplayOption) implements PatternElement {
+public record ClassElement(ClassElement.DisplayOption classDisplayOption)
+    implements PatternElement {
   private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.SIMPLE;
 
   /**
-   * @param patternSegment text patternSegment to convert
-   * @return converted patternSegment object
+   * @param patternElement text patternElement to convert
+   * @return converted patternElement object
    */
-  public static ClassElement from(String patternSegment) {
-    return new ClassElement(PatternElements.getPatternElementDisplayOption(patternSegment)
-        .map(displayOption -> DisplayOption.valueOf(displayOption.toUpperCase()))
+  public static ClassElement from(String patternElement) {
+    return new ClassElement(PatternElements.getPatternElementDisplayOptions(patternElement)
+        .map(Iterables::getOnlyElement)
+        .map(o -> DisplayOption.valueOf(o.toUpperCase()))
         .orElse(DEFAULT_DISPLAY_OPTION));
   }
 

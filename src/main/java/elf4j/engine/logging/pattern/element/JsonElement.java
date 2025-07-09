@@ -23,13 +23,15 @@
  *
  */
 
-package elf4j.engine.logging.pattern;
+package elf4j.engine.logging.pattern.element;
 
 import com.dslplatform.json.CompiledJson;
 import com.dslplatform.json.DslJson;
 import com.dslplatform.json.PrettifyOutputStream;
 import com.dslplatform.json.runtime.Settings;
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.PatternElements;
 import elf4j.engine.logging.util.StackTraces;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,50 +40,40 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.Builder;
-import lombok.ToString;
-import lombok.Value;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.MDC;
 
-/** */
-@Value
 @Builder
-class JsonElement implements PatternElement {
-  private static final String UTF_8 = StandardCharsets.UTF_8.toString();
-  private static final int JSON_BYTES_INIT_SIZE = 1024;
+public record JsonElement(
+    boolean includeCallerThread, boolean includeCallerDetail, boolean prettyPrint)
+    implements PatternElement {
   private static final String CALLER_DETAIL = "caller-detail";
   private static final String CALLER_THREAD = "caller-thread";
   private static final String PRETTY = "pretty";
   private static final Set<String> DISPLAY_OPTIONS = Arrays.stream(
           new String[] {CALLER_THREAD, CALLER_DETAIL, PRETTY})
       .collect(Collectors.toSet());
-  boolean includeCallerThread;
-  boolean includeCallerDetail;
-  boolean prettyPrint;
-
-  @ToString.Exclude
-  DslJson<Object> dslJson =
+  private static final DslJson<Object> DSL_JSON =
       new DslJson<>(Settings.basicSetup().skipDefaultValues(true).includeServiceLoader());
+  private static final String UTF_8 = StandardCharsets.UTF_8.toString();
+  private static final int JSON_BYTES_INIT_SIZE = 1024;
 
   /**
-   * @param patternSegment to convert
-   * @return converted patternSegment object
+   * @param patternElement to convert
+   * @return converted patternElement object
    */
-  public static JsonElement from(String patternSegment) {
-    Optional<String> displayOption = PatternElements.getPatternElementDisplayOption(patternSegment);
-    if (displayOption.isEmpty()) {
+  public static JsonElement from(String patternElement) {
+    Optional<List<String>> displayOptions =
+        PatternElements.getPatternElementDisplayOptions(patternElement);
+    if (displayOptions.isEmpty()) {
       return JsonElement.builder().build();
     }
-    Set<String> options =
-        Arrays.stream(displayOption.get().split(",")).map(String::trim).collect(Collectors.toSet());
-    if (!DISPLAY_OPTIONS.containsAll(options)) {
+    Set<String> options = Set.copyOf(displayOptions.get());
+    if (!PatternElements.upperCaseAlphaNumericOnly(DISPLAY_OPTIONS)
+        .containsAll(PatternElements.upperCaseAlphaNumericOnly(options))) {
       throw new IllegalArgumentException("Invalid JSON display option inside: " + options);
     }
     return JsonElement.builder()
@@ -101,29 +93,24 @@ class JsonElement implements PatternElement {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(JSON_BYTES_INIT_SIZE);
     try (OutputStream outputStream =
         prettyPrint ? new PrettifyOutputStream(byteArrayOutputStream) : byteArrayOutputStream) {
-      dslJson.serialize(JsonLogEntry.from(logEvent, this), outputStream);
+      DSL_JSON.serialize(JsonLogEntry.from(logEvent, this), outputStream);
       target.append(byteArrayOutputStream.toString(UTF_8));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
   }
 
-  @Value
   @Builder
   @CompiledJson
-  static class JsonLogEntry {
-    OffsetDateTime timestamp;
-    String level;
-    LogEvent.@Nullable ThreadValue callerThread;
-
-    @Nullable String callerClass;
-
-    LogEvent.@Nullable StackFrameValue callerDetail;
-    Map<String, String> context;
-    String message;
-
-    @Nullable String exception;
-
+  record JsonLogEntry(
+      OffsetDateTime timestamp,
+      String level,
+      LogEvent.@Nullable ThreadValue callerThread,
+      @Nullable String callerClass,
+      LogEvent.@Nullable StackFrameValue callerDetail,
+      Map<String, String> context,
+      String message,
+      @Nullable String exception) {
     static JsonLogEntry from(LogEvent logEvent, JsonElement jsonPattern) {
       return JsonLogEntry.builder()
           .timestamp(OffsetDateTime.ofInstant(logEvent.getTimestamp(), ZoneId.systemDefault()))

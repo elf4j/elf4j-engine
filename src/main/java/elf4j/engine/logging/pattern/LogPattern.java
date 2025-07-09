@@ -26,18 +26,19 @@
 package elf4j.engine.logging.pattern;
 
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.element.VerbatimElement;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * The LogPattern class implements the PatternElement interface and represents a composite of
  * individual patterns, intended to form the entire log layout. It provides methods for checking if
- * the log should include caller detail, for creating a new instance from a pattern segment, and for
+ * the log should include caller detail, for creating a new instance from a pattern element, and for
  * rendering the log event.
  */
 public record LogPattern(List<PatternElement> patternElements) implements PatternElement {
   /**
-   * Creates a new LogPattern instance from a given pattern segment.
+   * Creates a new LogPattern instance from a given pattern element.
    *
    * @param pattern layout pattern text for entire log entry from configuration
    * @return composite pattern object for the entire final log message output layout
