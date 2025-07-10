@@ -103,7 +103,7 @@ public enum PredefinedPatternElementType {
     String[] elements = patternElement.split(DELIMITER_PATTERN_ELEMENT, 2);
     return elements.length == 1
         ? Optional.empty()
-        : Optional.of(Arrays.stream(elements[1].trim().split(DELIMITER_DISPLAY_OPTION))
+        : Optional.of(Arrays.stream(elements[1].split(DELIMITER_DISPLAY_OPTION))
             .map(String::strip)
             .toList());
   }
@@ -113,14 +113,14 @@ public enum PredefinedPatternElementType {
         .parse(predefinedPatternElement);
   }
 
-  public static Set<String> upperCaseAlphaNumericOnly(Set<String> in) {
+  public static Set<String> alphaNumericOnly(Set<String> in) {
     return in.stream()
-        .map(PredefinedPatternElementType::upperCaseAlphaNumericOnly)
+        .map(PredefinedPatternElementType::alphaNumericOnly)
         .collect(Collectors.toSet());
   }
 
-  private static String upperCaseAlphaNumericOnly(String in) {
-    return in.replaceAll("[^a-zA-Z0-9]", "").toUpperCase();
+  private static String alphaNumericOnly(String in) {
+    return in.replaceAll("[^a-zA-Z0-9]", "");
   }
 
   /**
@@ -129,11 +129,11 @@ public enum PredefinedPatternElementType {
    */
   static PredefinedPatternElementType from(String patternElement) {
     return Arrays.stream(PredefinedPatternElementType.values())
-        .filter(type -> upperCaseAlphaNumericOnly(type.name())
-            .equals(upperCaseAlphaNumericOnly(getPatternElementName(patternElement))))
+        .filter(type -> alphaNumericOnly(type.name())
+            .equalsIgnoreCase(alphaNumericOnly(getPatternElementName(patternElement))))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException(
-            "Unexpected predefined pattern element: '" + patternElement + "'"));
+            "Unexpected predefined pattern element: '%s'".formatted(patternElement)));
   }
 
   abstract PatternElement parse(String patternElement);

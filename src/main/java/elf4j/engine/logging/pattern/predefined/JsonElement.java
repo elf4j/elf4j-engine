@@ -72,8 +72,8 @@ public record JsonElement(
       return JsonElement.builder().build();
     }
     Set<String> options = Set.copyOf(displayOptions.get());
-    if (!PredefinedPatternElementType.upperCaseAlphaNumericOnly(DISPLAY_OPTIONS)
-        .containsAll(PredefinedPatternElementType.upperCaseAlphaNumericOnly(options))) {
+    if (!PredefinedPatternElementType.alphaNumericOnly(DISPLAY_OPTIONS)
+        .containsAll(PredefinedPatternElementType.alphaNumericOnly(options))) {
       throw new IllegalArgumentException("Invalid JSON display option inside: " + options);
     }
     return JsonElement.builder()
