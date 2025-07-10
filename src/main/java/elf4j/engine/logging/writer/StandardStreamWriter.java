@@ -81,10 +81,9 @@ public class StandardStreamWriter implements LogWriter {
     StringBuilder target = new StringBuilder();
     logPattern.render(logEvent, target);
     byte[] bytes = target.append(LINE_FEED).toString().getBytes(StandardCharsets.UTF_8);
-    if (outStreamType == OutStreamType.STDERR) {
-      standardOutput.err(bytes);
-    } else {
-      standardOutput.out(bytes);
+    switch (outStreamType) {
+      case STDOUT -> standardOutput.out(bytes);
+      case STDERR -> standardOutput.err(bytes);
     }
   }
 
