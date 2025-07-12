@@ -29,37 +29,67 @@ import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
 import elf4j.engine.logging.pattern.PredefinedPatternElementType;
+import java.util.Objects;
 
-public record LevelElement(int displayLength) implements PatternElement {
-  private static final int UNSPECIFIED = -1;
+public record NameSpaceElement(
+    NameSpaceElement.DisplayOption displayOption, TargetPattern targetPattern)
+    implements PatternElement {
+  private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.FULL;
 
   /**
-   * @param patternElement to convert
+   * @param patternElement text patternElement to convert
    * @return converted patternElement object
    */
-  public static LevelElement from(String patternElement) {
-    return new LevelElement(
+  public static NameSpaceElement from(String patternElement, TargetPattern targetPattern) {
+    return new NameSpaceElement(
         PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)
             .map(Iterables::getOnlyElement)
-            .map(Integer::parseInt)
-            .orElse(UNSPECIFIED));
+            .map(o -> DisplayOption.valueOf(o.toUpperCase()))
+            .orElse(DEFAULT_DISPLAY_OPTION),
+        targetPattern);
   }
 
   @Override
   public boolean includeCallerDetail() {
-    return false;
+    return switch (targetPattern) {
+      case CLASS -> true;
+      case LOGGER -> false;
+    };
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    String level = logEvent.getLevel().name();
-    if (displayLength == UNSPECIFIED) {
-      target.append(level);
-      return;
+    String fullName =
+        switch (targetPattern) {
+          case LOGGER -> logEvent.getLoggerName();
+          case CLASS -> Objects.requireNonNull(logEvent.getCallerFrame()).getClassName();
+        };
+    switch (displayOption) {
+      case FULL -> target.append(fullName);
+      case SIMPLE -> target.append(fullName.substring(fullName.lastIndexOf('.') + 1));
+      case COMPRESSED -> target.append(getCompressedName(fullName));
     }
-    char[] levelChars = level.toCharArray();
-    for (int i = 0; i < displayLength; i++) {
-      target.append(i < levelChars.length ? levelChars[i] : ' ');
+  }
+
+  private static StringBuilder getCompressedName(String fullName) {
+    var compressedName = new StringBuilder();
+    var tokens = fullName.split("\\.");
+    var simpleName = tokens[tokens.length - 1];
+    for (var i = 0; i < tokens.length - 1; i++) {
+      compressedName.append(tokens[i].charAt(0)).append('.');
     }
+    compressedName.append(simpleName);
+    return compressedName;
+  }
+
+  enum DisplayOption {
+    FULL,
+    SIMPLE,
+    COMPRESSED
+  }
+
+  public enum TargetPattern {
+    CLASS,
+    LOGGER
   }
 }

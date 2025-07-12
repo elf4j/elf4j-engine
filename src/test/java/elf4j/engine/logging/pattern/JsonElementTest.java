@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogServiceProvider;
-import elf4j.engine.NativeLogger;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.predefined.JsonElement;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,12 +50,12 @@ class JsonElementTest {
   @BeforeEach
   void beforeEach() {
     mockLogEvent = LogEvent.builder()
-        .nativeLogger(new NativeLogger("testLoggerName", Level.ERROR, mockNativeLogServiceProvider))
+        .loggerName("testCallerClassName")
+        .level(Level.ERROR)
         .callerThread(new LogEvent.ThreadValue(
             Thread.currentThread().getName(), Thread.currentThread().threadId()))
         .callerFrame(LogEvent.StackFrameValue.from(
-            new StackTraceElement("testClassName", "testMethodName", "testFileName", 42)))
-        .logServiceInterfaceClass(this.getClass())
+            new StackTraceElement("testCallerClassName", "testMethodName", "testFileName", 42)))
         .message(mockMessage)
         .arguments(new Object[] {"testArg1"})
         .throwable(new Exception("testExceptionMessage"))

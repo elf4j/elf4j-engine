@@ -14,7 +14,7 @@ class StackTracesTest {
     void whenCalleeClassIsNotFoundInCallStack() {
       assertThrows(
           NoSuchElementException.class,
-          () -> StackTraces.getCallerFrame(NotInCallstack.class, new Throwable().getStackTrace()));
+          () -> StackTraces.callerFrameOf(NotInCallstack.class.getName()));
     }
 
     static class NotInCallstack {}

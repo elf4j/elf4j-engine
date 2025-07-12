@@ -25,7 +25,7 @@
 
 package elf4j.engine.logging;
 
-import elf4j.engine.NativeLogger;
+import elf4j.Level;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -39,7 +39,9 @@ import org.jspecify.annotations.Nullable;
 public class LogEvent {
   private static final int ADDITIONAL_STRING_BUILDER_CAPACITY = 32;
 
-  NativeLogger nativeLogger;
+  Level level;
+
+  String loggerName;
 
   ThreadValue callerThread;
 
@@ -50,8 +52,6 @@ public class LogEvent {
   Object @Nullable [] arguments;
 
   @Nullable Throwable throwable;
-
-  @Nullable Class<?> logServiceInterfaceClass;
 
   @Nullable StackFrameValue callerFrame;
 
@@ -89,8 +89,8 @@ public class LogEvent {
    *
    * @return the name of the caller class
    */
-  public String getCallerClassName() {
-    return callerFrame != null ? callerFrame.getClassName() : nativeLogger.getDeclaringClassName();
+  public String getLoggerName() {
+    return loggerName;
   }
 
   /**

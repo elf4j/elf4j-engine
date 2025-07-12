@@ -30,8 +30,7 @@ import static elf4j.Level.WARN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -58,7 +57,7 @@ class NativeLoggerTest {
       NativeLogger warn = (NativeLogger) info.atWarn();
 
       assertNotSame(warn, info);
-      assertEquals(info.getDeclaringClassName(), warn.getDeclaringClassName());
+      assertEquals(info.getLoggerName(), warn.getLoggerName());
       assertEquals(WARN, warn.getLevel());
     }
 
@@ -92,7 +91,7 @@ class NativeLoggerTest {
 
       sut.isEnabled();
 
-      then(logHandler).should().isEnabled(sut);
+      then(logHandler).should().isEnabled(sut.getLevel(), sut.getLoggerName());
     }
   }
 
@@ -107,7 +106,7 @@ class NativeLoggerTest {
     NativeLogger sut;
     String plainTextMessage = "plainTextMessage";
     String textMessageWithArgHolders = "textMessage with 2 task holders of values {} and {}";
-    Object[] args = new Object[] {"1stArgOfObjectType", (Supplier) () -> "2ndArgOfSupplierType"};
+    Object[] args = new Object[] {"1stArgOfObjectType", (Supplier<?>) () -> "2ndArgOfSupplierType"};
     Throwable exception = new Exception("Test exception message");
 
     @BeforeEach
@@ -122,7 +121,7 @@ class NativeLoggerTest {
 
       then(logHandler)
           .should()
-          .log(same(sut), same(NativeLogger.class), same(exception), isNull(), isNull());
+          .log(eq(sut.getLevel()), eq(sut.getLoggerName()), same(exception), isNull(), isNull());
     }
 
     @Test
@@ -132,8 +131,8 @@ class NativeLoggerTest {
       then(logHandler)
           .should()
           .log(
-              same(sut),
-              same(NativeLogger.class),
+              eq(sut.getLevel()),
+              eq(sut.getLoggerName()),
               same(exception),
               same(plainTextMessage),
               isNull());
@@ -146,8 +145,8 @@ class NativeLoggerTest {
       then(logHandler)
           .should()
           .log(
-              same(sut),
-              same(NativeLogger.class),
+              eq(sut.getLevel()),
+              eq(sut.getLoggerName()),
               same(exception),
               same(textMessageWithArgHolders),
               same(args));
@@ -160,8 +159,8 @@ class NativeLoggerTest {
       then(logHandler)
           .should()
           .log(
-              same(sut),
-              same(NativeLogger.class),
+              eq(sut.getLevel()),
+              eq(sut.getLoggerName()),
               isNull(),
               same(textMessageWithArgHolders),
               same(args));
@@ -173,7 +172,12 @@ class NativeLoggerTest {
 
       then(logHandler)
           .should()
-          .log(same(sut), same(NativeLogger.class), isNull(), same(plainTextMessage), isNull());
+          .log(
+              eq(sut.getLevel()),
+              eq(sut.getLoggerName()),
+              isNull(),
+              same(plainTextMessage),
+              isNull());
     }
   }
 }

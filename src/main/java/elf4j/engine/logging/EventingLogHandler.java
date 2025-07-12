@@ -26,7 +26,6 @@
 package elf4j.engine.logging;
 
 import elf4j.Level;
-import elf4j.engine.NativeLogger;
 import elf4j.engine.logging.config.ConfigurationProperties;
 import elf4j.engine.logging.config.LoggerOutputLevelThreshold;
 import elf4j.engine.logging.util.StackTraces;
@@ -45,17 +44,20 @@ import org.jspecify.annotations.Nullable;
  */
 public class EventingLogHandler implements LogHandler {
   private static final Logger LOGGER = Logger.getLogger(EventingLogHandler.class.getName());
+  private final Class<?> logServiceInterfaceClass;
   private final boolean noop;
   private final @Nullable LogWriter logWriter;
   private final @Nullable LoggerOutputLevelThreshold loggerOutputLevelThreshold;
-  private final Map<NativeLogger, Boolean> loggerEnabled = new ConcurrentHashMap<>();
+  private final Map<String, Boolean> loggerEnabled = new ConcurrentHashMap<>();
 
   /**
    * Constructor for the EventingLogHandler class.
    *
    * @param configurationProperties parsed configuration for the logger service
    */
-  public EventingLogHandler(ConfigurationProperties configurationProperties) {
+  public EventingLogHandler(
+      ConfigurationProperties configurationProperties, Class<?> logServiceInterfaceClass) {
+    this.logServiceInterfaceClass = logServiceInterfaceClass;
     if (configurationProperties.isAbsent() || configurationProperties.isTrue("noop")) {
       noop = true;
       LOGGER.warning("No-op per configuration %s".formatted(configurationProperties));
@@ -83,56 +85,47 @@ public class EventingLogHandler implements LogHandler {
   /**
    * Checks if a logger is enabled.
    *
-   * @param nativeLogger the logger to check
+   * @param level the desired level of this particular log invocation
+   * @param loggerName whose threshold level is to be checked
    * @return true if the logger is enabled, false otherwise
    */
   @Override
-  public boolean isEnabled(NativeLogger nativeLogger) {
+  public boolean isEnabled(Level level, String loggerName) {
     if (noop) {
       return false;
     }
     assert loggerOutputLevelThreshold != null;
     assert logWriter != null;
-    return loggerEnabled.computeIfAbsent(nativeLogger, logger -> {
-      Level level = logger.getLevel();
-      if (level.compareTo(loggerOutputLevelThreshold.getThresholdOutputLevel(logger)) < 0)
+    return loggerEnabled.computeIfAbsent(loggerName, callerClassName -> {
+      if (level.compareTo(loggerOutputLevelThreshold.getThresholdOutputLevel(callerClassName)) < 0)
         return false;
       return level.compareTo(logWriter.getThresholdOutputLevel()) >= 0;
     });
   }
 
-  /**
-   * Logs a log event.
-   *
-   * @param nativeLogger the logger to use
-   * @param logServiceInterfaceClass the class of the service interface
-   * @param throwable the throwable to log
-   * @param message the message to log
-   * @param arguments the arguments to the message
-   */
   @Override
   public void log(
-      NativeLogger nativeLogger,
-      Class<?> logServiceInterfaceClass,
+      Level level,
+      String loggerName,
       @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments) {
-    if (!this.isEnabled(nativeLogger)) {
+    if (!this.isEnabled(level, loggerName)) {
       return;
     }
     assert logWriter != null;
     Thread callerThread = Thread.currentThread();
     logWriter.write(LogEvent.builder()
         .callerThread(new LogEvent.ThreadValue(callerThread.getName(), callerThread.threadId()))
-        .nativeLogger(nativeLogger)
+        .level(level)
         .throwable(throwable)
         .message(message)
         .arguments(arguments)
-        .logServiceInterfaceClass(logServiceInterfaceClass)
+        .loggerName(loggerName)
         .callerFrame(
             includeCallerDetail()
-                ? LogEvent.StackFrameValue.from(StackTraces.getCallerFrame(
-                    logServiceInterfaceClass, new Throwable().getStackTrace()))
+                ? LogEvent.StackFrameValue.from(
+                    StackTraces.callerFrameOf(logServiceInterfaceClass.getName()))
                 : null)
         .build());
   }

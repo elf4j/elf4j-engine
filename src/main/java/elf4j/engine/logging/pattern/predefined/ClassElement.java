@@ -25,62 +25,18 @@
 
 package elf4j.engine.logging.pattern.predefined;
 
-import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedPatternElementType;
+import java.util.Objects;
 
-public record ClassElement(ClassElement.DisplayOption classDisplayOption)
-    implements PatternElement {
-  private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.SIMPLE;
-
-  /**
-   * @param patternElement text patternElement to convert
-   * @return converted patternElement object
-   */
-  public static ClassElement from(String patternElement) {
-    return new ClassElement(
-        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)
-            .map(Iterables::getOnlyElement)
-            .map(o -> DisplayOption.valueOf(o.toUpperCase()))
-            .orElse(DEFAULT_DISPLAY_OPTION));
-  }
-
-  /**
-   * @return <code>false</code> assuming the logger's declaring class is the same as the caller
-   *     class. Therefore, unlike the {@link MethodElement}, it does not take a stack trace walk to
-   *     locate the caller class - the declaring class is taken instead.
-   */
+public record ClassElement() implements PatternElement {
   @Override
   public boolean includeCallerDetail() {
-    return false;
+    return true;
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    String fullName = logEvent.getCallerClassName();
-    switch (classDisplayOption) {
-      case FULL -> target.append(fullName);
-      case SIMPLE -> target.append(fullName.substring(fullName.lastIndexOf('.') + 1));
-      case COMPRESSED -> target.append(getCompressedName(fullName));
-      default -> throw new IllegalArgumentException("class display option: " + classDisplayOption);
-    }
-  }
-
-  private static StringBuilder getCompressedName(String fullName) {
-    var compressedName = new StringBuilder();
-    var tokens = fullName.split("\\.");
-    var simpleName = tokens[tokens.length - 1];
-    for (var i = 0; i < tokens.length - 1; i++) {
-      compressedName.append(tokens[i].charAt(0)).append('.');
-    }
-    compressedName.append(simpleName);
-    return compressedName;
-  }
-
-  enum DisplayOption {
-    FULL,
-    SIMPLE,
-    COMPRESSED
+    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getClassName());
   }
 }

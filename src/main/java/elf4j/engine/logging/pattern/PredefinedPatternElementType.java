@@ -14,28 +14,30 @@ public enum PredefinedPatternElementType {
       return TimestampElement.from(patternElement);
     }
   },
-
   LEVEL {
     @Override
     PatternElement parse(String patternElement) {
       return LevelElement.from(patternElement);
     }
   },
-
   THREAD {
     @Override
     PatternElement parse(String patternElement) {
       return ThreadElement.from(patternElement);
     }
   },
-
+  LOGGER {
+    @Override
+    PatternElement parse(String patternElement) {
+      return NameSpaceElement.from(patternElement, NameSpaceElement.TargetPattern.LOGGER);
+    }
+  },
   CLASS {
     @Override
     PatternElement parse(String patternElement) {
-      return ClassElement.from(patternElement);
+      return NameSpaceElement.from(patternElement, NameSpaceElement.TargetPattern.CLASS);
     }
   },
-
   METHOD {
     @Override
     PatternElement parse(String patternElement) {
@@ -54,14 +56,12 @@ public enum PredefinedPatternElementType {
       return new LineNumberElement();
     }
   },
-
   MESSAGE {
     @Override
     PatternElement parse(String patternElement) {
       return new MessageAndExceptionElement();
     }
   },
-
   JSON {
     @Override
     PatternElement parse(String patternElement) {

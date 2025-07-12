@@ -25,7 +25,7 @@
 
 package elf4j.engine.logging;
 
-import elf4j.engine.NativeLogger;
+import elf4j.Level;
 import org.jspecify.annotations.Nullable;
 
 /** The LogHandler processes the logging operations delegated from the Logger. */
@@ -33,31 +33,25 @@ public interface LogHandler extends PerformanceSensitive {
   /**
    * Checks if the logger's level is at or above the configured threshold.
    *
-   * @param nativeLogger the logger to check for enablement
+   * @param level the log level to check against the caller class threshold level
+   * @param callerClass whose threshold level to check against the specified log level
    * @return true if the logger's level is at or above the configured threshold, false otherwise
    */
-  boolean isEnabled(NativeLogger nativeLogger);
+  boolean isEnabled(Level level, String callerClass);
 
   /**
-   * Logs a message with the specified logger, service interface class, throwable, message, and
-   * arguments.
+   * Service a log operation at the specified level, for the specified caller class
    *
-   * @param nativeLogger the serviced logger
-   * @param logServiceInterfaceClass The concrete logging service (logger) implementation class that
-   *     the client calls directly at runtime to make log requests. For the native ELF4J service
-   *     implementation, this is always the {@link NativeLogger} class; may be a different class if
-   *     this core library is used to service other logging API. i.e. the real-time caller of this
-   *     class is the logging service's "caller class" whose details (such as method and line
-   *     number) if required by configuration, may need to be resolved by walking the runtime
-   *     calling stack trace.
+   * @param level The desired level of this current log call
+   * @param loggerName of the log service interface
    * @param throwable to log
    * @param message to log, can have argument placeholders to be replaced by the values of the
    *     specified arguments
    * @param arguments arguments whose values will replace the placeholders in the specified message
    */
   void log(
-      NativeLogger nativeLogger,
-      Class<?> logServiceInterfaceClass,
+      Level level,
+      String loggerName,
       @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments);

@@ -70,7 +70,7 @@ class NativeLogServiceProviderTest {
 
     @Test
     void name() {
-      assertSame(this.getClass().getName(), sut.logger().getDeclaringClassName());
+      assertEquals(this.getClass().getName(), sut.logger().getLoggerName());
     }
 
     @Test

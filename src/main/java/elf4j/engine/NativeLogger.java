@@ -34,53 +34,71 @@ import org.jspecify.annotations.Nullable;
 /**
  * Any instance of this class is thread-safe; it can be safely used as static, instance, or local
  * variables. However, instances returned by the static factory method {@link Logger#instance()} are
- * more expensive to create; it is recommended to use them as static variables. Other instances are
- * less expensive; they are fit to be used as any kind of variables.
+ * more expensive to create; it is not recommended to use them as local variables. Instances
+ * obtained from other (instance factory) methods are less expensive; they can be used in any way as
+ * needed.
+ *
+ * <p>Also, it should always be the same caller class that first calls the log service access API
+ * {@link Logger#instance()} to initialize a Logger instance, and then use the instance's service
+ * interface API such as the {@link Logger#log(Object)} method to perform log operations. In other
+ * words, it is considered a programming error to declare/initiate a logger instance in one class
+ * and pass such instance out for another (caller) class to call the instance's log API.
  */
 @ThreadSafe
 public class NativeLogger implements Logger {
   /**
-   * Name of this logger's declaring class - the logging service client class that first requested
-   * this logger instance via the {@link Logger#instance()} service access method. The declaring
-   * class is usually the same as the "caller class" - the client class that calls the service
-   * interface methods such as {@link Logger#log(Object)}.
+   * This loggerName field stores the fully qualified class name of the caller that invokes the log
+   * "server access API" {@link Logger#instance()}) to create and obtain a reference to this
+   * NativeLogger instance. Strictly speaking, it is the name of the caller class to the service
+   * access API. It happens in this implementation, it is also the caller class of the "service
+   * interface API".
    *
-   * <p>In rare and not-recommended scenarios, the declaring class can be different from the caller
-   * class: e.g. the declaring class could pass a reference of this logger instance out to a
-   * different/caller class. Once set, though, the value of this field will never change even when
-   * the declaring class is different from the caller class.
+   * <p>In general, there are two types of "caller" classes of the log service:
    *
-   * <p>To reduce the frequency of having to walk the call stack in order to locate the caller
-   * class, this native ELF4J implementation assumes the declaring and caller class to be one and
-   * the same. Thus, for logging output that requires only the caller class name, this field will be
-   * used in liu of checking the stack trace; i.e. the stack trace walking is needed only when more
-   * caller details (e.g. method name, file name, line number) are required.
+   * <ol>
+   *   <li>one is the caller class of the "service access API" (in this implementation, the access
+   *       API is {@link Logger#instance()}) to obtain (gain "access" to) a reference to the
+   *       "service interface" (the "logger")
+   *   <li>the other is the caller class of the "service interface API" (in this implementation, the
+   *       interface API is methods like {@link Logger#log(Object)}) to issue log service requests.
+   * </ol>
+   *
+   * In most cases, though, the "caller class" of the service access API is the same as that of the
+   * service interface API. The only exception would be: The service access caller class initializes
+   * a log service (i.e. the {@link Logger}) instance; then instead of using the instance to call
+   * the service interface API by itself, it passes the Logger reference out to a (different)
+   * service interface caller class that calls the service interface API.
+   *
+   * <p>Compared to the logger name (same as the "access API caller class" name), it is
+   * performance-wise more expensive to obtain more detailed caller information - class name of the
+   * interface API caller (even when it is different from the access API caller), method name, file
+   * name, and file line number. If performance is of concern, caution is recommended when including
+   * caller detail in the output log pattern.
    */
-  private final String declaringClassName;
+  private final String loggerName;
 
   private final Level level;
   private final NativeLogServiceProvider nativeLogServiceProvider;
 
   /**
-   * Constructor only meant to be used by {@link NativeLogServiceProvider} and this class itself
+   * Constructs a new instance of the NativeLogger class specifically dedicated to service the
+   * specified caller class and at the desired log level.
    *
-   * @param declaringClassName name of the declaring class that requested this instance via the
-   *     {@link Logger#instance()} method
-   * @param level severity level of this logger instance
-   * @param nativeLogServiceProvider log service access point from this instance, not reloadable
+   * @param loggerName The caller class of this log service call
+   * @param level The severity level of this logger instance, matching the desired level of the
+   *     logging operation.
+   * @param nativeLogServiceProvider The log service access point to initialize Logger instances
    */
   public NativeLogger(
-      String declaringClassName, Level level, NativeLogServiceProvider nativeLogServiceProvider) {
-    this.declaringClassName = declaringClassName;
+      String loggerName, Level level, NativeLogServiceProvider nativeLogServiceProvider) {
+    this.loggerName = loggerName;
     this.level = level;
     this.nativeLogServiceProvider = nativeLogServiceProvider;
   }
 
   @Override
   public NativeLogger atLevel(Level level) {
-    return this.level == level
-        ? this
-        : this.nativeLogServiceProvider.getLogger(level, this.declaringClassName);
+    return this.level == level ? this : this.nativeLogServiceProvider.getLogger(level, loggerName);
   }
 
   @Override
@@ -90,7 +108,7 @@ public class NativeLogger implements Logger {
 
   @Override
   public boolean isEnabled() {
-    return getLogHandler().isEnabled(this);
+    return getLogHandler().isEnabled(level, loggerName);
   }
 
   @Override
@@ -119,26 +137,26 @@ public class NativeLogger implements Logger {
   }
 
   /**
-   * Returns the LogHandler associated with this logger, which can be used by other logging
-   * frameworks to leverage the underlying logging engine.
+   * Returns the LogHandler associated with this logger, can be used by other logging frameworks to
+   * leverage the underlying logging engine.
    *
-   * @return directly accessible log handler, useful for other logging frameworks to use this engine
+   * @return directly accessible log handler
    */
   public LogHandler getLogHandler() {
     return this.nativeLogServiceProvider.getLogHandler();
   }
 
   /**
-   * Returns the fully qualified name of the class that declared this logger instance.
+   * Returns the caller class of the log service API
    *
    * @return declaring/caller class of this logger instance
    */
-  public String getDeclaringClassName() {
-    return this.declaringClassName;
+  public String getLoggerName() {
+    return this.loggerName;
   }
 
   private void handle(
       @Nullable Throwable throwable, @Nullable Object message, Object @Nullable [] arguments) {
-    getLogHandler().log(this, NativeLogger.class, throwable, message, arguments);
+    getLogHandler().log(level, loggerName, throwable, message, arguments);
   }
 }

@@ -106,7 +106,7 @@ public record JsonElement(
       OffsetDateTime timestamp,
       String level,
       LogEvent.@Nullable ThreadValue callerThread,
-      @Nullable String callerClass,
+      @Nullable String loggerName,
       LogEvent.@Nullable StackFrameValue callerDetail,
       Map<String, String> context,
       String message,
@@ -114,8 +114,8 @@ public record JsonElement(
     static JsonLogEntry from(LogEvent logEvent, JsonElement jsonPattern) {
       return JsonLogEntry.builder()
           .timestamp(OffsetDateTime.ofInstant(logEvent.getTimestamp(), ZoneId.systemDefault()))
-          .callerClass(jsonPattern.includeCallerDetail ? null : logEvent.getCallerClassName())
-          .level(logEvent.getNativeLogger().getLevel().name())
+          .loggerName(jsonPattern.includeCallerDetail ? null : logEvent.getLoggerName())
+          .level(logEvent.getLevel().name())
           .callerThread(jsonPattern.includeCallerThread ? logEvent.getCallerThread() : null)
           .callerDetail(
               jsonPattern.includeCallerDetail

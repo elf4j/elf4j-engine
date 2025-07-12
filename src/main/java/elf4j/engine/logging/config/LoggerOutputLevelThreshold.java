@@ -26,7 +26,6 @@
 package elf4j.engine.logging.config;
 
 import elf4j.Level;
-import elf4j.engine.NativeLogger;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -40,9 +39,9 @@ import java.util.stream.Collectors;
 import lombok.ToString;
 
 /**
- * The LoggerOutputLevelThreshold class is responsible for managing the threshold output levels for
- * caller classes. It provides methods to get the threshold output level for a given logger and to
- * create a new instance from a given configuration.
+ * Manages the threshold output levels for the named logger instances. It allows for overriding the
+ * default threshold output level of the root or specific logger instances based on the provided
+ * configuration properties.
  */
 @ToString
 public class LoggerOutputLevelThreshold {
@@ -103,14 +102,14 @@ public class LoggerOutputLevelThreshold {
   /**
    * Returns the threshold output level for a given logger.
    *
-   * @param nativeLogger to search for configured threshold output level
+   * @param callerClassName to search for configured threshold output level
    * @return If the threshold level is configured for the nativeLogger's caller class, return the
    *     configured level. Otherwise, if no threshold level configured, return the default threshold
    *     level.
    */
-  public Level getThresholdOutputLevel(NativeLogger nativeLogger) {
+  public Level getThresholdOutputLevel(String callerClassName) {
     return this.sortedCallerClassNameSpaces.stream()
-        .filter(sortedNameSpace -> nativeLogger.getDeclaringClassName().startsWith(sortedNameSpace))
+        .filter(callerClassName::startsWith)
         .findFirst()
         .map(this.configuredLevels::get)
         .orElse(DEFAULT_THRESHOLD_OUTPUT_LEVEL);

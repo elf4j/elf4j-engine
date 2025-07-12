@@ -27,6 +27,7 @@ package elf4j.engine.logging.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 /**
@@ -41,32 +42,29 @@ public class StackTraces {
   /**
    * Returns the immediate caller frame of the specified callee class.
    *
-   * @param calleeClass whose caller is being searched for
+   * @param calleeClassName whose caller is being searched for
    * @return immediate caller frame of the specified callee class
    */
-  public static StackTraceElement callerOf(Class<?> calleeClass) {
-    StackTraceElement[] stackTrace = new Throwable().getStackTrace();
-    return getCallerFrame(calleeClass, stackTrace);
+  public static StackTraceElement callerFrameOf(String calleeClassName) {
+    return getCallerFrame(calleeClassName, new Throwable().getStackTrace());
   }
 
   /**
    * Returns the caller frame of the specified callee class in the given stack trace.
    *
-   * @param calleeClass whose caller is being searched for
+   * @param calleeClassName whose caller is being searched for
    * @param stackTrace to walk in search for the caller
    * @return the caller frame in the stack trace
    */
-  public static StackTraceElement getCallerFrame(
-      Class<?> calleeClass, StackTraceElement[] stackTrace) {
-    String calleeClassName = calleeClass.getName();
+  static StackTraceElement getCallerFrame(String calleeClassName, StackTraceElement[] stackTrace) {
     for (int depth = 1; depth < stackTrace.length; depth++) {
       if (calleeClassName.equals(stackTrace[depth - 1].getClassName())
           && !calleeClassName.equals(stackTrace[depth].getClassName())) {
         return stackTrace[depth];
       }
     }
-    throw new NoSuchElementException(
-        String.format("Caller of '%s' not found in call stack", calleeClass));
+    throw new NoSuchElementException(String.format(
+        "Caller of '%s' not found in call stack %s", calleeClassName, Arrays.toString(stackTrace)));
   }
 
   /**
