@@ -29,7 +29,7 @@ import elf4j.Logger;
 import java.util.function.Supplier;
 import org.slf4j.MDC;
 
-public class Main {
+public class Scratch {
   static Logger logger = Logger.instance();
 
   public static void main(String[] args) throws InterruptedException {
@@ -39,7 +39,8 @@ public class Main {
     Logger info = logger.atInfo();
     info.log("... no matter on what level you say it");
     Logger warn = info.atWarn();
-    warn.log("Houston, we do not have {} but let's do {}", "a problem", (Supplier) () -> "a drill");
+    warn.log(
+        "Houston, we do not have {} but let's do {}", "a problem", (Supplier<?>) () -> "a drill");
     Throwable exception = new Exception("This is a drill");
     warn.atError().log(exception);
     logger.atInfo().log(exception, "When being logged, the Throwable always comes {}", "first");
