@@ -106,12 +106,13 @@ public enum NativeLogServiceManager {
    */
   public void shutdown() {
     lockAndRun(() -> {
+      LOGGER.info("Start shutdown %s".formatted(this));
       stoppables.forEach(Stoppable::stop);
       // clear stoppables as stopped writers won't accept new tasks
       stoppables.clear();
       // keep refreshables as new writers will be created upon refresh
+      LOGGER.info("End shutdown %s".formatted(this));
     });
-    LOGGER.info("Shut down %s".formatted(this));
   }
 
   /**

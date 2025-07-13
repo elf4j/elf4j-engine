@@ -24,62 +24,68 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
 
 2. Use it for logging in the application:
    ```java 
-   package elf4j.engine;
-   
-   import elf4j.Logger;
-   import java.util.function.Supplier;
-   import org.slf4j.MDC;
-   
-   public class Scratch {
-     static Logger logger = Logger.instance();
-   
-     public static void main(String[] args) throws InterruptedException {
-       MDC.put("ctx-key", "ctx-value");
-       logger.log("Hello, world!");
-       logger.atTrace().log("It's a beautiful day");
-       Logger info = logger.atInfo();
-       info.log("... no matter on what level you say it");
-       Logger warn = info.atWarn();
-       warn.log(
-           "Houston, we do not have {} but let's do {}", "a problem", (Supplier<?>) () -> "a drill");
-       Throwable exception = new Exception("This is a drill");
-       warn.atError().log(exception);
-       logger.atInfo().log(exception, "When being logged, the Throwable always comes {}", "first");
-       logger.atInfo().log(
-           exception, "The log {} and {} work as usual", () -> "message", () -> "arguments");
-       Logger.instance()
-           .atInfo()
-           .atError()
-           .atWarn()
-           .atTrace()
-           .atDebug()
-           .log("Not a practical example but now the severity level is DEBUG");
-       Thread.sleep(50);
-     }
-   }
+    package elf4j.engine;
+    
+    import elf4j.Logger;
+    import elf4j.engine.logging.NativeLogServiceManager;
+    import java.util.function.Supplier;
+    import org.slf4j.MDC;
+    
+    public class Scratch {
+      static Logger logger = Logger.instance();
+    
+      public static void main(String[] args) {
+        Runtime.getRuntime()
+            .addShutdownHook(
+                NativeLogServiceManager.INSTANCE
+                    .getShutdownHookThread()); // shutdown async executor on exit
+        MDC.put("ctx-key", "ctx-value");
+        logger.log("Hello, world!");
+        logger.atTrace().log("It's a beautiful day");
+        Logger info = logger.atInfo();
+        info.log("... no matter on what level you say it");
+        Logger warn = info.atWarn();
+        warn.log(
+            "Houston, we do not have {} but let's do {}", "a problem", (Supplier<?>) () -> "a drill");
+        Throwable exception = new Exception("This is a drill");
+        warn.atError().log(exception);
+        logger.atInfo().log(exception, "When being logged, the Throwable always comes {}", "first");
+        logger.atInfo().log(
+            exception, "The log {} and {} work as usual", () -> "message", () -> "arguments");
+        Logger.instance()
+            .atInfo()
+            .atError()
+            .atWarn()
+            .atTrace()
+            .atDebug()
+            .log("Not a practical example but now the severity level is DEBUG");
+      }
+    }
    ```
    
    The `Logger` instance is thread-safe, affording flexible usage.
 
 3. Run that application, the follow output will appear in stdout:
    ```
-   2025-07-12T17:50:38.015-05:00 INFO elf4j.engine.Scratch - Hello, world!
-   2025-07-12T17:50:38.030-05:00 TRACE elf4j.engine.Scratch - It's a beautiful day
-   2025-07-12T17:50:38.031-05:00 INFO elf4j.engine.Scratch - ... no matter on what level you say it
-   2025-07-12T17:50:38.032-05:00 WARN elf4j.engine.Scratch - Houston, we do not have a problem but let's do a drill
-   2025-07-12T17:50:38.032-05:00 ERROR elf4j.engine.Scratch - 
-   java.lang.Exception: This is a drill
-     at elf4j.engine.Scratch.main(Scratch.java:43)
-   
-   2025-07-12T17:50:38.032-05:00 INFO elf4j.engine.Scratch - When being logged, the Throwable always comes first
-   java.lang.Exception: This is a drill
-     at elf4j.engine.Scratch.main(Scratch.java:43)
-   
-   2025-07-12T17:50:38.039-05:00 INFO elf4j.Logger - The log message and arguments work as usual
-   java.lang.Exception: This is a drill
-     at elf4j.engine.Scratch.main(Scratch.java:43)
-   
-   2025-07-12T17:50:38.039-05:00 DEBUG elf4j.engine.Scratch - Not a practical example but now the severity level is DEBUG
+
+2025-07-12T17:50:38.015-05:00 INFO elf4j.engine.Scratch - Hello, world!
+2025-07-12T17:50:38.030-05:00 TRACE elf4j.engine.Scratch - It's a beautiful day
+2025-07-12T17:50:38.031-05:00 INFO elf4j.engine.Scratch - ... no matter on what level you say it
+2025-07-12T17:50:38.032-05:00 WARN elf4j.engine.Scratch - Houston, we do not have a problem but let's do a drill
+2025-07-12T17:50:38.032-05:00 ERROR elf4j.engine.Scratch -
+java.lang.Exception: This is a drill
+at elf4j.engine.Scratch.main(Scratch.java:43)
+
+2025-07-12T17:50:38.032-05:00 INFO elf4j.engine.Scratch - When being logged, the Throwable always comes first
+java.lang.Exception: This is a drill
+at elf4j.engine.Scratch.main(Scratch.java:43)
+
+2025-07-12T17:50:38.039-05:00 INFO elf4j.Logger - The log message and arguments work as usual
+java.lang.Exception: This is a drill
+at elf4j.engine.Scratch.main(Scratch.java:43)
+
+2025-07-12T17:50:38.039-05:00 DEBUG elf4j.engine.Scratch - Not a practical example but now the severity level is DEBUG
+
    ```
    The output is always asynchronous and won't block the application's normal workflow.
 4. The output format patterns can be configured by using a Properties file named `elf4j.properties`, placed in the root
@@ -91,7 +97,7 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
    pattern={timestamp} {level:5} {class:simple}#{method}(L{linenumber}@{filename}) - {message}
    ```
 
-   The output is:
+The output is:
 
    ```
    2025-07-12T17:53:42.627-05:00 INFO  Scratch#main(L37@Scratch.java) - Hello, world!
@@ -113,13 +119,13 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
    2025-07-12T17:53:42.641-05:00 DEBUG Scratch#main(L54@Scratch.java) - Not a practical example but now the severity level is DEBUG
    ```
 
-   With the `elf4j.properties` file:
+With the `elf4j.properties` file:
 
    ```properties
    pattern={json}
    ```
 
-   The output becomes:
+The output becomes:
 
    ```
    {"timestamp":"2025-07-12T17:55:31.7475327-05:00","level":"INFO","loggerName":"elf4j.engine.Scratch","context":{"ctx-key":"ctx-value"},"message":"Hello, world!"}
@@ -132,7 +138,7 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
    {"timestamp":"2025-07-12T17:55:31.7586935-05:00","level":"DEBUG","loggerName":"elf4j.engine.Scratch","context":{"ctx-key":"ctx-value"},"message":"Not a practical example but now the severity level is DEBUG"}
    ```
 
-   The JSON pattern can be configured to pretty-print format, and/or mixed with other patterns.
+The JSON pattern can be configured to pretty-print format, and/or mixed with other patterns.
 
 ## Features, usage, and configuration details
 
