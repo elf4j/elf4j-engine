@@ -101,37 +101,37 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
 
 The output is:
 
-    ```
-       2025-07-13T11:59:21.366-05:00 INFO  ReadmeTest#readMe(L39@ReadmeTest.java) - Hello, world!
-    2025-07-13T11:59:21.392-05:00 TRACE ReadmeTest#readMe(L40@ReadmeTest.java) - It's a beautiful day
-    2025-07-13T11:59:21.393-05:00 INFO  ReadmeTest#readMe(L42@ReadmeTest.java) - ... no matter on what level you say it
-    2025-07-13T11:59:21.393-05:00 WARN  ReadmeTest#readMe(L44@ReadmeTest.java) - Houston, we do not have a problem but let's do a drill
-    2025-07-13T11:59:21.394-05:00 ERROR ReadmeTest#readMe(L47@ReadmeTest.java) - 
-    java.lang.Exception: This is a drill
-        at elf4j.engine.ReadmeTest.readMe(ReadmeTest.java:46)
-        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
-        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
-        at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:787)
-        (... full stack trace ommitted for this README.md)
-    
-    2025-07-13T11:59:21.395-05:00 INFO  ReadmeTest#readMe(L48@ReadmeTest.java) - When being logged, the Throwable always comes first
-    java.lang.Exception: This is a drill
-        at elf4j.engine.ReadmeTest.readMe(ReadmeTest.java:46)
-        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
-        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
-        at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:787)
-        (... full stack trace ommitted for this README.md)
-    
-    2025-07-13T11:59:21.398-05:00 INFO  Logger#log(L169@Logger.java) - The log message and arguments work as usual
-    java.lang.Exception: This is a drill
-        at elf4j.engine.ReadmeTest.readMe(ReadmeTest.java:46)
-        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
-        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
-        at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:787)
-        (... full stack trace ommitted for this README.md)
-    
-    2025-07-13T11:59:21.398-05:00 DEBUG ReadmeTest#readMe(L57@ReadmeTest.java) - Not a practical example but now the severity level is DEBUG
-    ```
+   ```
+   2025-07-13T11:59:21.366-05:00 INFO  ReadmeTest#readMe(L39@ReadmeTest.java) - Hello, world!
+   2025-07-13T11:59:21.392-05:00 TRACE ReadmeTest#readMe(L40@ReadmeTest.java) - It's a beautiful day
+   2025-07-13T11:59:21.393-05:00 INFO  ReadmeTest#readMe(L42@ReadmeTest.java) - ... no matter on what level you say it
+   2025-07-13T11:59:21.393-05:00 WARN  ReadmeTest#readMe(L44@ReadmeTest.java) - Houston, we do not have a problem but let's do a drill
+   2025-07-13T11:59:21.394-05:00 ERROR ReadmeTest#readMe(L47@ReadmeTest.java) - 
+      java.lang.Exception: This is a drill
+      at elf4j.engine.ReadmeTest.readMe(ReadmeTest.java:46)
+      at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+      at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+      at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:787)
+      (... full stack trace ommitted for this README.md)
+   
+   2025-07-13T11:59:21.395-05:00 INFO  ReadmeTest#readMe(L48@ReadmeTest.java) - When being logged, the Throwable always comes first
+      java.lang.Exception: This is a drill
+      at elf4j.engine.ReadmeTest.readMe(ReadmeTest.java:46)
+      at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+      at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+      at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:787)
+      (... full stack trace ommitted for this README.md)
+   
+   2025-07-13T11:59:21.398-05:00 INFO  Logger#log(L169@Logger.java) - The log message and arguments work as usual
+      java.lang.Exception: This is a drill
+      at elf4j.engine.ReadmeTest.readMe(ReadmeTest.java:46)
+      at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+      at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+      at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:787)
+      (... full stack trace ommitted for this README.md)
+   
+   2025-07-13T11:59:21.398-05:00 DEBUG ReadmeTest#readMe(L57@ReadmeTest.java) - Not a practical example but now the severity level is DEBUG
+   ```
 
 With the `elf4j.properties` file:
 
