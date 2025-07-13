@@ -29,10 +29,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import elf4j.Level;
 import elf4j.Logger;
+import elf4j.engine.logging.util.ShutdownUnitTestExtension;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(ShutdownUnitTestExtension.class)
 class SampleUsageTest {
   static Logger logger = Logger.instance();
 
@@ -90,7 +93,7 @@ class SampleUsageTest {
       info.log(
           "Lazy arguments, of {} type, whose values may be {} can be mixed with eager arguments of non-Supplier types",
           Supplier.class.getTypeName(),
-          (Supplier) () -> "expensive to compute");
+          (Supplier<?>) () -> "expensive to compute");
       info.atWarn()
           .log(
               "The Supplier downcast is mandatory per lambda syntax because arguments are declared as generic Object rather than functional interface");
@@ -108,7 +111,7 @@ class SampleUsageTest {
           exception,
           "Exception is always the first argument to a logging method. The {} log message and following arguments work the same way {}.",
           "optional",
-          (Supplier) () -> "as usual");
+          (Supplier<?>) () -> "as usual");
     }
   }
 }

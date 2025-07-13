@@ -23,14 +23,14 @@
  *
  */
 
-package elf4j.engine.logging.pattern;
+package elf4j.engine.logging.pattern.predefined;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogServiceProvider;
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.predefined.MessageAndExceptionElement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -39,42 +39,72 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class MessageAndExceptionPatternTest {
+class JsonElementTest {
   @Mock
   NativeLogServiceProvider mockNativeLogServiceProvider;
 
   LogEvent mockLogEvent;
   String mockMessage = "testLogMessage {}";
-  Object[] mockArgs = new Object[] {"testArg1"};
-  Exception mockException = new Exception("testExceptionMessage");
 
   @BeforeEach
   void beforeEach() {
     mockLogEvent = LogEvent.builder()
+        .loggerName("testCallerClassName")
         .level(Level.ERROR)
-        .loggerName("testLoggerName")
         .callerThread(new LogEvent.ThreadValue(
             Thread.currentThread().getName(), Thread.currentThread().threadId()))
         .callerFrame(LogEvent.StackFrameValue.from(
-            new StackTraceElement("testClassName", "testMethodName", "testFileName", 42)))
+            new StackTraceElement("testCallerClassName", "testMethodName", "testFileName", 42)))
         .message(mockMessage)
-        .arguments(mockArgs)
-        .throwable(mockException)
+        .arguments(new Object[] {"testArg1"})
+        .throwable(new Exception("testExceptionMessage"))
         .build();
   }
 
   @Nested
-  class render {
+  class from {
     @Test
-    void includeBothMessageAndException() {
-      MessageAndExceptionElement messageAndExceptionPattern = new MessageAndExceptionElement();
-      StringBuilder logText = new StringBuilder();
+    void noPatternOptionDefaults() {
+      JsonElement jsonPattern = JsonElement.from("json");
 
-      messageAndExceptionPattern.render(mockLogEvent, logText);
-      String rendered = logText.toString();
+      assertFalse(jsonPattern.includeCallerDetail());
+    }
 
+    @Test
+    void includeCallerOption() {
+      JsonElement jsonPattern = JsonElement.from("json:caller-detail");
+
+      assertTrue(jsonPattern.includeCallerDetail());
+    }
+
+    @Test
+    void includeThreadOption() {
+      JsonElement jsonPattern = JsonElement.from("json:caller-thread");
+
+      assertFalse(jsonPattern.includeCallerDetail());
+    }
+
+    @Test
+    void includeCallerAndThreadOptions() {
+      JsonElement jsonPattern = JsonElement.from("json:caller-thread,caller-detail");
+
+      assertTrue(jsonPattern.includeCallerDetail());
+    }
+  }
+
+  @Nested
+  class render {
+    JsonElement jsonPattern = JsonElement.from("json");
+
+    @Test
+    void resolveMessage() {
+      StringBuilder layout = new StringBuilder();
+
+      jsonPattern.render(mockLogEvent, layout);
+      String rendered = layout.toString();
+
+      assertFalse(rendered.contains("testLogMessage {}"));
       assertTrue(rendered.contains(mockLogEvent.getResolvedMessage()));
-      assertTrue(rendered.contains(mockException.getMessage()));
     }
   }
 }

@@ -26,18 +26,15 @@
 package elf4j.engine;
 
 import elf4j.Logger;
-import elf4j.engine.logging.NativeLogServiceManager;
 import java.util.function.Supplier;
+import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 
-public class Scratch {
+public class ReadmeTest {
   static Logger logger = Logger.instance();
 
-  public static void main(String[] args) {
-    Runtime.getRuntime()
-        .addShutdownHook(
-            NativeLogServiceManager.INSTANCE
-                .getShutdownHookThread()); // shutdown async executor on exit
+  @Test
+  void readMe() {
     MDC.put("ctx-key", "ctx-value");
     logger.log("Hello, world!");
     logger.atTrace().log("It's a beautiful day");

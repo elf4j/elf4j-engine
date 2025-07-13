@@ -118,7 +118,7 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.13.3</version>
-            <scope>test</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -167,6 +167,8 @@
                 <version>3.5.3</version>
                 <configuration>
                     <forkNode implementation="org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory"/>
+<!--                    <forkCount>1</forkCount>-->
+<!--                    <reuseForks>false</reuseForks>-->
                 </configuration>
             </plugin>
             <plugin>
