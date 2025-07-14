@@ -51,9 +51,10 @@ public class NativeLogger implements Logger {
    * <ol>
    *   <li>One is the caller class of the "service access API" to obtain (gain "access" to) a
    *       reference to the "service class" on which to issue service requests. The concrete
-   *       implementation of such API is called the "provider class".
-   *   <li>the other is the caller class of the "service interface API" to issue log service
-   *       requests. The concrete implementation of such API is called the "service class".
+   *       implementation of the service access API is called the "provider class".
+   *   <li>The other is the caller class of the "service interface API" to issue log service
+   *       requests. The concrete implementation of the service interface API is called the "service
+   *       class".
    * </ol>
    *
    * <p>In case of the elf4j API, the {@link Logger} interface is both the service access API and
