@@ -80,8 +80,7 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
       configuredLogWriters.add(new StandardStreamWriterFactory());
     }
     List<LogWriter> logWriters = configuredLogWriters.stream()
-        .map(logWriterFactory ->
-            logWriterFactory.getLogWriter(configurationProperties.getProperties()))
+        .map(t -> t.getLogWriter(configurationProperties.getProperties()))
         .toList();
     return new CompositeWriter(
         logWriters,
@@ -96,12 +95,12 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
       return Collections.emptyList();
     }
     Properties properties = configurationProperties.getProperties();
-    String writerFactoryClassNames = properties.getProperty("writer.factories");
-    if (writerFactoryClassNames == null) {
+    String writerTypes = properties.getProperty("writer.factories");
+    if (writerTypes == null) {
       return Collections.emptyList();
     }
-    return Arrays.stream(writerFactoryClassNames.split(","))
-        .map(String::strip)
+    return Arrays.stream(writerTypes.split(","))
+        .map(String::trim)
         .map(fqcn -> {
           try {
             return (LogWriterFactory)

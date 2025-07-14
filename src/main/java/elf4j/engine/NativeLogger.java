@@ -29,7 +29,6 @@ import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.logging.LogHandler;
 import javax.annotation.concurrent.ThreadSafe;
-import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -48,47 +47,34 @@ import org.jspecify.annotations.Nullable;
 @ThreadSafe
 public class NativeLogger implements Logger {
   /**
-   * This loggerName field stores the fully qualified class name of the "caller class". The log
-   * service properties such as the log level output threshold are configured based on this logger
-   * name.
+   * This loggerName field stores the fully qualified class name of the caller that invokes the log
+   * "server access API" {@link Logger#instance()}) to create and obtain a reference to this
+   * NativeLogger instance. Strictly speaking, it is the name of the caller class to the service
+   * access API. It happens in this implementation, it is also the caller class of the "service
+   * interface API".
    *
-   * <p>In general, there are two types of caller classes of the log service:
+   * <p>In general, there are two types of "caller" classes of the log service:
    *
    * <ol>
-   *   <li>One is the caller class of the "service access API" to obtain (gain "access" to) a
-   *       reference to the "service class" on which to issue service requests. The concrete
-   *       implementation of such API is called the "provider class".
-   *   <li>the other is the caller class of the "service interface API" to issue log service
-   *       requests. The concrete implementation of such API is called the "service class".
+   *   <li>one is the caller class of the "service access API" (in this implementation, the access
+   *       API is {@link Logger#instance()}) to obtain (gain "access" to) a reference to the
+   *       "service interface" (the "logger")
+   *   <li>the other is the caller class of the "service interface API" (in this implementation, the
+   *       interface API is methods like {@link Logger#log(Object)}) to issue log service requests.
    * </ol>
    *
-   * <p>In case of the elf4j API, the {@link Logger} interface is both the service access API and
-   * the service interface API. The sole access API is the {@link Logger#instance()}) static method;
-   * the service interface API includes instance methods like {@link Logger#log(Object)}). The
-   * service access API (provider class) is for the log service client/caller to gain access to a
-   * reference of the service interface API (service class). A service interface API caller (often
-   * the same caller of the service access API) can then use the reference to issue subsequent
-   * service requests to the runtime instance of the service class.
+   * In most cases, though, the "caller class" of the service access API is the same as that of the
+   * service interface API. The only exception would be: The service access caller class initializes
+   * a log service (i.e. the {@link Logger}) instance; then instead of using the instance to call
+   * the service interface API by itself, it passes the Logger reference out to a (different)
+   * service interface caller class that calls the service interface API.
    *
-   * <p>Unlike the service access API which is a static method on the {@code Logger} interface, all
-   * methods of the service interface API are instance methods. That means, at runtime, the service
-   * interface API caller will be calling the instance of this {@code NativeLogger} service class
-   * (rather than the {@code Logger} interface itself) for all log service requests. That is
-   * important to note when trying to detect the runtime service interface API caller class.
-   *
-   * <p>In most cases, the "caller class" of the service access API is the same as that of the
-   * service interface API. The only exception where the caller classes are different would be: The
-   * service access caller class obtains a reference to the log service class ({@code NativeLogger})
-   * instance; then instead of using the reference to call the service interface API, it passes the
-   * reference out to a different caller class that subsequently calls the service interface API.
-   *
-   * <p>Compared to the statically stored logger name (same as the "service access API caller class"
-   * name), it is performance-wise more expensive to obtain the (run-time) "service interface API
-   * caller class" information - class name (can be different from the access API caller), method
-   * name, file name, and file line number. If performance is of concern, use caution when including
-   * such run-time caller details in the output log pattern.
+   * <p>Compared to the logger name (same as the "access API caller class" name), it is
+   * performance-wise more expensive to obtain more detailed caller information - class name of the
+   * interface API caller (even when it is different from the access API caller), method name, file
+   * name, and file line number. If performance is of concern, caution is recommended when including
+   * caller detail in the output log pattern.
    */
-  @Getter
   private final String loggerName;
 
   private final Level level;
@@ -158,6 +144,15 @@ public class NativeLogger implements Logger {
    */
   public LogHandler getLogHandler() {
     return this.nativeLogServiceProvider.getLogHandler();
+  }
+
+  /**
+   * Returns the caller class of the log service API
+   *
+   * @return declaring/caller class of this logger instance
+   */
+  public String getLoggerName() {
+    return this.loggerName;
   }
 
   private void handle(
