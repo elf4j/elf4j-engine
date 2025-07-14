@@ -33,11 +33,12 @@ import lombok.Value;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Any instance of this class is thread-safe; it can be safely used as static, instance, or local
- * variables. However, instances returned by the static factory method {@link Logger#instance()} are
- * more expensive to create; it is not recommended to use them as local variables. Instances
- * obtained from other (instance factory) methods are less expensive; they can be used in any way as
- * needed.
+ * Implemented as a value class, so its instances are thread-safe and can be safely used as static,
+ * instance, or local variables. However, the static factory method {@link Logger#instance()} is
+ * more performance-wise expensive to call; it is not recommended for creating local Logger
+ * variables. Instances factory methods such as {@link NativeLogger#atLevel(Level)} or
+ * {@link Logger#atDebug()}, on the other hand, are inexpensive; they can be used to get any type
+ * Logger variables as needed.
  */
 @Value
 @ThreadSafe
