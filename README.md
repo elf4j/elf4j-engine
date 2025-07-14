@@ -15,7 +15,7 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
 
 1. **Install**
 
-   * Prerequisite: Java 8+ for version 16.0.0 (exclusive) and older; Java 21+ for version 16.0.0 (inclusive) and newer.
+   * Prerequisite: Java 8+ for versions older than 16.0.0 (exclusive); Java 21+ for versions newer than 16.0.0 (inclusive).
 
    * To use this as a logging service provider in your application, see installation details [here](https://github.com/elf4j/elf4j-provider#installation)
 
