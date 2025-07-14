@@ -29,7 +29,7 @@ import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.logging.LogHandler;
 import javax.annotation.concurrent.ThreadSafe;
-import lombok.Getter;
+import lombok.Value;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -39,6 +39,7 @@ import org.jspecify.annotations.Nullable;
  * obtained from other (instance factory) methods are less expensive; they can be used in any way as
  * needed.
  */
+@Value
 @ThreadSafe
 public class NativeLogger implements Logger {
   /**
@@ -83,11 +84,10 @@ public class NativeLogger implements Logger {
    * name, file name, and file line number. If performance is of concern, use caution when including
    * such run-time caller details in the output log pattern.
    */
-  @Getter
-  private final String loggerName;
+  String loggerName;
 
-  private final Level level;
-  private final NativeLogServiceProvider nativeLogServiceProvider;
+  Level level;
+  NativeLogServiceProvider nativeLogServiceProvider;
 
   /**
    * Constructs a new instance of the NativeLogger class specifically dedicated to service the
