@@ -116,7 +116,7 @@ public class NativeLogServiceProvider
    * Constructor for the NativeLogServiceProvider class.
    *
    * @param defaultLoggerLevel the default logger level
-   * @param logServiceAccessClass the runtime implementation class of the log service access API
+   * @param logServiceAccessClass the concrete implementation of the log service access API
    * @param logHandlerFactory the factory for native log handler. Capable of reconfiguring the
    *     handler at runtime.
    */
