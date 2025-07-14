@@ -38,12 +38,6 @@ import org.jspecify.annotations.Nullable;
  * more expensive to create; it is not recommended to use them as local variables. Instances
  * obtained from other (instance factory) methods are less expensive; they can be used in any way as
  * needed.
- *
- * <p>Also, it should always be the same caller class that first calls the log service access API
- * {@link Logger#instance()} to initialize a Logger instance, and then use the instance's service
- * interface API such as the {@link Logger#log(Object)} method to perform log operations. In other
- * words, it is considered a programming error to declare/initiate a logger instance in one class
- * and pass such instance out for another (caller) class to call the instance's log API.
  */
 @ThreadSafe
 public class NativeLogger implements Logger {
