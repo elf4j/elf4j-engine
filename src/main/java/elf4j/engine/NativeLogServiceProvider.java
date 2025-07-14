@@ -97,28 +97,28 @@ public class NativeLogServiceProvider
   /**
    * NativeLogServiceProvider constructor with the default logger level
    *
-   * @param logServiceAccessClass the runtime class or interface that the API client application
-   *     calls first to a logger instance. In this case, since the sole log service access API is
-   *     {@link Logger#instance()}, the service access class is always the {@link Logger}.class
-   * @param logServiceInterfaceClass the runtime class or interface that the API client application
-   *     calls to issue log service requests. In this case, the log service interface is the
-   *     {@link NativeLogger}.class
+   * @param logServiceProviderClass the concrete implementation of the log service access API. In
+   *     this case, since the sole log service access API is the static method
+   *     {@link Logger#instance()}, the provider class is always the {@code Logger} interface
+   *     itself.
+   * @param logServiceClass the concrete implementation of the log service interface API. In this
+   *     case, it is the {@code NativeLogger} class, as opposed to the {@code Logger} interface. See
+   *     the Javadoc of the {@link NativeLogger#loggerName} field.
    */
-  public NativeLogServiceProvider(
-      Class<?> logServiceAccessClass, Class<?> logServiceInterfaceClass) {
+  public NativeLogServiceProvider(Class<?> logServiceProviderClass, Class<?> logServiceClass) {
     this(
         DEFAULT_LOGGER_SEVERITY_LEVEL,
-        logServiceAccessClass,
-        new ConfiguredLogHandlerFactory(logServiceInterfaceClass));
+        logServiceProviderClass,
+        new ConfiguredLogHandlerFactory(logServiceClass));
   }
 
   /**
    * Constructor for the NativeLogServiceProvider class.
    *
    * @param defaultLoggerLevel the default logger level
-   * @param logServiceAccessClass the class or interface that the API client application calls first
-   *     to a logger instance
-   * @param logHandlerFactory the factory for creating native logger services
+   * @param logServiceAccessClass the runtime implementation class of the log service access API
+   * @param logHandlerFactory the factory for native log handler. Capable of reconfiguring the
+   *     handler at runtime.
    */
   NativeLogServiceProvider(
       Level defaultLoggerLevel,
@@ -183,8 +183,8 @@ public class NativeLogServiceProvider
   }
 
   /**
-   * The LogHandlerFactory interface provides methods for getting the log service, reloading the log
-   * service, and resetting the log service with the specified properties.
+   * The LogHandlerFactory interface provides methods for getting the log handler. Capable of
+   * reconfiguring the log handler with the specified properties at runtime.
    */
   interface LogHandlerFactory {
     /**
