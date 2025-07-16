@@ -36,32 +36,40 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.Value;
 
 /**
  * Manages the threshold output levels for the named logger instances. It allows for overriding the
  * default threshold output level of the root or specific logger instances based on the provided
  * configuration properties.
  */
+@Value
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 public class LoggerOutputLevelThreshold {
   private static final Logger LOGGER = Logger.getLogger(LoggerOutputLevelThreshold.class.getName());
   private static final String CONFIGURED_ROOT_LOGGER_NAME_SPACE = "";
   private static final Level DEFAULT_THRESHOLD_OUTPUT_LEVEL = Level.TRACE;
-  private final Map<String, Level> configuredLevels;
-  private final List<String> sortedCallerClassNameSpaces;
+
+  @EqualsAndHashCode.Include
+  Map<String, Level> configuredLoggerNameLevels;
+
+  List<String> sortedLoggerNameNameSpaces;
 
   /**
    * Constructor for the LoggerOutputLevelThreshold class.
    *
-   * @param configuredLevels a map of configured levels
+   * @param configuredLoggerNameLevels a map of configured levels
    */
-  private LoggerOutputLevelThreshold(Map<String, Level> configuredLevels) {
-    this.configuredLevels = new ConcurrentHashMap<>(configuredLevels);
-    this.sortedCallerClassNameSpaces = configuredLevels.keySet().stream()
+  private LoggerOutputLevelThreshold(Map<String, Level> configuredLoggerNameLevels) {
+    this.configuredLoggerNameLevels = new ConcurrentHashMap<>(configuredLoggerNameLevels);
+    this.sortedLoggerNameNameSpaces = configuredLoggerNameLevels.keySet().stream()
         .sorted(new ByClassNameSpace())
         .collect(Collectors.toList());
-    LOGGER.info("%s overriding caller level(s) in %s".formatted(configuredLevels.size(), this));
+    LOGGER.info(
+        "%s overriding caller level(s) in %s".formatted(configuredLoggerNameLevels.size(), this));
   }
 
   /**
@@ -102,16 +110,16 @@ public class LoggerOutputLevelThreshold {
   /**
    * Returns the threshold output level for a given logger.
    *
-   * @param callerClassName to search for configured threshold output level
-   * @return If the threshold level is configured for the nativeLogger's caller class, return the
+   * @param loggerName to search for configured threshold output level
+   * @return If the threshold level is configured for the specified logger name, return the
    *     configured level. Otherwise, if no threshold level configured, return the default threshold
    *     level.
    */
-  public Level getThresholdOutputLevel(String callerClassName) {
-    return this.sortedCallerClassNameSpaces.stream()
-        .filter(callerClassName::startsWith)
+  public Level getThresholdOutputLevel(String loggerName) {
+    return this.sortedLoggerNameNameSpaces.stream()
+        .filter(loggerName::startsWith)
         .findFirst()
-        .map(this.configuredLevels::get)
+        .map(this.configuredLoggerNameLevels::get)
         .orElse(DEFAULT_THRESHOLD_OUTPUT_LEVEL);
   }
 

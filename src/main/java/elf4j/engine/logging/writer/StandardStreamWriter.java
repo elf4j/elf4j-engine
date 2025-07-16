@@ -38,13 +38,17 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.Value;
 
 /**
  * A log writer implementation that writes log events to the standard output or standard error
  * stream. The log pattern, threshold output level, and target stream (stdout or stderr) can be
  * configured.
  */
+@Value
+@EqualsAndHashCode
 @Builder
 @ToString
 public class StandardStreamWriter implements LogWriter {
@@ -52,10 +56,13 @@ public class StandardStreamWriter implements LogWriter {
   static final String DEFAULT_PATTERN = "{timestamp} {level} {class} - {message}";
   static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
   static final String LINE_FEED = System.lineSeparator();
-  private final StandardOutput standardOutput = new FileStreamStandardOutput();
-  private final Level thresholdOutputLevel;
-  private final PatternElement logPattern;
-  private final OutStreamType outStreamType;
+
+  @EqualsAndHashCode.Exclude
+  StandardOutput standardOutput = new FileStreamStandardOutput();
+
+  Level thresholdOutputLevel;
+  PatternElement logPattern;
+  OutStreamType outStreamType;
 
   /**
    * Returns the threshold output level for this log writer.

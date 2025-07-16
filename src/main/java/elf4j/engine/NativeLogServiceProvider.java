@@ -29,19 +29,16 @@ import static java.util.stream.Collectors.toMap;
 
 import elf4j.Level;
 import elf4j.Logger;
-import elf4j.engine.logging.EventingLogHandler;
+import elf4j.engine.logging.ConfiguredLogHandlerFactory;
 import elf4j.engine.logging.LogHandler;
-import elf4j.engine.logging.NativeLogServiceManager;
-import elf4j.engine.logging.config.ConfigurationProperties;
+import elf4j.engine.logging.LogHandlerFactory;
 import elf4j.engine.logging.util.StackTraces;
 import elf4j.spi.LogServiceProvider;
 import java.util.EnumSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.MdcAdapterInitializer;
 
 /**
@@ -61,8 +58,7 @@ import org.slf4j.MdcAdapterInitializer;
  * class would be the class in that API that the client calls first to get a logger instance of that
  * API.
  */
-public class NativeLogServiceProvider
-    implements LogServiceProvider, NativeLogServiceManager.Refreshable {
+public class NativeLogServiceProvider implements LogServiceProvider {
   private static final Level DEFAULT_LOGGER_SEVERITY_LEVEL = Level.INFO;
 
   /** Made injectable for extensions other than this native ELF4J implementation */
@@ -128,7 +124,6 @@ public class NativeLogServiceProvider
     this.defaultLoggerLevel = defaultLoggerLevel;
     this.logServiceAccessClass = logServiceAccessClass;
     this.logHandlerFactory = logHandlerFactory;
-    NativeLogServiceManager.INSTANCE.register(this);
   }
 
   /**
@@ -142,22 +137,6 @@ public class NativeLogServiceProvider
     return getLogger(
         defaultLoggerLevel,
         StackTraces.callerFrameOf(logServiceAccessClass.getName()).getClassName());
-  }
-
-  /**
-   * Refreshes the properties of the log service.
-   *
-   * @param properties the new properties for the log service
-   */
-  @Override
-  public void refresh(@Nullable Properties properties) {
-    logHandlerFactory.reset(properties);
-  }
-
-  /** Reloads the log service. */
-  @Override
-  public void refresh() {
-    logHandlerFactory.reload();
   }
 
   /**
@@ -180,73 +159,5 @@ public class NativeLogServiceProvider
     return nativeLoggers
         .get(level)
         .computeIfAbsent(loggerName, k -> new NativeLogger(loggerName, level, this));
-  }
-
-  /**
-   * The LogHandlerFactory interface provides methods for getting the log handler. Capable of
-   * reconfiguring the log handler with the specified properties at runtime.
-   */
-  interface LogHandlerFactory {
-    /**
-     * Gets the log service.
-     *
-     * @return the log service
-     */
-    LogHandler getLogHandler();
-
-    /** Reloads the log service. */
-    void reload();
-
-    /**
-     * Resets the log service with the specified properties.
-     *
-     * @param properties the new properties for the log service
-     */
-    void reset(@Nullable Properties properties);
-  }
-
-  /**
-   * The ConfiguredLogHandlerFactory class implements the LogHandlerFactory interface and provides a
-   * concrete implementation for getting the log service, reloading the log service, and resetting
-   * the log service with the specified properties.
-   */
-  static class ConfiguredLogHandlerFactory implements LogHandlerFactory {
-    private final Class<?> logServiceInterfaceClass;
-    private LogHandler logHandler;
-
-    /** Constructor for the ConfiguredLogHandlerFactory class. */
-    private ConfiguredLogHandlerFactory(Class<?> logServiceInterfaceClass) {
-      this.logServiceInterfaceClass = logServiceInterfaceClass;
-      logHandler =
-          new EventingLogHandler(ConfigurationProperties.byLoading(), logServiceInterfaceClass);
-    }
-
-    /**
-     * Gets the log service.
-     *
-     * @return the log service
-     */
-    @Override
-    public LogHandler getLogHandler() {
-      return logHandler;
-    }
-
-    /** Reloads the log service. */
-    @Override
-    public void reload() {
-      logHandler =
-          new EventingLogHandler(ConfigurationProperties.byLoading(), logServiceInterfaceClass);
-    }
-
-    /**
-     * Resets the log service with the specified properties.
-     *
-     * @param properties the new properties for the log service
-     */
-    @Override
-    public void reset(@Nullable Properties properties) {
-      logHandler = new EventingLogHandler(
-          ConfigurationProperties.bySetting(properties), logServiceInterfaceClass);
-    }
   }
 }

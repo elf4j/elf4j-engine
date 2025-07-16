@@ -33,12 +33,12 @@ import lombok.Value;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Implemented as a value class, so its instances are thread-safe and can be safely used as static,
- * instance, or local variables. However, the static factory method {@link Logger#instance()} is
- * more performance-wise expensive to call; it is not recommended for creating local Logger
- * variables. Instances factory methods such as {@link NativeLogger#atLevel(Level)} or
- * {@link Logger#atDebug()}, on the other hand, are inexpensive; they can be used to get any type
- * Logger variables as needed.
+ * Implemented as an unmodifiable value class. Once fully configured, it's instances are thread-safe
+ * and can be safely used as static, instance, or local variables. However, the static factory
+ * method {@link Logger#instance()} is more performance-wise expensive to call; it is not
+ * recommended for creating local Logger variables. Instances factory methods such as
+ * {@link NativeLogger#atLevel(Level)} or {@link Logger#atDebug()}, on the other hand, are
+ * inexpensive; they can be used to get any type Logger variables as needed.
  */
 @Value
 @ThreadSafe
@@ -88,6 +88,12 @@ public class NativeLogger implements Logger {
   String loggerName;
 
   Level level;
+
+  /**
+   * The state of this field may change while the log service configuration is in progress. Once
+   * fully configured, however, the state doesn't change at runtime, and the instance is
+   * thread-safe.
+   */
   NativeLogServiceProvider nativeLogServiceProvider;
 
   /**
@@ -99,8 +105,7 @@ public class NativeLogger implements Logger {
    *     logging operation.
    * @param nativeLogServiceProvider The log service access point to initialize Logger instances
    */
-  public NativeLogger(
-      String loggerName, Level level, NativeLogServiceProvider nativeLogServiceProvider) {
+  NativeLogger(String loggerName, Level level, NativeLogServiceProvider nativeLogServiceProvider) {
     this.loggerName = loggerName;
     this.level = level;
     this.nativeLogServiceProvider = nativeLogServiceProvider;

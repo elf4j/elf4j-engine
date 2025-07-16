@@ -3,8 +3,15 @@ package elf4j.engine.logging.writer;
 import elf4j.Level;
 import elf4j.engine.logging.pattern.LogPattern;
 import java.util.Properties;
+import lombok.NoArgsConstructor;
 
-/** Produces the default StandardStreamWriter based on the provided ConfigurationProperties. */
+/**
+ * Produces the default StandardStreamWriter based on the provided ConfigurationProperties.
+ *
+ * <p>To work with elf4j-engine, any implementation of the {@link LogWriterFactory} interface must
+ * have an accessible no-arg constructor
+ */
+@NoArgsConstructor
 class StandardStreamWriterFactory implements LogWriterFactory {
   private static StandardStreamWriter getDefaultWriter(Properties configurationProperties) {
     return StandardStreamWriter.builder()

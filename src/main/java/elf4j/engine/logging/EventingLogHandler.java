@@ -34,6 +34,8 @@ import elf4j.engine.logging.writer.LogWriter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -42,13 +44,20 @@ import org.jspecify.annotations.Nullable;
  * the log should include caller detail, for checking if a logger is enabled, and for logging a log
  * event.
  */
+@Value
+@EqualsAndHashCode
 public class EventingLogHandler implements LogHandler {
   private static final Logger LOGGER = Logger.getLogger(EventingLogHandler.class.getName());
-  private final Class<?> logServiceInterfaceClass;
-  private final boolean noop;
-  private final @Nullable LogWriter logWriter;
-  private final @Nullable LoggerOutputLevelThreshold loggerOutputLevelThreshold;
-  private final Map<String, Boolean> loggerEnabled = new ConcurrentHashMap<>();
+
+  Class<?> logServiceClass;
+  boolean noop;
+
+  @Nullable LogWriter logWriter;
+
+  @Nullable LoggerOutputLevelThreshold loggerOutputLevelThreshold;
+
+  @EqualsAndHashCode.Exclude
+  Map<String, Boolean> loggerNameEnablements = new ConcurrentHashMap<>();
 
   /**
    * Constructor for the EventingLogHandler class.
@@ -56,8 +65,8 @@ public class EventingLogHandler implements LogHandler {
    * @param configurationProperties parsed configuration for the logger service
    */
   public EventingLogHandler(
-      ConfigurationProperties configurationProperties, Class<?> logServiceInterfaceClass) {
-    this.logServiceInterfaceClass = logServiceInterfaceClass;
+      ConfigurationProperties configurationProperties, Class<?> logServiceClass) {
+    this.logServiceClass = logServiceClass;
     if (configurationProperties.isAbsent() || configurationProperties.isTrue("noop")) {
       noop = true;
       LOGGER.warning("No-op per configuration %s".formatted(configurationProperties));
@@ -96,9 +105,8 @@ public class EventingLogHandler implements LogHandler {
     }
     assert loggerOutputLevelThreshold != null;
     assert logWriter != null;
-    return loggerEnabled.computeIfAbsent(loggerName, callerClassName -> {
-      if (level.compareTo(loggerOutputLevelThreshold.getThresholdOutputLevel(callerClassName)) < 0)
-        return false;
+    return loggerNameEnablements.computeIfAbsent(loggerName, k -> {
+      if (level.compareTo(loggerOutputLevelThreshold.getThresholdOutputLevel(k)) < 0) return false;
       return level.compareTo(logWriter.getThresholdOutputLevel()) >= 0;
     });
   }
@@ -125,7 +133,7 @@ public class EventingLogHandler implements LogHandler {
         .callerFrame(
             includeCallerDetail()
                 ? LogEvent.StackFrameValue.from(
-                    StackTraces.callerFrameOf(logServiceInterfaceClass.getName()))
+                    StackTraces.callerFrameOf(logServiceClass.getName()))
                 : null)
         .build());
   }

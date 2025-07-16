@@ -25,6 +25,7 @@
 
 package elf4j.engine.logging.writer;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.awaitility.Awaitility.await;
 
 import conseq4j.execute.ConseqExecutor;
@@ -37,6 +38,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.awaitility.core.ConditionFactory;
 import org.jspecify.annotations.Nullable;
@@ -50,14 +52,16 @@ import org.slf4j.MDC;
  * caller thread will arrive sequentially in the same order as they are called in the original
  * thread.
  */
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stoppable {
   private static final Logger LOGGER = Logger.getLogger(CompositeWriter.class.getName());
+
+  @EqualsAndHashCode.Include
   private final List<LogWriter> writers;
+
   private final ConseqExecutor conseqExecutor;
   private @Nullable Level thresholdOutputLevel;
-
-  @ToString.Exclude
   private @Nullable Boolean includeCallerDetail;
 
   private CompositeWriter(List<LogWriter> writers, ConseqExecutor conseqExecutor) {
@@ -74,12 +78,12 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
    * @return the composite writer containing all writers configured in the specified properties
    */
   public static CompositeWriter from(ConfigurationProperties configurationProperties) {
-    List<LogWriterFactory> configuredLogWriters =
+    List<LogWriterFactory> configuredWriterFactories =
         new ArrayList<>(getLogWriterFactories(configurationProperties));
-    if (configuredLogWriters.isEmpty()) {
-      configuredLogWriters.add(new StandardStreamWriterFactory());
+    if (configuredWriterFactories.isEmpty()) {
+      configuredWriterFactories.add(new StandardStreamWriterFactory());
     }
-    List<LogWriter> logWriters = configuredLogWriters.stream()
+    List<LogWriter> logWriters = configuredWriterFactories.stream()
         .map(logWriterFactory ->
             logWriterFactory.getLogWriter(configurationProperties.getProperties()))
         .toList();
@@ -102,6 +106,7 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
     }
     return Arrays.stream(writerFactoryClassNames.split(","))
         .map(String::strip)
+        .filter(fqcn -> !isNullOrEmpty(fqcn))
         .map(fqcn -> {
           try {
             return (LogWriterFactory)
@@ -112,9 +117,10 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
               | NoSuchMethodException
               | ClassNotFoundException e) {
             LOGGER.severe(
-                "Unable to construct log writer factory: fqcn=%s - it must have a no-arg constructor and of type %s"
+                "Unable to construct log writer factory: fqcn='%s' - it must have a no-arg constructor and of type %s"
                     .formatted(fqcn, LogWriterFactory.class));
-            throw new IllegalArgumentException("Error instantiating: %s".formatted(fqcn), e);
+            throw new IllegalArgumentException(
+                "Error instantiating writer class '%s'".formatted(fqcn), e);
           }
         })
         .collect(Collectors.toList());
