@@ -45,7 +45,6 @@ import org.jspecify.annotations.Nullable;
  * event.
  */
 @Value
-@EqualsAndHashCode
 public class EventingLogHandler implements LogHandler {
   private static final Logger LOGGER = Logger.getLogger(EventingLogHandler.class.getName());
 
@@ -57,7 +56,7 @@ public class EventingLogHandler implements LogHandler {
   @Nullable LoggerOutputLevelThreshold loggerOutputLevelThreshold;
 
   @EqualsAndHashCode.Exclude
-  Map<String, Boolean> loggerNameEnablements = new ConcurrentHashMap<>();
+  Map<String, Boolean> loggerEnablementStatus = new ConcurrentHashMap<>();
 
   /**
    * Constructor for the EventingLogHandler class.
@@ -105,8 +104,10 @@ public class EventingLogHandler implements LogHandler {
     }
     assert loggerOutputLevelThreshold != null;
     assert logWriter != null;
-    return loggerNameEnablements.computeIfAbsent(loggerName, k -> {
-      if (level.compareTo(loggerOutputLevelThreshold.getThresholdOutputLevel(k)) < 0) return false;
+    return loggerEnablementStatus.computeIfAbsent(loggerName, k -> {
+      if (level.compareTo(loggerOutputLevelThreshold.getThresholdOutputLevel(k)) < 0) {
+        return false;
+      }
       return level.compareTo(logWriter.getThresholdOutputLevel()) >= 0;
     });
   }

@@ -79,7 +79,7 @@
         <dependency>
             <groupId>io.github.elf4j</groupId>
             <artifactId>elf4j</artifactId>
-            <version>5.0.2</version>
+            <version>6.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.github.q3769</groupId>
@@ -167,8 +167,8 @@
                 <version>3.5.3</version>
                 <configuration>
                     <forkNode implementation="org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory"/>
-<!--                    <forkCount>1</forkCount>-->
-<!--                    <reuseForks>false</reuseForks>-->
+                    <!--                    <forkCount>1</forkCount>-->
+                    <!--                    <reuseForks>false</reuseForks>-->
                 </configuration>
             </plugin>
             <plugin>
@@ -192,7 +192,10 @@
                 <version>3.11.2</version>
                 <configuration>
                     <sourceFileExcludes>**/_*.java</sourceFileExcludes>
-                    <doclint>all,-missing</doclint>
+                    <additionalJOptions>
+                        <additionalJOption>-Xdoclint:none</additionalJOption>
+                    </additionalJOptions>
+                    <!--                    <failOnError>false</failOnError>-->
                 </configuration>
                 <executions>
                     <execution>

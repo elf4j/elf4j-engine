@@ -48,7 +48,6 @@ import lombok.Value;
  * configured.
  */
 @Value
-@EqualsAndHashCode
 @Builder
 @ToString
 public class StandardStreamWriter implements LogWriter {

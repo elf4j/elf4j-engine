@@ -33,11 +33,11 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOption timeZoneOption)
     implements PatternElement {
-
   public static final DateTimeFormatter DEFAULT_DATE_TIME_FORMAT =
       DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSXXX");
 
@@ -62,6 +62,30 @@ public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOpti
       return TimeZoneOption.DEFAULT;
     }
     return TimeZoneOption.from(formatOptions.get(1));
+  }
+
+  /**
+   * {@link DateTimeFormatter} uses the same equals method as {@link Object#equals(Object)}. That
+   * has the undesired effect that two formatter instances of exactly the same configurations are
+   * considered not equal as they are two different instances. This method attempts to override that
+   * behavior.
+   *
+   * @param o the reference object with which to compare.
+   * @return true if timeZoneOption and dateTimeFormater of the two instances are considered "the
+   *     same"
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    TimestampElement that = (TimestampElement) o;
+    return timeZoneOption == that.timeZoneOption
+        && Objects.equals(
+            Objects.toString(dateTimeFormatter), Objects.toString(that.dateTimeFormatter));
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(Objects.toString(dateTimeFormatter), timeZoneOption);
   }
 
   @Override

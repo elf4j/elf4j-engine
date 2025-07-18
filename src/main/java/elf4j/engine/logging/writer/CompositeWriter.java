@@ -49,19 +49,34 @@ import org.slf4j.MDC;
  * threads. However, events issued by the same caller application thread are rendered sequentially
  * with the {@link ConseqExecutor} API. Thus, logs by different caller threads may arrive at the
  * final destination (e.g. system Console or a log file) in any order; meanwhile, logs from the same
- * caller thread will arrive sequentially in the same order as they are called in the original
- * thread.
+ * caller thread will arrive sequentially in the same order as they are called by such thread.
  */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stoppable {
   private static final Logger LOGGER = Logger.getLogger(CompositeWriter.class.getName());
+  private static final LogWriterFactory DEFAULT_WRITER_FACTORY = new StandardStreamWriterFactory();
 
+  /** Composed writers are created based on configuration properties. */
   @EqualsAndHashCode.Include
   private final List<LogWriter> writers;
 
+  /**
+   * The async executor's concurrency is based on configuration properties. If omitted, the default
+   * concurrency is determined by the <a href="https://q3769.github.io/conseq4j">conseq4j API</a>
+   */
   private final ConseqExecutor conseqExecutor;
+
+  /**
+   * The lowest threshold output Level of all configured log writers, cached after deriving from the
+   * writers.
+   */
   private @Nullable Level thresholdOutputLevel;
+
+  /**
+   * {@code true} if any of the configured log writer's log pattern requires run-time caller detail,
+   * cached after deriving from the writers.
+   */
   private @Nullable Boolean includeCallerDetail;
 
   private CompositeWriter(List<LogWriter> writers, ConseqExecutor conseqExecutor) {
@@ -81,7 +96,7 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
     List<LogWriterFactory> configuredWriterFactories =
         new ArrayList<>(getLogWriterFactories(configurationProperties));
     if (configuredWriterFactories.isEmpty()) {
-      configuredWriterFactories.add(new StandardStreamWriterFactory());
+      configuredWriterFactories.add(DEFAULT_WRITER_FACTORY);
     }
     List<LogWriter> logWriters = configuredWriterFactories.stream()
         .map(logWriterFactory ->

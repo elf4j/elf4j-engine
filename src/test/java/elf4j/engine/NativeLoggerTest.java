@@ -83,11 +83,10 @@ class NativeLoggerTest {
 
     @Test
     void delegateToService() {
-      NativeLogServiceProvider nativeLogServiceProvider = mock(NativeLogServiceProvider.class);
+      NativeLoggerFactory nativeLoggerFactory = mock(NativeLoggerFactory.class);
       LogHandler logHandler = mock(LogHandler.class);
-      given(nativeLogServiceProvider.getLogHandler()).willReturn(logHandler);
-      NativeLogger sut =
-          new NativeLogger(this.getClass().getName(), INFO, nativeLogServiceProvider);
+      given(nativeLoggerFactory.getLogHandler()).willReturn(logHandler);
+      NativeLogger sut = new NativeLogger(this.getClass().getName(), INFO, nativeLoggerFactory);
 
       sut.isEnabled();
 
@@ -101,7 +100,7 @@ class NativeLoggerTest {
     LogHandler logHandler;
 
     @Mock
-    NativeLogServiceProvider nativeLogServiceProvider;
+    NativeLoggerFactory nativeLoggerFactory;
 
     NativeLogger sut;
     String plainTextMessage = "plainTextMessage";
@@ -111,8 +110,8 @@ class NativeLoggerTest {
 
     @BeforeEach
     void beforeEach() {
-      given(nativeLogServiceProvider.getLogHandler()).willReturn(logHandler);
-      sut = new NativeLogger(NativeLoggerTest.class.getName(), INFO, nativeLogServiceProvider);
+      given(nativeLoggerFactory.getLogHandler()).willReturn(logHandler);
+      sut = new NativeLogger(NativeLoggerTest.class.getName(), INFO, nativeLoggerFactory);
     }
 
     @Test

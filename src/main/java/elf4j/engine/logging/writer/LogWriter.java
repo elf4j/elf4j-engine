@@ -31,8 +31,9 @@ import elf4j.engine.logging.PerformanceSensitive;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * An interface representing a log writer responsible for writing log events to an output
- * destination. Implementations of this interface should be thread-safe.
+ * An interface representing a log writer responsible for writing/shipping fully rendered log
+ * messages to an output destination e.g. the STDOUT stream, a log file, or a remote vendor log
+ * collector (Datadog, Newrelic, ...). Implementations of this interface should be thread-safe.
  *
  * @see PerformanceSensitive
  */

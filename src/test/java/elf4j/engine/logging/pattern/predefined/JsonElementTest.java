@@ -29,20 +29,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import elf4j.Level;
-import elf4j.engine.NativeLogServiceProvider;
 import elf4j.engine.logging.LogEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class JsonElementTest {
-  @Mock
-  NativeLogServiceProvider mockNativeLogServiceProvider;
-
   LogEvent mockLogEvent;
   String mockMessage = "testLogMessage {}";
 

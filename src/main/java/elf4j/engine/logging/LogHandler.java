@@ -34,10 +34,10 @@ public interface LogHandler extends PerformanceSensitive {
    * Checks if the logger's level is at or above the configured threshold.
    *
    * @param level the log level to check against the caller class threshold level
-   * @param callerClass whose threshold level to check against the specified log level
+   * @param loggerName whose threshold level to check against the specified log level
    * @return true if the logger's level is at or above the configured threshold, false otherwise
    */
-  boolean isEnabled(Level level, String callerClass);
+  boolean isEnabled(Level level, String loggerName);
 
   /**
    * Service a log operation at the specified level, for the specified caller class

@@ -89,15 +89,26 @@ public record LogPattern(List<PatternElement> patternElements) implements Patter
   }
 
   /**
-   * Renders the log event and appends it to the specified StringBuilder.
+   * Renders the log event and appends it to the specified StringBuilder target.
+   *
+   * <p>Although thread-safe as with any PatternElement operations, walking over the entire List of
+   * render elements does not have to be atomic (i.e. synchronization/locking is not needed during
+   * the walk). As long as each caller thread has its own copies of the specified logEvent and
+   * render target, different threads can traverse the same List of render elements at the same time
+   * while each thread populating its own copy of render target. The target will not be flushed to
+   * the final log destination (e.g. the STDOUT stream or a log file) during the walk until after
+   * the target is fully populated by all the render elements.
+   *
+   * <p>Different logEvents of the same caller thread must be sent to this method one at a time in
+   * sequence, which is naturally the case from the caller client. The same calling sequence is
+   * preserved during the log processing via the <a
+   * href="https://q3769.github.io/conseq4j/">conseq4j API</a>
    *
    * @param logEvent the log event to render
    * @param target the StringBuilder to append the rendered log event to
    */
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    for (PatternElement pattern : patternElements) {
-      pattern.render(logEvent, target);
-    }
+    patternElements.forEach(element -> element.render(logEvent, target));
   }
 }

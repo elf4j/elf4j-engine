@@ -53,26 +53,30 @@ class ConfiguredLogHandlerFactoryTest {
 
     @Test
     void whenRefreshedBySetting() {
-      LogHandler old = sut.getLogHandler();
       Properties properties = new Properties();
 
       sut.refresh(properties);
+      LogHandler handler = sut.getLogHandler();
+      sut.refresh(properties);
+      LogHandler handler2 = sut.getLogHandler();
 
-      LogHandler reset = sut.getLogHandler();
-      assertNotSame(old, reset, "refresh() should always results in a new LogHandler instance");
-      assertNotEquals(
-          old,
-          reset,
-          "Should not be equal as the reset LogHandler using different configuration properties");
+      assertNotSame(
+          handler,
+          handler2,
+          "factory refresh() should always results in a new LogHandler instance");
+      assertEquals(
+          handler,
+          handler2,
+          "same configuration properties should result in different yet equal handlers");
     }
 
     @Test
     void whenRefreshedByLoading() {
-      LogHandler old = sut.getLogHandler();
-
       sut.refresh();
-
+      LogHandler old = sut.getLogHandler();
+      sut.refresh();
       LogHandler reloaded = sut.getLogHandler();
+
       assertNotSame(old, reloaded, "refresh() should always results in a new LogHandler instance");
       assertEquals(
           old,
