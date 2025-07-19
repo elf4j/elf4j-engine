@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import lombok.Builder;
 
 public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOption timeZoneOption)
     implements PatternElement {
@@ -77,15 +78,12 @@ public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOpti
   @Override
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
-    TimestampElement that = (TimestampElement) o;
-    return timeZoneOption == that.timeZoneOption
-        && Objects.equals(
-            Objects.toString(dateTimeFormatter), Objects.toString(that.dateTimeFormatter));
+    return ComparisonCopy.from(this).equals(ComparisonCopy.from((TimestampElement) o));
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(Objects.toString(dateTimeFormatter), timeZoneOption);
+    return Objects.hash(ComparisonCopy.from(this));
   }
 
   @Override
@@ -113,6 +111,16 @@ public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOpti
           .orElseThrow(() ->
               new IllegalArgumentException("Unknown time zone option: %s. Valid options are: %s"
                   .formatted(timeZoneOption, Arrays.toString(TimeZoneOption.values()))));
+    }
+  }
+
+  @Builder
+  private record ComparisonCopy(String dateTimeFormatter, TimeZoneOption timeZoneOption) {
+    public static ComparisonCopy from(TimestampElement timestampElement) {
+      return ComparisonCopy.builder()
+          .dateTimeFormatter(Objects.toString(timestampElement.dateTimeFormatter))
+          .timeZoneOption(timestampElement.timeZoneOption)
+          .build();
     }
   }
 }
