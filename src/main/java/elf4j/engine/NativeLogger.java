@@ -42,7 +42,7 @@ import org.jspecify.annotations.Nullable;
  * inexpensive; they can be used to get any type Logger variables as needed.
  */
 @ThreadSafe
-public class NativeLogger implements Logger {
+public final class NativeLogger implements Logger {
   @Getter
   private final LoggerId loggerId;
 
