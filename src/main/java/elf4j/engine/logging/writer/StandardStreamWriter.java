@@ -45,7 +45,6 @@ import lombok.Value;
  * configured.
  */
 @Value
-@Builder
 @ToString
 public class StandardStreamWriter implements LogWriter {
   static final String DEFAULT_THRESHOLD_OUTPUT_LEVEL = "trace";
@@ -54,11 +53,23 @@ public class StandardStreamWriter implements LogWriter {
   static final String LINE_FEED = System.lineSeparator();
 
   @EqualsAndHashCode.Exclude
-  StandardOutput standardOutput = new StandardOutput();
+  StandardOutput standardOutput;
 
   Level minimumThresholdLevel;
   PatternElement logPattern;
   OutStreamType outStreamType;
+
+  @Builder
+  private StandardStreamWriter(
+      Level minimumThresholdLevel, PatternElement logPattern, OutStreamType outStreamType) {
+    this.minimumThresholdLevel = minimumThresholdLevel;
+    this.logPattern = logPattern;
+    this.outStreamType = outStreamType;
+    this.standardOutput = switch (outStreamType) {
+      case STDOUT -> new StandardOutput(System.out);
+      case STDERR -> new StandardOutput(System.err);
+    };
+  }
 
   /**
    * Returns the threshold output level for this log writer.
@@ -84,10 +95,7 @@ public class StandardStreamWriter implements LogWriter {
     StringBuilder target = new StringBuilder();
     logPattern.render(logEvent, target);
     byte[] bytes = target.append(LINE_FEED).toString().getBytes(StandardCharsets.UTF_8);
-    switch (outStreamType) {
-      case STDOUT -> standardOutput.out(bytes);
-      case STDERR -> standardOutput.err(bytes);
-    }
+    standardOutput.flushOut(bytes);
   }
 
   /**
@@ -110,23 +118,17 @@ public class StandardStreamWriter implements LogWriter {
    * Implementation of the StandardOutput interface that writes to the standard output and standard
    * error streams using FileOutputStream and synchronizes access using a ReentrantLock.
    */
-  @ToString
-  private static final class StandardOutput {
+  private record StandardOutput(OutputStream outputStream) {
     private static final Logger LOGGER = Logger.getLogger(StandardOutput.class.getName());
 
-    private static OutputStream requireStandardType(OutputStream outputStream) {
+    private StandardOutput(OutputStream outputStream) {
+      OutputStream result;
       if (outputStream == System.out || outputStream == System.err) {
-        return outputStream;
+        result = outputStream;
+      } else {
+        throw new IllegalArgumentException("Not a standard output stream type: " + outputStream);
       }
-      throw new IllegalArgumentException("Not a standard output stream type: " + outputStream);
-    }
-
-    public void out(byte[] bytes) {
-      flush(bytes, System.out);
-    }
-
-    public void err(byte[] bytes) {
-      flush(bytes, System.err);
+      this.outputStream = result;
     }
 
     /**
@@ -141,19 +143,18 @@ public class StandardStreamWriter implements LogWriter {
      *     self-controlled immediately after the write, instead of controlled by other/outside code
      *     sharing the same {@code System.out} and {@code System.err}.
      * @param bytes to write to the specified standard stream
-     * @param outputStream the standard stream to which to write the specified bytes
      */
-    private void flush(byte[] bytes, OutputStream outputStream) {
-      synchronized (requireStandardType(outputStream)) {
-        try {
+    public void flushOut(byte[] bytes) {
+      try {
+        synchronized (outputStream) {
           outputStream.write(bytes);
           outputStream.flush();
-        } catch (IOException e) {
-          LOGGER.log(
-              java.util.logging.Level.SEVERE,
-              "Failed to write bytes[] of length %s to %s".formatted(bytes.length, outputStream),
-              e);
         }
+      } catch (IOException e) {
+        LOGGER.log(
+            java.util.logging.Level.SEVERE,
+            "Failed to write bytes[] of length %s to %s".formatted(bytes.length, outputStream),
+            e);
       }
     }
   }
