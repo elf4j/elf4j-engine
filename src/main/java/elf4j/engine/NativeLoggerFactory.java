@@ -75,9 +75,9 @@ public class NativeLoggerFactory implements LoggerFactory {
   /**
    * Default constructor required by {@link ServiceLoader}
    *
-   * @apiNote This constructor is required by the {@link ServiceLoader} framework when working as an
-   *     elf4j service provider. It is not meant to be used by the client code, or for other logging
-   *     API trying to use this as a generic log engine.
+   * @apiNote This no-arg constructor is required by the {@link ServiceLoader} framework when
+   *     working as an elf4j service provider. It is not meant to be used by the client code or
+   *     other logging API trying to use this as a generic log engine.
    */
   @SuppressWarnings("unused")
   public NativeLoggerFactory() {
@@ -90,10 +90,10 @@ public class NativeLoggerFactory implements LoggerFactory {
    * @param logServiceAccessClass the concrete implementation of the log service access API. In this
    *     case, since the sole log service access API is the static method {@link Logger#instance()},
    *     the service access class is always the {@code Logger} interface itself.
-   * @apiNote This constructor can be used by other logging frameworks trying to use this as its log
-   *     engine. The specified log service access class is whatever class the other framework uses
-   *     to provide access/factory method(s) for the client code to obtain/gain a reference to call
-   *     the log service operations.
+   * @apiNote This constructor can be used by other logging frameworks trying to use this as its own
+   *     log engine. The specified log service access class is whatever class the other framework
+   *     uses to provide access/factory method(s) for the client code to obtain/gain a reference to
+   *     call the log service operations.
    */
   public NativeLoggerFactory(Class<?> logServiceAccessClass) {
     this(logServiceAccessClass, DEFAULT_LOGGER_SEVERITY_LEVEL, new ConfiguredLogHandlerFactory());
