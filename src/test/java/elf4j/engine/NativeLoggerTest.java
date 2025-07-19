@@ -36,6 +36,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
 import elf4j.Logger;
+import elf4j.engine.logging.ConfiguredLogHandlerFactory;
 import elf4j.engine.logging.LogHandler;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
@@ -83,11 +84,12 @@ class NativeLoggerTest {
 
     @Test
     void delegateToService() {
-      NativeLoggerFactory nativeLoggerFactory = mock(NativeLoggerFactory.class);
+      ConfiguredLogHandlerFactory configuredLogHandlerFactory =
+          mock(ConfiguredLogHandlerFactory.class);
       LogHandler logHandler = mock(LogHandler.class);
-      given(nativeLoggerFactory.getLogHandler()).willReturn(logHandler);
+      given(configuredLogHandlerFactory.getLogHandler()).willReturn(logHandler);
       NativeLogger sut = new NativeLogger(
-          new NativeLogger.LoggerId(this.getClass().getName(), INFO), nativeLoggerFactory);
+          new NativeLogger.LoggerId(this.getClass().getName(), INFO), configuredLogHandlerFactory);
 
       sut.isEnabled();
 
@@ -103,7 +105,7 @@ class NativeLoggerTest {
     LogHandler logHandler;
 
     @Mock
-    NativeLoggerFactory nativeLoggerFactory;
+    ConfiguredLogHandlerFactory configuredLogHandlerFactory;
 
     NativeLogger sut;
     String plainTextMessage = "plainTextMessage";
@@ -113,9 +115,10 @@ class NativeLoggerTest {
 
     @BeforeEach
     void beforeEach() {
-      given(nativeLoggerFactory.getLogHandler()).willReturn(logHandler);
+      given(configuredLogHandlerFactory.getLogHandler()).willReturn(logHandler);
       sut = new NativeLogger(
-          new NativeLogger.LoggerId(NativeLoggerTest.class.getName(), INFO), nativeLoggerFactory);
+          new NativeLogger.LoggerId(NativeLoggerTest.class.getName(), INFO),
+          configuredLogHandlerFactory);
     }
 
     @Test

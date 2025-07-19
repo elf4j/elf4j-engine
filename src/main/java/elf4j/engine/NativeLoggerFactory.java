@@ -28,13 +28,10 @@ package elf4j.engine;
 import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.logging.ConfiguredLogHandlerFactory;
-import elf4j.engine.logging.LogHandler;
 import elf4j.engine.logging.LogHandlerFactory;
 import elf4j.engine.logging.util.StackTraces;
 import elf4j.spi.LoggerFactory;
-import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.MdcAdapterInitializer;
 
 /**
@@ -75,9 +72,6 @@ public class NativeLoggerFactory implements LoggerFactory {
 
   private final LogHandlerFactory logHandlerFactory;
 
-  /** A map of native loggers, categorized by their level. */
-  private final Map<NativeLogger.LoggerId, NativeLogger> nativeLoggers = new ConcurrentHashMap<>();
-
   /** Default constructor required by {@link ServiceLoader} */
   @SuppressWarnings("unused")
   public NativeLoggerFactory() {
@@ -105,7 +99,7 @@ public class NativeLoggerFactory implements LoggerFactory {
    * @param logHandlerFactory the factory for native log handler. Capable of reconfiguring the
    *     handler at runtime.
    */
-  NativeLoggerFactory(
+  private NativeLoggerFactory(
       Level defaultLoggerLevel,
       Class<?> logServiceAccessClass,
       LogHandlerFactory logHandlerFactory) {
@@ -123,28 +117,10 @@ public class NativeLoggerFactory implements LoggerFactory {
    */
   @Override
   public NativeLogger getLogger() {
-    return getLogger(new NativeLogger.LoggerId(
-        StackTraces.callerFrameOf(logServiceAccessClass.getName()).getClassName(),
-        defaultLoggerLevel));
-  }
-
-  /**
-   * Gets the log service.
-   *
-   * @return the log service
-   */
-  LogHandler getLogHandler() {
-    return logHandlerFactory.getLogHandler();
-  }
-
-  /**
-   * Gets a logger with the specified level and (access API caller class) name. Should be
-   * performance-wise inexpensive to call.
-   *
-   * @return the logger service instance
-   * @implNote Use caching for speed
-   */
-  NativeLogger getLogger(NativeLogger.LoggerId loggerId) {
-    return nativeLoggers.computeIfAbsent(loggerId, k -> new NativeLogger(loggerId, this));
+    return new NativeLogger(
+        new NativeLogger.LoggerId(
+            StackTraces.callerFrameOf(logServiceAccessClass.getName()).getClassName(),
+            defaultLoggerLevel),
+        logHandlerFactory);
   }
 }

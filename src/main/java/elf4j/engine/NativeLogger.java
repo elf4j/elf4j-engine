@@ -28,49 +28,46 @@ package elf4j.engine;
 import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.logging.LogHandler;
+import elf4j.engine.logging.LogHandlerFactory;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Value;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Implemented as an unmodifiable value class. Once fully configured, it's instances are thread-safe
- * and can be safely used as static, instance, or local variables. However, the static factory
- * method {@link Logger#instance()} is more performance-wise expensive to call; it is not
- * recommended for creating local Logger variables. Instances factory methods such as
- * {@link NativeLogger#atLevel(Level)} or {@link Logger#atDebug()}, on the other hand, are
- * inexpensive; they can be used to get any type Logger variables as needed.
+ * and can be safely used as static, instance, or local variables. However, getting an instance of
+ * this logger class via the static factory method {@link Logger#instance()} is more
+ * performance-wise expensive to call; it is recommended using it on static variables, and not local
+ * variables. Instances factory methods such as {@link NativeLogger#atLevel(Level)} or
+ * {@link Logger#atDebug()}, on the other hand, are inexpensive; they can be used to get any type
+ * Logger variables as needed.
  */
 @ThreadSafe
-public final class NativeLogger implements Logger {
+@Value
+public class NativeLogger implements Logger {
   private static final Class<NativeLogger> LOG_SERVICE_CLASS = NativeLogger.class;
 
-  @Getter
-  private final LoggerId loggerId;
-
-  /**
-   * The state of this field may change while the log service configuration is in progress. Once
-   * fully configured, however, the state doesn't change at runtime, and the instance is
-   * thread-safe.
-   */
-  NativeLoggerFactory nativeLoggerFactory;
+  LoggerId loggerId;
+  LogHandlerFactory logHandlerFactory;
 
   /**
    * Constructs a new instance of the NativeLogger class specifically dedicated to service the
    * specified caller class and at the desired log level.
    *
-   * @param nativeLoggerFactory The log service access point to initialize Logger instances
+   * @param loggerId the logger id to look up configurations for
+   * @param logHandlerFactory the log handler factory to use for this logger instance
    */
-  NativeLogger(LoggerId loggerId, NativeLoggerFactory nativeLoggerFactory) {
+  NativeLogger(LoggerId loggerId, LogHandlerFactory logHandlerFactory) {
     this.loggerId = loggerId;
-    this.nativeLoggerFactory = nativeLoggerFactory;
+    this.logHandlerFactory = logHandlerFactory;
   }
 
   @Override
   public NativeLogger atLevel(Level level) {
     return loggerId.level() == level
         ? this
-        : this.nativeLoggerFactory.getLogger(loggerId.toBuilder().level(level).build());
+        : new NativeLogger(loggerId.toBuilder().level(level).build(), logHandlerFactory);
   }
 
   @Override
@@ -115,7 +112,7 @@ public final class NativeLogger implements Logger {
    * @return directly accessible log handler
    */
   public LogHandler getLogHandler() {
-    return this.nativeLoggerFactory.getLogHandler();
+    return logHandlerFactory.getLogHandler();
   }
 
   private void handle(
