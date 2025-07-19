@@ -125,6 +125,7 @@ class NativeLoggerTest {
       then(logHandler)
           .should()
           .log(
+              same(NativeLogger.class),
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
               same(exception),
               isNull(),
@@ -138,6 +139,7 @@ class NativeLoggerTest {
       then(logHandler)
           .should()
           .log(
+              same(NativeLogger.class),
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
               same(exception),
               same(plainTextMessage),
@@ -151,6 +153,7 @@ class NativeLoggerTest {
       then(logHandler)
           .should()
           .log(
+              same(NativeLogger.class),
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
               same(exception),
               same(textMessageWithArgHolders),
@@ -164,6 +167,7 @@ class NativeLoggerTest {
       then(logHandler)
           .should()
           .log(
+              same(NativeLogger.class),
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
               isNull(),
               same(textMessageWithArgHolders),
@@ -177,6 +181,7 @@ class NativeLoggerTest {
       then(logHandler)
           .should()
           .log(
+              same(NativeLogger.class),
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
               isNull(),
               same(plainTextMessage),

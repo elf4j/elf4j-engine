@@ -56,10 +56,11 @@ class EventingLogHandlerTest {
     @Test
     void whenInvokingLog() {
       EventingLogHandler eventingLogHandler =
-          spy(new EventingLogHandler(ConfigurationProperties.bySetting(null), NativeLogger.class));
+          spy(new EventingLogHandler(ConfigurationProperties.bySetting(null)));
       String loggerName = this.getClass().getName();
 
-      eventingLogHandler.log(new NativeLogger.LoggerId(loggerName, Level.INFO), null, null, null);
+      eventingLogHandler.log(
+          NativeLogger.class, new NativeLogger.LoggerId(loggerName, Level.INFO), null, null, null);
 
       then(eventingLogHandler)
           .should()
@@ -72,29 +73,41 @@ class EventingLogHandlerTest {
 
     @Test
     void callWriter() {
-      LogHandler logHandler = new EventingLogHandler(
-          ConfigurationProperties.bySetting(new Properties()), NativeLogger.class);
+      LogHandler logHandler =
+          new EventingLogHandler(ConfigurationProperties.bySetting(new Properties()));
       LogWriter mockLogWriter = mock(LogWriter.class);
       ReflectionTestUtils.setField(logHandler, "logWriter", mockLogWriter);
       given(mockLogWriter.getMinimumThresholdLevel()).willReturn(Level.INFO);
 
       logHandler.log(
-          new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO), null, null, null);
+          logHandler
+              .getClass(), // no log service implementation class here as the handler is called
+          // directly
+          // and not via log service API, only need a class here whose runtime caller class will be
+          // used to render the log caller detail
+          new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO),
+          null,
+          null,
+          null);
 
       then(mockLogWriter).should().write(any(LogEvent.class));
     }
 
     @Test
     void whenCallerDetailRequired() {
-      LogHandler sut = new EventingLogHandler(
-          ConfigurationProperties.bySetting(new Properties()), EventingLogHandler.class);
+      LogHandler sut = new EventingLogHandler(ConfigurationProperties.bySetting(new Properties()));
       LogWriter logWriter = mock(LogWriter.class);
       ReflectionTestUtils.setField(sut, "logWriter", logWriter);
       given(logWriter.includeCallerDetail()).willReturn(true);
       given(logWriter.getMinimumThresholdLevel()).willReturn(Level.INFO);
       ArgumentCaptor<LogEvent> logEvent = ArgumentCaptor.forClass(LogEvent.class);
 
-      sut.log(new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO), null, null, null);
+      sut.log(
+          sut.getClass(),
+          new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO),
+          null,
+          null,
+          null);
 
       then(logWriter).should().write(logEvent.capture());
       assertEquals(
@@ -108,15 +121,19 @@ class EventingLogHandlerTest {
 
     @Test
     void whenCallerDetailNotRequired() {
-      LogHandler sut = new EventingLogHandler(
-          ConfigurationProperties.bySetting(new Properties()), NativeLogger.class);
+      LogHandler sut = new EventingLogHandler(ConfigurationProperties.bySetting(new Properties()));
       LogWriter logWriter = mock(LogWriter.class);
       ReflectionTestUtils.setField(sut, "logWriter", logWriter);
       given(logWriter.includeCallerDetail()).willReturn(false);
       given(logWriter.getMinimumThresholdLevel()).willReturn(Level.INFO);
       ArgumentCaptor<LogEvent> logEvent = ArgumentCaptor.forClass(LogEvent.class);
 
-      sut.log(new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO), null, null, null);
+      sut.log(
+          sut.getClass(),
+          new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO),
+          null,
+          null,
+          null);
 
       then(logWriter).should().write(logEvent.capture());
       assertEquals(
@@ -130,13 +147,17 @@ class EventingLogHandlerTest {
 
     @Test
     void onlyLogWhenEnabled() {
-      LogHandler sut = new EventingLogHandler(
-          ConfigurationProperties.bySetting(new Properties()), NativeLogger.class);
+      LogHandler sut = new EventingLogHandler(ConfigurationProperties.bySetting(new Properties()));
       LogWriter logWriter = mock(LogWriter.class);
       ReflectionTestUtils.setField(sut, "logWriter", logWriter);
       given(logWriter.getMinimumThresholdLevel()).willReturn(Level.INFO);
 
-      sut.log(new NativeLogger.LoggerId(this.getClass().getName(), Level.TRACE), null, null, null);
+      sut.log(
+          sut.getClass(),
+          new NativeLogger.LoggerId(this.getClass().getName(), Level.TRACE),
+          null,
+          null,
+          null);
 
       then(logWriter).should(never()).write(any(LogEvent.class));
     }

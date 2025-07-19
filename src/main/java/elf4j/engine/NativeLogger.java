@@ -43,6 +43,8 @@ import org.jspecify.annotations.Nullable;
  */
 @ThreadSafe
 public final class NativeLogger implements Logger {
+  private static final Class<NativeLogger> LOG_SERVICE_CLASS = NativeLogger.class;
+
   @Getter
   private final LoggerId loggerId;
 
@@ -118,7 +120,7 @@ public final class NativeLogger implements Logger {
 
   private void handle(
       @Nullable Throwable throwable, @Nullable Object message, Object @Nullable [] arguments) {
-    getLogHandler().log(loggerId, throwable, message, arguments);
+    getLogHandler().log(LOG_SERVICE_CLASS, loggerId, throwable, message, arguments);
   }
 
   @Builder(toBuilder = true)

@@ -35,13 +35,11 @@ import org.jspecify.annotations.Nullable;
  */
 public class ConfiguredLogHandlerFactory
     implements LogHandlerFactory, NativeLogServiceManager.Refreshable {
-  private final Class<?> logServiceClass;
   private LogHandler logHandler;
 
   /** Constructor for the ConfiguredLogHandlerFactory class. */
-  public ConfiguredLogHandlerFactory(Class<?> logServiceClass) {
-    this.logServiceClass = logServiceClass;
-    logHandler = new EventingLogHandler(ConfigurationProperties.byLoading(), logServiceClass);
+  public ConfiguredLogHandlerFactory() {
+    logHandler = new EventingLogHandler(ConfigurationProperties.byLoading());
     NativeLogServiceManager.INSTANCE.register(this);
   }
 
@@ -57,7 +55,7 @@ public class ConfiguredLogHandlerFactory
 
   /** Reloads the log service. */
   private void reload() {
-    logHandler = new EventingLogHandler(ConfigurationProperties.byLoading(), logServiceClass);
+    logHandler = new EventingLogHandler(ConfigurationProperties.byLoading());
   }
 
   /**
@@ -66,8 +64,7 @@ public class ConfiguredLogHandlerFactory
    * @param properties the new properties for the log service
    */
   private void reset(@Nullable Properties properties) {
-    logHandler =
-        new EventingLogHandler(ConfigurationProperties.bySetting(properties), logServiceClass);
+    logHandler = new EventingLogHandler(ConfigurationProperties.bySetting(properties));
   }
 
   @Override

@@ -38,17 +38,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.jspecify.annotations.Nullable;
 
-/**
- * The EventingLogHandler class implements the LogHandler interface and is responsible for
- * converting a log request into an event for async processing. It provides methods for checking if
- * the log should include caller detail, for checking if a logger is enabled, and for logging a log
- * event.
- */
+/** Processing a logging request by converting it into an event for async processing. */
 @Value
 public class EventingLogHandler implements LogHandler {
   private static final Logger LOGGER = Logger.getLogger(EventingLogHandler.class.getName());
 
-  Class<?> logServiceClass;
   boolean noop;
 
   @Nullable LogWriter logWriter;
@@ -63,9 +57,7 @@ public class EventingLogHandler implements LogHandler {
    *
    * @param configurationProperties parsed configuration for the logger service
    */
-  public EventingLogHandler(
-      ConfigurationProperties configurationProperties, Class<?> logServiceClass) {
-    this.logServiceClass = logServiceClass;
+  public EventingLogHandler(ConfigurationProperties configurationProperties) {
     if (configurationProperties.isAbsent() || configurationProperties.isTrue("noop")) {
       noop = true;
       LOGGER.warning("No-op per configuration %s".formatted(configurationProperties));
@@ -77,18 +69,6 @@ public class EventingLogHandler implements LogHandler {
     logWriter = CompositeWriter.from(configurationProperties);
     loggerOutputMinimumLevelThreshold =
         LoggerOutputMinimumLevelThreshold.from(configurationProperties);
-  }
-
-  /**
-   * Checks if the log should include caller detail such as method, line number, etc.
-   *
-   * @return false as the context element does not include caller detail
-   */
-  @Override
-  public boolean includeCallerDetail() {
-    assert !noop;
-    assert logWriter != null;
-    return logWriter.includeCallerDetail();
   }
 
   /**
@@ -116,6 +96,7 @@ public class EventingLogHandler implements LogHandler {
 
   @Override
   public void log(
+      Class<?> logServiceClass,
       NativeLogger.LoggerId loggerId,
       @Nullable Throwable throwable,
       @Nullable Object message,
@@ -133,7 +114,7 @@ public class EventingLogHandler implements LogHandler {
         .arguments(arguments)
         .loggerName(loggerId.loggerName())
         .callerFrame(
-            includeCallerDetail()
+            logWriter.includeCallerDetail()
                 ? LogEvent.StackFrameValue.from(
                     StackTraces.callerFrameOf(logServiceClass.getName()))
                 : null)

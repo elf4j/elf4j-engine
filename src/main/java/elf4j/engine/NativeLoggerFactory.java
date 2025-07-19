@@ -55,6 +55,7 @@ import org.slf4j.MdcAdapterInitializer;
  */
 public class NativeLoggerFactory implements LoggerFactory {
   private static final Level DEFAULT_LOGGER_SEVERITY_LEVEL = Level.INFO;
+  private static final Class<Logger> LOG_SERVICE_ACCESS_CLASS = Logger.class;
 
   /** Made injectable for extensions other than this native ELF4J implementation */
   private final Level defaultLoggerLevel;
@@ -80,7 +81,7 @@ public class NativeLoggerFactory implements LoggerFactory {
   /** Default constructor required by {@link ServiceLoader} */
   @SuppressWarnings("unused")
   public NativeLoggerFactory() {
-    this(Logger.class, NativeLogger.class);
+    this(LOG_SERVICE_ACCESS_CLASS);
   }
 
   /**
@@ -89,14 +90,9 @@ public class NativeLoggerFactory implements LoggerFactory {
    * @param logServiceAccessClass the concrete implementation of the log service access API. In this
    *     case, since the sole log service access API is the static method {@link Logger#instance()},
    *     the service access class is always the {@code Logger} interface itself.
-   * @param logServiceClass the concrete implementation of the log service interface API. In this
-   *     case, it is the {@code NativeLogger} class, as opposed to the {@code Logger} interface.
    */
-  public NativeLoggerFactory(Class<?> logServiceAccessClass, Class<?> logServiceClass) {
-    this(
-        DEFAULT_LOGGER_SEVERITY_LEVEL,
-        logServiceAccessClass,
-        new ConfiguredLogHandlerFactory(logServiceClass));
+  public NativeLoggerFactory(Class<?> logServiceAccessClass) {
+    this(DEFAULT_LOGGER_SEVERITY_LEVEL, logServiceAccessClass, new ConfiguredLogHandlerFactory());
   }
 
   /**

@@ -27,7 +27,6 @@ package elf4j.engine.logging;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import elf4j.engine.NativeLogger;
 import java.util.Properties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -36,7 +35,7 @@ import org.junit.jupiter.api.Test;
 class ConfiguredLogHandlerFactoryTest {
   @Test
   void service() {
-    ConfiguredLogHandlerFactory sut = new ConfiguredLogHandlerFactory(NativeLogger.class);
+    ConfiguredLogHandlerFactory sut = new ConfiguredLogHandlerFactory();
     NativeLogServiceManager.INSTANCE.deregister(sut);
     assertNotNull(sut.getLogHandler());
   }
@@ -47,7 +46,7 @@ class ConfiguredLogHandlerFactoryTest {
 
     @BeforeEach
     void beforeEach() {
-      sut = new ConfiguredLogHandlerFactory(NativeLogger.class);
+      sut = new ConfiguredLogHandlerFactory();
       NativeLogServiceManager.INSTANCE.deregister(sut);
     }
 
