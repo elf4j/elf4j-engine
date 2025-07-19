@@ -120,7 +120,7 @@ public class EventingLogHandler implements LogHandler {
       @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments) {
-    if (!this.isEnabled(loggerId)) {
+    if (!isEnabled(loggerId)) {
       return;
     }
     assert logWriter != null;
