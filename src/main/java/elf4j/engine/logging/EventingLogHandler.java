@@ -25,9 +25,9 @@
 
 package elf4j.engine.logging;
 
-import elf4j.Level;
+import elf4j.engine.NativeLogger;
 import elf4j.engine.logging.config.ConfigurationProperties;
-import elf4j.engine.logging.config.LoggerOutputLevelThreshold;
+import elf4j.engine.logging.config.LoggerOutputMinimumLevelThreshold;
 import elf4j.engine.logging.util.StackTraces;
 import elf4j.engine.logging.writer.CompositeWriter;
 import elf4j.engine.logging.writer.LogWriter;
@@ -53,10 +53,10 @@ public class EventingLogHandler implements LogHandler {
 
   @Nullable LogWriter logWriter;
 
-  @Nullable LoggerOutputLevelThreshold loggerOutputLevelThreshold;
+  @Nullable LoggerOutputMinimumLevelThreshold loggerOutputMinimumLevelThreshold;
 
   @EqualsAndHashCode.Exclude
-  Map<String, Boolean> loggerEnablementStatus = new ConcurrentHashMap<>();
+  Map<NativeLogger.LoggerId, Boolean> loggerEnablements = new ConcurrentHashMap<>();
 
   /**
    * Constructor for the EventingLogHandler class.
@@ -70,12 +70,13 @@ public class EventingLogHandler implements LogHandler {
       noop = true;
       LOGGER.warning("No-op per configuration %s".formatted(configurationProperties));
       logWriter = null;
-      loggerOutputLevelThreshold = null;
+      loggerOutputMinimumLevelThreshold = null;
       return;
     }
     noop = false;
     logWriter = CompositeWriter.from(configurationProperties);
-    loggerOutputLevelThreshold = LoggerOutputLevelThreshold.from(configurationProperties);
+    loggerOutputMinimumLevelThreshold =
+        LoggerOutputMinimumLevelThreshold.from(configurationProperties);
   }
 
   /**
@@ -93,44 +94,44 @@ public class EventingLogHandler implements LogHandler {
   /**
    * Checks if a logger is enabled.
    *
-   * @param level the desired level of this particular log invocation
-   * @param loggerName whose threshold level is to be checked
    * @return true if the logger is enabled, false otherwise
    */
   @Override
-  public boolean isEnabled(Level level, String loggerName) {
+  public boolean isEnabled(NativeLogger.LoggerId loggerId) {
     if (noop) {
       return false;
     }
-    assert loggerOutputLevelThreshold != null;
+    assert loggerOutputMinimumLevelThreshold != null;
     assert logWriter != null;
-    return loggerEnablementStatus.computeIfAbsent(loggerName, k -> {
-      if (level.compareTo(loggerOutputLevelThreshold.getMinimumThresholdLevel(k)) < 0) {
+    return loggerEnablements.computeIfAbsent(loggerId, k -> {
+      if (loggerId
+              .level()
+              .compareTo(loggerOutputMinimumLevelThreshold.getMinimumThresholdLevel(k.loggerName()))
+          < 0) {
         return false;
       }
-      return level.compareTo(logWriter.getMinimumThresholdLevel()) >= 0;
+      return loggerId.level().compareTo(logWriter.getMinimumThresholdLevel()) >= 0;
     });
   }
 
   @Override
   public void log(
-      Level level,
-      String loggerName,
+      NativeLogger.LoggerId loggerId,
       @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments) {
-    if (!this.isEnabled(level, loggerName)) {
+    if (!this.isEnabled(loggerId)) {
       return;
     }
     assert logWriter != null;
     Thread callerThread = Thread.currentThread();
     logWriter.write(LogEvent.builder()
         .callerThread(new LogEvent.ThreadValue(callerThread.getName(), callerThread.threadId()))
-        .level(level)
+        .level(loggerId.level())
         .throwable(throwable)
         .message(message)
         .arguments(arguments)
-        .loggerName(loggerName)
+        .loggerName(loggerId.loggerName())
         .callerFrame(
             includeCallerDetail()
                 ? LogEvent.StackFrameValue.from(

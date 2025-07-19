@@ -48,8 +48,9 @@ import lombok.Value;
 @Value
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
-public class LoggerOutputLevelThreshold {
-  private static final Logger LOGGER = Logger.getLogger(LoggerOutputLevelThreshold.class.getName());
+public class LoggerOutputMinimumLevelThreshold {
+  private static final Logger LOGGER =
+      Logger.getLogger(LoggerOutputMinimumLevelThreshold.class.getName());
   private static final String CONFIGURED_ROOT_LOGGER_NAME_SPACE = "";
   private static final Level DEFAULT_THRESHOLD_OUTPUT_LEVEL = Level.TRACE;
 
@@ -59,11 +60,11 @@ public class LoggerOutputLevelThreshold {
   List<String> sortedLoggerNameNameSpaces;
 
   /**
-   * Constructor for the LoggerOutputLevelThreshold class.
+   * Constructor for the LoggerOutputMinimumLevelThreshold class.
    *
    * @param loggerMinimumThresholdLevels a map of configured levels
    */
-  private LoggerOutputLevelThreshold(Map<String, Level> loggerMinimumThresholdLevels) {
+  private LoggerOutputMinimumLevelThreshold(Map<String, Level> loggerMinimumThresholdLevels) {
     this.loggerMinimumThresholdLevels = new ConcurrentHashMap<>(loggerMinimumThresholdLevels);
     this.sortedLoggerNameNameSpaces = loggerMinimumThresholdLevels.keySet().stream()
         .sorted(new ByClassNameSpace())
@@ -73,13 +74,14 @@ public class LoggerOutputLevelThreshold {
   }
 
   /**
-   * Creates a new LoggerOutputLevelThreshold instance from a given configuration.
+   * Creates a new LoggerOutputMinimumLevelThreshold instance from a given configuration.
    *
    * @param configurationProperties configuration source of all threshold output levels for caller
    *     classes
    * @return the overriding caller levels
    */
-  public static LoggerOutputLevelThreshold from(ConfigurationProperties configurationProperties) {
+  public static LoggerOutputMinimumLevelThreshold from(
+      ConfigurationProperties configurationProperties) {
     Map<String, Level> configuredLevels = new HashMap<>();
     Properties properties = configurationProperties.getProperties();
     getAsLevel("level", properties)
@@ -89,7 +91,7 @@ public class LoggerOutputLevelThreshold {
         .collect(Collectors.toMap(
             name -> name.split("@", 2)[1].trim(),
             name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
-    return new LoggerOutputLevelThreshold(configuredLevels);
+    return new LoggerOutputMinimumLevelThreshold(configuredLevels);
   }
 
   /**

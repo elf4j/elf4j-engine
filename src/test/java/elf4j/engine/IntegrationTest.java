@@ -47,7 +47,8 @@ class IntegrationTest {
               new Exception("Test ex message"),
               this.getClass());
 
-      assertEquals(this.getClass().getName(), ((NativeLogger) logger).getLoggerName());
+      assertEquals(
+          this.getClass().getName(), ((NativeLogger) logger).getLoggerId().loggerName());
     }
   }
 }

@@ -25,8 +25,6 @@
 
 package elf4j.engine;
 
-import static java.util.stream.Collectors.toMap;
-
 import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.logging.ConfiguredLogHandlerFactory;
@@ -34,11 +32,9 @@ import elf4j.engine.logging.LogHandler;
 import elf4j.engine.logging.LogHandlerFactory;
 import elf4j.engine.logging.util.StackTraces;
 import elf4j.spi.LoggerFactory;
-import java.util.EnumSet;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import org.slf4j.MdcAdapterInitializer;
 
 /**
@@ -79,9 +75,7 @@ public class NativeLoggerFactory implements LoggerFactory {
   private final LogHandlerFactory logHandlerFactory;
 
   /** A map of native loggers, categorized by their level. */
-  private final Map<Level, Map<String, NativeLogger>> nativeLoggers =
-      EnumSet.allOf(Level.class).stream()
-          .collect(toMap(Function.identity(), level -> new ConcurrentHashMap<>()));
+  private final Map<NativeLogger.LoggerId, NativeLogger> nativeLoggers = new ConcurrentHashMap<>();
 
   /** Default constructor required by {@link ServiceLoader} */
   @SuppressWarnings("unused")
@@ -96,8 +90,7 @@ public class NativeLoggerFactory implements LoggerFactory {
    *     case, since the sole log service access API is the static method {@link Logger#instance()},
    *     the service access class is always the {@code Logger} interface itself.
    * @param logServiceClass the concrete implementation of the log service interface API. In this
-   *     case, it is the {@code NativeLogger} class, as opposed to the {@code Logger} interface. See
-   *     the Javadoc of the {@link NativeLogger#loggerName} field.
+   *     case, it is the {@code NativeLogger} class, as opposed to the {@code Logger} interface.
    */
   public NativeLoggerFactory(Class<?> logServiceAccessClass, Class<?> logServiceClass) {
     this(
@@ -134,9 +127,9 @@ public class NativeLoggerFactory implements LoggerFactory {
    */
   @Override
   public NativeLogger getLogger() {
-    return getLogger(
-        defaultLoggerLevel,
-        StackTraces.callerFrameOf(logServiceAccessClass.getName()).getClassName());
+    return getLogger(new NativeLogger.LoggerId(
+        StackTraces.callerFrameOf(logServiceAccessClass.getName()).getClassName(),
+        defaultLoggerLevel));
   }
 
   /**
@@ -152,15 +145,10 @@ public class NativeLoggerFactory implements LoggerFactory {
    * Gets a logger with the specified level and (access API caller class) name. Should be
    * performance-wise inexpensive to call.
    *
-   * @param level the level of the logger
-   * @param loggerName name of the logger, in this case, same as the FQN of the class calling to
-   *     obtain a Logger instance
    * @return the logger service instance
    * @implNote Use caching for speed
    */
-  NativeLogger getLogger(Level level, String loggerName) {
-    return nativeLoggers
-        .get(level)
-        .computeIfAbsent(loggerName, k -> new NativeLogger(loggerName, level, this));
+  NativeLogger getLogger(NativeLogger.LoggerId loggerId) {
+    return nativeLoggers.computeIfAbsent(loggerId, k -> new NativeLogger(loggerId, this));
   }
 }
