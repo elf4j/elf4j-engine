@@ -1,13 +1,12 @@
 package elf4j.engine.logging;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import elf4j.Logger;
+import elf4j.engine.NativeLogger;
 import java.util.Properties;
 import java.util.concurrent.RejectedExecutionException;
-
-import elf4j.engine.NativeLogger;
 import org.junit.jupiter.api.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 class LogHandlerManagerTest {

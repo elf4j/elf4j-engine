@@ -27,7 +27,6 @@ package elf4j.engine;
 
 import elf4j.Level;
 import elf4j.Logger;
-import elf4j.engine.logging.LogHandler;
 import elf4j.engine.logging.LogHandlerFactory;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Builder;
@@ -77,47 +76,55 @@ public class NativeLogger implements Logger {
 
   @Override
   public boolean isEnabled() {
-    return getLogHandler().isEnabled(loggerId);
+    return logHandlerFactory.getLogHandler().isEnabled(loggerId);
   }
 
   @Override
   public void log(Object message) {
-    this.handle(null, message, null);
+    this.process(null, message, null);
   }
 
   @Override
   public void log(String message, Object... arguments) {
-    this.handle(null, message, arguments);
+    this.process(null, message, arguments);
   }
 
   @Override
   public void log(Throwable throwable) {
-    this.handle(throwable, null, null);
+    this.process(throwable, null, null);
   }
 
   @Override
   public void log(Throwable throwable, Object message) {
-    this.handle(throwable, message, null);
+    this.process(throwable, message, null);
   }
 
   @Override
   public void log(Throwable throwable, String message, Object... arguments) {
-    this.handle(throwable, message, arguments);
+    this.process(throwable, message, arguments);
+  }
+
+  private void process(
+      @Nullable Throwable throwable, @Nullable Object message, Object @Nullable [] arguments) {
+    handle(LOG_SERVICE_CLASS, throwable, message, arguments);
   }
 
   /**
-   * Returns the LogHandler associated with this logger, can be used by other logging frameworks to
-   * leverage the underlying logging engine.
+   * Public API other logging framework API can use.
    *
-   * @return directly accessible log handler
+   * @param logServiceClass the concrete runtime implementation class the log framework API provides
+   *     for the client code to issue log service requests. In this case, it is always this
+   *     {@link NativeLogger} class rather than the {@link Logger} interface.
+   * @param throwable to log
+   * @param message to log
+   * @param arguments to log
    */
-  public LogHandler getLogHandler() {
-    return logHandlerFactory.getLogHandler();
-  }
-
-  private void handle(
-      @Nullable Throwable throwable, @Nullable Object message, Object @Nullable [] arguments) {
-    getLogHandler().log(LOG_SERVICE_CLASS, loggerId, throwable, message, arguments);
+  public void handle(
+      Class<?> logServiceClass,
+      @Nullable Throwable throwable,
+      @Nullable Object message,
+      Object @Nullable [] arguments) {
+    logHandlerFactory.getLogHandler().log(logServiceClass, loggerId, throwable, message, arguments);
   }
 
   @Builder(toBuilder = true)
