@@ -71,7 +71,7 @@ public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOpti
    * behavior.
    *
    * @param o the reference object with which to compare.
-   * @return true if timeZoneOption and dateTimeFormater of the two instances are considered "the
+   * @return true if timeZoneOption and dateTimeFormatter of the two instances are considered "the
    *     same"
    */
   @Override
