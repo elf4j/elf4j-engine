@@ -118,17 +118,17 @@ public class StandardStreamWriter implements LogWriter {
    * Implementation of the StandardOutput interface that writes to the standard output and standard
    * error streams using FileOutputStream and synchronizes access using a ReentrantLock.
    */
-  private record StandardOutput(OutputStream outputStream) {
+  @SuppressWarnings("ClassCanBeRecord")
+  private static final class StandardOutput {
     private static final Logger LOGGER = Logger.getLogger(StandardOutput.class.getName());
+    private final OutputStream outputStream;
 
-    private StandardOutput(OutputStream outputStream) {
-      OutputStream result;
+    public StandardOutput(OutputStream outputStream) {
       if (outputStream == System.out || outputStream == System.err) {
-        result = outputStream;
-      } else {
-        throw new IllegalArgumentException("Not a standard output stream type: " + outputStream);
+        this.outputStream = outputStream;
+        return;
       }
-      this.outputStream = result;
+      throw new IllegalArgumentException("Not a standard output stream type: " + outputStream);
     }
 
     /**
