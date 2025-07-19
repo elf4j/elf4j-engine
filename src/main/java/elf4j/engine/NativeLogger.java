@@ -143,7 +143,7 @@ public class NativeLogger implements Logger {
      *     </ol>
      *     Strictly, this logger name field is the fully-qualified name of the former (type-1)
      *     caller class. This field will end up being the "logger" value printed in the final log
-     *     message, and may or may not be the "class" value (i.e. the type-1 caller class) of the
+     *     message, and may or may not be the "class" value (i.e. the type-2 caller class) of the
      *     same log message.
      *     <p>In most cases, the type-1 caller class to the service access API is the same as the
      *     type-2 caller class to the service interface API. The exceptional case where the caller

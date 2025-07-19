@@ -132,14 +132,15 @@ public class StandardStreamWriter implements LogWriter {
      * This method is supposed to be called once and only once per each entirely complete log
      * message.
      *
-     * @implNote To avoid "virtual thread pinning", locking on a global lock instead of
-     *     {@code synchronized} on {@code System.out} or {@code System.err}. This is to arrange the
-     *     desired atomicity of the {@code write}-and-{@code flush} operation. Such locking
-     *     atomicity ensures the flush of each log entry is self-initiated immediately after the
-     *     entry's bytes are written (buffered). Note, however, this does not prevent log output
-     *     from interleaving with content/bytes flushed by other/outside processes targeting the
-     *     same STDOUT/STDERR stream. That means this log engine should not be used together with
-     *     any other logging provider at the same time.
+     * @implNote To avoid "virtual thread pinning", this method is locking on a global lock instead
+     *     of {@code synchronized} on {@code System.out} or {@code System.err}. This is to arrange
+     *     the desired atomicity of the {@code write}-and-{@code flush} operation. Within the
+     *     elf4j-engine, such locking atomicity ensures the flush of each log entry is
+     *     self-initiated immediately after the entry's bytes are written (buffered). However, as
+     *     the lock is (intentionally) not on the {@code System.out} or {@code System.err}, this
+     *     does not prevent the logs from interleaving with content/bytes flushed by other/outside
+     *     processes targeting the same STDOUT/STDERR stream. That means this log engine should not
+     *     be used together with any other logging provider at the same time.
      * @param bytes to write to the specified standard stream
      */
     public void flushOut(byte[] bytes) {
