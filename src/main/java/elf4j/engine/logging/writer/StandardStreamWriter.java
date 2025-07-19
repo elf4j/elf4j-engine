@@ -33,6 +33,7 @@ import elf4j.engine.logging.pattern.PatternElement;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Logger;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -65,10 +66,7 @@ public class StandardStreamWriter implements LogWriter {
     this.minimumThresholdLevel = minimumThresholdLevel;
     this.logPattern = logPattern;
     this.outStreamType = outStreamType;
-    this.standardOutput = switch (outStreamType) {
-      case STDOUT -> new StandardOutput(System.out);
-      case STDERR -> new StandardOutput(System.err);
-    };
+    this.standardOutput = new StandardOutput(this.outStreamType);
   }
 
   /**
@@ -118,43 +116,44 @@ public class StandardStreamWriter implements LogWriter {
    * Implementation of the StandardOutput interface that writes to the standard output and standard
    * error streams using FileOutputStream and synchronizes access using a ReentrantLock.
    */
-  @SuppressWarnings("ClassCanBeRecord")
   private static final class StandardOutput {
     private static final Logger LOGGER = Logger.getLogger(StandardOutput.class.getName());
+    private static final Lock OUTPUT_LOCK = new java.util.concurrent.locks.ReentrantLock(true);
     private final OutputStream outputStream;
 
-    public StandardOutput(OutputStream outputStream) {
-      if (outputStream == System.out || outputStream == System.err) {
-        this.outputStream = outputStream;
-        return;
-      }
-      throw new IllegalArgumentException("Not a standard output stream type: " + outputStream);
+    public StandardOutput(OutStreamType outStreamType) {
+      this.outputStream = switch (outStreamType) {
+        case STDOUT -> System.out;
+        case STDERR -> System.err;
+      };
     }
 
     /**
      * This method is supposed to be called once and only once per each entirely complete log
      * message.
      *
-     * @implNote Still synchronized on the {@code System.out} or {@code System.err} even though
-     *     there is supposed to be only one single call per each entire log message to the already
-     *     synchronized {@link java.io.PrintStream#write(byte[])} method. This is to arrange the
-     *     desired atomicity of the {@code write}-and-{@code flush} operation. Such atomicity
-     *     ensures the flush of the log content written (buffered) by this elf4j implementation is
-     *     self-controlled immediately after the write, instead of controlled by other/outside code
-     *     sharing the same {@code System.out} and {@code System.err}.
+     * @implNote To avoid "virtual thread pinning", locking on a global lock instead of
+     *     {@code synchronized} on {@code System.out} or {@code System.err}. This is to arrange the
+     *     desired atomicity of the {@code write}-and-{@code flush} operation. Such locking
+     *     atomicity ensures the flush of each log entry is self-initiated immediately after the
+     *     entry's bytes are written (buffered). Note, however, this does not prevent log output
+     *     from interleaving with content/bytes flushed by other/outside processes targeting the
+     *     same STDOUT/STDERR stream. That means this log engine should not be used together with
+     *     any other logging provider at the same time.
      * @param bytes to write to the specified standard stream
      */
     public void flushOut(byte[] bytes) {
+      OUTPUT_LOCK.lock();
       try {
-        synchronized (outputStream) {
-          outputStream.write(bytes);
-          outputStream.flush();
-        }
+        outputStream.write(bytes);
+        outputStream.flush();
       } catch (IOException e) {
         LOGGER.log(
             java.util.logging.Level.SEVERE,
             "Failed to write bytes[] of length %s to %s".formatted(bytes.length, outputStream),
             e);
+      } finally {
+        OUTPUT_LOCK.unlock();
       }
     }
   }

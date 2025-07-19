@@ -82,7 +82,7 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
   private CompositeWriter(List<LogWriter> writers, ConseqExecutor conseqExecutor) {
     this.writers = writers;
     this.conseqExecutor = conseqExecutor;
-    LOGGER.info("%s service writer(s) in %s".formatted(writers.size(), this));
+    LOGGER.config("%s service writer(s) in %s".formatted(writers.size(), this));
     NativeLogServiceManager.INSTANCE.register(this);
   }
 
@@ -191,7 +191,7 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
     if (conseqExecutor.isTerminated()) {
       return;
     }
-    LOGGER.info("Stopping %s".formatted(this));
+    LOGGER.config("Stopping %s".formatted(this));
     try (conseqExecutor) {
       ConditionFactory await = await();
       await.during(Duration.ofMillis(100)).until(() -> true);

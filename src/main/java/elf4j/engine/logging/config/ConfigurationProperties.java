@@ -51,7 +51,7 @@ public final class ConfigurationProperties {
    * @return the log service configuration
    */
   public static ConfigurationProperties byLoading() {
-    LOGGER.info("Configuring by loading properties");
+    LOGGER.config("Configuring by loading properties");
     return new ConfigurationProperties(new PropertiesFileLoader().load());
   }
 
@@ -62,7 +62,7 @@ public final class ConfigurationProperties {
    * @return the log service configuration
    */
   public static ConfigurationProperties bySetting(@Nullable Properties properties) {
-    LOGGER.info("Configuring by setting properties: %s".formatted(properties));
+    LOGGER.config("Configuring by setting properties: %s".formatted(properties));
     return new ConfigurationProperties(properties);
   }
 
@@ -150,7 +150,7 @@ public final class ConfigurationProperties {
                     : customPropertiesLocation),
             e);
       }
-      LOGGER.info("Loaded properties: %s".formatted(properties));
+      LOGGER.config("Loaded properties: %s".formatted(properties));
       return properties;
     }
 

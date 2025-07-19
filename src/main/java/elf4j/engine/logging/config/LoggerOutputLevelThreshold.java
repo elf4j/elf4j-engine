@@ -68,7 +68,7 @@ public class LoggerOutputLevelThreshold {
     this.sortedLoggerNameNameSpaces = loggerMinimumThresholdLevels.keySet().stream()
         .sorted(new ByClassNameSpace())
         .collect(Collectors.toList());
-    LOGGER.info(
+    LOGGER.config(
         "%s overriding caller level(s) in %s".formatted(loggerMinimumThresholdLevels.size(), this));
   }
 

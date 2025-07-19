@@ -63,7 +63,7 @@ public enum NativeLogServiceManager {
    */
   public void register(Refreshable refreshable) {
     lockAndRun(() -> refreshables.add(refreshable));
-    LOGGER.info("Registered refreshable %s in %s".formatted(refreshable, this));
+    LOGGER.config("Registered refreshable %s in %s".formatted(refreshable, this));
   }
 
   /**
@@ -73,7 +73,7 @@ public enum NativeLogServiceManager {
    */
   public void register(Stoppable stoppable) {
     lockAndRun(() -> stoppables.add(stoppable));
-    LOGGER.info("Registered stoppable %s in %s".formatted(stoppable, this));
+    LOGGER.config("Registered stoppable %s in %s".formatted(stoppable, this));
   }
 
   /** Orderly shutdown the current log service, reload properties source, and resume the service */
@@ -82,7 +82,7 @@ public enum NativeLogServiceManager {
       shutdown();
       refreshables.forEach(Refreshable::refresh);
     });
-    LOGGER.info("Restarted %s by reloading properties".formatted(this));
+    LOGGER.config("Restarted %s by reloading properties".formatted(this));
   }
 
   /**
@@ -98,7 +98,7 @@ public enum NativeLogServiceManager {
       shutdown();
       refreshables.forEach(refreshable -> refreshable.refresh(properties));
     });
-    LOGGER.info("Restarted %s with properties %s".formatted(this, properties));
+    LOGGER.config("Restarted %s with properties %s".formatted(this, properties));
   }
 
   /**
@@ -106,12 +106,12 @@ public enum NativeLogServiceManager {
    */
   public void shutdown() {
     lockAndRun(() -> {
-      LOGGER.info("Start shutdown %s".formatted(this));
+      LOGGER.config("Start shutdown %s".formatted(this));
       stoppables.forEach(Stoppable::stop);
       // clear stoppables as stopped writers won't accept new tasks
       stoppables.clear();
       // keep refreshables as new writers will be created upon refresh
-      LOGGER.info("End shutdown %s".formatted(this));
+      LOGGER.config("End shutdown %s".formatted(this));
     });
   }
 
@@ -133,7 +133,7 @@ public enum NativeLogServiceManager {
    */
   public void deregister(Refreshable refreshable) {
     lockAndRun(() -> refreshables.remove(refreshable));
-    LOGGER.info("De-registered Refreshable %s".formatted(refreshable));
+    LOGGER.config("De-registered Refreshable %s".formatted(refreshable));
   }
 
   private void lockAndRun(Runnable runnable) {

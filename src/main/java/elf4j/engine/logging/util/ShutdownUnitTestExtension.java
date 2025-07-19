@@ -12,12 +12,12 @@ public final class ShutdownUnitTestExtension implements BeforeAllCallback {
   @Override
   public void beforeAll(ExtensionContext context) {
     if (!shutdownHookRegistered) {
-      LOGGER.info("Registering unit test shutdown hook...");
+      LOGGER.config("Registering unit test shutdown hook...");
       shutdownHookRegistered = true;
       Runtime.getRuntime()
           .addShutdownHook(NativeLogServiceManager.INSTANCE.getShutdownHookThread());
       return;
     }
-    LOGGER.info("Unit test shutdown hook already registered");
+    LOGGER.config("Unit test shutdown hook already registered");
   }
 }
