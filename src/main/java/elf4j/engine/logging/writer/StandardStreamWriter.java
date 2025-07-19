@@ -25,18 +25,15 @@
 
 package elf4j.engine.logging.writer;
 
+import static elf4j.engine.logging.writer.StandardStreamWriter.OutStreamType.STDOUT;
+
 import elf4j.Level;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import javax.annotation.concurrent.ThreadSafe;
+import java.util.logging.Logger;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -53,13 +50,13 @@ import lombok.Value;
 public class StandardStreamWriter implements LogWriter {
   static final String DEFAULT_THRESHOLD_OUTPUT_LEVEL = "trace";
   static final String DEFAULT_PATTERN = "{timestamp} {level} {class} - {message}";
-  static final OutStreamType DEFAULT_OUT_STREAM_TYPE = OutStreamType.STDOUT;
+  static final OutStreamType DEFAULT_OUT_STREAM_TYPE = STDOUT;
   static final String LINE_FEED = System.lineSeparator();
 
   @EqualsAndHashCode.Exclude
-  StandardOutput standardOutput = new FileStreamStandardOutput();
+  StandardOutput standardOutput = new StandardOutput();
 
-  Level thresholdOutputLevel;
+  Level minimumThresholdLevel;
   PatternElement logPattern;
   OutStreamType outStreamType;
 
@@ -69,8 +66,8 @@ public class StandardStreamWriter implements LogWriter {
    * @return the threshold output level
    */
   @Override
-  public Level getThresholdOutputLevel() {
-    return thresholdOutputLevel;
+  public Level getMinimumThresholdLevel() {
+    return minimumThresholdLevel;
   }
 
   /**
@@ -81,7 +78,7 @@ public class StandardStreamWriter implements LogWriter {
    */
   @Override
   public void write(LogEvent logEvent) {
-    if (logEvent.getLevel().compareTo(this.thresholdOutputLevel) < 0) {
+    if (logEvent.getLevel().compareTo(this.minimumThresholdLevel) < 0) {
       return;
     }
     StringBuilder target = new StringBuilder();
@@ -109,52 +106,54 @@ public class StandardStreamWriter implements LogWriter {
     STDERR
   }
 
-  /** Interface for writing bytes to the standard output or standard error stream. */
-  @ThreadSafe
-  public interface StandardOutput {
-    /**
-     * Writes the given bytes to the standard output stream.
-     *
-     * @param bytes the bytes to write
-     */
-    void out(byte[] bytes);
-
-    /**
-     * Writes the given bytes to the standard error stream.
-     *
-     * @param bytes the bytes to write
-     */
-    void err(byte[] bytes);
-  }
-
   /**
    * Implementation of the StandardOutput interface that writes to the standard output and standard
    * error streams using FileOutputStream and synchronizes access using a ReentrantLock.
    */
   @ToString
-  public static class FileStreamStandardOutput implements StandardOutput {
-    private final OutputStream stdout = new FileOutputStream(FileDescriptor.out);
-    private final OutputStream stderr = new FileOutputStream(FileDescriptor.err);
-    private final Lock lock = new ReentrantLock();
+  private static final class StandardOutput {
+    private static final Logger LOGGER = Logger.getLogger(StandardOutput.class.getName());
 
-    @Override
+    private static OutputStream requireStandardType(OutputStream outputStream) {
+      if (outputStream == System.out || outputStream == System.err) {
+        return outputStream;
+      }
+      throw new IllegalArgumentException("Not a standard output stream type: " + outputStream);
+    }
+
     public void out(byte[] bytes) {
-      write(bytes, stdout);
+      flush(bytes, System.out);
     }
 
-    @Override
     public void err(byte[] bytes) {
-      write(bytes, stderr);
+      flush(bytes, System.err);
     }
 
-    private void write(byte[] bytes, OutputStream outputStream) {
-      lock.lock();
-      try {
-        outputStream.write(bytes);
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
-      } finally {
-        lock.unlock();
+    /**
+     * This method is supposed to be called once and only once per each entirely complete log
+     * message.
+     *
+     * @implNote Still synchronized on the {@code System.out} or {@code System.err} even though
+     *     there is supposed to be only one single call per each entire log message to the already
+     *     synchronized {@link java.io.PrintStream#write(byte[])} method. This is to arrange the
+     *     desired atomicity of the {@code write}-and-{@code flush} operation. Such atomicity
+     *     ensures the flush of the log content written (buffered) by this elf4j implementation is
+     *     self-controlled immediately after the write, instead of controlled by other/outside code
+     *     sharing the same {@code System.out} and {@code System.err}.
+     * @param bytes to write to the specified standard stream
+     * @param outputStream the standard stream to which to write the specified bytes
+     */
+    private void flush(byte[] bytes, OutputStream outputStream) {
+      synchronized (requireStandardType(outputStream)) {
+        try {
+          outputStream.write(bytes);
+          outputStream.flush();
+        } catch (IOException e) {
+          LOGGER.log(
+              java.util.logging.Level.SEVERE,
+              "Failed to write bytes[] of length %s to %s".formatted(bytes.length, outputStream),
+              e);
+        }
       }
     }
   }

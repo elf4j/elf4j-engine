@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-public class ShutdownUnitTestExtension implements BeforeAllCallback {
+public final class ShutdownUnitTestExtension implements BeforeAllCallback {
   private static final Logger LOGGER = Logger.getLogger(ShutdownUnitTestExtension.class.getName());
   private static boolean shutdownHookRegistered = false;
 

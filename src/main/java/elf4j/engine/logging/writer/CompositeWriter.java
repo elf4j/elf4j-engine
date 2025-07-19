@@ -161,11 +161,11 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
   }
 
   @Override
-  public Level getThresholdOutputLevel() {
+  public Level getMinimumThresholdLevel() {
     if (thresholdOutputLevel == null) {
       thresholdOutputLevel = Level.values()[
           writers.stream()
-              .mapToInt(writer -> writer.getThresholdOutputLevel().ordinal())
+              .mapToInt(writer -> writer.getMinimumThresholdLevel().ordinal())
               .min()
               .orElseThrow(NoSuchElementException::new)];
     }

@@ -74,7 +74,7 @@ class EventingLogHandlerTest {
           ConfigurationProperties.bySetting(new Properties()), NativeLogger.class);
       LogWriter mockLogWriter = mock(LogWriter.class);
       ReflectionTestUtils.setField(logHandler, "logWriter", mockLogWriter);
-      given(mockLogWriter.getThresholdOutputLevel()).willReturn(Level.INFO);
+      given(mockLogWriter.getMinimumThresholdLevel()).willReturn(Level.INFO);
 
       logHandler.log(Level.INFO, this.getClass().getName(), null, null, null);
 
@@ -88,7 +88,7 @@ class EventingLogHandlerTest {
       LogWriter logWriter = mock(LogWriter.class);
       ReflectionTestUtils.setField(sut, "logWriter", logWriter);
       given(logWriter.includeCallerDetail()).willReturn(true);
-      given(logWriter.getThresholdOutputLevel()).willReturn(Level.INFO);
+      given(logWriter.getMinimumThresholdLevel()).willReturn(Level.INFO);
       ArgumentCaptor<LogEvent> logEvent = ArgumentCaptor.forClass(LogEvent.class);
 
       sut.log(Level.INFO, this.getClass().getName(), null, null, null);
@@ -110,7 +110,7 @@ class EventingLogHandlerTest {
       LogWriter logWriter = mock(LogWriter.class);
       ReflectionTestUtils.setField(sut, "logWriter", logWriter);
       given(logWriter.includeCallerDetail()).willReturn(false);
-      given(logWriter.getThresholdOutputLevel()).willReturn(Level.INFO);
+      given(logWriter.getMinimumThresholdLevel()).willReturn(Level.INFO);
       ArgumentCaptor<LogEvent> logEvent = ArgumentCaptor.forClass(LogEvent.class);
 
       sut.log(Level.INFO, this.getClass().getName(), null, null, null);
@@ -131,7 +131,7 @@ class EventingLogHandlerTest {
           ConfigurationProperties.bySetting(new Properties()), NativeLogger.class);
       LogWriter logWriter = mock(LogWriter.class);
       ReflectionTestUtils.setField(sut, "logWriter", logWriter);
-      given(logWriter.getThresholdOutputLevel()).willReturn(Level.INFO);
+      given(logWriter.getMinimumThresholdLevel()).willReturn(Level.INFO);
 
       sut.log(Level.TRACE, this.getClass().getName(), null, null, null);
 

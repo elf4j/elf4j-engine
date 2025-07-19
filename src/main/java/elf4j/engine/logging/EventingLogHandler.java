@@ -105,10 +105,10 @@ public class EventingLogHandler implements LogHandler {
     assert loggerOutputLevelThreshold != null;
     assert logWriter != null;
     return loggerEnablementStatus.computeIfAbsent(loggerName, k -> {
-      if (level.compareTo(loggerOutputLevelThreshold.getThresholdOutputLevel(k)) < 0) {
+      if (level.compareTo(loggerOutputLevelThreshold.getMinimumThresholdLevel(k)) < 0) {
         return false;
       }
-      return level.compareTo(logWriter.getThresholdOutputLevel()) >= 0;
+      return level.compareTo(logWriter.getMinimumThresholdLevel()) >= 0;
     });
   }
 

@@ -54,22 +54,22 @@ public class LoggerOutputLevelThreshold {
   private static final Level DEFAULT_THRESHOLD_OUTPUT_LEVEL = Level.TRACE;
 
   @EqualsAndHashCode.Include
-  Map<String, Level> configuredLoggerNameLevels;
+  Map<String, Level> loggerMinimumThresholdLevels;
 
   List<String> sortedLoggerNameNameSpaces;
 
   /**
    * Constructor for the LoggerOutputLevelThreshold class.
    *
-   * @param configuredLoggerNameLevels a map of configured levels
+   * @param loggerMinimumThresholdLevels a map of configured levels
    */
-  private LoggerOutputLevelThreshold(Map<String, Level> configuredLoggerNameLevels) {
-    this.configuredLoggerNameLevels = new ConcurrentHashMap<>(configuredLoggerNameLevels);
-    this.sortedLoggerNameNameSpaces = configuredLoggerNameLevels.keySet().stream()
+  private LoggerOutputLevelThreshold(Map<String, Level> loggerMinimumThresholdLevels) {
+    this.loggerMinimumThresholdLevels = new ConcurrentHashMap<>(loggerMinimumThresholdLevels);
+    this.sortedLoggerNameNameSpaces = loggerMinimumThresholdLevels.keySet().stream()
         .sorted(new ByClassNameSpace())
         .collect(Collectors.toList());
     LOGGER.info(
-        "%s overriding caller level(s) in %s".formatted(configuredLoggerNameLevels.size(), this));
+        "%s overriding caller level(s) in %s".formatted(loggerMinimumThresholdLevels.size(), this));
   }
 
   /**
@@ -115,11 +115,11 @@ public class LoggerOutputLevelThreshold {
    *     configured level. Otherwise, if no threshold level configured, return the default threshold
    *     level.
    */
-  public Level getThresholdOutputLevel(String loggerName) {
+  public Level getMinimumThresholdLevel(String loggerName) {
     return this.sortedLoggerNameNameSpaces.stream()
         .filter(loggerName::startsWith)
         .findFirst()
-        .map(this.configuredLoggerNameLevels::get)
+        .map(this.loggerMinimumThresholdLevels::get)
         .orElse(DEFAULT_THRESHOLD_OUTPUT_LEVEL);
   }
 

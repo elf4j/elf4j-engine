@@ -45,7 +45,7 @@ public interface LogWriter extends PerformanceSensitive {
    *
    * @return the threshold output level of this writer
    */
-  Level getThresholdOutputLevel();
+  Level getMinimumThresholdLevel();
 
   /**
    * Writes the given log event to the output destination(s) configured for this log writer.
