@@ -78,8 +78,10 @@ public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOpti
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    return ComparisonCopy.from(this).equals(ComparisonCopy.from((TimestampElement) o));
+    if (o instanceof TimestampElement that) {
+      return ComparisonCopy.from(this).equals(ComparisonCopy.from(that));
+    }
+    return false;
   }
 
   @Override
