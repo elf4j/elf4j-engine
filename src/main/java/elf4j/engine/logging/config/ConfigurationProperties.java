@@ -25,11 +25,12 @@
 
 package elf4j.engine.logging.config;
 
+import elf4j.Logger;
+import elf4j.util.UtilLogger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
-import java.util.logging.Logger;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.jspecify.annotations.Nullable;
@@ -37,7 +38,7 @@ import org.jspecify.annotations.Nullable;
 @ToString(doNotUseGetters = true)
 @EqualsAndHashCode
 public final class ConfigurationProperties {
-  private static final Logger LOGGER = Logger.getLogger(ConfigurationProperties.class.getName());
+  private static final Logger LOGGER = UtilLogger.INFO;
 
   @Nullable private final Properties properties;
 
@@ -51,7 +52,7 @@ public final class ConfigurationProperties {
    * @return the log service configuration
    */
   public static ConfigurationProperties byLoading() {
-    LOGGER.config("Configuring by loading properties");
+    LOGGER.info("Configuring by loading properties");
     return new ConfigurationProperties(new PropertiesFileLoader().load());
   }
 
@@ -62,7 +63,7 @@ public final class ConfigurationProperties {
    * @return the log service configuration
    */
   public static ConfigurationProperties bySetting(@Nullable Properties properties) {
-    LOGGER.config("Configuring by setting properties: %s".formatted(properties));
+    LOGGER.info("Configuring by setting properties: %s".formatted(properties));
     return new ConfigurationProperties(properties);
   }
 
@@ -129,7 +130,7 @@ public final class ConfigurationProperties {
       if (customPropertiesLocation == null) {
         propertiesInputStream = fromDefaultPropertiesLocation();
         if (propertiesInputStream == null) {
-          LOGGER.warning("No configuration file located!");
+          LOGGER.warn("No configuration file located!");
           return null;
         }
       } else {
@@ -150,7 +151,7 @@ public final class ConfigurationProperties {
                     : customPropertiesLocation),
             e);
       }
-      LOGGER.config("Loaded properties: %s".formatted(properties));
+      LOGGER.info("Loaded properties: %s".formatted(properties));
       return properties;
     }
 

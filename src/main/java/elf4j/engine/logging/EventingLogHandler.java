@@ -25,15 +25,16 @@
 
 package elf4j.engine.logging;
 
+import elf4j.Logger;
 import elf4j.engine.NativeLogger;
 import elf4j.engine.logging.config.ConfigurationProperties;
 import elf4j.engine.logging.config.LoggerOutputMinimumLevelThreshold;
 import elf4j.engine.logging.util.StackTraces;
 import elf4j.engine.logging.writer.CompositeWriter;
 import elf4j.engine.logging.writer.LogWriter;
+import elf4j.util.UtilLogger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.jspecify.annotations.Nullable;
@@ -41,7 +42,7 @@ import org.jspecify.annotations.Nullable;
 /** Processing a logging request by converting it into an event for async processing. */
 @Value
 public class EventingLogHandler implements LogHandler {
-  private static final Logger LOGGER = Logger.getLogger(EventingLogHandler.class.getName());
+  private static final Logger LOGGER = UtilLogger.WARN;
 
   boolean noop;
 
@@ -60,7 +61,7 @@ public class EventingLogHandler implements LogHandler {
   public EventingLogHandler(ConfigurationProperties configurationProperties) {
     if (configurationProperties.isAbsent() || configurationProperties.isTrue("noop")) {
       noop = true;
-      LOGGER.warning("No-op per configuration %s".formatted(configurationProperties));
+      LOGGER.warn("No-op per configuration %s".formatted(configurationProperties));
       logWriter = null;
       loggerOutputMinimumLevelThreshold = null;
       return;

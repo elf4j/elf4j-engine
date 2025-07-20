@@ -26,6 +26,8 @@
 package elf4j.engine.logging.config;
 
 import elf4j.Level;
+import elf4j.Logger;
+import elf4j.util.UtilLogger;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +36,6 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -49,8 +50,7 @@ import lombok.Value;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 public class LoggerOutputMinimumLevelThreshold {
-  private static final Logger LOGGER =
-      Logger.getLogger(LoggerOutputMinimumLevelThreshold.class.getName());
+  private static final Logger LOGGER = UtilLogger.INFO;
   private static final String CONFIGURED_ROOT_LOGGER_NAME_SPACE = "";
   private static final Level DEFAULT_THRESHOLD_OUTPUT_LEVEL = Level.TRACE;
 
@@ -69,7 +69,7 @@ public class LoggerOutputMinimumLevelThreshold {
     this.sortedLoggerNameNameSpaces = loggerMinimumThresholdLevels.keySet().stream()
         .sorted(new ByClassNameSpace())
         .collect(Collectors.toList());
-    LOGGER.config(
+    LOGGER.info(
         "%s overriding caller level(s) in %s".formatted(loggerMinimumThresholdLevels.size(), this));
   }
 

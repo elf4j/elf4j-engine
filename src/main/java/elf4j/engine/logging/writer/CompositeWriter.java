@@ -30,13 +30,14 @@ import static org.awaitility.Awaitility.await;
 
 import conseq4j.execute.ConseqExecutor;
 import elf4j.Level;
+import elf4j.Logger;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.NativeLogServiceManager;
 import elf4j.engine.logging.config.ConfigurationProperties;
+import elf4j.util.UtilLogger;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -53,7 +54,7 @@ import org.slf4j.MDC;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stoppable {
-  private static final Logger LOGGER = Logger.getLogger(CompositeWriter.class.getName());
+  private static final Logger LOGGER = UtilLogger.INFO;
   private static final LogWriterFactory DEFAULT_WRITER_FACTORY = new StandardStreamWriterFactory();
 
   /** Composed writers are created based on configuration properties. */
@@ -81,7 +82,7 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
   private CompositeWriter(List<LogWriter> writers, ConseqExecutor conseqExecutor) {
     this.writers = writers;
     this.conseqExecutor = conseqExecutor;
-    LOGGER.config("%s service writer(s) in %s".formatted(writers.size(), this));
+    LOGGER.info("%s service writer(s) in %s".formatted(writers.size(), this));
     NativeLogServiceManager.INSTANCE.register(this);
   }
 
@@ -130,8 +131,7 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
               | InvocationTargetException
               | NoSuchMethodException
               | ClassNotFoundException e) {
-            LOGGER.log(
-                java.util.logging.Level.SEVERE,
+            LOGGER.error(
                 "Unable to construct log writer factory: fqcn='%s' - it must have a no-arg constructor and of type %s"
                     .formatted(fqcn, LogWriterFactory.class),
                 e);
@@ -192,7 +192,7 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
     if (conseqExecutor.isTerminated()) {
       return;
     }
-    LOGGER.config("Stopping %s".formatted(this));
+    LOGGER.info("Stopping %s".formatted(this));
     try (conseqExecutor) {
       conseqExecutor.shutdown();
       await().atMost(Duration.ofSeconds(30)).until(conseqExecutor::isTerminated);

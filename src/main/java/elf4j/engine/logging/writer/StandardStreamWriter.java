@@ -28,12 +28,13 @@ package elf4j.engine.logging.writer;
 import static elf4j.engine.logging.writer.StandardStreamWriter.OutStreamType.STDOUT;
 
 import elf4j.Level;
+import elf4j.Logger;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.util.UtilLogger;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.locks.Lock;
-import java.util.logging.Logger;
 import lombok.Builder;
 import lombok.ToString;
 import lombok.Value;
@@ -46,7 +47,6 @@ import lombok.Value;
 @Value
 @ToString
 public class StandardStreamWriter implements LogWriter {
-  static final Logger LOGGER = Logger.getLogger(StandardStreamWriter.class.getName());
   static final String DEFAULT_THRESHOLD_OUTPUT_LEVEL = "trace";
   static final String DEFAULT_PATTERN = "{timestamp} {level} {class} - {message}";
   static final OutStreamType DEFAULT_OUT_STREAM_TYPE = STDOUT;
@@ -125,7 +125,7 @@ public class StandardStreamWriter implements LogWriter {
    *     the same time.
    */
   private static final class StandardOutput {
-    private static final Logger LOGGER = Logger.getLogger(StandardOutput.class.getName());
+    private static final Logger LOGGER = UtilLogger.ERROR;
 
     /**
      * Locking is in the default "unfair" mode for performance. This means under contention, logs
@@ -157,10 +157,7 @@ public class StandardStreamWriter implements LogWriter {
         outputStream.write(bytes);
         outputStream.flush();
       } catch (IOException e) {
-        LOGGER.log(
-            java.util.logging.Level.SEVERE,
-            "Failed writing or flushing on %s".formatted(outputStream),
-            e);
+        LOGGER.error("Failed writing or flushing on %s".formatted(outputStream), e);
       } finally {
         OUTPUT_LOCK.unlock();
       }
