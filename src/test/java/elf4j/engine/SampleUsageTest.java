@@ -44,8 +44,7 @@ class SampleUsageTest {
     @Test
     void declarationsAndLevels() {
       logger.log(
-          "Logger instance is thread-safe so it can be declared and used as a local, instance, or static"
-              + " variable");
+          "Logger instance is thread-safe so it can be declared and used as a local, instance, or static variable; for best performance, static variables are preferred, and local variables are not recommended");
       logger.log(
           "Default severity level is decided by this logging provider implementation: {}",
           logger.getLevel());
@@ -76,7 +75,7 @@ class SampleUsageTest {
           "Assuming minimum severity level configured is TRACE, thus DEBUG level should be enabled");
       if (debugLogger.isDebugEnabled()) {
         debugLogger.debug(
-            "The DEBUG level log message '{}' will print here as the default minimum severity level is {}",
+            "The DEBUG level log message '{}' will print here as the default minimum writer threshold level is {}",
             message,
             Level.TRACE);
       }

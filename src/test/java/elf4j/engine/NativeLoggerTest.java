@@ -36,6 +36,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
 import elf4j.Logger;
+import elf4j.engine.logging.ConfiguredLogHandlerFactory;
 import elf4j.engine.logging.LogHandler;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +58,7 @@ class NativeLoggerTest {
       NativeLogger warn = (NativeLogger) info.atWarn();
 
       assertNotSame(warn, info);
-      assertEquals(info.getLoggerName(), warn.getLoggerName());
+      assertEquals(info.getLoggerId().loggerName(), warn.getLoggerId().loggerName());
       assertEquals(WARN, warn.getLevel());
     }
 
@@ -83,15 +84,18 @@ class NativeLoggerTest {
 
     @Test
     void delegateToService() {
-      NativeLogServiceProvider nativeLogServiceProvider = mock(NativeLogServiceProvider.class);
+      ConfiguredLogHandlerFactory configuredLogHandlerFactory =
+          mock(ConfiguredLogHandlerFactory.class);
       LogHandler logHandler = mock(LogHandler.class);
-      given(nativeLogServiceProvider.getLogHandler()).willReturn(logHandler);
-      NativeLogger sut =
-          new NativeLogger(this.getClass().getName(), INFO, nativeLogServiceProvider);
+      given(configuredLogHandlerFactory.getLogHandler()).willReturn(logHandler);
+      NativeLogger sut = new NativeLogger(
+          new NativeLogger.LoggerId(this.getClass().getName(), INFO), configuredLogHandlerFactory);
 
       sut.isEnabled();
 
-      then(logHandler).should().isEnabled(sut.getLevel(), sut.getLoggerName());
+      then(logHandler)
+          .should()
+          .isEnabled(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel()));
     }
   }
 
@@ -101,7 +105,7 @@ class NativeLoggerTest {
     LogHandler logHandler;
 
     @Mock
-    NativeLogServiceProvider nativeLogServiceProvider;
+    ConfiguredLogHandlerFactory configuredLogHandlerFactory;
 
     NativeLogger sut;
     String plainTextMessage = "plainTextMessage";
@@ -111,8 +115,10 @@ class NativeLoggerTest {
 
     @BeforeEach
     void beforeEach() {
-      given(nativeLogServiceProvider.getLogHandler()).willReturn(logHandler);
-      sut = new NativeLogger(NativeLoggerTest.class.getName(), INFO, nativeLogServiceProvider);
+      given(configuredLogHandlerFactory.getLogHandler()).willReturn(logHandler);
+      sut = new NativeLogger(
+          new NativeLogger.LoggerId(NativeLoggerTest.class.getName(), INFO),
+          configuredLogHandlerFactory);
     }
 
     @Test
@@ -121,7 +127,12 @@ class NativeLoggerTest {
 
       then(logHandler)
           .should()
-          .log(eq(sut.getLevel()), eq(sut.getLoggerName()), same(exception), isNull(), isNull());
+          .log(
+              eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
+              same(NativeLogger.class),
+              same(exception),
+              isNull(),
+              isNull());
     }
 
     @Test
@@ -131,8 +142,8 @@ class NativeLoggerTest {
       then(logHandler)
           .should()
           .log(
-              eq(sut.getLevel()),
-              eq(sut.getLoggerName()),
+              eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
+              same(NativeLogger.class),
               same(exception),
               same(plainTextMessage),
               isNull());
@@ -145,8 +156,8 @@ class NativeLoggerTest {
       then(logHandler)
           .should()
           .log(
-              eq(sut.getLevel()),
-              eq(sut.getLoggerName()),
+              eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
+              same(NativeLogger.class),
               same(exception),
               same(textMessageWithArgHolders),
               same(args));
@@ -159,8 +170,8 @@ class NativeLoggerTest {
       then(logHandler)
           .should()
           .log(
-              eq(sut.getLevel()),
-              eq(sut.getLoggerName()),
+              eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
+              same(NativeLogger.class),
               isNull(),
               same(textMessageWithArgHolders),
               same(args));
@@ -173,8 +184,8 @@ class NativeLoggerTest {
       then(logHandler)
           .should()
           .log(
-              eq(sut.getLevel()),
-              eq(sut.getLoggerName()),
+              eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
+              same(NativeLogger.class),
               isNull(),
               same(plainTextMessage),
               isNull());

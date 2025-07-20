@@ -25,20 +25,22 @@
 
 package elf4j.engine.logging.writer;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.awaitility.Awaitility.await;
 
 import conseq4j.execute.ConseqExecutor;
 import elf4j.Level;
+import elf4j.Logger;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.NativeLogServiceManager;
 import elf4j.engine.logging.config.ConfigurationProperties;
+import elf4j.util.UtilLogger;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.awaitility.core.ConditionFactory;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.MDC;
 
@@ -47,17 +49,34 @@ import org.slf4j.MDC;
  * threads. However, events issued by the same caller application thread are rendered sequentially
  * with the {@link ConseqExecutor} API. Thus, logs by different caller threads may arrive at the
  * final destination (e.g. system Console or a log file) in any order; meanwhile, logs from the same
- * caller thread will arrive sequentially in the same order as they are called in the original
- * thread.
+ * caller thread will arrive sequentially in the same order as they are called by such thread.
  */
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stoppable {
-  private static final Logger LOGGER = Logger.getLogger(CompositeWriter.class.getName());
+  private static final Logger LOGGER = UtilLogger.INFO;
+  private static final LogWriterFactory DEFAULT_WRITER_FACTORY = new StandardStreamWriterFactory();
+
+  /** Composed writers are created based on configuration properties. */
+  @EqualsAndHashCode.Include
   private final List<LogWriter> writers;
+
+  /**
+   * The async executor's concurrency is based on configuration properties. If omitted, the default
+   * concurrency is determined by the <a href="https://q3769.github.io/conseq4j">conseq4j API</a>
+   */
   private final ConseqExecutor conseqExecutor;
+
+  /**
+   * The lowest threshold output Level of all configured log writers, cached after deriving from the
+   * writers.
+   */
   private @Nullable Level thresholdOutputLevel;
 
-  @ToString.Exclude
+  /**
+   * {@code true} if any of the configured log writer's log pattern requires run-time caller detail,
+   * cached after deriving from the writers.
+   */
   private @Nullable Boolean includeCallerDetail;
 
   private CompositeWriter(List<LogWriter> writers, ConseqExecutor conseqExecutor) {
@@ -74,12 +93,12 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
    * @return the composite writer containing all writers configured in the specified properties
    */
   public static CompositeWriter from(ConfigurationProperties configurationProperties) {
-    List<LogWriterFactory> configuredLogWriters =
+    List<LogWriterFactory> configuredWriterFactories =
         new ArrayList<>(getLogWriterFactories(configurationProperties));
-    if (configuredLogWriters.isEmpty()) {
-      configuredLogWriters.add(new StandardStreamWriterFactory());
+    if (configuredWriterFactories.isEmpty()) {
+      configuredWriterFactories.add(DEFAULT_WRITER_FACTORY);
     }
-    List<LogWriter> logWriters = configuredLogWriters.stream()
+    List<LogWriter> logWriters = configuredWriterFactories.stream()
         .map(logWriterFactory ->
             logWriterFactory.getLogWriter(configurationProperties.getProperties()))
         .toList();
@@ -102,6 +121,7 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
     }
     return Arrays.stream(writerFactoryClassNames.split(","))
         .map(String::strip)
+        .filter(strip -> !isNullOrEmpty(strip))
         .map(fqcn -> {
           try {
             return (LogWriterFactory)
@@ -111,10 +131,12 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
               | InvocationTargetException
               | NoSuchMethodException
               | ClassNotFoundException e) {
-            LOGGER.severe(
-                "Unable to construct log writer factory: fqcn=%s - it must have a no-arg constructor and of type %s"
-                    .formatted(fqcn, LogWriterFactory.class));
-            throw new IllegalArgumentException("Error instantiating: %s".formatted(fqcn), e);
+            LOGGER.error(
+                "Unable to construct log writer factory: fqcn='%s' - it must have a no-arg constructor and of type %s"
+                    .formatted(fqcn, LogWriterFactory.class),
+                e);
+            throw new IllegalArgumentException(
+                "Error instantiating writer class '%s'".formatted(fqcn), e);
           }
         })
         .collect(Collectors.toList());
@@ -140,11 +162,11 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
   }
 
   @Override
-  public Level getThresholdOutputLevel() {
+  public Level getMinimumThresholdLevel() {
     if (thresholdOutputLevel == null) {
       thresholdOutputLevel = Level.values()[
           writers.stream()
-              .mapToInt(writer -> writer.getThresholdOutputLevel().ordinal())
+              .mapToInt(writer -> writer.getMinimumThresholdLevel().ordinal())
               .min()
               .orElseThrow(NoSuchElementException::new)];
     }
@@ -171,11 +193,14 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
       return;
     }
     LOGGER.info("Stopping %s".formatted(this));
+    conseqExecutor.shutdown();
+    Duration timeout = Duration.ofSeconds(30);
     try (conseqExecutor) {
-      ConditionFactory await = await();
-      await.during(Duration.ofMillis(100)).until(() -> true);
-      conseqExecutor.shutdown();
-      await.atMost(Duration.ofSeconds(30)).until(conseqExecutor::isTerminated);
+      await().atMost(timeout).until(conseqExecutor::isTerminated);
+      LOGGER.info("Stopped %s".formatted(this));
+    } catch (Exception e) {
+      LOGGER.warn(
+          "Writer executor %s still not terminated after %s".formatted(conseqExecutor, timeout), e);
     }
   }
 }

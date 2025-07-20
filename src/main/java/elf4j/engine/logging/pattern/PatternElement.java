@@ -35,10 +35,15 @@ public interface PatternElement extends PerformanceSensitive {
 
   /**
    * Extracts the content of particular interest to this log pattern instance from the specified log
-   * event, and appends the result to the specified target aggregator of the final log message
+   * event, and appends the result to the specified target aggregator of the final log message.
    *
    * @param logEvent entire log content data source to render
    * @param target logging text aggregator of the final log message
+   * @apiNote A PatternElement only mutates the specified target based on the content of the
+   *     specified logEvent, and does not flush the target to its final logging destination (e.g.
+   *     the STDOUT stream or a log file). Shipping the completely rendered target message to the
+   *     final destination (e.g. the STDOUT stream, a log file, or aggregation vendors like
+   *     Newrelic/Datadog) is the {@link elf4j.engine.logging.writer.LogWriter}'s responsibility.
    */
   void render(LogEvent logEvent, StringBuilder target);
 }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Qingtian Wang
+ * Copyright (c) 2025 Qingtian Wang
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,35 +22,17 @@
  * SOFTWARE.
  *
  */
-
-package elf4j.engine.logging.writer;
-
-import elf4j.Level;
-import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.PerformanceSensitive;
-import javax.annotation.concurrent.ThreadSafe;
+package elf4j.engine.logging;
 
 /**
- * An interface representing a log writer responsible for writing/shipping fully rendered log
- * messages to an output destination e.g. the STDOUT stream, a log file, or a remote vendor log
- * collector (Datadog, Newrelic, ...). Implementations of this interface should be thread-safe.
- *
- * @see PerformanceSensitive
+ * The LogHandlerFactory interface provides methods for getting the log handler. Capable of
+ * reconfiguring the log handler with the specified properties at runtime.
  */
-@ThreadSafe
-public interface LogWriter extends PerformanceSensitive {
+public interface LogHandlerFactory {
   /**
-   * Returns the threshold output level for this log writer. Log events with a level lower than the
-   * threshold will not be written.
+   * Gets the log service.
    *
-   * @return the threshold output level of this writer
+   * @return the log service
    */
-  Level getMinimumThresholdLevel();
-
-  /**
-   * Writes the given log event to the output destination(s) configured for this log writer.
-   *
-   * @param logEvent the log data entry to write out
-   */
-  void write(LogEvent logEvent);
+  LogHandler getLogHandler();
 }

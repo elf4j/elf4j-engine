@@ -25,33 +25,32 @@
 
 package elf4j.engine.logging;
 
-import elf4j.Level;
+import elf4j.engine.NativeLogger;
 import org.jspecify.annotations.Nullable;
 
 /** The LogHandler processes the logging operations delegated from the Logger. */
-public interface LogHandler extends PerformanceSensitive {
+public interface LogHandler {
   /**
-   * Checks if the logger's level is at or above the configured threshold.
-   *
-   * @param level the log level to check against the caller class threshold level
-   * @param callerClass whose threshold level to check against the specified log level
-   * @return true if the logger's level is at or above the configured threshold, false otherwise
+   * @return true if the logger instance's severity level is at or above the configured threshold
+   *     for the specified logger id, false otherwise
    */
-  boolean isEnabled(Level level, String callerClass);
+  boolean isEnabled(NativeLogger.LoggerId loggerId);
 
   /**
    * Service a log operation at the specified level, for the specified caller class
    *
-   * @param level The desired level of this current log call
-   * @param loggerName of the log service interface
+   * @param loggerId the logger id to look up configurations for
+   * @param logServiceClass the runtime concrete implementation class of the log service API. In
+   *     elf4j-engine it's always the {@link NativeLogger} class rather than the
+   *     {@link elf4j.Logger} interface itself.
    * @param throwable to log
    * @param message to log, can have argument placeholders to be replaced by the values of the
    *     specified arguments
    * @param arguments arguments whose values will replace the placeholders in the specified message
    */
   void log(
-      Level level,
-      String loggerName,
+      NativeLogger.LoggerId loggerId,
+      Class<?> logServiceClass,
       @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments);

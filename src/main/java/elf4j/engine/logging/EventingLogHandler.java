@@ -25,107 +25,97 @@
 
 package elf4j.engine.logging;
 
-import elf4j.Level;
+import elf4j.Logger;
+import elf4j.engine.NativeLogger;
 import elf4j.engine.logging.config.ConfigurationProperties;
-import elf4j.engine.logging.config.LoggerOutputLevelThreshold;
+import elf4j.engine.logging.config.LoggerOutputMinimumLevelThreshold;
 import elf4j.engine.logging.util.StackTraces;
 import elf4j.engine.logging.writer.CompositeWriter;
 import elf4j.engine.logging.writer.LogWriter;
+import elf4j.util.UtilLogger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
 import org.jspecify.annotations.Nullable;
 
-/**
- * The EventingLogHandler class implements the LogHandler interface and is responsible for
- * converting a log request into an event for async processing. It provides methods for checking if
- * the log should include caller detail, for checking if a logger is enabled, and for logging a log
- * event.
- */
+/** Processing a logging request by converting it into an event for async processing. */
+@Value
 public class EventingLogHandler implements LogHandler {
-  private static final Logger LOGGER = Logger.getLogger(EventingLogHandler.class.getName());
-  private final Class<?> logServiceInterfaceClass;
-  private final boolean noop;
-  private final @Nullable LogWriter logWriter;
-  private final @Nullable LoggerOutputLevelThreshold loggerOutputLevelThreshold;
-  private final Map<String, Boolean> loggerEnabled = new ConcurrentHashMap<>();
+  private static final Logger LOGGER = UtilLogger.WARN;
+
+  boolean noop;
+
+  @Nullable LogWriter logWriter;
+
+  @Nullable LoggerOutputMinimumLevelThreshold loggerOutputMinimumLevelThreshold;
+
+  @EqualsAndHashCode.Exclude
+  Map<NativeLogger.LoggerId, Boolean> loggerEnablements = new ConcurrentHashMap<>();
 
   /**
    * Constructor for the EventingLogHandler class.
    *
    * @param configurationProperties parsed configuration for the logger service
    */
-  public EventingLogHandler(
-      ConfigurationProperties configurationProperties, Class<?> logServiceInterfaceClass) {
-    this.logServiceInterfaceClass = logServiceInterfaceClass;
+  public EventingLogHandler(ConfigurationProperties configurationProperties) {
     if (configurationProperties.isAbsent() || configurationProperties.isTrue("noop")) {
       noop = true;
-      LOGGER.warning("No-op per configuration %s".formatted(configurationProperties));
+      LOGGER.warn("No-op per configuration %s".formatted(configurationProperties));
       logWriter = null;
-      loggerOutputLevelThreshold = null;
+      loggerOutputMinimumLevelThreshold = null;
       return;
     }
     noop = false;
     logWriter = CompositeWriter.from(configurationProperties);
-    loggerOutputLevelThreshold = LoggerOutputLevelThreshold.from(configurationProperties);
-  }
-
-  /**
-   * Checks if the log should include caller detail such as method, line number, etc.
-   *
-   * @return false as the context element does not include caller detail
-   */
-  @Override
-  public boolean includeCallerDetail() {
-    assert !noop;
-    assert logWriter != null;
-    return logWriter.includeCallerDetail();
+    loggerOutputMinimumLevelThreshold =
+        LoggerOutputMinimumLevelThreshold.from(configurationProperties);
   }
 
   /**
    * Checks if a logger is enabled.
    *
-   * @param level the desired level of this particular log invocation
-   * @param loggerName whose threshold level is to be checked
    * @return true if the logger is enabled, false otherwise
    */
   @Override
-  public boolean isEnabled(Level level, String loggerName) {
+  public boolean isEnabled(NativeLogger.LoggerId loggerId) {
     if (noop) {
       return false;
     }
-    assert loggerOutputLevelThreshold != null;
+    assert loggerOutputMinimumLevelThreshold != null;
     assert logWriter != null;
-    return loggerEnabled.computeIfAbsent(loggerName, callerClassName -> {
-      if (level.compareTo(loggerOutputLevelThreshold.getThresholdOutputLevel(callerClassName)) < 0)
-        return false;
-      return level.compareTo(logWriter.getThresholdOutputLevel()) >= 0;
-    });
+    return loggerEnablements.computeIfAbsent(
+        loggerId,
+        k -> k.level()
+                    .compareTo(
+                        loggerOutputMinimumLevelThreshold.getMinimumThresholdLevel(k.loggerName()))
+                >= 0
+            && k.level().compareTo(logWriter.getMinimumThresholdLevel()) >= 0);
   }
 
   @Override
   public void log(
-      Level level,
-      String loggerName,
+      NativeLogger.LoggerId loggerId,
+      Class<?> logServiceClass,
       @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments) {
-    if (!this.isEnabled(level, loggerName)) {
+    if (!isEnabled(loggerId)) {
       return;
     }
     assert logWriter != null;
     Thread callerThread = Thread.currentThread();
     logWriter.write(LogEvent.builder()
         .callerThread(new LogEvent.ThreadValue(callerThread.getName(), callerThread.threadId()))
-        .level(level)
+        .level(loggerId.level())
         .throwable(throwable)
         .message(message)
         .arguments(arguments)
-        .loggerName(loggerName)
+        .loggerName(loggerId.loggerName())
         .callerFrame(
-            includeCallerDetail()
+            logWriter.includeCallerDetail()
                 ? LogEvent.StackFrameValue.from(
-                    StackTraces.callerFrameOf(logServiceInterfaceClass.getName()))
+                    StackTraces.callerFrameOf(logServiceClass.getName()))
                 : null)
         .build());
   }

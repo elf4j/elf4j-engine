@@ -25,12 +25,13 @@
 
 package elf4j.engine.logging;
 
+import elf4j.Logger;
+import elf4j.util.UtilLogger;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Logger;
 import lombok.ToString;
 import org.jspecify.annotations.Nullable;
 
@@ -44,7 +45,7 @@ public enum NativeLogServiceManager {
   /** The singleton instance of the NativeLogServiceManager. */
   INSTANCE;
 
-  private static final Logger LOGGER = Logger.getLogger(NativeLogServiceManager.class.getName());
+  private static final Logger LOGGER = UtilLogger.INFO;
 
   private final Set<Refreshable> refreshables = new HashSet<>();
   private final Set<Stoppable> stoppables = new HashSet<>();

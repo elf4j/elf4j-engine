@@ -1,9 +1,11 @@
 package elf4j.engine.logging;
 
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import elf4j.Logger;
+import elf4j.engine.NativeLogger;
 import java.util.Properties;
 import java.util.concurrent.RejectedExecutionException;
 import org.junit.jupiter.api.*;
@@ -31,7 +33,9 @@ class LogHandlerManagerTest {
 
       NativeLogServiceManager.INSTANCE.shutdown();
 
-      assertThrows(RejectedExecutionException.class, () -> logger.log("after shutdown"));
+      assertThrows(
+          RejectedExecutionException.class,
+          () -> logger.log("after shutdown... Should be rejected and not show in Console"));
     }
   }
 
@@ -70,16 +74,17 @@ class LogHandlerManagerTest {
       logger.log(
           "before refresh, {} is to print with configuration properties loaded from configuration file",
           logger);
+      assertInstanceOf(NativeLogger.class, logger);
 
       Properties properties = new Properties();
       NativeLogServiceManager.INSTANCE.restart(properties);
 
       Logger configurationPropertiesChanged = Logger.instance();
-      assertSame(logger, configurationPropertiesChanged);
       configurationPropertiesChanged.log(
           "after refresh, the same logger instance {} is to print with newly set configuration properties {}",
           configurationPropertiesChanged,
           properties);
+      assertEquals(logger, configurationPropertiesChanged);
     }
   }
 }

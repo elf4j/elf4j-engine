@@ -4,11 +4,19 @@ import elf4j.Level;
 import elf4j.engine.logging.pattern.LogPattern;
 import java.util.Properties;
 
-/** Produces the default StandardStreamWriter based on the provided ConfigurationProperties. */
-class StandardStreamWriterFactory implements LogWriterFactory {
+/**
+ * Produces the default StandardStreamWriter based on the provided ConfigurationProperties.
+ *
+ * <p>To work with elf4j-engine, any implementation of the {@link LogWriterFactory} interface must
+ * have an accessible no-arg constructor
+ */
+final class StandardStreamWriterFactory implements LogWriterFactory {
+  public StandardStreamWriterFactory() { // no-arg constructor required
+  }
+
   private static StandardStreamWriter getDefaultWriter(Properties configurationProperties) {
     return StandardStreamWriter.builder()
-        .thresholdOutputLevel(Level.valueOf(configurationProperties
+        .minimumThresholdLevel(Level.valueOf(configurationProperties
             .getProperty("level", StandardStreamWriter.DEFAULT_THRESHOLD_OUTPUT_LEVEL)
             .trim()
             .toUpperCase()))

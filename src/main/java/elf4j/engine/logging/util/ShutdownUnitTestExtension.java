@@ -1,12 +1,13 @@
 package elf4j.engine.logging.util;
 
+import elf4j.Logger;
 import elf4j.engine.logging.NativeLogServiceManager;
-import java.util.logging.Logger;
+import elf4j.util.UtilLogger;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-public class ShutdownUnitTestExtension implements BeforeAllCallback {
-  private static final Logger LOGGER = Logger.getLogger(ShutdownUnitTestExtension.class.getName());
+public final class ShutdownUnitTestExtension implements BeforeAllCallback {
+  private static final Logger LOGGER = UtilLogger.INFO;
   private static boolean shutdownHookRegistered = false;
 
   @Override
