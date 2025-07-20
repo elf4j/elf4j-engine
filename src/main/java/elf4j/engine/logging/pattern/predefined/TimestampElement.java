@@ -35,7 +35,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import lombok.Builder;
 
 public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOption timeZoneOption)
     implements PatternElement {
@@ -120,8 +119,7 @@ public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOpti
   private record ComparisonCopy(String dateTimeFormatter, TimeZoneOption timeZoneOption) {
     public static ComparisonCopy from(TimestampElement timestampElement) {
       return new ComparisonCopy(
-          Objects.toString(timestampElement.dateTimeFormatter),
-          timestampElement.timeZoneOption);
+          Objects.toString(timestampElement.dateTimeFormatter), timestampElement.timeZoneOption);
     }
   }
 }
