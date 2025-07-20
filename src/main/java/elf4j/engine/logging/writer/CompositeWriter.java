@@ -193,9 +193,14 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
       return;
     }
     LOGGER.info("Stopping %s".formatted(this));
+    conseqExecutor.shutdown();
+    Duration timeout = Duration.ofSeconds(30);
     try (conseqExecutor) {
-      conseqExecutor.shutdown();
-      await().atMost(Duration.ofSeconds(30)).until(conseqExecutor::isTerminated);
+      await().atMost(timeout).until(conseqExecutor::isTerminated);
+      LOGGER.info("Stopped %s".formatted(this));
+    } catch (Exception e) {
+      LOGGER.warn(
+          "Writer executor %s still not terminated after %s".formatted(conseqExecutor, timeout), e);
     }
   }
 }
