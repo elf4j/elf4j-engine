@@ -117,13 +117,11 @@ public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOpti
     }
   }
 
-  @Builder
   private record ComparisonCopy(String dateTimeFormatter, TimeZoneOption timeZoneOption) {
     public static ComparisonCopy from(TimestampElement timestampElement) {
-      return ComparisonCopy.builder()
-          .dateTimeFormatter(Objects.toString(timestampElement.dateTimeFormatter))
-          .timeZoneOption(timestampElement.timeZoneOption)
-          .build();
+      return new ComparisonCopy(
+          Objects.toString(timestampElement.dateTimeFormatter),
+          timestampElement.timeZoneOption);
     }
   }
 }
