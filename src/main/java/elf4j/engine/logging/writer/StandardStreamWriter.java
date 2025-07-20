@@ -124,7 +124,7 @@ public class StandardStreamWriter implements LogWriter {
    *     That means this log engine should not be used together with any other logging provider at
    *     the same time.
    */
-  private static final class StandardOutput {
+  private static final class StandardOutput implements AutoCloseable {
     private static final Logger LOGGER = UtilLogger.ERROR;
 
     /**
@@ -164,6 +164,11 @@ public class StandardStreamWriter implements LogWriter {
       } finally {
         OUTPUT_LOCK.unlock();
       }
+    }
+
+    @Override
+    public void close() throws Exception {
+      outputStream.close();
     }
   }
 }
