@@ -63,7 +63,7 @@ public class NativeLogger implements Logger {
 
   @Override
   public NativeLogger atLevel(Level level) {
-    return loggerId.level() == level
+    return loggerId.level == level
         ? this
         : new NativeLogger(new LoggerId(loggerId.loggerName, level), logHandlerFactory);
   }
