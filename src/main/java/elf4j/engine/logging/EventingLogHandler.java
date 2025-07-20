@@ -94,8 +94,8 @@ public class EventingLogHandler implements LogHandler {
 
   @Override
   public void log(
-      Class<?> logServiceClass,
       NativeLogger.LoggerId loggerId,
+      Class<?> logServiceClass,
       @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments) {

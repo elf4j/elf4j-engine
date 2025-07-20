@@ -60,7 +60,7 @@ class EventingLogHandlerTest {
       String loggerName = this.getClass().getName();
 
       eventingLogHandler.log(
-          NativeLogger.class, new NativeLogger.LoggerId(loggerName, Level.INFO), null, null, null);
+          new NativeLogger.LoggerId(loggerName, Level.INFO), NativeLogger.class, null, null, null);
 
       then(eventingLogHandler)
           .should()
@@ -80,12 +80,12 @@ class EventingLogHandlerTest {
       given(mockLogWriter.getMinimumThresholdLevel()).willReturn(Level.INFO);
 
       logHandler.log(
+          new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO),
           logHandler
               .getClass(), // no log service implementation class here as the handler is called
           // directly
           // and not via log service API, only need a class here whose runtime caller class will be
           // used to render the log caller detail
-          new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO),
           null,
           null,
           null);
@@ -103,8 +103,8 @@ class EventingLogHandlerTest {
       ArgumentCaptor<LogEvent> logEvent = ArgumentCaptor.forClass(LogEvent.class);
 
       sut.log(
-          sut.getClass(),
           new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO),
+          sut.getClass(),
           null,
           null,
           null);
@@ -129,8 +129,8 @@ class EventingLogHandlerTest {
       ArgumentCaptor<LogEvent> logEvent = ArgumentCaptor.forClass(LogEvent.class);
 
       sut.log(
-          sut.getClass(),
           new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO),
+          sut.getClass(),
           null,
           null,
           null);
@@ -153,8 +153,8 @@ class EventingLogHandlerTest {
       given(logWriter.getMinimumThresholdLevel()).willReturn(Level.INFO);
 
       sut.log(
-          sut.getClass(),
           new NativeLogger.LoggerId(this.getClass().getName(), Level.TRACE),
+          sut.getClass(),
           null,
           null,
           null);

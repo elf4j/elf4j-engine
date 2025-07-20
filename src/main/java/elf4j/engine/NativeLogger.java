@@ -104,7 +104,7 @@ public class NativeLogger implements Logger {
     process(LOG_SERVICE_CLASS, throwable, message, arguments);
   }
 
-  /// Public service interface API in addition to [Logger]
+  /// Public API in addition to the [Logger] interface
   ///
   /// @apiNote Used by elf4j-engine internally, not meant for direct usage by client code. Made
   ///     public for potential internal usage of other logging frameworks.
@@ -119,7 +119,7 @@ public class NativeLogger implements Logger {
       @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments) {
-    logHandlerFactory.getLogHandler().log(logServiceClass, loggerId, throwable, message, arguments);
+    logHandlerFactory.getLogHandler().log(loggerId, logServiceClass, throwable, message, arguments);
   }
 
   /// Although the logger's ID includes both the name and severity level of the logger, only the

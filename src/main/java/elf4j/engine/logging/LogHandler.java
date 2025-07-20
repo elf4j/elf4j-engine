@@ -49,8 +49,8 @@ public interface LogHandler {
    * @param arguments arguments whose values will replace the placeholders in the specified message
    */
   void log(
-      Class<?> logServiceClass,
       NativeLogger.LoggerId loggerId,
+      Class<?> logServiceClass,
       @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments);
