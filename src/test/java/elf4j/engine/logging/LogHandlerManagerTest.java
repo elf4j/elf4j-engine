@@ -35,7 +35,7 @@ class LogHandlerManagerTest {
 
       assertThrows(
           RejectedExecutionException.class,
-          () -> logger.log("after shutdown... Should be rejected and no show in Console"));
+          () -> logger.log("after shutdown... Should be rejected and not show in Console"));
     }
   }
 
