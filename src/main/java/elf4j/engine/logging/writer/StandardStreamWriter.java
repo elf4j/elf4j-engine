@@ -153,7 +153,7 @@ public class StandardStreamWriter implements LogWriter {
       } catch (IOException e) {
         LOGGER.log(
             java.util.logging.Level.SEVERE,
-            "Failed to write byte array of length %s to %s".formatted(bytes.length, outputStream),
+            "Failed writing or flushing on %s".formatted(outputStream),
             e);
       } finally {
         OUTPUT_LOCK.unlock();
