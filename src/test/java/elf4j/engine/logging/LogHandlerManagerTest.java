@@ -81,7 +81,7 @@ class LogHandlerManagerTest {
 
       Logger configurationPropertiesChanged = Logger.instance();
       configurationPropertiesChanged.log(
-          "after refresh, the same logger instance {} is to print with newly set configuration properties {}",
+          "after refresh, the reset logger instance {} is to print with newly set configuration properties {}",
           configurationPropertiesChanged,
           properties);
       assertEquals(logger, configurationPropertiesChanged);
