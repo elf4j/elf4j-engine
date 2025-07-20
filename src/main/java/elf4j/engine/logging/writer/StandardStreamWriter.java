@@ -123,7 +123,7 @@ public class StandardStreamWriter implements LogWriter {
    *     ensures the flush of each log entry is self-initiated immediately after the entry's bytes
    *     are written (buffered). However, as the lock is (intentionally) not on the
    *     {@code System.out} or {@code System.err}, it does not prevent the logs from interleaving
-   *     with content/bytes from other/outside processes targeting the same STDOUT/STDERR stream.
+   *     with other content/bytes from outside processes targeting the same STDOUT/STDERR stream.
    *     That means this log engine should not be used together with any other logging provider at
    *     the same time.
    */
