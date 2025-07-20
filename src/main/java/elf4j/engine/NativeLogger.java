@@ -129,11 +129,11 @@ public class NativeLogger implements Logger {
   ///
   /// In general, there are two types of client "caller classes" of the log service:
   ///
-  /// 1. One is the caller class (type-1) of the "service access API". The purpose of this
-  /// call is to obtain (gain "access" to) a reference to the "service class", where
-  /// subsequent log service requests can be issued.
+  /// 1. One (type-1) is the caller class of the "service access API". The purpose of this call is
+  /// to obtain (gain "access" to) a reference to the "service class", where subsequent log service
+  /// requests can be issued.
   ///
-  /// 2. The other is the caller class (type-2) of the "service interface API". The purpose of
+  /// 2. The other (type-2) is the caller class of the "service interface API". The purpose of
   /// this caller is to issue log service requests to "service class" which is the concrete
   /// implementation of the service interface API.
   ///
@@ -174,7 +174,7 @@ public class NativeLogger implements Logger {
   /// caution when including such run-time caller details in the output log pattern.
   ///
   /// @param loggerName This loggerName field stores the fully qualified class name of the "caller
-  ///     class". The minimum output threshold level is configured based on this logger name.
+  /// class". The minimum output threshold level is configured based on this logger name.
   /// @param level the severity level of this logger instance
   @Builder(toBuilder = true)
   public record LoggerId(String loggerName, Level level) {}
