@@ -30,8 +30,7 @@ import static elf4j.engine.logging.writer.StandardStreamWriter.OutStreamType.STD
 import elf4j.Level;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Logger;
@@ -116,6 +115,17 @@ public class StandardStreamWriter implements LogWriter {
   /**
    * Implementation of the StandardOutput interface that writes to the standard output and standard
    * error streams using FileOutputStream and synchronizes access using a ReentrantLock.
+   *
+   * @implNote To avoid "virtual thread pinning", this class does not use {@code System.out} or
+   *     {@code System.err} which internally uses {@code synchronized}. Instead, it uses a buffered
+   *     file stream guarded by a global lock to arrange the desired atomicity of the
+   *     {@code write}-and-{@code flush} operation. Within the elf4j-engine, such locking atomicity
+   *     ensures the flush of each log entry is self-initiated immediately after the entry's bytes
+   *     are written (buffered). However, as the lock is (intentionally) not on the
+   *     {@code System.out} or {@code System.err}, it does not prevent the logs from interleaving
+   *     with content/bytes from other/outside processes targeting the same STDOUT/STDERR stream.
+   *     That means this log engine should not be used together with any other logging provider at
+   *     the same time.
    */
   private static final class StandardOutput {
     private static final Logger LOGGER = Logger.getLogger(StandardOutput.class.getName());
@@ -124,8 +134,8 @@ public class StandardStreamWriter implements LogWriter {
 
     public StandardOutput(OutStreamType outStreamType) {
       this.outputStream = switch (outStreamType) {
-        case STDOUT -> System.out;
-        case STDERR -> System.err;
+        case STDOUT -> new BufferedOutputStream(new FileOutputStream(FileDescriptor.out));
+        case STDERR -> new BufferedOutputStream(new FileOutputStream(FileDescriptor.err));
       };
     }
 
@@ -133,16 +143,7 @@ public class StandardStreamWriter implements LogWriter {
      * This method is supposed to be called once and only once per each entirely complete log
      * message.
      *
-     * @implNote To avoid "virtual thread pinning", this method is locking on a global lock instead
-     *     of {@code synchronized} on {@code System.out} or {@code System.err}. This is to arrange
-     *     the desired atomicity of the {@code write}-and-{@code flush} operation. Within the
-     *     elf4j-engine, such locking atomicity ensures the flush of each log entry is
-     *     self-initiated immediately after the entry's bytes are written (buffered). However, as
-     *     the lock is (intentionally) not on the {@code System.out} or {@code System.err}, this
-     *     does not prevent the logs from interleaving with content/bytes flushed by other/outside
-     *     processes targeting the same STDOUT/STDERR stream. That means this log engine should not
-     *     be used together with any other logging provider at the same time.
-     * @param bytes to write to the specified standard stream
+     * @param bytes of the completely rendered log message to write to the target output stream
      */
     public void write(byte[] bytes) {
       OUTPUT_LOCK.lock();

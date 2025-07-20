@@ -31,7 +31,9 @@ class LogHandlerManagerTest {
 
       NativeLogServiceManager.INSTANCE.shutdown();
 
-      assertThrows(RejectedExecutionException.class, () -> logger.log("after shutdown"));
+      assertThrows(
+          RejectedExecutionException.class,
+          () -> logger.log("after shutdown... Should be rejected and no show in Console"));
     }
   }
 
