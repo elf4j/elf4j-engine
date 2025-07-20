@@ -129,7 +129,16 @@ public class StandardStreamWriter implements LogWriter {
    */
   private static final class StandardOutput {
     private static final Logger LOGGER = Logger.getLogger(StandardOutput.class.getName());
-    private static final Lock OUTPUT_LOCK = new java.util.concurrent.locks.ReentrantLock(true);
+
+    /**
+     * Locking is in the default "unfair" mode for performance. This means under contention, logs
+     * from different threads may appear in the final destination in any order. However, 1) the
+     * (unchanged) timestamps on the logs still reflect the chronicle order, and can/should be used
+     * to sort the logs when viewing them; and 2) the logs from the same thread are still ensured to
+     * appear in the same order as the thread requested.
+     */
+    private static final Lock OUTPUT_LOCK = new java.util.concurrent.locks.ReentrantLock(false);
+
     private final OutputStream outputStream;
 
     public StandardOutput(OutStreamType outStreamType) {

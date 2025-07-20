@@ -81,45 +81,40 @@ public class NativeLogger implements Logger {
 
   @Override
   public void log(Object message) {
-    this.process(null, message, null);
+    process(LOG_SERVICE_CLASS, null, message, null);
   }
 
   @Override
   public void log(String message, Object... arguments) {
-    this.process(null, message, arguments);
+    process(LOG_SERVICE_CLASS, null, message, arguments);
   }
 
   @Override
   public void log(Throwable throwable) {
-    this.process(throwable, null, null);
+    process(LOG_SERVICE_CLASS, throwable, null, null);
   }
 
   @Override
   public void log(Throwable throwable, Object message) {
-    this.process(throwable, message, null);
+    process(LOG_SERVICE_CLASS, throwable, message, null);
   }
 
   @Override
   public void log(Throwable throwable, String message, Object... arguments) {
-    this.process(throwable, message, arguments);
+    process(LOG_SERVICE_CLASS, throwable, message, arguments);
   }
 
-  private void process(
-      @Nullable Throwable throwable, @Nullable Object message, Object @Nullable [] arguments) {
-    handle(LOG_SERVICE_CLASS, throwable, message, arguments);
-  }
-
-  /**
-   * Public API other logging framework API can use.
-   *
-   * @param logServiceClass the concrete runtime implementation class the log framework API provides
-   *     for the client code to issue log service requests. In this case, it is always this
-   *     {@link NativeLogger} class rather than the {@link Logger} interface.
-   * @param throwable to log
-   * @param message to log
-   * @param arguments to log
-   */
-  public void handle(
+  /// Public service interface API in addition to [Logger]
+  ///
+  /// @apiNote Used by elf4j-engine internally, not meant for direct usage by client code. Made
+  ///     public for potential internal usage of other logging frameworks.
+  /// @param logServiceClass the concrete runtime implementation class that the logging framework
+  ///     provides for the client code to call the service interface API. In this case, it is always
+  ///     this [NativeLogger] class rather than the [Logger] interface.
+  /// @param throwable to log
+  /// @param message to log
+  /// @param arguments to log
+  public void process(
       Class<?> logServiceClass,
       @Nullable Throwable throwable,
       @Nullable Object message,
@@ -127,55 +122,60 @@ public class NativeLogger implements Logger {
     logHandlerFactory.getLogHandler().log(logServiceClass, loggerId, throwable, message, arguments);
   }
 
-  /**
-   * Although the logger's ID includes both the name and severity level of the logger, only the
-   * logger name is used to configure the logger's minimum output level. Only when the logger's
-   * severity level is equal or greater than the configured minimum level, will this logger's
-   * messages eventually print out.
-   *
-   * @param loggerName This loggerName field stores the fully qualified class name of the "caller
-   *     class". The minimum output threshold level is configured based on this logger name.
-   *     <p>In general, there are two types of client "caller classes" of the log service:
-   *     <ol>
-   *       <li>One is the caller class (type-1) of the "service access API". The purpose of this
-   *           call is to obtain (gain "access" to) a reference to the "service class", where
-   *           subsequent log service requests can be issued.
-   *       <li>The other is the caller class (type-2) of the "service interface API". The purpose of
-   *           this caller is to issue log service requests to "service class" which is the concrete
-   *           implementation of the service interface API.
-   *     </ol>
-   *     Strictly, this logger name field is the fully-qualified name of the former (type-1) caller
-   *     class. This field will end up being the "logger" value printed in the final log message,
-   *     and may or may not be the "class" value (i.e. the type-2 caller class) of the same log
-   *     message.
-   *     <p>In most cases, the type-1 caller class to the service access API is the same as the
-   *     type-2 caller class to the service interface API. The exceptional case where the caller
-   *     classes are different would be: The type-1 service access API caller class obtains a
-   *     reference to the log service class ({@code NativeLogger}) instance; then instead of using
-   *     the reference to issue service calls, it passes the reference out to a different type-2
-   *     caller class that subsequently calls the service interface API.
-   *     <p>In the final log message pattern, "logger" is the class name of the type-1 client
-   *     caller, "class" is the class name of the type-2 client caller.
-   *     <p>In elf4j facade API, the {@link Logger} interface is both the service access API and the
-   *     service interface API. The sole service access API is the {@link Logger#instance()}) static
-   *     factory method; and the service interface API includes all instance methods in the same
-   *     {@link Logger} interface. The service access API is for the client (type-1 caller class) to
-   *     gain access to a reference of the service interface API implementation. The service
-   *     interface API is for the client (type-2 caller class) to issue subsequent log service
-   *     requests.
-   *     <p>Unlike the service access API which is a static method, the service interface API is
-   *     defined as instance methods. That means, at runtime, a type-1 caller will be directly
-   *     calling the {@code Logger} interface; but a type-2 caller will be calling an instance of
-   *     the concrete implementation class, i.e. the {@code NativeLogger} class rather than the
-   *     {@code Logger} interface itself. That is important to note when trying to detect the
-   *     runtime type-2 caller class to print as "class" in the final log message.
-   *     <p>Compared to this immutable logger name (the type-1 caller class name), it is
-   *     performance-wise more expensive to obtain the type-2 caller class information - including
-   *     its class name, method name, file name, and file line number - which can be dynamic at
-   *     run-time and different from the type-1 caller class. If performance is of concern, use
-   *     caution when including such run-time caller details in the output log pattern.
-   * @param level the severity level of this logger instance
-   */
+  /// Although the logger's ID includes both the name and severity level of the logger, only the
+  /// logger name is used to configure the logger's minimum output level. Only when the logger's
+  /// severity level is equal or greater than the configured minimum level, will this logger's
+  /// messages eventually print out.
+  ///
+  /// In general, there are two types of client "caller classes" of the log service:
+  ///
+  /// 1. One is the caller class (type-1) of the "service access API". The purpose of this
+  /// call is to obtain (gain "access" to) a reference to the "service class", where
+  /// subsequent log service requests can be issued.
+  ///
+  /// 2. The other is the caller class (type-2) of the "service interface API". The purpose of
+  /// this caller is to issue log service requests to "service class" which is the concrete
+  /// implementation of the service interface API.
+  ///
+  /// Strictly, the [LoggerId#loggerName] field is the fully-qualified name of the former (type-1)
+  /// caller class. This field will end up being the "logger" value printed in the final log
+  /// message, and may or may not be the "class" value (i.e. the type-2 caller class) of the same
+  /// log message.
+  ///
+  /// In most cases, the type-1 caller class to the service access API is the same as the
+  /// type-2 caller class to the service interface API. The exceptional case where the caller
+  /// classes are different would be: The type-1 service access API caller class obtains a
+  /// reference to the log service class (`NativeLogger`) instance; then instead of using
+  /// the reference to issue service calls, it passes the reference out to a different type-2
+  /// caller class that subsequently calls the service interface API.
+  ///
+  /// In the final log message pattern, "logger" is the class name of the type-1 client caller,
+  /// "class" is the class name of the type-2 client caller.
+  ///
+  /// In elf4j facade API, the [Logger] interface is both the service access API and the
+  /// service interface API. The sole service access API is the [Logger#instance()] static
+  /// factory method; and the service interface API includes all instance methods in the same
+  /// [Logger] interface. The service access API is for the client (type-1 caller class) to
+  /// gain access to a reference of the service interface API implementation. The service
+  /// interface API is for the client (type-2 caller class) to issue subsequent log service
+  /// requests.
+  ///
+  /// Unlike the service access API which is a static method, the service interface API is
+  /// defined as instance methods. That means, at runtime, a type-1 caller will be directly
+  /// calling the `Logger` interface; but a type-2 caller will be calling an instance of
+  /// the concrete implementation class, i.e. the `NativeLogger` class rather than the
+  /// `Logger` interface itself. That is important to note when trying to detect the
+  /// runtime type-2 caller class to print as "class" in the final log message.
+  ///
+  /// Compared to this immutable logger name (the type-1 caller class name), it is
+  /// performance-wise more expensive to obtain the type-2 caller class information - including
+  /// its class name, method name, file name, and file line number - which can be dynamic at
+  /// run-time and different from the type-1 caller class. If performance is of concern, use
+  /// caution when including such run-time caller details in the output log pattern.
+  ///
+  /// @param loggerName This loggerName field stores the fully qualified class name of the "caller
+  ///     class". The minimum output threshold level is configured based on this logger name.
+  /// @param level the severity level of this logger instance
   @Builder(toBuilder = true)
   public record LoggerId(String loggerName, Level level) {}
 }
