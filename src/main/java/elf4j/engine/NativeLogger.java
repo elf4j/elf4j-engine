@@ -138,19 +138,18 @@ public class NativeLogger implements Logger {
   /// implementation of the service interface API.
   ///
   /// Strictly, the [LoggerId#loggerName] field is the fully-qualified name of the former (type-1)
-  /// caller class. This field will end up being the "logger" value printed in the final log
-  /// message, and may or may not be the "class" value (i.e. the type-2 caller class) of the same
-  /// log message.
+  /// caller class. In the final log message print, "logger" is the class name of the type-1
+  /// client caller, "class" is the class name of the type-2 client caller. This field will end up
+  /// being the "logger" value printed in the final log message, and may or may not be the "class"
+  /// value (i.e. the type-2 caller class) of the same log message.
   ///
-  /// In most cases, the type-1 caller class to the service access API is the same as the
+  /// Most common, though, the type-1 caller class to the service access API is the same as the
   /// type-2 caller class to the service interface API. The exceptional case where the caller
-  /// classes are different would be: The type-1 service access API caller class obtains a
-  /// reference to the log service class (`NativeLogger`) instance; then instead of using
-  /// the reference to issue service calls, it passes the reference out to a different type-2
-  /// caller class that subsequently calls the service interface API.
-  ///
-  /// In the final log message pattern, "logger" is the class name of the type-1 client caller,
-  /// "class" is the class name of the type-2 client caller.
+  /// classes are different would be: The type-1 caller class calls the "service access class/API"
+  /// to get a reference to the "service interface API/class" instance (implementation when it's
+  /// different from the inter); then instead of using the reference to call the log services, it
+  /// passes the reference out to a different type-2 caller class that subsequently calls the
+  /// service interface API.
   ///
   /// In elf4j facade API, the [Logger] interface is both the service access API and the
   /// service interface API. The sole service access API is the [Logger#instance()] static
