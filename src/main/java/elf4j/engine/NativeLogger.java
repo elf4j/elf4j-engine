@@ -29,7 +29,6 @@ import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.logging.LogHandlerFactory;
 import javax.annotation.concurrent.ThreadSafe;
-import lombok.Builder;
 import lombok.Value;
 import org.jspecify.annotations.Nullable;
 
@@ -66,7 +65,7 @@ public class NativeLogger implements Logger {
   public NativeLogger atLevel(Level level) {
     return loggerId.level() == level
         ? this
-        : new NativeLogger(loggerId.toBuilder().level(level).build(), logHandlerFactory);
+        : new NativeLogger(new LoggerId(loggerId.loggerName, level), logHandlerFactory);
   }
 
   @Override
@@ -173,6 +172,5 @@ public class NativeLogger implements Logger {
   /// @param loggerName This loggerName field stores the fully qualified class name of the "caller
   /// class". The minimum output threshold level is configured based on this logger name.
   /// @param level the severity level of this logger instance
-  @Builder(toBuilder = true)
   public record LoggerId(String loggerName, Level level) {}
 }
