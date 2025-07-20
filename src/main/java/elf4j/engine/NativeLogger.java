@@ -157,14 +157,12 @@ public class NativeLogger implements Logger {
   /// [Logger] interface. The service access API is for the client (type-1 caller class) to
   /// gain access to a reference of the service interface API implementation. The service
   /// interface API is for the client (type-2 caller class) to issue subsequent log service
-  /// requests.
-  ///
-  /// Unlike the service access API which is a static method, the service interface API is
-  /// defined as instance methods. That means, at runtime, a type-1 caller will be directly
-  /// calling the `Logger` interface; but a type-2 caller will be calling an instance of
-  /// the concrete implementation class, i.e. the `NativeLogger` class rather than the
-  /// `Logger` interface itself. That is important to note when trying to detect the
-  /// runtime type-2 caller class to print as "class" in the final log message.
+  /// requests. Unlike the service access API which is a static method, the service interface API is
+  /// defined as instance methods. That means, at runtime, a type-1 caller will be directly calling
+  /// the `Logger` interface; but a type-2 caller will be calling an instance of the concrete
+  /// implementation class, i.e. the `NativeLogger` class, rather than the `Logger` interface
+  /// itself. That is important to note when trying to detect the runtime type-2 caller class to
+  /// print as "class" in the final log message.
   ///
   /// Compared to this immutable logger name (the type-1 caller class name), it is
   /// performance-wise more expensive to obtain the type-2 caller class information - including
