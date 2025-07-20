@@ -48,6 +48,7 @@ import lombok.Value;
 @Value
 @ToString
 public class StandardStreamWriter implements LogWriter {
+  static final Logger LOGGER = Logger.getLogger(StandardStreamWriter.class.getName());
   static final String DEFAULT_THRESHOLD_OUTPUT_LEVEL = "trace";
   static final String DEFAULT_PATTERN = "{timestamp} {level} {class} - {message}";
   static final OutStreamType DEFAULT_OUT_STREAM_TYPE = STDOUT;
@@ -93,7 +94,7 @@ public class StandardStreamWriter implements LogWriter {
     StringBuilder target = new StringBuilder();
     logPattern.render(logEvent, target);
     byte[] bytes = target.append(LINE_FEED).toString().getBytes(StandardCharsets.UTF_8);
-    standardOutput.flushOut(bytes);
+    standardOutput.write(bytes);
   }
 
   /**
@@ -143,7 +144,7 @@ public class StandardStreamWriter implements LogWriter {
      *     be used together with any other logging provider at the same time.
      * @param bytes to write to the specified standard stream
      */
-    public void flushOut(byte[] bytes) {
+    public void write(byte[] bytes) {
       OUTPUT_LOCK.lock();
       try {
         outputStream.write(bytes);
@@ -151,7 +152,7 @@ public class StandardStreamWriter implements LogWriter {
       } catch (IOException e) {
         LOGGER.log(
             java.util.logging.Level.SEVERE,
-            "Failed to write bytes[] of length %s to %s".formatted(bytes.length, outputStream),
+            "Failed to write byte array of length %s to %s".formatted(bytes.length, outputStream),
             e);
       } finally {
         OUTPUT_LOCK.unlock();

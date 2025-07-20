@@ -40,7 +40,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.awaitility.core.ConditionFactory;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.MDC;
 
@@ -193,10 +192,8 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
     }
     LOGGER.config("Stopping %s".formatted(this));
     try (conseqExecutor) {
-      ConditionFactory await = await();
-      await.during(Duration.ofMillis(100)).until(() -> true);
       conseqExecutor.shutdown();
-      await.atMost(Duration.ofSeconds(30)).until(conseqExecutor::isTerminated);
+      await().atMost(Duration.ofSeconds(30)).until(conseqExecutor::isTerminated);
     }
   }
 }
