@@ -157,7 +157,7 @@ public class StandardStreamWriter implements LogWriter {
         outputStream.write(bytes);
         outputStream.flush();
       } catch (IOException e) {
-        LOGGER.error("Failed writing or flushing on %s".formatted(outputStream), e);
+        LOGGER.error("Failed writing or flushing on %s. Log message: %s".formatted(outputStream, new String(bytes, StandardCharsets.UTF_8)), e);
       } finally {
         OUTPUT_LOCK.unlock();
       }
