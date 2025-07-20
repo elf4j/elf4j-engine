@@ -120,8 +120,8 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
       return Collections.emptyList();
     }
     return Arrays.stream(writerFactoryClassNames.split(","))
-        .filter(fqcn -> !isNullOrEmpty(fqcn))
         .map(String::strip)
+        .filter(strip -> !isNullOrEmpty(strip))
         .map(fqcn -> {
           try {
             return (LogWriterFactory)
