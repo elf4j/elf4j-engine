@@ -129,8 +129,8 @@ public class NativeLogger implements Logger {
 
   /**
    * Although the logger's ID includes both the name and severity level of the logger, only the
-   * logger name is usedZ to configure the logger's minimum output level. Only when the logger's
-   * severity level is equal or higher than the configured minimum level, will this logger's
+   * logger name is used to configure the logger's minimum output level. Only when the logger's
+   * severity level is equal or greater than the configured minimum level, will this logger's
    * messages eventually print out.
    *
    * @param loggerName This loggerName field stores the fully qualified class name of the "caller
