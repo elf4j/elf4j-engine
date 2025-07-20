@@ -35,7 +35,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Logger;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
 
@@ -53,9 +52,7 @@ public class StandardStreamWriter implements LogWriter {
   static final OutStreamType DEFAULT_OUT_STREAM_TYPE = STDOUT;
   static final String LINE_FEED = System.lineSeparator();
 
-  @EqualsAndHashCode.Exclude
-  StandardOutput standardOutput;
-
+  transient StandardOutput standardOutput;
   Level minimumThresholdLevel;
   PatternElement logPattern;
   OutStreamType outStreamType;

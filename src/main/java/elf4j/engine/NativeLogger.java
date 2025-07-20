@@ -110,7 +110,7 @@ public class NativeLogger implements Logger {
   }
 
   /**
-   * Public API other logging framework API can use.
+   * Public API other logging frameworks can use.
    *
    * @param logServiceClass the concrete runtime implementation class the log framework API provides
    *     for the client code to issue log service requests. In this case, it is always this
