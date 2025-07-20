@@ -1,6 +1,8 @@
 package elf4j.engine.logging;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import elf4j.Logger;
 import elf4j.engine.NativeLogger;
@@ -79,7 +81,7 @@ class LogHandlerManagerTest {
 
       Logger configurationPropertiesChanged = Logger.instance();
       configurationPropertiesChanged.log(
-          "after refresh, the logger instance with the same/equal ID and now different configuration '{}' is to print with newly set configuration properties '{}'",
+          "after refresh, the same logger instance {} is to print with newly set configuration properties {}",
           configurationPropertiesChanged,
           properties);
       assertEquals(logger, configurationPropertiesChanged);

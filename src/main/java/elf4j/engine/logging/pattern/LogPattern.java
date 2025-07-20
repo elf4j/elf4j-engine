@@ -109,6 +109,8 @@ public record LogPattern(List<PatternElement> patternElements) implements Patter
    */
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    patternElements.forEach(element -> element.render(logEvent, target));
+    for (PatternElement element : patternElements) {
+      element.render(logEvent, target);
+    }
   }
 }

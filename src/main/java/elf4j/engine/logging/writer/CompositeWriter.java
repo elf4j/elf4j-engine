@@ -119,8 +119,8 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
       return Collections.emptyList();
     }
     return Arrays.stream(writerFactoryClassNames.split(","))
-        .map(String::strip)
         .filter(fqcn -> !isNullOrEmpty(fqcn))
+        .map(String::strip)
         .map(fqcn -> {
           try {
             return (LogWriterFactory)
@@ -130,9 +130,11 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
               | InvocationTargetException
               | NoSuchMethodException
               | ClassNotFoundException e) {
-            LOGGER.severe(
+            LOGGER.log(
+                java.util.logging.Level.SEVERE,
                 "Unable to construct log writer factory: fqcn='%s' - it must have a no-arg constructor and of type %s"
-                    .formatted(fqcn, LogWriterFactory.class));
+                    .formatted(fqcn, LogWriterFactory.class),
+                e);
             throw new IllegalArgumentException(
                 "Error instantiating writer class '%s'".formatted(fqcn), e);
           }
