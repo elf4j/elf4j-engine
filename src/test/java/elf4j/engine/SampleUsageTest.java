@@ -50,7 +50,10 @@ class SampleUsageTest {
           logger.getLevel());
       Logger trace = logger.atTrace();
       trace.log("Explicit severity level is specified by user i.e. TRACE");
-      Logger.instance().atTrace().log("Same explicit level TRACE");
+      Logger.instance()
+          .atTrace()
+          .log(
+              "Same explicit level TRACE, calling static access API in method local scope is not recommended for performance");
       logger.atDebug().log("Severity level is DEBUG");
       logger.atInfo().log("Severity level is INFO");
       trace.atWarn().log("Severity level is WARN, not TRACE");

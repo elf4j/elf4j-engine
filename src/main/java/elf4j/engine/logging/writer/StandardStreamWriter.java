@@ -48,7 +48,7 @@ import lombok.Value;
 @ToString
 public class StandardStreamWriter implements LogWriter {
   static final String DEFAULT_THRESHOLD_OUTPUT_LEVEL = "trace";
-  static final String DEFAULT_PATTERN = "{timestamp} {level} {class} - {message}";
+  static final String DEFAULT_PATTERN = "{timestamp} {level} {logger} - {message}";
   static final OutStreamType DEFAULT_OUT_STREAM_TYPE = STDOUT;
   static final String LINE_FEED = System.lineSeparator();
 
