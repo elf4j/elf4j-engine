@@ -25,6 +25,8 @@
 
 package elf4j.engine.logging.util;
 
+import elf4j.Logger;
+import elf4j.engine.NativeLogger;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -46,7 +48,7 @@ public class StackTraces {
    * @return immediate caller frame of the specified callee class
    */
   public static StackTraceElement callerFrameOf(String calleeClassName) {
-    return getCallerFrame(calleeClassName, new Throwable().getStackTrace());
+    return getExternalCallerFrame(calleeClassName, new Throwable().getStackTrace());
   }
 
   /**
@@ -56,15 +58,25 @@ public class StackTraces {
    * @param stackTrace to walk in search for the caller
    * @return the caller frame in the stack trace
    */
-  static StackTraceElement getCallerFrame(String calleeClassName, StackTraceElement[] stackTrace) {
-    for (int depth = 1; depth < stackTrace.length; depth++) {
-      if (calleeClassName.equals(stackTrace[depth - 1].getClassName())
-          && !calleeClassName.equals(stackTrace[depth].getClassName())) {
-        return stackTrace[depth];
+  private static StackTraceElement getExternalCallerFrame(
+      String calleeClassName, StackTraceElement[] stackTrace) {
+    boolean calleeFrameFound = false;
+    for (StackTraceElement currentFrame : stackTrace) {
+      String currentFrameClassName = currentFrame.getClassName();
+      if (!calleeFrameFound && currentFrameClassName.equals(calleeClassName)) {
+        calleeFrameFound = true;
+        continue;
+      }
+      if (calleeFrameFound
+          && !currentFrameClassName.equals(calleeClassName)
+          && !currentFrameClassName.equals(Logger.class.getName())
+          && !currentFrameClassName.equals(NativeLogger.class.getName())) {
+        return currentFrame;
       }
     }
     throw new NoSuchElementException(String.format(
-        "Caller of '%s' not found in call stack %s", calleeClassName, Arrays.toString(stackTrace)));
+        "External caller of '%s' not found in call stack %s",
+        calleeClassName, Arrays.toString(stackTrace)));
   }
 
   /**
