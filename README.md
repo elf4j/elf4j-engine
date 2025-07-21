@@ -19,7 +19,7 @@ A stand-alone log engine in the meantime, it is designed to be adaptable for ser
 
    * To use this as a logging service provider in your application, see installation details [here](https://github.com/elf4j/elf4j-provider#installation)
 
-2. **Use it for logging in an application:**
+2. **Use it for logging in a client application:**
 
    ```java 
    class ReadmeTest {

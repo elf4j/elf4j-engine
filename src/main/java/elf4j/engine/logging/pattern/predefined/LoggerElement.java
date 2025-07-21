@@ -28,11 +28,11 @@ package elf4j.engine.logging.pattern.predefined;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
 
-public record ClassElement(NameSpaceElement nameSpaceElement) implements PatternElement {
+public record LoggerElement(NameSpaceElement nameSpaceElement) implements PatternElement {
 
-  public static ClassElement from(String patternElement) {
-    return new ClassElement(
-        NameSpaceElement.from(patternElement, NameSpaceElement.TargetPattern.CLASS));
+  public static LoggerElement from(String patternElement) {
+    return new LoggerElement(
+        NameSpaceElement.from(patternElement, NameSpaceElement.TargetPattern.LOGGER));
   }
 
   @Override
