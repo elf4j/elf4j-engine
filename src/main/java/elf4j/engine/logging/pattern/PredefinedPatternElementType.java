@@ -29,13 +29,13 @@ public enum PredefinedPatternElementType {
   LOGGER {
     @Override
     PatternElement parse(String patternElement) {
-      return NameSpaceElement.from(patternElement, NameSpaceElement.TargetPattern.LOGGER);
+      return LoggerElement.from(patternElement);
     }
   },
   CLASS {
     @Override
     PatternElement parse(String patternElement) {
-      return NameSpaceElement.from(patternElement, NameSpaceElement.TargetPattern.CLASS);
+      return ClassElement.from(patternElement);
     }
   },
   METHOD {

@@ -31,8 +31,7 @@ import elf4j.engine.logging.pattern.PatternElement;
 import elf4j.engine.logging.pattern.PredefinedPatternElementType;
 import java.util.Objects;
 
-public record NameSpaceElement(
-    NameSpaceElement.DisplayOption displayOption, TargetPattern targetPattern)
+record NameSpaceElement(NameSpaceElement.DisplayOption displayOption, TargetPattern targetPattern)
     implements PatternElement {
   private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.FULL;
 
@@ -88,7 +87,7 @@ public record NameSpaceElement(
     COMPRESSED
   }
 
-  public enum TargetPattern {
+  enum TargetPattern {
     CLASS,
     LOGGER
   }

@@ -114,7 +114,7 @@ public record JsonElement(
     static JsonLogEntry from(LogEvent logEvent, JsonElement jsonPattern) {
       return JsonLogEntry.builder()
           .timestamp(OffsetDateTime.ofInstant(logEvent.getTimestamp(), ZoneId.systemDefault()))
-          .loggerName(jsonPattern.includeCallerDetail ? null : logEvent.getLoggerName())
+          .loggerName(logEvent.getLoggerName())
           .level(logEvent.getLevel().name())
           .callerThread(jsonPattern.includeCallerThread ? logEvent.getCallerThread() : null)
           .callerDetail(
