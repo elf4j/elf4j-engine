@@ -41,10 +41,11 @@ public class StackTraces {
   private StackTraces() {}
 
   /**
-   * Returns the earliest caller frame on any of the specified callee classes
+   * Returns the deepest (earliest in call sequence) caller frame in the stack on any of the
+   * specified callee classes
    *
    * @param calleeClassNames whose caller is being searched for
-   * @return the earliest caller frame on any the specified callee class
+   * @return the deepest caller frame in the call stack to any of the specified callee class
    */
   public static StackWalker.StackFrame earliestCallerOfAny(Set<String> calleeClassNames) {
     var stackFrames =
