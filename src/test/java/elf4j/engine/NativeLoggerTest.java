@@ -38,6 +38,7 @@ import static org.mockito.Mockito.mock;
 import elf4j.Logger;
 import elf4j.engine.logging.ConfiguredLogHandlerFactory;
 import elf4j.engine.logging.LogHandler;
+import java.util.Set;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -129,7 +130,7 @@ class NativeLoggerTest {
           .should()
           .log(
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
-              same(NativeLogger.class),
+              eq(Set.of(NativeLogger.class.getName(), Logger.class.getName())),
               same(exception),
               isNull(),
               isNull());
@@ -143,7 +144,7 @@ class NativeLoggerTest {
           .should()
           .log(
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
-              same(NativeLogger.class),
+              eq(Set.of(NativeLogger.class.getName(), Logger.class.getName())),
               same(exception),
               same(plainTextMessage),
               isNull());
@@ -157,7 +158,7 @@ class NativeLoggerTest {
           .should()
           .log(
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
-              same(NativeLogger.class),
+              eq(Set.of(NativeLogger.class.getName(), Logger.class.getName())),
               same(exception),
               same(textMessageWithArgHolders),
               same(args));
@@ -171,7 +172,7 @@ class NativeLoggerTest {
           .should()
           .log(
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
-              same(NativeLogger.class),
+              eq(Set.of(NativeLogger.class.getName(), Logger.class.getName())),
               isNull(),
               same(textMessageWithArgHolders),
               same(args));
@@ -185,7 +186,7 @@ class NativeLoggerTest {
           .should()
           .log(
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
-              same(NativeLogger.class),
+              eq(Set.of(NativeLogger.class.getName(), Logger.class.getName())),
               isNull(),
               same(plainTextMessage),
               isNull());
