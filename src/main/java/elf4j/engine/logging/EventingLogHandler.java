@@ -97,7 +97,7 @@ public class EventingLogHandler implements LogHandler {
   @Override
   public void log(
       NativeLogger.LoggerId loggerId,
-      Set<String> logServiceClasses,
+      Set<String> logServiceClassNames,
       @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments) {
@@ -115,7 +115,8 @@ public class EventingLogHandler implements LogHandler {
         .loggerName(loggerId.loggerName())
         .callerFrame(
             logWriter.includeCallerDetail()
-                ? LogEvent.StackFrameValue.from(StackTraces.earliestCallerOfAny(logServiceClasses))
+                ? LogEvent.StackFrameValue.from(
+                    StackTraces.earliestCallerOfAny(logServiceClassNames))
                 : null)
         .build());
   }
