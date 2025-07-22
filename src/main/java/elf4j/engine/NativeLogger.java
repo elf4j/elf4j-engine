@@ -28,6 +28,7 @@ package elf4j.engine;
 import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.logging.LogHandlerFactory;
+import java.util.Set;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.Value;
 import org.jspecify.annotations.Nullable;
@@ -44,7 +45,8 @@ import org.jspecify.annotations.Nullable;
 @ThreadSafe
 @Value
 public class NativeLogger implements Logger {
-  private static final Class<NativeLogger> LOG_SERVICE_CLASS = NativeLogger.class;
+  private static final Set<String> LOG_SERVICE_CLASS_NAMES =
+      Set.of(NativeLogger.class.getName(), Logger.class.getName());
 
   LoggerId loggerId;
   LogHandlerFactory logHandlerFactory;
@@ -80,45 +82,49 @@ public class NativeLogger implements Logger {
 
   @Override
   public void log(Object message) {
-    process(LOG_SERVICE_CLASS, null, message, null);
+    process(LOG_SERVICE_CLASS_NAMES, null, message, null);
   }
 
   @Override
   public void log(String message, Object... arguments) {
-    process(LOG_SERVICE_CLASS, null, message, arguments);
+    process(LOG_SERVICE_CLASS_NAMES, null, message, arguments);
   }
 
   @Override
   public void log(Throwable throwable) {
-    process(LOG_SERVICE_CLASS, throwable, null, null);
+    process(LOG_SERVICE_CLASS_NAMES, throwable, null, null);
   }
 
   @Override
   public void log(Throwable throwable, Object message) {
-    process(LOG_SERVICE_CLASS, throwable, message, null);
+    process(LOG_SERVICE_CLASS_NAMES, throwable, message, null);
   }
 
   @Override
   public void log(Throwable throwable, String message, Object... arguments) {
-    process(LOG_SERVICE_CLASS, throwable, message, arguments);
+    process(LOG_SERVICE_CLASS_NAMES, throwable, message, arguments);
   }
 
   /// Public API in addition to the [Logger] interface
   ///
+  /// @param logServiceClassNames the concrete runtime implementation class name(s) that the logging
+  /// framework provides for the client code to call the service interface API at runtime. In this
+  /// case, it contains this [NativeLogger] class which implements the service interface API, as
+  /// well as the [Logger] interface itself because its default methods are also implementations
+  /// directly called by the client code.
+  /// @param throwable            to log
+  /// @param message              to log
+  /// @param arguments            to log
   /// @apiNote Used by elf4j-engine internally, not meant for direct usage by client code. Made
   ///     public for potential internal usage of other logging frameworks.
-  /// @param logServiceClass the concrete runtime implementation class that the logging framework
-  ///     provides for the client code to call the service interface API. In this case, it is always
-  ///     this [NativeLogger] class rather than the [Logger] interface.
-  /// @param throwable to log
-  /// @param message to log
-  /// @param arguments to log
   public void process(
-      Class<?> logServiceClass,
+      Set<String> logServiceClassNames,
       @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments) {
-    logHandlerFactory.getLogHandler().log(loggerId, logServiceClass, throwable, message, arguments);
+    logHandlerFactory
+        .getLogHandler()
+        .log(loggerId, logServiceClassNames, throwable, message, arguments);
   }
 
   /// Although the logger's ID includes both the name and severity level of the logger, only the
@@ -171,6 +177,6 @@ public class NativeLogger implements Logger {
   ///
   /// @param loggerName This loggerName field stores the fully qualified class name of the "caller
   /// class". The minimum output threshold level is configured based on this logger name.
-  /// @param level the severity level of this logger instance
+  /// @param level      the severity level of this logger instance
   public record LoggerId(String loggerName, Level level) {}
 }

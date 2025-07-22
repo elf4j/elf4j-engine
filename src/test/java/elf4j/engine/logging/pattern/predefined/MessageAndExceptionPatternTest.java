@@ -26,6 +26,7 @@
 package elf4j.engine.logging.pattern.predefined;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import elf4j.Level;
 import elf4j.engine.logging.LogEvent;
@@ -49,8 +50,7 @@ class MessageAndExceptionPatternTest {
         .loggerName("testLoggerName")
         .callerThread(new LogEvent.ThreadValue(
             Thread.currentThread().getName(), Thread.currentThread().threadId()))
-        .callerFrame(LogEvent.StackFrameValue.from(
-            new StackTraceElement("testClassName", "testMethodName", "testFileName", 42)))
+        .callerFrame(LogEvent.StackFrameValue.from(mock(StackWalker.StackFrame.class)))
         .message(mockMessage)
         .arguments(mockArgs)
         .throwable(mockException)

@@ -26,6 +26,7 @@
 package elf4j.engine.logging;
 
 import elf4j.engine.NativeLogger;
+import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 /** The LogHandler processes the logging operations delegated from the Logger. */
@@ -40,9 +41,11 @@ public interface LogHandler {
    * Service a log operation at the specified level, for the specified caller class
    *
    * @param loggerId the logger id to look up configurations for
-   * @param logServiceClass the runtime concrete implementation class of the log service API. In
-   *     elf4j-engine it's always the {@link NativeLogger} class rather than the
-   *     {@link elf4j.Logger} interface itself.
+   * @param logServiceClassNames the runtime concrete implementation class name(s) of the log
+   *     service API. In elf4j-engine, they are those of the {@link NativeLogger} class that is an
+   *     implementation of the service interface API, as well as the {@link elf4j.Logger} interface
+   *     because its default methods also implement the service interface API and are called
+   *     directly by the client code.
    * @param throwable to log
    * @param message to log, can have argument placeholders to be replaced by the values of the
    *     specified arguments
@@ -50,7 +53,7 @@ public interface LogHandler {
    */
   void log(
       NativeLogger.LoggerId loggerId,
-      Class<?> logServiceClass,
+      Set<String> logServiceClassNames,
       @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments);

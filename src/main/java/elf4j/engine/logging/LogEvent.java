@@ -84,16 +84,6 @@ public class LogEvent {
   }
 
   /**
-   * Returns the name of the application client class calling the logging method of this logger
-   * instance.
-   *
-   * @return the name of the caller class
-   */
-  public String getLoggerName() {
-    return loggerName;
-  }
-
-  /**
    * Returns the log message text with all placeholder arguments resolved and replaced by final
    * values.
    *
@@ -116,15 +106,15 @@ public class LogEvent {
     /**
      * Creates a StackFrameValue instance from a StackTraceElement.
      *
-     * @param stackTraceElement call stack element
+     * @param stackFrame call stack element
      * @return log render-able value representing the call stack element
      */
-    public static StackFrameValue from(StackTraceElement stackTraceElement) {
+    public static StackFrameValue from(StackWalker.StackFrame stackFrame) {
       return LogEvent.StackFrameValue.builder()
-          .fileName(stackTraceElement.getFileName())
-          .className(stackTraceElement.getClassName())
-          .methodName(stackTraceElement.getMethodName())
-          .lineNumber(stackTraceElement.getLineNumber())
+          .fileName(stackFrame.getFileName())
+          .className(stackFrame.getClassName())
+          .methodName(stackFrame.getMethodName())
+          .lineNumber(stackFrame.getLineNumber())
           .build();
     }
   }

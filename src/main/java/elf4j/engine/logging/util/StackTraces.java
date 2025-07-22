@@ -25,12 +25,11 @@
 
 package elf4j.engine.logging.util;
 
-import elf4j.Logger;
-import elf4j.engine.NativeLogger;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * The StackTraces class provides utility methods for working with stack traces. It provides methods
@@ -42,41 +41,21 @@ public class StackTraces {
   private StackTraces() {}
 
   /**
-   * Returns the immediate caller frame of the specified callee class.
+   * Returns the earliest caller frame on any of the specified callee classes
    *
-   * @param calleeClassName whose caller is being searched for
-   * @return immediate caller frame of the specified callee class
+   * @param calleeClassNames whose caller is being searched for
+   * @return the earliest caller frame on any the specified callee class
    */
-  public static StackTraceElement callerFrameOf(String calleeClassName) {
-    return getExternalCallerFrame(calleeClassName, new Throwable().getStackTrace());
-  }
-
-  /**
-   * Returns the caller frame of the specified callee class in the given stack trace.
-   *
-   * @param calleeClassName whose caller is being searched for
-   * @param stackTrace to walk in search for the caller
-   * @return the caller frame in the stack trace
-   */
-  private static StackTraceElement getExternalCallerFrame(
-      String calleeClassName, StackTraceElement[] stackTrace) {
-    boolean calleeFrameFound = false;
-    for (StackTraceElement currentFrame : stackTrace) {
-      String currentFrameClassName = currentFrame.getClassName();
-      if (!calleeFrameFound && currentFrameClassName.equals(calleeClassName)) {
-        calleeFrameFound = true;
-        continue;
-      }
-      if (calleeFrameFound
-          && !currentFrameClassName.equals(calleeClassName)
-          && !currentFrameClassName.equals(Logger.class.getName())
-          && !currentFrameClassName.equals(NativeLogger.class.getName())) {
-        return currentFrame;
+  public static StackWalker.StackFrame earliestCallerOfAny(Set<String> calleeClassNames) {
+    var stackFrames =
+        StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).walk(Stream::toList);
+    for (var i = stackFrames.size() - 1; i >= 0; i--) {
+      if (calleeClassNames.contains(stackFrames.get(i).getClassName())) {
+        return stackFrames.get(i + 1);
       }
     }
     throw new NoSuchElementException(String.format(
-        "External caller of '%s' not found in call stack %s",
-        calleeClassName, Arrays.toString(stackTrace)));
+        "No caller found: calleeClassNames='%s', stackFrames=%s", calleeClassNames, stackFrames));
   }
 
   /**

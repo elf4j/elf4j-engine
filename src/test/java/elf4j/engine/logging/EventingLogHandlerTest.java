@@ -36,6 +36,7 @@ import elf4j.engine.logging.config.ConfigurationProperties;
 import elf4j.engine.logging.writer.LogWriter;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -60,7 +61,11 @@ class EventingLogHandlerTest {
       String loggerName = this.getClass().getName();
 
       eventingLogHandler.log(
-          new NativeLogger.LoggerId(loggerName, Level.INFO), NativeLogger.class, null, null, null);
+          new NativeLogger.LoggerId(loggerName, Level.INFO),
+          Set.of(eventingLogHandler.getClass().getName()),
+          null,
+          null,
+          null);
 
       then(eventingLogHandler)
           .should()
@@ -81,8 +86,9 @@ class EventingLogHandlerTest {
 
       logHandler.log(
           new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO),
-          logHandler
-              .getClass(), // no log service implementation class here as the handler is called
+          Set.of(logHandler
+              .getClass()
+              .getName()), // no log service implementation class here as the handler is called
           // directly
           // and not via log service API, only need a class here whose runtime caller class will be
           // used to render the log caller detail
@@ -104,7 +110,7 @@ class EventingLogHandlerTest {
 
       sut.log(
           new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO),
-          sut.getClass(),
+          Set.of(sut.getClass().getName()),
           null,
           null,
           null);
@@ -130,7 +136,7 @@ class EventingLogHandlerTest {
 
       sut.log(
           new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO),
-          sut.getClass(),
+          Set.of(sut.getClass().getName()),
           null,
           null,
           null);
@@ -154,7 +160,7 @@ class EventingLogHandlerTest {
 
       sut.log(
           new NativeLogger.LoggerId(this.getClass().getName(), Level.TRACE),
-          sut.getClass(),
+          Set.of(sut.getClass().getName()),
           null,
           null,
           null);

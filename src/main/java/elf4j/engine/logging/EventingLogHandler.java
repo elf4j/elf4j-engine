@@ -34,6 +34,7 @@ import elf4j.engine.logging.writer.CompositeWriter;
 import elf4j.engine.logging.writer.LogWriter;
 import elf4j.util.UtilLogger;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
@@ -96,7 +97,7 @@ public class EventingLogHandler implements LogHandler {
   @Override
   public void log(
       NativeLogger.LoggerId loggerId,
-      Class<?> logServiceClass,
+      Set<String> logServiceClasses,
       @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments) {
@@ -114,8 +115,7 @@ public class EventingLogHandler implements LogHandler {
         .loggerName(loggerId.loggerName())
         .callerFrame(
             logWriter.includeCallerDetail()
-                ? LogEvent.StackFrameValue.from(
-                    StackTraces.callerFrameOf(logServiceClass.getName()))
+                ? LogEvent.StackFrameValue.from(StackTraces.earliestCallerOfAny(logServiceClasses))
                 : null)
         .build());
   }

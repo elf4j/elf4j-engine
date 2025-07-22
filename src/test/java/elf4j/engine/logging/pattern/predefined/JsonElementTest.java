@@ -27,6 +27,7 @@ package elf4j.engine.logging.pattern.predefined;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import elf4j.Level;
 import elf4j.engine.logging.LogEvent;
@@ -48,8 +49,7 @@ class JsonElementTest {
         .level(Level.ERROR)
         .callerThread(new LogEvent.ThreadValue(
             Thread.currentThread().getName(), Thread.currentThread().threadId()))
-        .callerFrame(LogEvent.StackFrameValue.from(
-            new StackTraceElement("testCallerClassName", "testMethodName", "testFileName", 42)))
+        .callerFrame(LogEvent.StackFrameValue.from(mock(StackWalker.StackFrame.class)))
         .message(mockMessage)
         .arguments(new Object[] {"testArg1"})
         .throwable(new Exception("testExceptionMessage"))

@@ -98,7 +98,7 @@ class SampleUsageTest {
           (Supplier<?>) () -> "expensive to compute");
       info.atWarn()
           .log(
-              "The Supplier downcast is mandatory per lambda syntax because arguments are declared as generic Object rather than functional interface");
+              "When lazy lambda args are mixed with eager ones, the Supplier downcast is mandatory per lambda syntax because arguments are declared as generic Object rather than functional interface");
     }
   }
 
