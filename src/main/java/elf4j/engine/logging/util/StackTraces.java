@@ -51,7 +51,9 @@ public class StackTraces {
         StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).walk(Stream::toList);
     for (var i = stackFrames.size() - 1; i >= 0; i--) {
       if (calleeClassNames.contains(stackFrames.get(i).getClassName())) {
-        return stackFrames.get(i + 1);
+        if (i + 1 < stackFrames.size()) {
+          return stackFrames.get(i + 1);
+        }
       }
     }
     throw new NoSuchElementException(String.format(
