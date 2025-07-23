@@ -35,11 +35,11 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Implemented as an unmodifiable value class. Once fully configured, its instances are thread-safe
- * and can be safely used as static, instance, or local variables. However, and instance from the
- * static factory method {@link Logger#instance()} is more performance-wise expensive; it is
- * recommended for static variables, and not local variables. By contrast, instance factory methods
- * such as {@link NativeLogger#atLevel(Level)} or {@link Logger#atDebug()} are inexpensive to call;
- * their return Logger instances can be used for variables of any scope.
+ * and can be used as static, instance, or local variables. However, an instance from the static
+ * factory method {@link Logger#instance()} is more performance-wise expensive; it is recommended
+ * for static variables, and not local variables. By contrast, an instance from the instance factory
+ * methods such as {@link NativeLogger#atLevel(Level)} or {@link Logger#atDebug()} is inexpensive to
+ * obtain; it can be used for variables of any scope.
  */
 @ThreadSafe
 @Value
