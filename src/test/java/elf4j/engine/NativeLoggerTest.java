@@ -132,7 +132,7 @@ class NativeLoggerTest {
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
               eq(Set.of(NativeLogger.class.getName(), Logger.class.getName())),
               same(exception),
-              isNull(),
+              eq(NativeLogger.DEFAULT_THROWABLE_MESSAGE),
               isNull());
     }
 

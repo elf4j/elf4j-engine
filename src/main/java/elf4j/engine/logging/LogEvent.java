@@ -37,7 +37,7 @@ import org.jspecify.annotations.Nullable;
 @Value
 @Builder
 public class LogEvent {
-  private static final int ADDITIONAL_STRING_BUILDER_CAPACITY = 32;
+  private static final int INIT_ARG_LENGTH = 32;
 
   Level level;
 
@@ -55,28 +55,29 @@ public class LogEvent {
 
   @Nullable StackFrameValue callerFrame;
 
-  private static CharSequence resolve(@Nullable Object message, Object @Nullable [] arguments) {
-    String suppliedMessage = Objects.toString(supply(message), "");
-    if (arguments == null || arguments.length == 0) {
+  private static CharSequence resolve(
+      @Nullable final Object message, final Object @Nullable [] arguments) {
+    String suppliedMessage = Objects.toString(supply(message));
+    if (message == null || arguments == null || arguments.length == 0) {
       return suppliedMessage;
     }
     int messageLength = suppliedMessage.length();
-    StringBuilder resolved = new StringBuilder(messageLength + ADDITIONAL_STRING_BUILDER_CAPACITY);
-    int i = 0;
-    int j = 0;
-    while (i < messageLength) {
-      char character = suppliedMessage.charAt(i);
+    StringBuilder resolvedMessage = new StringBuilder(messageLength + INIT_ARG_LENGTH);
+    int im = 0;
+    int ia = 0;
+    while (im < messageLength) {
+      char character = suppliedMessage.charAt(im);
       if (character == '{'
-          && ((i + 1) < messageLength && suppliedMessage.charAt(i + 1) == '}')
-          && j < arguments.length) {
-        resolved.append(supply(arguments[j++]));
-        i += 2;
+          && ((im + 1) < messageLength && suppliedMessage.charAt(im + 1) == '}')
+          && ia < arguments.length) {
+        resolvedMessage.append(supply(arguments[ia++]));
+        im += 2;
       } else {
-        resolved.append(character);
-        i += 1;
+        resolvedMessage.append(character);
+        im += 1;
       }
     }
-    return resolved;
+    return resolvedMessage;
   }
 
   private static @Nullable Object supply(@Nullable Object o) {

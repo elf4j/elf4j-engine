@@ -47,6 +47,7 @@ import org.jspecify.annotations.Nullable;
 public class NativeLogger implements Logger {
   private static final Set<String> LOG_SERVICE_CLASS_NAMES =
       Set.of(NativeLogger.class.getName(), Logger.class.getName());
+  static final String DEFAULT_THROWABLE_MESSAGE = "";
 
   LoggerId loggerId;
   LogHandlerFactory logHandlerFactory;
@@ -92,7 +93,7 @@ public class NativeLogger implements Logger {
 
   @Override
   public void log(Throwable throwable) {
-    process(LOG_SERVICE_CLASS_NAMES, throwable, null, null);
+    process(LOG_SERVICE_CLASS_NAMES, throwable, DEFAULT_THROWABLE_MESSAGE, null);
   }
 
   @Override
