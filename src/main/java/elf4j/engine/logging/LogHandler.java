@@ -33,14 +33,14 @@ import org.jspecify.annotations.Nullable;
 public interface LogHandler {
   /**
    * @return true if the logger instance's severity level is at or above the configured threshold
-   *     for the specified logger id, false otherwise
+   *     for the specified logger loggerId, false otherwise
    */
   boolean isEnabled(NativeLogger.LoggerId loggerId);
 
   /**
    * Service a log operation at the specified level, for the specified caller class
    *
-   * @param loggerId the logger id to look up configurations for
+   * @param loggerId the logger loggerId to look up configurations for
    * @param logServiceClassNames the runtime concrete implementation class name(s) of the log
    *     service API. In elf4j-engine, they are those of the {@link NativeLogger} class that is an
    *     implementation of the service interface API, as well as the {@link elf4j.Logger} interface
