@@ -54,10 +54,10 @@ public class NativeLogger implements Logger {
 
   /**
    * Constructs a new instance of the NativeLogger class specifically dedicated to service the
-   * specified caller class and at the desired log level.
+   * specified caller class and at the desired severity level.
    *
    * @param loggerId the logger id to look up configurations for
-   * @param logHandlerFactory the log handler factory to use for this logger instance
+   * @param logHandlerFactory the log handler factory that created this logger instance
    */
   NativeLogger(LoggerId loggerId, LogHandlerFactory logHandlerFactory) {
     this.loggerId = loggerId;
