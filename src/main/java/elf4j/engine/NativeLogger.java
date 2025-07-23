@@ -142,11 +142,12 @@ public class NativeLogger implements Logger {
    *
    * <p>In general, there are two types of client "caller classes" of the log service:
    *
-   * <p>1. One (type-1) is the caller class of the "service access API", to obtain (gain "access"
-   * to) a reference to the "service class", where subsequent log service requests can be issued.
+   * <p>1. One (type-1) is the caller class of the "service access API", calling to obtain (gain
+   * "access" to) a "service class" reference on which subsequent log service requests can be
+   * issued.
    *
-   * <p>2. The other (type-2) is the caller class of the "service interface API", to issue log
-   * service requests to the "service class" which is the concrete implementation of the service
+   * <p>2. The other (type-2) is the caller class of the "service interface API", calling to issue
+   * log service requests to the "service class" which is the concrete implementation of the service
    * interface API.
    *
    * <p>In the final log message, "logger" is the name of the type-1 caller class; "class" is the
