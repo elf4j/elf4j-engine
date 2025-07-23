@@ -29,7 +29,9 @@ package elf4j.engine.logging;
 public interface PerformanceSensitive {
   /**
    * Whether the log message should include caller detail such as class, method, file line number,
-   * etc.
+   * etc. Including such detail impacts the performance of the log service or maybe even the entire
+   * application using the log service, and should be used only as needed or when the application is
+   * performance tolerant/indifferent.
    *
    * @return true if the log should include caller detail, false otherwise
    */
