@@ -187,6 +187,11 @@ public class NativeLogger implements Logger {
    *     to the service access API. The minimum output threshold level is configured based on this
    *     logger name.
    * @param level the severity level of this logger instance
+   * @implNote The logger name in the id determines the minimum threshold output level configured
+   *     for all Logger instances of the same name. Given such configured threshold level, the
+   *     instance's id (name and level combined) determines if messages from this Logger instance
+   *     will ultimately print: Only when the instance level in the id is equal or greater than the
+   *     threshold configured for that logger name, will the message print.
    */
   public record LoggerId(String loggerName, Level level) {}
 }
