@@ -4,9 +4,9 @@
 
 An asynchronous Java log engine.
 
-Implementing the [elf4j](https://github.com/elf4j/elf4j) (Easy Logging Facade for Java) API, this is the log engine behind [elf4j-provider](https://github.com/elf4j/elf4j-provider) - a native logging _service provider_ of the [elf4j](https://github.com/elf4j/) logging facade.
+Implementing the [elf4j](https://github.com/elf4j/elf4j) (Easy Logging Facade for Java) API, this is the log engine of [elf4j-provider](https://github.com/elf4j/elf4j-provider) - a native logging _service provider_ of the [elf4j](https://github.com/elf4j/) logging facade.
 
-A stand-alone log engine in the meantime, it is designed to be adaptable for servicing other Java logging APIs.
+Also a stand-alone log engine, it is designed to be adaptable for servicing other Java logging APIs. E.g.
 
 * It is a log engine for the [SLF4J](https://www.slf4j.org/) API, as in [slf4j-elf4j](https://github.com/elf4j/slf4j-elf4j).
 * It is also a log engine for the Java Platform Logging ([JPL](https://openjdk.org/jeps/264)) API introduced since Java 9, as in [jpl-elf4j](https://github.com/elf4j/jpl-elf4j).
