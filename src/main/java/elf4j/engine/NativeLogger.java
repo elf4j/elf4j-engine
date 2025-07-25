@@ -30,19 +30,21 @@ import elf4j.Logger;
 import elf4j.engine.logging.LogHandlerFactory;
 import java.util.Set;
 import javax.annotation.concurrent.ThreadSafe;
-import lombok.Value;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Implemented as an unmodifiable value class. Once fully configured, its instances are thread-safe
- * and can be used as static, instance, or local variables. However, an instance from the static
- * factory method {@link Logger#instance()} is more performance-wise expensive; it is recommended
- * for static variables, and not local variables. By contrast, an instance from the instance factory
- * methods such as {@link NativeLogger#atLevel(Level)} or {@link Logger#atDebug()} is inexpensive to
- * obtain; it can be used for variables of any scope.
+ * and can be used as static, instance, or local variables. However, a NativeLogger instance from
+ * the static factory method {@link Logger#instance()} is more performance-wise expensive to obtain;
+ * it is recommended for static variables, and not local ones. By contrast, a NativeLogger instance
+ * from the instance factory methods such as {@link NativeLogger#atLevel(Level)} or
+ * {@link Logger#atDebug()} is relatively inexpensive, and can be used for variables of any scope or
+ * even inline as with the fluent-style API design.
  */
 @ThreadSafe
-@Value
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class NativeLogger implements Logger {
   /**
    * {@link Logger} is also an "implementation" of the log service interface API because of the
@@ -53,14 +55,17 @@ public class NativeLogger implements Logger {
 
   static final String DEFAULT_THROWABLE_MESSAGE = "";
 
-  LoggerId loggerId;
-  LogHandlerFactory logHandlerFactory;
+  @Getter
+  @EqualsAndHashCode.Include
+  private final LoggerId loggerId;
+
+  private final LogHandlerFactory logHandlerFactory;
 
   /**
    * Constructs a new instance of the NativeLogger class specifically dedicated to service the
    * specified caller class and at the desired severity level.
    *
-   * @param loggerId the logger id to look up configurations for
+   * @param loggerId the logger loggerId to look up configurations for
    * @param logHandlerFactory the access API to the log handler service
    */
   NativeLogger(LoggerId loggerId, LogHandlerFactory logHandlerFactory) {
@@ -153,9 +158,9 @@ public class NativeLogger implements Logger {
    * <p>In the final log message, "logger" is the name of the type-1 caller class; "class" is the
    * name of the type-2 caller class.
    *
-   * <p>In this implementation, the [LoggerId#loggerName] is the fully-qualified name of the type-1
-   * caller class, so it will end up being the "logger" value of the final log message. Meanwhile,
-   * it may not be the "class" value (i.e. the type-2 caller class) of the same log message.
+   * <p>In this implementation, the logger name is the fully-qualified name of the type-1 caller
+   * class, so it will end up being the "logger" value of the final log message. Meanwhile, it may
+   * not be the "class" value (i.e. the type-2 caller class) of the same log message.
    *
    * <p>Most commonly, though, the type-1 caller class to the service access API is the same as the
    * type-2 caller class to the service interface API. The exceptional case where the caller classes
@@ -179,10 +184,15 @@ public class NativeLogger implements Logger {
    * different from the type-1 caller class. If performance is of concern, use caution when
    * including such run-time caller details in the output log pattern.
    *
-   * @param loggerName This loggerName field stores the fully qualified class name of the "caller
-   *     class" to the service access API. The minimum output threshold level is configured based on
-   *     this logger name.
+   * @param loggerName This field stores the fully qualified name of the client code "caller class"
+   *     to the service access API. The minimum output threshold level is configured based on this
+   *     logger name.
    * @param level the severity level of this logger instance
+   * @implNote The logger name in the id determines the minimum threshold output level configured
+   *     for all Logger instances of the same name. Given such configured threshold level, the
+   *     instance's id (name and level combined) determines if messages from this Logger instance
+   *     will ultimately print: Only when the instance level in the id is equal or greater than the
+   *     threshold configured for that logger name, will the message print.
    */
   public record LoggerId(String loggerName, Level level) {}
 }
