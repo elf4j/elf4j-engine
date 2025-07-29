@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -51,7 +50,7 @@ import lombok.Value;
 @ToString
 public class LoggerOutputMinimumLevelThreshold {
   private static final Logger LOGGER = UtilLogger.INFO;
-  private static final String CONFIGURED_ROOT_LOGGER_NAME_SPACE = "";
+  private static final String ROOT_LOGGER_NAME = "";
   private static final Level DEFAULT_THRESHOLD_OUTPUT_LEVEL = Level.TRACE;
 
   @EqualsAndHashCode.Include
@@ -65,9 +64,9 @@ public class LoggerOutputMinimumLevelThreshold {
    * @param loggerMinimumThresholdLevels a map of configured levels
    */
   private LoggerOutputMinimumLevelThreshold(Map<String, Level> loggerMinimumThresholdLevels) {
-    this.loggerMinimumThresholdLevels = new ConcurrentHashMap<>(loggerMinimumThresholdLevels);
+    this.loggerMinimumThresholdLevels = loggerMinimumThresholdLevels;
     this.sortedLoggerNameNameSpaces = loggerMinimumThresholdLevels.keySet().stream()
-        .sorted(new ByClassNameSpace())
+        .sorted(new FullyQualifiedClassNameComparator())
         .collect(Collectors.toList());
     LOGGER.info(
         "%s overriding caller level(s) in %s".formatted(loggerMinimumThresholdLevels.size(), this));
@@ -85,9 +84,10 @@ public class LoggerOutputMinimumLevelThreshold {
     Map<String, Level> configuredLevels = new HashMap<>();
     Properties properties = configurationProperties.getProperties();
     getAsLevel("level", properties)
-        .ifPresent(level -> configuredLevels.put(CONFIGURED_ROOT_LOGGER_NAME_SPACE, level));
+        .ifPresent(level -> configuredLevels.put(ROOT_LOGGER_NAME, level));
     configuredLevels.putAll(properties.stringPropertyNames().stream()
         .filter(name -> name.trim().startsWith("level@"))
+        .filter(name -> !properties.getProperty(name).isBlank())
         .collect(Collectors.toMap(
             name -> name.split("@", 2)[1].trim(),
             name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
@@ -125,40 +125,40 @@ public class LoggerOutputMinimumLevelThreshold {
         .orElse(DEFAULT_THRESHOLD_OUTPUT_LEVEL);
   }
 
-  /**
-   * The ByClassNameSpace class is a comparator for class name spaces. It sorts class name spaces by
-   * the number of package levels and then by length and lexicographic order.
-   */
-  static class ByClassNameSpace implements Comparator<String> {
+  static class FullyQualifiedClassNameComparator implements Comparator<String> {
     /**
-     * Returns the number of package levels in a given class name space.
+     * Returns the number of package levels for a given fqcn
      *
-     * @param classNameSpace the class name space
+     * @param fqcn the fully qualified class name
      * @return the number of package levels
      */
-    private static int getPackageLevels(String classNameSpace) {
-      return classNameSpace.split("\\.").length;
+    private static int getPackageLevels(String fqcn) {
+      return fqcn.split("\\.").length;
     }
+
+    static final Comparator<String> BY_LENGTH_REVERSED =
+        Comparator.comparingInt(String::length).reversed();
 
     /**
      * Compares two class name spaces. More specific name space goes first.
      *
-     * <p>Note: this comparator imposes orderings that are inconsistent with equals.
-     *
-     * @param classNameSpace1 can be fqcn or just package name
-     * @param classNameSpace2 can be fqcn or just package name
+     * @param fqcn1 can be fqcn or just package name
+     * @param fqcn2 can be fqcn or just package name
      * @return a negative integer, zero, or a positive integer as the first argument is less than,
      *     equal to, or greater than the second.
+     * @implNote This comparator imposes ordering that is inconsistent with
+     *     {@link String#equals(Object)}.
      */
     @Override
-    public int compare(String classNameSpace1, String classNameSpace2) {
-      int packageLevelDifference =
-          getPackageLevels(classNameSpace2) - getPackageLevels(classNameSpace1);
-      if (packageLevelDifference != 0) return packageLevelDifference;
-      return Comparator.comparingInt(String::length)
+    public int compare(String fqcn1, String fqcn2) {
+      int byPackageLevel = Comparator.comparingInt(
+              FullyQualifiedClassNameComparator::getPackageLevels)
           .reversed()
-          .thenComparing(String::compareTo)
-          .compare(classNameSpace1, classNameSpace2);
+          .compare(fqcn1, fqcn2);
+      if (byPackageLevel != 0) return byPackageLevel;
+      int byLength = BY_LENGTH_REVERSED.compare(fqcn1, fqcn2);
+      if (byLength != 0) return byLength;
+      return fqcn1.compareTo(fqcn2);
     }
   }
 }
