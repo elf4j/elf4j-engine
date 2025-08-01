@@ -28,6 +28,7 @@ package elf4j.engine.logging.pattern.predefined;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
 import elf4j.engine.logging.pattern.PredefinedPatternElementType;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -76,16 +77,19 @@ public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOpti
    */
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o instanceof TimestampElement that) {
-      return ComparisonCopy.from(this).equals(ComparisonCopy.from(that));
-    }
-    return false;
+    if (!(o
+        instanceof
+        TimestampElement(
+            DateTimeFormatter thatDateTimeFormatter,
+            TimeZoneOption thatTimeZoneOption))) return false;
+    OffsetDateTime now = OffsetDateTime.now();
+    return timeZoneOption == thatTimeZoneOption
+        && Objects.equals(dateTimeFormatter.format(now), thatDateTimeFormatter.format(now));
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(ComparisonCopy.from(this));
+    return Objects.hash(timeZoneOption);
   }
 
   @Override
@@ -113,13 +117,6 @@ public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOpti
           .orElseThrow(() ->
               new IllegalArgumentException("Unknown time zone option: %s. Valid options are: %s"
                   .formatted(timeZoneOption, Arrays.toString(TimeZoneOption.values()))));
-    }
-  }
-
-  private record ComparisonCopy(String dateTimeFormatter, TimeZoneOption timeZoneOption) {
-    public static ComparisonCopy from(TimestampElement timestampElement) {
-      return new ComparisonCopy(
-          Objects.toString(timestampElement.dateTimeFormatter), timestampElement.timeZoneOption);
     }
   }
 }
