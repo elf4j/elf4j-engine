@@ -49,28 +49,28 @@ public record LogPattern(List<PatternElement> patternElements) implements Patter
     }
     List<PatternElement> elements = new ArrayList<>();
     final int length = pattern.length();
-    int i = 0;
-    while (i < length) {
+    int elementStart = 0;
+    while (elementStart < length) {
       String element;
-      int j;
-      if (pattern.charAt(i) == '{') {
-        j = pattern.indexOf('}', i);
-        if (j != -1) {
-          element = pattern.substring(i + 1, j);
-          i = j + 1;
+      int elementEnd;
+      if (pattern.charAt(elementStart) == '{') {
+        elementEnd = pattern.indexOf('}', elementStart);
+        if (elementEnd != -1) {
+          element = pattern.substring(elementStart + 1, elementEnd);
+          elementStart = elementEnd + 1;
         } else {
-          element = pattern.substring(i);
-          i = length;
+          element = pattern.substring(elementStart);
+          elementStart = length;
         }
         elements.add(PredefinedPatternElementType.parsePredefinedPatternELement(element));
       } else {
-        j = pattern.indexOf('{', i);
-        if (j != -1) {
-          element = pattern.substring(i, j);
-          i = j;
+        elementEnd = pattern.indexOf('{', elementStart);
+        if (elementEnd != -1) {
+          element = pattern.substring(elementStart, elementEnd);
+          elementStart = elementEnd;
         } else {
-          element = pattern.substring(i);
-          i = length;
+          element = pattern.substring(elementStart);
+          elementStart = length;
         }
         elements.add(UndefinedPatternElement.from(element));
       }
