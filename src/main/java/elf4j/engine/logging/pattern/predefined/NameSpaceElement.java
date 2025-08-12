@@ -40,6 +40,11 @@ record NameSpaceElement(NameSpaceElement.DisplayOption displayOption, TargetPatt
    * @return converted patternElement object
    */
   public static NameSpaceElement from(String patternElement, TargetPattern targetPattern) {
+    if (!(PredefinedPatternElementType.CLASS.matchesTypeOf(patternElement)
+        || PredefinedPatternElementType.LOGGER.matchesTypeOf(patternElement))) {
+      throw new IllegalArgumentException(
+          "Unexpected predefined pattern element: %s".formatted(patternElement));
+    }
     return new NameSpaceElement(
         PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement).stream()
             .collect(MoreCollectors.toOptional())

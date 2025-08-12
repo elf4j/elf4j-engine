@@ -32,7 +32,7 @@ import elf4j.engine.logging.pattern.PredefinedPatternElementType;
 public record ClassElement(NameSpaceElement nameSpaceElement) implements PatternElement {
 
   public static ClassElement from(String patternElement) {
-    if (PredefinedPatternElementType.CLASS.matchesTypeOf(patternElement)) {
+    if (!PredefinedPatternElementType.CLASS.matchesTypeOf(patternElement)) {
       throw new IllegalArgumentException(
           "Unexpected predefined pattern element: %s".formatted(patternElement));
     }
