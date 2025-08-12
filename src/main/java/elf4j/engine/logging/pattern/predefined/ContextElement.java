@@ -31,11 +31,12 @@ public record ContextElement(String key) implements PatternElement {
    * @throws NoSuchElementException if no key is configured in the 'context' pattern element
    */
   public static ContextElement from(String patternElement) {
-    return new ContextElement(
-        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)
-            .map(Iterables::getOnlyElement)
-            .orElseThrow(() ->
-                new NoSuchElementException("No key configured in 'context' pattern element")));
+    if (!PredefinedPatternElementType.CONTEXT.matchesTypeOf(patternElement)) {
+      throw new IllegalArgumentException(
+          String.format("Unexpected predefined pattern element: %s", patternElement));
+    }
+    return new ContextElement(Iterables.getOnlyElement(
+        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)));
   }
 
   /**

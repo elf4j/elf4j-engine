@@ -27,10 +27,15 @@ package elf4j.engine.logging.pattern.predefined;
 
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.PredefinedPatternElementType;
 
 public record LoggerElement(NameSpaceElement nameSpaceElement) implements PatternElement {
 
   public static LoggerElement from(String patternElement) {
+    if (!PredefinedPatternElementType.LOGGER.matchesTypeOf(patternElement)) {
+      throw new IllegalArgumentException(
+          "Unexpected predefined pattern element: %s".formatted(patternElement));
+    }
     return new LoggerElement(
         NameSpaceElement.from(patternElement, NameSpaceElement.TargetPattern.LOGGER));
   }

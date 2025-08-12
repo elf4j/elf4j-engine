@@ -36,10 +36,12 @@ public record SystemEnvironmentElement(String key) implements PatternElement {
    * @return converted patternElement object
    */
   public static SystemEnvironmentElement from(String patternElement) {
-    return new SystemEnvironmentElement(
-        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)
-            .map(Iterables::getOnlyElement)
-            .orElseThrow());
+    if (!PredefinedPatternElementType.SYS_ENV.matchesTypeOf(patternElement)) {
+      throw new IllegalArgumentException(
+          String.format("Unexpected predefined pattern element: %s", patternElement));
+    }
+    return new SystemEnvironmentElement(Iterables.getOnlyElement(
+        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)));
   }
 
   @Override

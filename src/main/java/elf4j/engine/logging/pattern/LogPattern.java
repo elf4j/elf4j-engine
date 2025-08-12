@@ -62,7 +62,7 @@ public record LogPattern(List<PatternElement> patternElements) implements Patter
           element = pattern.substring(elementStart);
           elementStart = length;
         }
-        elements.add(PredefinedPatternElementType.parsePredefinedPatternELement(element));
+        elements.add(PredefinedPatternElementType.parsePredefinedPatternElement(element));
       } else {
         elementEnd = pattern.indexOf('{', elementStart);
         if (elementEnd != -1) {

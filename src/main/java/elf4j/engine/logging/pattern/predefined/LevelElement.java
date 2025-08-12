@@ -25,7 +25,8 @@
 
 package elf4j.engine.logging.pattern.predefined;
 
-import com.google.common.collect.Iterables;
+import static com.google.common.collect.MoreCollectors.toOptional;
+
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
 import elf4j.engine.logging.pattern.PredefinedPatternElementType;
@@ -38,9 +39,13 @@ public record LevelElement(int displayLength) implements PatternElement {
    * @return converted patternElement object
    */
   public static LevelElement from(String patternElement) {
+    if (!PredefinedPatternElementType.LEVEL.matchesTypeOf(patternElement)) {
+      throw new IllegalArgumentException(
+          String.format("Unexpected predefined pattern element: %s", patternElement));
+    }
     return new LevelElement(
-        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)
-            .map(Iterables::getOnlyElement)
+        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement).stream()
+            .collect(toOptional())
             .map(Integer::parseInt)
             .orElse(UNSPECIFIED));
   }

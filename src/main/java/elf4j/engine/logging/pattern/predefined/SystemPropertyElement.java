@@ -36,10 +36,12 @@ public record SystemPropertyElement(String key) implements PatternElement {
    * @return converted patternElement object
    */
   public static SystemPropertyElement from(String patternElement) {
-    return new SystemPropertyElement(
-        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)
-            .map(Iterables::getOnlyElement)
-            .orElseThrow());
+    if (!PredefinedPatternElementType.SYS_PROP.matchesTypeOf(patternElement)) {
+      throw new IllegalArgumentException(
+          String.format("Unexpected predefined pattern element: %s", patternElement));
+    }
+    return new SystemPropertyElement(Iterables.getOnlyElement(
+        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)));
   }
 
   @Override

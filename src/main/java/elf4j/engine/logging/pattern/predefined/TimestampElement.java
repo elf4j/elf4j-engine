@@ -35,7 +35,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOption timeZoneOption)
     implements PatternElement {
@@ -47,15 +46,18 @@ public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOpti
    * @return converted pattern element object
    */
   public static TimestampElement from(String patternElement) {
-    Optional<List<String>> elementDisplayOption =
+    if (!PredefinedPatternElementType.TIMESTAMP.matchesTypeOf(patternElement)) {
+      throw new IllegalArgumentException(
+          String.format("Unexpected predefined pattern element: %s", patternElement));
+    }
+    List<String> elementDisplayOption =
         PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement);
     if (elementDisplayOption.isEmpty()) {
       return new TimestampElement(DEFAULT_DATE_TIME_FORMAT, TimeZoneOption.DEFAULT);
     }
-    List<String> timestampOptions = elementDisplayOption.get();
     return new TimestampElement(
-        DateTimeFormatter.ofPattern(timestampOptions.getFirst()),
-        getTimeZoneOption(timestampOptions));
+        DateTimeFormatter.ofPattern(elementDisplayOption.getFirst()),
+        getTimeZoneOption(elementDisplayOption));
   }
 
   private static TimeZoneOption getTimeZoneOption(List<String> formatOptions) {

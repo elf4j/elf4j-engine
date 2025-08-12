@@ -16,7 +16,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 class TimestampElementTest {
 
   @ParameterizedTest
-  @ValueSource(strings = {"timestamp", ""})
+  @ValueSource(strings = {"timestamp", "timestamp:"})
   void fromCreatesDefaultTimestampElementWhenPatternIsEmpty(String patternElement) {
     TimestampElement element = TimestampElement.from(patternElement);
     assertEquals(TimestampElement.DEFAULT_DATE_TIME_FORMAT, element.dateTimeFormatter());
@@ -83,10 +83,7 @@ class TimestampElementTest {
 
     assertEquals(
         timestamp
-            .atZone(
-                TimestampElement.TimeZoneOption.DEFAULT == TimestampElement.TimeZoneOption.UTC
-                    ? ZoneOffset.UTC
-                    : ZoneId.systemDefault())
+            .atZone(ZoneId.systemDefault())
             .format(DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss.SSSXXX")),
         target.toString());
   }

@@ -25,7 +25,7 @@
 
 package elf4j.engine.logging.pattern.predefined;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.MoreCollectors;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
 import elf4j.engine.logging.pattern.PredefinedPatternElementType;
@@ -41,9 +41,9 @@ record NameSpaceElement(NameSpaceElement.DisplayOption displayOption, TargetPatt
    */
   public static NameSpaceElement from(String patternElement, TargetPattern targetPattern) {
     return new NameSpaceElement(
-        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)
-            .map(Iterables::getOnlyElement)
-            .map(o -> DisplayOption.valueOf(o.toUpperCase()))
+        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement).stream()
+            .collect(MoreCollectors.toOptional())
+            .map(name -> DisplayOption.valueOf(name.toUpperCase()))
             .orElse(DEFAULT_DISPLAY_OPTION),
         targetPattern);
   }

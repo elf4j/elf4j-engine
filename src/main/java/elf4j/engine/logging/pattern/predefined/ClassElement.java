@@ -27,10 +27,15 @@ package elf4j.engine.logging.pattern.predefined;
 
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.PredefinedPatternElementType;
 
 public record ClassElement(NameSpaceElement nameSpaceElement) implements PatternElement {
 
   public static ClassElement from(String patternElement) {
+    if (PredefinedPatternElementType.CLASS.matchesTypeOf(patternElement)) {
+      throw new IllegalArgumentException(
+          "Unexpected predefined pattern element: %s".formatted(patternElement));
+    }
     return new ClassElement(
         NameSpaceElement.from(patternElement, NameSpaceElement.TargetPattern.CLASS));
   }

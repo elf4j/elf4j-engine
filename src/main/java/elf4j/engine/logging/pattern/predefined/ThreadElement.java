@@ -25,7 +25,7 @@
 
 package elf4j.engine.logging.pattern.predefined;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.MoreCollectors;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
 import elf4j.engine.logging.pattern.PredefinedPatternElementType;
@@ -38,9 +38,13 @@ public record ThreadElement(DisplayOption threadDisplayOption) implements Patter
    * @return the thread pattern element converted from the specified text
    */
   public static ThreadElement from(String patternElement) {
+    if (!PredefinedPatternElementType.THREAD.matchesTypeOf(patternElement)) {
+      throw new IllegalArgumentException(
+          String.format("Unexpected predefined pattern element: %s", patternElement));
+    }
     return new ThreadElement(
-        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)
-            .map(Iterables::getOnlyElement)
+        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement).stream()
+            .collect(MoreCollectors.toOptional())
             .map(DisplayOption::from)
             .orElse(DisplayOption.NAME));
   }

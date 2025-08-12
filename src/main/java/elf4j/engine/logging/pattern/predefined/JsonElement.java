@@ -66,12 +66,16 @@ public record JsonElement(
    * @return converted patternElement object
    */
   public static JsonElement from(String patternElement) {
-    Optional<List<String>> displayOptions =
+    if (!PredefinedPatternElementType.JSON.matchesTypeOf(patternElement)) {
+      throw new IllegalArgumentException(
+          String.format("Unexpected predefined pattern element: %s", patternElement));
+    }
+    List<String> displayOptions =
         PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement);
     if (displayOptions.isEmpty()) {
       return JsonElement.builder().build();
     }
-    Set<String> options = Set.copyOf(displayOptions.get());
+    Set<String> options = Set.copyOf(displayOptions);
     if (!PredefinedPatternElementType.alphaNumericOnly(DISPLAY_OPTIONS)
         .containsAll(PredefinedPatternElementType.alphaNumericOnly(options))) {
       throw new IllegalArgumentException("Invalid JSON display option inside: " + options);
