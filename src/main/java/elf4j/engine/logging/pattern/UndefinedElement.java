@@ -26,14 +26,21 @@
 package elf4j.engine.logging.pattern;
 
 import elf4j.engine.logging.LogEvent;
+import lombok.Value;
 
-public record UndefinedPatternElement(String text) implements PatternElement {
+public @Value class UndefinedElement implements PatternElement {
+  String text;
+
+  private UndefinedElement(String text) {
+    this.text = text;
+  }
+
   /**
    * @param patternElement text pattern element to convert
    * @return converted pattern element object
    */
-  public static UndefinedPatternElement from(String patternElement) {
-    return new UndefinedPatternElement(patternElement);
+  public static UndefinedElement from(String patternElement) {
+    return new UndefinedElement(patternElement);
   }
 
   @Override

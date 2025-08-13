@@ -27,7 +27,7 @@ package elf4j.engine.logging.pattern.predefined;
 
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedPatternElementType;
+import elf4j.engine.logging.pattern.PredefinedElementType;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -35,23 +35,31 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import lombok.Value;
 
-public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOption timeZoneOption)
-    implements PatternElement {
+public @Value class TimestampElement implements PatternElement {
   public static final DateTimeFormatter DEFAULT_DATE_TIME_FORMAT =
       DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSXXX");
+
+  DateTimeFormatter dateTimeFormatter;
+  TimeZoneOption timeZoneOption;
+
+  TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOption timeZoneOption) {
+    this.dateTimeFormatter = dateTimeFormatter;
+    this.timeZoneOption = timeZoneOption;
+  }
 
   /**
    * @param patternElement text pattern element to convert
    * @return converted pattern element object
    */
   public static TimestampElement from(String patternElement) {
-    if (!PredefinedPatternElementType.TIMESTAMP.matchesTypeOf(patternElement)) {
+    if (!PredefinedElementType.TIMESTAMP.matchesTypeOf(patternElement)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", patternElement));
     }
     List<String> elementDisplayOption =
-        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement);
+        PredefinedElementType.getElementDisplayOptions(patternElement);
     if (elementDisplayOption.isEmpty()) {
       return new TimestampElement(DEFAULT_DATE_TIME_FORMAT, TimeZoneOption.DEFAULT);
     }
@@ -79,14 +87,10 @@ public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOpti
    */
   @Override
   public boolean equals(Object o) {
-    if (!(o
-        instanceof
-        TimestampElement(
-            DateTimeFormatter thatDateTimeFormatter,
-            TimeZoneOption thatTimeZoneOption))) return false;
+    if (!(o instanceof TimestampElement that)) return false;
     OffsetDateTime now = OffsetDateTime.now();
-    return timeZoneOption == thatTimeZoneOption
-        && Objects.equals(dateTimeFormatter.format(now), thatDateTimeFormatter.format(now));
+    return timeZoneOption == that.timeZoneOption
+        && Objects.equals(dateTimeFormatter.format(now), that.dateTimeFormatter.format(now));
   }
 
   @Override

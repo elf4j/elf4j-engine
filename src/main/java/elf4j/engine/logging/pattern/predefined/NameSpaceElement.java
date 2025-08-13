@@ -28,25 +28,34 @@ package elf4j.engine.logging.pattern.predefined;
 import com.google.common.collect.MoreCollectors;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedPatternElementType;
+import elf4j.engine.logging.pattern.PredefinedElementType;
 import java.util.Objects;
+import lombok.Value;
 
-record NameSpaceElement(NameSpaceElement.DisplayOption displayOption, TargetPattern targetPattern)
-    implements PatternElement {
+@Value
+class NameSpaceElement implements PatternElement {
   private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.FULL;
+
+  DisplayOption displayOption;
+  TargetPattern targetPattern;
+
+  NameSpaceElement(DisplayOption displayOption, TargetPattern targetPattern) {
+    this.displayOption = displayOption;
+    this.targetPattern = targetPattern;
+  }
 
   /**
    * @param patternElement text patternElement to convert
    * @return converted patternElement object
    */
   public static NameSpaceElement from(String patternElement, TargetPattern targetPattern) {
-    if (!(PredefinedPatternElementType.CLASS.matchesTypeOf(patternElement)
-        || PredefinedPatternElementType.LOGGER.matchesTypeOf(patternElement))) {
+    if (!(PredefinedElementType.CLASS.matchesTypeOf(patternElement)
+        || PredefinedElementType.LOGGER.matchesTypeOf(patternElement))) {
       throw new IllegalArgumentException(
           "Unexpected predefined pattern element: %s".formatted(patternElement));
     }
     return new NameSpaceElement(
-        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement).stream()
+        PredefinedElementType.getElementDisplayOptions(patternElement).stream()
             .collect(MoreCollectors.toOptional())
             .map(name -> DisplayOption.valueOf(name.toUpperCase()))
             .orElse(DEFAULT_DISPLAY_OPTION),

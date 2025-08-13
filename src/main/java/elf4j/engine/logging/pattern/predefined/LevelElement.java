@@ -29,25 +29,31 @@ import static com.google.common.collect.MoreCollectors.toOptional;
 
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedPatternElementType;
+import elf4j.engine.logging.pattern.PredefinedElementType;
+import lombok.Value;
 
-public record LevelElement(int displayLength) implements PatternElement {
+public @Value class LevelElement implements PatternElement {
   private static final int UNSPECIFIED = -1;
+
+  int displayLength;
+
+  private LevelElement(int displayLength) {
+    this.displayLength = displayLength;
+  }
 
   /**
    * @param patternElement to convert
    * @return converted patternElement object
    */
   public static LevelElement from(String patternElement) {
-    if (!PredefinedPatternElementType.LEVEL.matchesTypeOf(patternElement)) {
+    if (!PredefinedElementType.LEVEL.matchesTypeOf(patternElement)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", patternElement));
     }
-    return new LevelElement(
-        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement).stream()
-            .collect(toOptional())
-            .map(Integer::parseInt)
-            .orElse(UNSPECIFIED));
+    return new LevelElement(PredefinedElementType.getElementDisplayOptions(patternElement).stream()
+        .collect(toOptional())
+        .map(Integer::parseInt)
+        .orElse(UNSPECIFIED));
   }
 
   @Override

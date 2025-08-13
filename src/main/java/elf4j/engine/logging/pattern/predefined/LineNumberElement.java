@@ -27,9 +27,21 @@ package elf4j.engine.logging.pattern.predefined;
 
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.PredefinedElementType;
 import java.util.Objects;
+import lombok.Value;
 
-public record LineNumberElement() implements PatternElement {
+public @Value class LineNumberElement implements PatternElement {
+  private LineNumberElement() {}
+
+  public static LineNumberElement from(String patternElement) {
+    if (!PredefinedElementType.LINE_NUMBER.matchesTypeOf(patternElement)) {
+      throw new IllegalArgumentException(
+          String.format("Unexpected predefined pattern element: %s", patternElement));
+    }
+    return new LineNumberElement();
+  }
+
   @Override
   public boolean includeCallerDetail() {
     return true;

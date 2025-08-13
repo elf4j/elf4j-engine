@@ -41,7 +41,7 @@ class VerbatimPatternTest {
     String inputLogText = "inputLogText";
     StringBuilder logTextBuilder = new StringBuilder(inputLogText);
 
-    new UndefinedPatternElement(verbatimTextToAppend).render(mockEntry, logTextBuilder);
+    UndefinedElement.from(verbatimTextToAppend).render(mockEntry, logTextBuilder);
 
     verifyNoInteractions(mockEntry);
     assertEquals(inputLogText + verbatimTextToAppend, logTextBuilder.toString());

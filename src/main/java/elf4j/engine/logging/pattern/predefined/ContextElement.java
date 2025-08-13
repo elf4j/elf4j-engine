@@ -3,8 +3,9 @@ package elf4j.engine.logging.pattern.predefined;
 import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedPatternElementType;
+import elf4j.engine.logging.pattern.PredefinedElementType;
 import java.util.NoSuchElementException;
+import lombok.Value;
 import org.slf4j.MDC;
 
 /**
@@ -12,7 +13,13 @@ import org.slf4j.MDC;
  * in a log pattern. It provides methods for checking if the log should include caller detail, for
  * creating a new instance from a pattern element, and for rendering the log event.
  */
-public record ContextElement(String key) implements PatternElement {
+public @Value class ContextElement implements PatternElement {
+  String key;
+
+  private ContextElement(String key) {
+    this.key = key;
+  }
+
   /**
    * Checks if the log should include caller detail such as method, line number, etc.
    *
@@ -31,12 +38,12 @@ public record ContextElement(String key) implements PatternElement {
    * @throws NoSuchElementException if no key is configured in the 'context' pattern element
    */
   public static ContextElement from(String patternElement) {
-    if (!PredefinedPatternElementType.CONTEXT.matchesTypeOf(patternElement)) {
+    if (!PredefinedElementType.CONTEXT.matchesTypeOf(patternElement)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", patternElement));
     }
-    return new ContextElement(Iterables.getOnlyElement(
-        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)));
+    return new ContextElement(
+        Iterables.getOnlyElement(PredefinedElementType.getElementDisplayOptions(patternElement)));
   }
 
   /**

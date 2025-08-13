@@ -28,20 +28,27 @@ package elf4j.engine.logging.pattern.predefined;
 import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedPatternElementType;
+import elf4j.engine.logging.pattern.PredefinedElementType;
+import lombok.Value;
 
-public record SystemPropertyElement(String key) implements PatternElement {
+public @Value class SystemPropertyElement implements PatternElement {
+  String key;
+
+  private SystemPropertyElement(String key) {
+    this.key = key;
+  }
+
   /**
    * @param patternElement text patternElement to convert
    * @return converted patternElement object
    */
   public static SystemPropertyElement from(String patternElement) {
-    if (!PredefinedPatternElementType.SYS_PROP.matchesTypeOf(patternElement)) {
+    if (!PredefinedElementType.SYS_PROP.matchesTypeOf(patternElement)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", patternElement));
     }
-    return new SystemPropertyElement(Iterables.getOnlyElement(
-        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement)));
+    return new SystemPropertyElement(
+        Iterables.getOnlyElement(PredefinedElementType.getElementDisplayOptions(patternElement)));
   }
 
   @Override

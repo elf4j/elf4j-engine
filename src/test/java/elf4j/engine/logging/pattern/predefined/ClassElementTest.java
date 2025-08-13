@@ -12,7 +12,7 @@ class ClassElementTest {
   void fromCreatesClassElementForValidPattern() {
     ClassElement classElement = ClassElement.from("CLASS");
     assertNotNull(classElement);
-    assertTrue(classElement.nameSpaceElement().includeCallerDetail());
+    assertTrue(classElement.getNameSpaceElement().includeCallerDetail());
   }
 
   @Test

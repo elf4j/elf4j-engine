@@ -27,9 +27,20 @@ package elf4j.engine.logging.pattern.predefined;
 
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.PredefinedElementType;
 import elf4j.engine.logging.util.StackTraces;
+import lombok.Value;
 
-public record MessageAndExceptionElement() implements PatternElement {
+public @Value class MessageAndExceptionElement implements PatternElement {
+  private MessageAndExceptionElement() {}
+
+  public static MessageAndExceptionElement from(String patternElement) {
+    if (!PredefinedElementType.MESSAGE.matchesTypeOf(patternElement)) {
+      throw new IllegalArgumentException("Invalid pattern element: " + patternElement);
+    }
+    return new MessageAndExceptionElement();
+  }
+
   @Override
   public boolean includeCallerDetail() {
     return false;

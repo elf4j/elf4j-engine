@@ -31,7 +31,7 @@ import com.dslplatform.json.PrettifyOutputStream;
 import com.dslplatform.json.runtime.Settings;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedPatternElementType;
+import elf4j.engine.logging.pattern.PredefinedElementType;
 import elf4j.engine.logging.util.StackTraces;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,13 +43,12 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.Builder;
+import lombok.Value;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.MDC;
 
 @Builder
-public record JsonElement(
-    boolean includeCallerThread, boolean includeCallerDetail, boolean prettyPrint)
-    implements PatternElement {
+public @Value class JsonElement implements PatternElement {
   private static final String CALLER_DETAIL = "caller-detail";
   private static final String CALLER_THREAD = "caller-thread";
   private static final String PRETTY = "pretty";
@@ -61,23 +60,33 @@ public record JsonElement(
   private static final String UTF_8 = StandardCharsets.UTF_8.toString();
   private static final int JSON_BYTES_INIT_SIZE = 1024;
 
+  boolean includeCallerThread;
+  boolean includeCallerDetail;
+  boolean prettyPrint;
+
+  private JsonElement(
+      boolean includeCallerThread, boolean includeCallerDetail, boolean prettyPrint) {
+    this.includeCallerThread = includeCallerThread;
+    this.includeCallerDetail = includeCallerDetail;
+    this.prettyPrint = prettyPrint;
+  }
+
   /**
    * @param patternElement to convert
    * @return converted patternElement object
    */
   public static JsonElement from(String patternElement) {
-    if (!PredefinedPatternElementType.JSON.matchesTypeOf(patternElement)) {
+    if (!PredefinedElementType.JSON.matchesTypeOf(patternElement)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", patternElement));
     }
-    List<String> displayOptions =
-        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement);
+    List<String> displayOptions = PredefinedElementType.getElementDisplayOptions(patternElement);
     if (displayOptions.isEmpty()) {
       return JsonElement.builder().build();
     }
     Set<String> options = Set.copyOf(displayOptions);
-    if (!PredefinedPatternElementType.alphaNumericOnly(DISPLAY_OPTIONS)
-        .containsAll(PredefinedPatternElementType.alphaNumericOnly(options))) {
+    if (!PredefinedElementType.alphaNumericOnly(DISPLAY_OPTIONS)
+        .containsAll(PredefinedElementType.alphaNumericOnly(options))) {
       throw new IllegalArgumentException("Invalid JSON display option inside: " + options);
     }
     return JsonElement.builder()

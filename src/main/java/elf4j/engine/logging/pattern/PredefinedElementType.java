@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public enum PredefinedPatternElementType {
+public enum PredefinedElementType {
   TIMESTAMP {
     @Override
     PatternElement parse(String patternElement) {
@@ -40,25 +40,25 @@ public enum PredefinedPatternElementType {
   METHOD {
     @Override
     PatternElement parse(String patternElement) {
-      return new MethodElement();
+      return MethodElement.from(patternElement);
     }
   },
   FILENAME {
     @Override
     PatternElement parse(String patternElement) {
-      return new FileNameElement();
+      return FileNameElement.from(patternElement);
     }
   },
   LINE_NUMBER {
     @Override
     PatternElement parse(String patternElement) {
-      return new LineNumberElement();
+      return LineNumberElement.from(patternElement);
     }
   },
   MESSAGE {
     @Override
     PatternElement parse(String patternElement) {
-      return new MessageAndExceptionElement();
+      return MessageAndExceptionElement.from(patternElement);
     }
   },
   JSON {
@@ -89,11 +89,11 @@ public enum PredefinedPatternElementType {
   public static final String DELIMITER_PATTERN_ELEMENT = ":";
   public static final String DELIMITER_DISPLAY_OPTION = ",";
 
-  static String getPatternElementType(String patternElement) {
+  static String getElementType(String patternElement) {
     return patternElement.split(DELIMITER_PATTERN_ELEMENT, 2)[0].strip();
   }
 
-  public static List<String> getPatternElementDisplayOptions(String patternElement) {
+  public static List<String> getElementDisplayOptions(String patternElement) {
     String[] elements = patternElement.split(DELIMITER_PATTERN_ELEMENT, 2);
     return elements.length == 1 || elements[1].isBlank()
         ? List.of()
@@ -102,23 +102,20 @@ public enum PredefinedPatternElementType {
             .toList();
   }
 
-  static PatternElement parsePredefinedPatternElement(String predefinedPatternElement) {
-    return PredefinedPatternElementType.from(predefinedPatternElement)
-        .parse(predefinedPatternElement);
+  static PatternElement parsePredefinedElement(String predefinedPatternElement) {
+    return PredefinedElementType.from(predefinedPatternElement).parse(predefinedPatternElement);
   }
 
   public static Set<String> alphaNumericOnly(Set<String> in) {
-    return in.stream()
-        .map(PredefinedPatternElementType::alphaNumericOnly)
-        .collect(Collectors.toSet());
+    return in.stream().map(PredefinedElementType::alphaNumericOnly).collect(Collectors.toSet());
   }
 
   public static String alphaNumericOnly(String in) {
     return in.replaceAll("[^a-zA-Z0-9]", "");
   }
 
-  static PredefinedPatternElementType from(String patternElement) {
-    return Arrays.stream(PredefinedPatternElementType.values())
+  static PredefinedElementType from(String patternElement) {
+    return Arrays.stream(PredefinedElementType.values())
         .filter(type -> type.matchesTypeOf(patternElement))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException(
@@ -129,6 +126,6 @@ public enum PredefinedPatternElementType {
 
   public boolean matchesTypeOf(String patternElement) {
     return alphaNumericOnly(this.name())
-        .equalsIgnoreCase(alphaNumericOnly(getPatternElementType(patternElement)));
+        .equalsIgnoreCase(alphaNumericOnly(getElementType(patternElement)));
   }
 }

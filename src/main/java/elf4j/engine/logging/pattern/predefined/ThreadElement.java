@@ -28,25 +28,31 @@ package elf4j.engine.logging.pattern.predefined;
 import com.google.common.collect.MoreCollectors;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedPatternElementType;
+import elf4j.engine.logging.pattern.PredefinedElementType;
 import java.util.Arrays;
 import java.util.Objects;
+import lombok.Value;
 
-public record ThreadElement(DisplayOption threadDisplayOption) implements PatternElement {
+public @Value class ThreadElement implements PatternElement {
+  DisplayOption threadDisplayOption;
+
+  private ThreadElement(DisplayOption threadDisplayOption) {
+    this.threadDisplayOption = threadDisplayOption;
+  }
+
   /**
    * @param patternElement text pattern element to convert
    * @return the thread pattern element converted from the specified text
    */
   public static ThreadElement from(String patternElement) {
-    if (!PredefinedPatternElementType.THREAD.matchesTypeOf(patternElement)) {
+    if (!PredefinedElementType.THREAD.matchesTypeOf(patternElement)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", patternElement));
     }
-    return new ThreadElement(
-        PredefinedPatternElementType.getPatternElementDisplayOptions(patternElement).stream()
-            .collect(MoreCollectors.toOptional())
-            .map(DisplayOption::from)
-            .orElse(DisplayOption.NAME));
+    return new ThreadElement(PredefinedElementType.getElementDisplayOptions(patternElement).stream()
+        .collect(MoreCollectors.toOptional())
+        .map(DisplayOption::from)
+        .orElse(DisplayOption.NAME));
   }
 
   @Override

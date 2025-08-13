@@ -27,9 +27,20 @@ package elf4j.engine.logging.pattern.predefined;
 
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.PredefinedElementType;
 import java.util.Objects;
+import lombok.Value;
 
-public record MethodElement() implements PatternElement {
+public @Value class MethodElement implements PatternElement {
+  private MethodElement() {}
+
+  public static MethodElement from(String patternElement) {
+    if (!PredefinedElementType.METHOD.matchesTypeOf(patternElement)) {
+      throw new IllegalArgumentException("patternElement: " + patternElement);
+    }
+    return new MethodElement();
+  }
+
   @Override
   public boolean includeCallerDetail() {
     return true;

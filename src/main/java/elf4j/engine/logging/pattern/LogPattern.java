@@ -28,6 +28,7 @@ package elf4j.engine.logging.pattern;
 import elf4j.engine.logging.LogEvent;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Value;
 
 /**
  * The LogPattern class implements the PatternElement interface and represents a composite of
@@ -35,7 +36,13 @@ import java.util.List;
  * checking if the log should include caller detail, for creating a new instance from a pattern
  * element, and for rendering the log event.
  */
-public record LogPattern(List<PatternElement> patternElements) implements PatternElement {
+public @Value(staticConstructor = "from") class LogPattern implements PatternElement {
+  List<PatternElement> patternElements;
+
+  LogPattern(List<PatternElement> patternElements) {
+    this.patternElements = patternElements;
+  }
+
   /**
    * Creates a new LogPattern instance from a given pattern element.
    *
@@ -62,7 +69,7 @@ public record LogPattern(List<PatternElement> patternElements) implements Patter
           element = pattern.substring(elementStart);
           elementStart = length;
         }
-        elements.add(PredefinedPatternElementType.parsePredefinedPatternElement(element));
+        elements.add(PredefinedElementType.parsePredefinedElement(element));
       } else {
         elementEnd = pattern.indexOf('{', elementStart);
         if (elementEnd != -1) {
@@ -72,7 +79,7 @@ public record LogPattern(List<PatternElement> patternElements) implements Patter
           element = pattern.substring(elementStart);
           elementStart = length;
         }
-        elements.add(UndefinedPatternElement.from(element));
+        elements.add(UndefinedElement.from(element));
       }
     }
     return new LogPattern(elements);
