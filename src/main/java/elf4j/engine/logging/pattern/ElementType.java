@@ -1,12 +1,11 @@
 package elf4j.engine.logging.pattern;
 
-import elf4j.engine.logging.pattern.predefined.*;
+import elf4j.engine.logging.pattern.element.*;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-public enum PredefinedElementType {
+public enum ElementType {
   TIMESTAMP {
     @Override
     PatternElement parse(String patternElement) {
@@ -84,48 +83,46 @@ public enum PredefinedElementType {
     PatternElement parse(String patternElement) {
       return ContextElement.from(patternElement);
     }
+  },
+  VERBATIM {
+    @Override
+    PatternElement parse(String patternElement) {
+      return VerbatimElement.from(patternElement);
+    }
   };
 
   public static final String DELIMITER_PATTERN_ELEMENT = ":";
   public static final String DELIMITER_DISPLAY_OPTION = ",";
 
-  static String getElementType(String patternElement) {
-    return patternElement.split(DELIMITER_PATTERN_ELEMENT, 2)[0].strip();
+  public static ElementType from(String patternElement) {
+    String t = patternElement.split(DELIMITER_PATTERN_ELEMENT, 2)[0].strip();
+    return Arrays.stream(values())
+        .filter(v -> alphaNumericOnly(v.name()).equalsIgnoreCase(alphaNumericOnly(t)))
+        .findFirst()
+        .orElse(VERBATIM);
   }
 
   public static List<String> getElementDisplayOptions(String patternElement) {
     String[] elements = patternElement.split(DELIMITER_PATTERN_ELEMENT, 2);
-    return elements.length == 1 || elements[1].isBlank()
+    return elements.length < 2 || elements[1].isBlank()
         ? List.of()
         : Arrays.stream(elements[1].split(DELIMITER_DISPLAY_OPTION))
             .map(String::strip)
+            .filter(s -> !s.isBlank())
             .toList();
   }
 
-  static PatternElement parsePredefinedElement(String predefinedPatternElement) {
-    return PredefinedElementType.from(predefinedPatternElement).parse(predefinedPatternElement);
+  static PatternElement parseElement(String predefinedPatternElement) {
+    return ElementType.from(predefinedPatternElement).parse(predefinedPatternElement);
   }
 
-  public static Set<String> alphaNumericOnly(Set<String> in) {
-    return in.stream().map(PredefinedElementType::alphaNumericOnly).collect(Collectors.toSet());
+  public static Collection<String> alphaNumericOnly(Collection<String> in) {
+    return in.stream().map(ElementType::alphaNumericOnly).toList();
   }
 
   public static String alphaNumericOnly(String in) {
     return in.replaceAll("[^a-zA-Z0-9]", "");
   }
 
-  static PredefinedElementType from(String patternElement) {
-    return Arrays.stream(PredefinedElementType.values())
-        .filter(type -> type.matchesTypeOf(patternElement))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException(
-            "Unexpected predefined pattern element: '%s'".formatted(patternElement)));
-  }
-
   abstract PatternElement parse(String patternElement);
-
-  public boolean matchesTypeOf(String patternElement) {
-    return alphaNumericOnly(this.name())
-        .equalsIgnoreCase(alphaNumericOnly(getElementType(patternElement)));
-  }
 }

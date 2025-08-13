@@ -23,11 +23,11 @@
  *
  */
 
-package elf4j.engine.logging.pattern.predefined;
+package elf4j.engine.logging.pattern.element;
 
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedElementType;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -54,12 +54,11 @@ public @Value class TimestampElement implements PatternElement {
    * @return converted pattern element object
    */
   public static TimestampElement from(String patternElement) {
-    if (!PredefinedElementType.TIMESTAMP.matchesTypeOf(patternElement)) {
+    if (ElementType.TIMESTAMP != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", patternElement));
     }
-    List<String> elementDisplayOption =
-        PredefinedElementType.getElementDisplayOptions(patternElement);
+    List<String> elementDisplayOption = ElementType.getElementDisplayOptions(patternElement);
     if (elementDisplayOption.isEmpty()) {
       return new TimestampElement(DEFAULT_DATE_TIME_FORMAT, TimeZoneOption.DEFAULT);
     }

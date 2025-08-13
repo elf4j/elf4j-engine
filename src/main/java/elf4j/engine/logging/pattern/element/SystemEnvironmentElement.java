@@ -23,32 +23,41 @@
  *
  */
 
-package elf4j.engine.logging.pattern.predefined;
+package elf4j.engine.logging.pattern.element;
 
+import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedElementType;
-import java.util.Objects;
 import lombok.Value;
 
-public @Value class LineNumberElement implements PatternElement {
-  private LineNumberElement() {}
+public @Value class SystemEnvironmentElement implements PatternElement {
+  String key;
 
-  public static LineNumberElement from(String patternElement) {
-    if (!PredefinedElementType.LINE_NUMBER.matchesTypeOf(patternElement)) {
+  private SystemEnvironmentElement(String key) {
+    this.key = key;
+  }
+
+  /**
+   * @param patternElement text patternElement to convert
+   * @return converted patternElement object
+   */
+  public static SystemEnvironmentElement from(String patternElement) {
+    if (ElementType.SYS_ENV != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", patternElement));
     }
-    return new LineNumberElement();
-  }
-
-  @Override
-  public boolean includeCallerDetail() {
-    return true;
+    return new SystemEnvironmentElement(
+        Iterables.getOnlyElement(ElementType.getElementDisplayOptions(patternElement)));
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getLineNumber());
+    target.append(System.getenv(key));
+  }
+
+  @Override
+  public boolean includeCallerDetail() {
+    return false;
   }
 }

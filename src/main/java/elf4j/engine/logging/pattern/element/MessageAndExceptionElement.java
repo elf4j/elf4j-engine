@@ -23,36 +23,36 @@
  *
  */
 
-package elf4j.engine.logging.pattern.predefined;
+package elf4j.engine.logging.pattern.element;
 
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedElementType;
+import elf4j.engine.logging.util.StackTraces;
 import lombok.Value;
 
-public @Value class ClassElement implements PatternElement {
-  NameSpaceElement nameSpaceElement;
+public @Value class MessageAndExceptionElement implements PatternElement {
+  private MessageAndExceptionElement() {}
 
-  ClassElement(NameSpaceElement nameSpaceElement) {
-    this.nameSpaceElement = nameSpaceElement;
-  }
-
-  public static ClassElement from(String patternElement) {
-    if (!PredefinedElementType.CLASS.matchesTypeOf(patternElement)) {
-      throw new IllegalArgumentException(
-          "Unexpected predefined pattern element: %s".formatted(patternElement));
+  public static MessageAndExceptionElement from(String patternElement) {
+    if (ElementType.MESSAGE != ElementType.from(patternElement)) {
+      throw new IllegalArgumentException("Invalid pattern element: " + patternElement);
     }
-    return new ClassElement(
-        NameSpaceElement.from(patternElement, NameSpaceElement.TargetPattern.CLASS));
+    return new MessageAndExceptionElement();
   }
 
   @Override
   public boolean includeCallerDetail() {
-    return nameSpaceElement.includeCallerDetail();
+    return false;
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    nameSpaceElement.render(logEvent, target);
+    target.append(logEvent.getResolvedMessage());
+    Throwable t = logEvent.getThrowable();
+    if (t == null) {
+      return;
+    }
+    target.append(System.lineSeparator()).append(StackTraces.getTraceAsBuffer(t));
   }
 }

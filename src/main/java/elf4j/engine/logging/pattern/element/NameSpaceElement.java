@@ -23,12 +23,12 @@
  *
  */
 
-package elf4j.engine.logging.pattern.predefined;
+package elf4j.engine.logging.pattern.element;
 
 import com.google.common.collect.MoreCollectors;
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedElementType;
 import java.util.Objects;
 import lombok.Value;
 
@@ -49,13 +49,13 @@ class NameSpaceElement implements PatternElement {
    * @return converted patternElement object
    */
   public static NameSpaceElement from(String patternElement, TargetPattern targetPattern) {
-    if (!(PredefinedElementType.CLASS.matchesTypeOf(patternElement)
-        || PredefinedElementType.LOGGER.matchesTypeOf(patternElement))) {
+    ElementType type = ElementType.from(patternElement);
+    if (type != ElementType.CLASS && type != ElementType.LOGGER) {
       throw new IllegalArgumentException(
           "Unexpected predefined pattern element: %s".formatted(patternElement));
     }
     return new NameSpaceElement(
-        PredefinedElementType.getElementDisplayOptions(patternElement).stream()
+        ElementType.getElementDisplayOptions(patternElement).stream()
             .collect(MoreCollectors.toOptional())
             .map(name -> DisplayOption.valueOf(name.toUpperCase()))
             .orElse(DEFAULT_DISPLAY_OPTION),

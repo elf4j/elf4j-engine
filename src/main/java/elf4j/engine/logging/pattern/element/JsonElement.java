@@ -23,15 +23,15 @@
  *
  */
 
-package elf4j.engine.logging.pattern.predefined;
+package elf4j.engine.logging.pattern.element;
 
 import com.dslplatform.json.CompiledJson;
 import com.dslplatform.json.DslJson;
 import com.dslplatform.json.PrettifyOutputStream;
 import com.dslplatform.json.runtime.Settings;
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedElementType;
 import elf4j.engine.logging.util.StackTraces;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -57,7 +57,6 @@ public @Value class JsonElement implements PatternElement {
       .collect(Collectors.toSet());
   private static final DslJson<Object> DSL_JSON =
       new DslJson<>(Settings.basicSetup().skipDefaultValues(true).includeServiceLoader());
-  private static final String UTF_8 = StandardCharsets.UTF_8.toString();
   private static final int JSON_BYTES_INIT_SIZE = 1024;
 
   boolean includeCallerThread;
@@ -76,17 +75,17 @@ public @Value class JsonElement implements PatternElement {
    * @return converted patternElement object
    */
   public static JsonElement from(String patternElement) {
-    if (!PredefinedElementType.JSON.matchesTypeOf(patternElement)) {
+    if (ElementType.JSON != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", patternElement));
     }
-    List<String> displayOptions = PredefinedElementType.getElementDisplayOptions(patternElement);
+    List<String> displayOptions = ElementType.getElementDisplayOptions(patternElement);
     if (displayOptions.isEmpty()) {
       return JsonElement.builder().build();
     }
     Set<String> options = Set.copyOf(displayOptions);
-    if (!PredefinedElementType.alphaNumericOnly(DISPLAY_OPTIONS)
-        .containsAll(PredefinedElementType.alphaNumericOnly(options))) {
+    if (!ElementType.alphaNumericOnly(DISPLAY_OPTIONS)
+        .containsAll(ElementType.alphaNumericOnly(options))) {
       throw new IllegalArgumentException("Invalid JSON display option inside: " + options);
     }
     return JsonElement.builder()
@@ -107,10 +106,10 @@ public @Value class JsonElement implements PatternElement {
     try (OutputStream outputStream =
         prettyPrint ? new PrettifyOutputStream(byteArrayOutputStream) : byteArrayOutputStream) {
       DSL_JSON.serialize(JsonLogEntry.from(logEvent, this), outputStream);
-      target.append(byteArrayOutputStream.toString(UTF_8));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
+    target.append(byteArrayOutputStream.toString(StandardCharsets.UTF_8));
   }
 
   @Builder

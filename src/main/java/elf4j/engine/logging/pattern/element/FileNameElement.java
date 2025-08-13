@@ -23,41 +23,32 @@
  *
  */
 
-package elf4j.engine.logging.pattern.predefined;
+package elf4j.engine.logging.pattern.element;
 
-import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedElementType;
+import java.util.Objects;
 import lombok.Value;
 
-public @Value class SystemPropertyElement implements PatternElement {
-  String key;
+public @Value class FileNameElement implements PatternElement {
+  private FileNameElement() {}
 
-  private SystemPropertyElement(String key) {
-    this.key = key;
-  }
-
-  /**
-   * @param patternElement text patternElement to convert
-   * @return converted patternElement object
-   */
-  public static SystemPropertyElement from(String patternElement) {
-    if (!PredefinedElementType.SYS_PROP.matchesTypeOf(patternElement)) {
+  public static FileNameElement from(String patternElement) {
+    if (ElementType.FILENAME != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", patternElement));
     }
-    return new SystemPropertyElement(
-        Iterables.getOnlyElement(PredefinedElementType.getElementDisplayOptions(patternElement)));
-  }
-
-  @Override
-  public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(System.getProperty(this.key));
+    return new FileNameElement();
   }
 
   @Override
   public boolean includeCallerDetail() {
-    return false;
+    return true;
+  }
+
+  @Override
+  public void render(LogEvent logEvent, StringBuilder target) {
+    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getFileName());
   }
 }

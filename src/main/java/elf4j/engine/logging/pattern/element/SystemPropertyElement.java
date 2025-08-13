@@ -23,36 +23,41 @@
  *
  */
 
-package elf4j.engine.logging.pattern.predefined;
+package elf4j.engine.logging.pattern.element;
 
+import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedElementType;
-import elf4j.engine.logging.util.StackTraces;
 import lombok.Value;
 
-public @Value class MessageAndExceptionElement implements PatternElement {
-  private MessageAndExceptionElement() {}
+public @Value class SystemPropertyElement implements PatternElement {
+  String key;
 
-  public static MessageAndExceptionElement from(String patternElement) {
-    if (!PredefinedElementType.MESSAGE.matchesTypeOf(patternElement)) {
-      throw new IllegalArgumentException("Invalid pattern element: " + patternElement);
+  private SystemPropertyElement(String key) {
+    this.key = key;
+  }
+
+  /**
+   * @param patternElement text patternElement to convert
+   * @return converted patternElement object
+   */
+  public static SystemPropertyElement from(String patternElement) {
+    if (ElementType.SYS_PROP != ElementType.from(patternElement)) {
+      throw new IllegalArgumentException(
+          String.format("Unexpected predefined pattern element: %s", patternElement));
     }
-    return new MessageAndExceptionElement();
+    return new SystemPropertyElement(
+        Iterables.getOnlyElement(ElementType.getElementDisplayOptions(patternElement)));
+  }
+
+  @Override
+  public void render(LogEvent logEvent, StringBuilder target) {
+    target.append(System.getProperty(this.key));
   }
 
   @Override
   public boolean includeCallerDetail() {
     return false;
-  }
-
-  @Override
-  public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(logEvent.getResolvedMessage());
-    Throwable t = logEvent.getThrowable();
-    if (t == null) {
-      return;
-    }
-    target.append(System.lineSeparator()).append(StackTraces.getTraceAsBuffer(t));
   }
 }

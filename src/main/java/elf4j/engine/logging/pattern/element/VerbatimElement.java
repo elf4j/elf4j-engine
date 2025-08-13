@@ -23,37 +23,25 @@
  *
  */
 
-package elf4j.engine.logging.pattern.predefined;
-
-import static com.google.common.collect.MoreCollectors.toOptional;
+package elf4j.engine.logging.pattern.element;
 
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedElementType;
 import lombok.Value;
 
-public @Value class LevelElement implements PatternElement {
-  private static final int UNSPECIFIED = -1;
+public @Value class VerbatimElement implements PatternElement {
+  String text;
 
-  int displayLength;
-
-  private LevelElement(int displayLength) {
-    this.displayLength = displayLength;
+  private VerbatimElement(String text) {
+    this.text = text;
   }
 
   /**
-   * @param patternElement to convert
-   * @return converted patternElement object
+   * @param patternElement text pattern element to convert
+   * @return converted pattern element object
    */
-  public static LevelElement from(String patternElement) {
-    if (!PredefinedElementType.LEVEL.matchesTypeOf(patternElement)) {
-      throw new IllegalArgumentException(
-          String.format("Unexpected predefined pattern element: %s", patternElement));
-    }
-    return new LevelElement(PredefinedElementType.getElementDisplayOptions(patternElement).stream()
-        .collect(toOptional())
-        .map(Integer::parseInt)
-        .orElse(UNSPECIFIED));
+  public static VerbatimElement from(String patternElement) {
+    return new VerbatimElement(patternElement);
   }
 
   @Override
@@ -63,14 +51,6 @@ public @Value class LevelElement implements PatternElement {
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    String level = logEvent.getLevel().name();
-    if (displayLength == UNSPECIFIED) {
-      target.append(level);
-      return;
-    }
-    char[] levelChars = level.toCharArray();
-    for (int i = 0; i < displayLength; i++) {
-      target.append(i < levelChars.length ? levelChars[i] : ' ');
-    }
+    target.append(text);
   }
 }

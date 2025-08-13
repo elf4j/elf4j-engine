@@ -23,36 +23,54 @@
  *
  */
 
-package elf4j.engine.logging.pattern.predefined;
+package elf4j.engine.logging.pattern.element;
+
+import static com.google.common.collect.MoreCollectors.toOptional;
 
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedElementType;
 import lombok.Value;
 
-public @Value(staticConstructor = "from") class LoggerElement implements PatternElement {
-  NameSpaceElement nameSpaceElement;
+public @Value class LevelElement implements PatternElement {
+  private static final int UNSPECIFIED = -1;
 
-  private LoggerElement(NameSpaceElement nameSpaceElement) {
-    this.nameSpaceElement = nameSpaceElement;
+  int displayLength;
+
+  private LevelElement(int displayLength) {
+    this.displayLength = displayLength;
   }
 
-  public static LoggerElement from(String patternElement) {
-    if (!PredefinedElementType.LOGGER.matchesTypeOf(patternElement)) {
+  /**
+   * @param patternElement to convert
+   * @return converted patternElement object
+   */
+  public static LevelElement from(String patternElement) {
+    if (ElementType.LEVEL != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(
-          "Unexpected predefined pattern element: %s".formatted(patternElement));
+          String.format("Unexpected predefined pattern element: %s", patternElement));
     }
-    return new LoggerElement(
-        NameSpaceElement.from(patternElement, NameSpaceElement.TargetPattern.LOGGER));
+    return new LevelElement(ElementType.getElementDisplayOptions(patternElement).stream()
+        .collect(toOptional())
+        .map(Integer::parseInt)
+        .orElse(UNSPECIFIED));
   }
 
   @Override
   public boolean includeCallerDetail() {
-    return nameSpaceElement.includeCallerDetail();
+    return false;
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    nameSpaceElement.render(logEvent, target);
+    String level = logEvent.getLevel().name();
+    if (displayLength == UNSPECIFIED) {
+      target.append(level);
+      return;
+    }
+    char[] levelChars = level.toCharArray();
+    for (int i = 0; i < displayLength; i++) {
+      target.append(i < levelChars.length ? levelChars[i] : ' ');
+    }
   }
 }

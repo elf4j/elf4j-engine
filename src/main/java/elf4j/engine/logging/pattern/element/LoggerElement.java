@@ -23,32 +23,36 @@
  *
  */
 
-package elf4j.engine.logging.pattern.predefined;
+package elf4j.engine.logging.pattern.element;
 
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedElementType;
-import java.util.Objects;
 import lombok.Value;
 
-public @Value class FileNameElement implements PatternElement {
-  private FileNameElement() {}
+public @Value(staticConstructor = "from") class LoggerElement implements PatternElement {
+  NameSpaceElement nameSpaceElement;
 
-  public static FileNameElement from(String patternElement) {
-    if (!PredefinedElementType.FILENAME.matchesTypeOf(patternElement)) {
+  private LoggerElement(NameSpaceElement nameSpaceElement) {
+    this.nameSpaceElement = nameSpaceElement;
+  }
+
+  public static LoggerElement from(String patternElement) {
+    if (ElementType.LOGGER != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(
-          String.format("Unexpected predefined pattern element: %s", patternElement));
+          "Unexpected predefined pattern element: %s".formatted(patternElement));
     }
-    return new FileNameElement();
+    return new LoggerElement(
+        NameSpaceElement.from(patternElement, NameSpaceElement.TargetPattern.LOGGER));
   }
 
   @Override
   public boolean includeCallerDetail() {
-    return true;
+    return nameSpaceElement.includeCallerDetail();
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getFileName());
+    nameSpaceElement.render(logEvent, target);
   }
 }

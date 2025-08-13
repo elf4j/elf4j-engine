@@ -1,9 +1,9 @@
-package elf4j.engine.logging.pattern.predefined;
+package elf4j.engine.logging.pattern.element;
 
 import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedElementType;
 import java.util.NoSuchElementException;
 import lombok.Value;
 import org.slf4j.MDC;
@@ -38,12 +38,12 @@ public @Value class ContextElement implements PatternElement {
    * @throws NoSuchElementException if no key is configured in the 'context' pattern element
    */
   public static ContextElement from(String patternElement) {
-    if (!PredefinedElementType.CONTEXT.matchesTypeOf(patternElement)) {
+    if (ElementType.CONTEXT != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", patternElement));
     }
     return new ContextElement(
-        Iterables.getOnlyElement(PredefinedElementType.getElementDisplayOptions(patternElement)));
+        Iterables.getOnlyElement(ElementType.getElementDisplayOptions(patternElement)));
   }
 
   /**

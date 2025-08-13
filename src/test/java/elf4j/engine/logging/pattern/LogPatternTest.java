@@ -1,10 +1,11 @@
 package elf4j.engine.logging.pattern;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.inOrder;
 
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.element.VerbatimElement;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -20,9 +21,11 @@ class LogPatternTest {
   @Nested
   class parsePattern {
     @Test
-    void whenPredefinedElementIsUnrecognized() {
-      assertThrows(
-          IllegalArgumentException.class, () -> LogPattern.from("{testUnrecognizedPredefined}"));
+    void whenNoInterpretingElementIsRecognized() {
+      assertThat(LogPattern.from("{testUnrecognizedPredefined}").getPatternElements())
+          .hasSize(1)
+          .element(0)
+          .isInstanceOf(VerbatimElement.class);
     }
   }
 

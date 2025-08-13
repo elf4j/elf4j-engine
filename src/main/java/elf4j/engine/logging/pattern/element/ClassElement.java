@@ -23,41 +23,36 @@
  *
  */
 
-package elf4j.engine.logging.pattern.predefined;
+package elf4j.engine.logging.pattern.element;
 
-import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedElementType;
 import lombok.Value;
 
-public @Value class SystemEnvironmentElement implements PatternElement {
-  String key;
+public @Value class ClassElement implements PatternElement {
+  NameSpaceElement nameSpaceElement;
 
-  private SystemEnvironmentElement(String key) {
-    this.key = key;
+  ClassElement(NameSpaceElement nameSpaceElement) {
+    this.nameSpaceElement = nameSpaceElement;
   }
 
-  /**
-   * @param patternElement text patternElement to convert
-   * @return converted patternElement object
-   */
-  public static SystemEnvironmentElement from(String patternElement) {
-    if (!PredefinedElementType.SYS_ENV.matchesTypeOf(patternElement)) {
+  public static ClassElement from(String patternElement) {
+    if (ElementType.CLASS != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(
-          String.format("Unexpected predefined pattern element: %s", patternElement));
+          "Unexpected predefined pattern element: %s".formatted(patternElement));
     }
-    return new SystemEnvironmentElement(
-        Iterables.getOnlyElement(PredefinedElementType.getElementDisplayOptions(patternElement)));
-  }
-
-  @Override
-  public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(System.getenv(key));
+    return new ClassElement(
+        NameSpaceElement.from(patternElement, NameSpaceElement.TargetPattern.CLASS));
   }
 
   @Override
   public boolean includeCallerDetail() {
-    return false;
+    return nameSpaceElement.includeCallerDetail();
+  }
+
+  @Override
+  public void render(LogEvent logEvent, StringBuilder target) {
+    nameSpaceElement.render(logEvent, target);
   }
 }

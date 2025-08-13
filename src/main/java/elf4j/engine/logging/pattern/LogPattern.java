@@ -36,7 +36,7 @@ import lombok.Value;
  * checking if the log should include caller detail, for creating a new instance from a pattern
  * element, and for rendering the log event.
  */
-public @Value(staticConstructor = "from") class LogPattern implements PatternElement {
+public @Value class LogPattern implements PatternElement {
   List<PatternElement> patternElements;
 
   LogPattern(List<PatternElement> patternElements) {
@@ -69,7 +69,6 @@ public @Value(staticConstructor = "from") class LogPattern implements PatternEle
           element = pattern.substring(elementStart);
           elementStart = length;
         }
-        elements.add(PredefinedElementType.parsePredefinedElement(element));
       } else {
         elementEnd = pattern.indexOf('{', elementStart);
         if (elementEnd != -1) {
@@ -79,8 +78,8 @@ public @Value(staticConstructor = "from") class LogPattern implements PatternEle
           element = pattern.substring(elementStart);
           elementStart = length;
         }
-        elements.add(UndefinedElement.from(element));
       }
+      elements.add(ElementType.parseElement(element));
     }
     return new LogPattern(elements);
   }

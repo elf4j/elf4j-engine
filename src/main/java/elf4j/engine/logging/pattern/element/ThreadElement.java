@@ -23,12 +23,12 @@
  *
  */
 
-package elf4j.engine.logging.pattern.predefined;
+package elf4j.engine.logging.pattern.element;
 
 import com.google.common.collect.MoreCollectors;
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import elf4j.engine.logging.pattern.PredefinedElementType;
 import java.util.Arrays;
 import java.util.Objects;
 import lombok.Value;
@@ -45,11 +45,11 @@ public @Value class ThreadElement implements PatternElement {
    * @return the thread pattern element converted from the specified text
    */
   public static ThreadElement from(String patternElement) {
-    if (!PredefinedElementType.THREAD.matchesTypeOf(patternElement)) {
+    if (ElementType.THREAD != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", patternElement));
     }
-    return new ThreadElement(PredefinedElementType.getElementDisplayOptions(patternElement).stream()
+    return new ThreadElement(ElementType.getElementDisplayOptions(patternElement).stream()
         .collect(MoreCollectors.toOptional())
         .map(DisplayOption::from)
         .orElse(DisplayOption.NAME));

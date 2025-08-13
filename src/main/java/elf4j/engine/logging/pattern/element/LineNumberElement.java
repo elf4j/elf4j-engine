@@ -23,33 +23,32 @@
  *
  */
 
-package elf4j.engine.logging.pattern;
+package elf4j.engine.logging.pattern.element;
 
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.ElementType;
+import elf4j.engine.logging.pattern.PatternElement;
+import java.util.Objects;
 import lombok.Value;
 
-public @Value class UndefinedElement implements PatternElement {
-  String text;
+public @Value class LineNumberElement implements PatternElement {
+  private LineNumberElement() {}
 
-  private UndefinedElement(String text) {
-    this.text = text;
-  }
-
-  /**
-   * @param patternElement text pattern element to convert
-   * @return converted pattern element object
-   */
-  public static UndefinedElement from(String patternElement) {
-    return new UndefinedElement(patternElement);
+  public static LineNumberElement from(String patternElement) {
+    if (ElementType.LINE_NUMBER != ElementType.from(patternElement)) {
+      throw new IllegalArgumentException(
+          String.format("Unexpected predefined pattern element: %s", patternElement));
+    }
+    return new LineNumberElement();
   }
 
   @Override
   public boolean includeCallerDetail() {
-    return false;
+    return true;
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(text);
+    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getLineNumber());
   }
 }
