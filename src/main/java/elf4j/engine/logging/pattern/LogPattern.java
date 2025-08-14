@@ -39,10 +39,6 @@ import lombok.Value;
 public @Value class LogPattern implements PatternElement {
   List<PatternElement> patternElements;
 
-  LogPattern(List<PatternElement> patternElements) {
-    this.patternElements = patternElements;
-  }
-
   /**
    * Creates a new LogPattern instance from a given pattern element.
    *

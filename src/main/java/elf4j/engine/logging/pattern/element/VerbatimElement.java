@@ -34,11 +34,8 @@ import lombok.Value;
 
 public @Value class VerbatimElement implements PatternElement {
   static Logger logger = UtilLogger.WARN;
-  String text;
 
-  private VerbatimElement(String text) {
-    this.text = text;
-  }
+  String text;
 
   /**
    * @param patternElement text pattern element to convert

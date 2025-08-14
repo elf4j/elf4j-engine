@@ -16,10 +16,6 @@ import org.slf4j.MDC;
 public @Value class ContextElement implements PatternElement {
   String key;
 
-  private ContextElement(String key) {
-    this.key = key;
-  }
-
   /**
    * Checks if the log should include caller detail such as method, line number, etc.
    *

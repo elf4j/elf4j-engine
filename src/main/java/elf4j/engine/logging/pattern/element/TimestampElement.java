@@ -35,19 +35,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import lombok.Builder;
 import lombok.Value;
 
-public @Value class TimestampElement implements PatternElement {
+public @Value @Builder(access = lombok.AccessLevel.PRIVATE) class TimestampElement
+    implements PatternElement {
   public static final DateTimeFormatter DEFAULT_DATE_TIME_FORMAT =
       DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSXXX");
 
   DateTimeFormatter dateTimeFormatter;
   TimeZoneOption timeZoneOption;
-
-  TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOption timeZoneOption) {
-    this.dateTimeFormatter = dateTimeFormatter;
-    this.timeZoneOption = timeZoneOption;
-  }
 
   /**
    * @param patternElement text pattern element to convert
@@ -60,11 +57,15 @@ public @Value class TimestampElement implements PatternElement {
     }
     List<String> elementDisplayOption = ElementType.getElementDisplayOptions(patternElement);
     if (elementDisplayOption.isEmpty()) {
-      return new TimestampElement(DEFAULT_DATE_TIME_FORMAT, TimeZoneOption.DEFAULT);
+      return TimestampElement.builder()
+          .dateTimeFormatter(DEFAULT_DATE_TIME_FORMAT)
+          .timeZoneOption(TimeZoneOption.DEFAULT)
+          .build();
     }
-    return new TimestampElement(
-        DateTimeFormatter.ofPattern(elementDisplayOption.getFirst()),
-        getTimeZoneOption(elementDisplayOption));
+    return TimestampElement.builder()
+        .dateTimeFormatter(DateTimeFormatter.ofPattern(elementDisplayOption.getFirst()))
+        .timeZoneOption(getTimeZoneOption(elementDisplayOption))
+        .build();
   }
 
   private static TimeZoneOption getTimeZoneOption(List<String> formatOptions) {

@@ -30,9 +30,11 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
 import java.util.Objects;
+import lombok.Builder;
 import lombok.Value;
 
 @Value
+@Builder(access = lombok.AccessLevel.PRIVATE)
 class NameSpaceElement implements PatternElement {
   private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.FULL;
 
@@ -49,12 +51,13 @@ class NameSpaceElement implements PatternElement {
       throw new IllegalArgumentException(
           "Unexpected predefined pattern element: %s".formatted(patternElement));
     }
-    return new NameSpaceElement(
-        targetElementType,
-        ElementType.getElementDisplayOptions(patternElement).stream()
+    return NameSpaceElement.builder()
+        .targetElementType(targetElementType)
+        .displayOption(ElementType.getElementDisplayOptions(patternElement).stream()
             .collect(MoreCollectors.toOptional())
             .map(name -> DisplayOption.valueOf(name.toUpperCase()))
-            .orElse(DEFAULT_DISPLAY_OPTION));
+            .orElse(DEFAULT_DISPLAY_OPTION))
+        .build();
   }
 
   @Override

@@ -32,8 +32,6 @@ import java.util.Objects;
 import lombok.Value;
 
 public @Value class FileNameElement implements PatternElement {
-  private FileNameElement() {}
-
   public static FileNameElement from(String patternElement) {
     if (ElementType.FILENAME != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(

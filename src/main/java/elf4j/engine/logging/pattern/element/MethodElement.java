@@ -32,8 +32,6 @@ import java.util.Objects;
 import lombok.Value;
 
 public @Value class MethodElement implements PatternElement {
-  private MethodElement() {}
-
   public static MethodElement from(String patternElement) {
     if (ElementType.METHOD != ElementType.from(patternElement)) {
       throw new IllegalArgumentException("patternElement: " + patternElement);

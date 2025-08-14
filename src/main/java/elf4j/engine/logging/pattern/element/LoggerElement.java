@@ -35,10 +35,6 @@ import lombok.Value;
 public @Value class LoggerElement implements PatternElement {
   NameSpaceElement nameSpaceElement;
 
-  private LoggerElement(NameSpaceElement nameSpaceElement) {
-    this.nameSpaceElement = nameSpaceElement;
-  }
-
   public static LoggerElement from(String patternElement) {
     if (LOGGER != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(

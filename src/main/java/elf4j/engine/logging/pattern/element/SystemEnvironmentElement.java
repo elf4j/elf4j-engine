@@ -34,10 +34,6 @@ import lombok.Value;
 public @Value class SystemEnvironmentElement implements PatternElement {
   String key;
 
-  private SystemEnvironmentElement(String key) {
-    this.key = key;
-  }
-
   /**
    * @param patternElement text patternElement to convert
    * @return converted patternElement object

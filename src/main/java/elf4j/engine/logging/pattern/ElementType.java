@@ -114,8 +114,8 @@ public enum ElementType {
             .toList();
   }
 
-  static PatternElement parseElement(String predefinedPatternElement) {
-    return ElementType.from(predefinedPatternElement).parse(predefinedPatternElement);
+  static PatternElement parseElement(String patternElement) {
+    return ElementType.from(patternElement).parse(patternElement);
   }
 
   public static Set<String> uniqueAlphaNumericOnly(Collection<String> in) {

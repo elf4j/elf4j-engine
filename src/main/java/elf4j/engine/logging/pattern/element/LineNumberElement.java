@@ -32,8 +32,6 @@ import java.util.Objects;
 import lombok.Value;
 
 public @Value class LineNumberElement implements PatternElement {
-  private LineNumberElement() {}
-
   public static LineNumberElement from(String patternElement) {
     if (ElementType.LINE_NUMBER != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(

@@ -35,10 +35,6 @@ import lombok.Value;
 public @Value class ClassElement implements PatternElement {
   NameSpaceElement nameSpaceElement;
 
-  ClassElement(NameSpaceElement nameSpaceElement) {
-    this.nameSpaceElement = nameSpaceElement;
-  }
-
   public static ClassElement from(String patternElement) {
     if (CLASS != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(

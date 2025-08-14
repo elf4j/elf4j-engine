@@ -37,10 +37,6 @@ public @Value class LevelElement implements PatternElement {
 
   int displayLength;
 
-  private LevelElement(int displayLength) {
-    this.displayLength = displayLength;
-  }
-
   /**
    * @param patternElement to convert
    * @return converted patternElement object

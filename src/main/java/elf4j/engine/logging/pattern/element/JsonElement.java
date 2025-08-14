@@ -50,7 +50,7 @@ import lombok.Value;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.MDC;
 
-@Builder
+@Builder(access = lombok.AccessLevel.PRIVATE)
 public @Value class JsonElement implements PatternElement {
   private static final String CALLER_DETAIL = "caller-detail";
   private static final String CALLER_THREAD = "caller-thread";
@@ -65,13 +65,6 @@ public @Value class JsonElement implements PatternElement {
   boolean includeCallerThread;
   boolean includeCallerDetail;
   boolean prettyPrint;
-
-  private JsonElement(
-      boolean includeCallerThread, boolean includeCallerDetail, boolean prettyPrint) {
-    this.includeCallerThread = includeCallerThread;
-    this.includeCallerDetail = includeCallerDetail;
-    this.prettyPrint = prettyPrint;
-  }
 
   /**
    * @param patternElement to convert

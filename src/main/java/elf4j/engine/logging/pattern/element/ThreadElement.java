@@ -36,10 +36,6 @@ import lombok.Value;
 public @Value class ThreadElement implements PatternElement {
   DisplayOption threadDisplayOption;
 
-  private ThreadElement(DisplayOption threadDisplayOption) {
-    this.threadDisplayOption = threadDisplayOption;
-  }
-
   /**
    * @param patternElement text pattern element to convert
    * @return the thread pattern element converted from the specified text
