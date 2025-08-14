@@ -63,18 +63,18 @@ public class LogEvent {
     }
     int messageLength = suppliedMessage.length();
     StringBuilder resolvedMessage = new StringBuilder(messageLength + INIT_ARG_LENGTH);
-    int im = 0;
-    int ia = 0;
-    while (im < messageLength) {
-      char character = suppliedMessage.charAt(im);
+    int iMessage = 0;
+    int iArguments = 0;
+    while (iMessage < messageLength) {
+      char character = suppliedMessage.charAt(iMessage);
       if (character == '{'
-          && ((im + 1) < messageLength && suppliedMessage.charAt(im + 1) == '}')
-          && ia < arguments.length) {
-        resolvedMessage.append(supply(arguments[ia++]));
-        im += 2;
+          && ((iMessage + 1) < messageLength && suppliedMessage.charAt(iMessage + 1) == '}')
+          && iArguments < arguments.length) {
+        resolvedMessage.append(supply(arguments[iArguments++]));
+        iMessage += 2;
       } else {
         resolvedMessage.append(character);
-        im += 1;
+        iMessage += 1;
       }
     }
     return resolvedMessage;
