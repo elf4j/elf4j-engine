@@ -31,7 +31,7 @@
 
     <groupId>io.github.elf4j</groupId>
     <artifactId>elf4j-engine</artifactId>
-    <version>19.0.5</version>
+    <version>19.0.6</version>
     <packaging>jar</packaging>
     <name>elf4j-engine</name>
     <description>A stand-alone Java log engine implementing the ELF4J (Easy Logging Facade for Java) API</description>
