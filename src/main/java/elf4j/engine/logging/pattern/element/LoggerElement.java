@@ -25,12 +25,14 @@
 
 package elf4j.engine.logging.pattern.element;
 
+import static elf4j.engine.logging.pattern.ElementType.LOGGER;
+
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
 import lombok.Value;
 
-public @Value(staticConstructor = "from") class LoggerElement implements PatternElement {
+public @Value class LoggerElement implements PatternElement {
   NameSpaceElement nameSpaceElement;
 
   private LoggerElement(NameSpaceElement nameSpaceElement) {
@@ -38,12 +40,11 @@ public @Value(staticConstructor = "from") class LoggerElement implements Pattern
   }
 
   public static LoggerElement from(String patternElement) {
-    if (ElementType.LOGGER != ElementType.from(patternElement)) {
+    if (LOGGER != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(
           "Unexpected predefined pattern element: %s".formatted(patternElement));
     }
-    return new LoggerElement(
-        NameSpaceElement.from(patternElement, NameSpaceElement.TargetPattern.LOGGER));
+    return new LoggerElement(NameSpaceElement.from(patternElement, LOGGER));
   }
 
   @Override

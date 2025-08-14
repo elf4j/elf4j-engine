@@ -25,11 +25,15 @@
 
 package elf4j.engine.logging.pattern.element;
 
+import elf4j.Logger;
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.util.UtilLogger;
 import lombok.Value;
 
 public @Value class VerbatimElement implements PatternElement {
+  static Logger logger = UtilLogger.WARN;
   String text;
 
   private VerbatimElement(String text) {
@@ -41,6 +45,12 @@ public @Value class VerbatimElement implements PatternElement {
    * @return converted pattern element object
    */
   public static VerbatimElement from(String patternElement) {
+    if (ElementType.VERBATIM != ElementType.from(patternElement)) {
+      logger.warn(
+          "Treating as verbatim element: patternElement={}. If that is not intended, check to ensure each log pattern element is set up properly and fully enclosed inside a curly braces pair '{}'",
+          patternElement,
+          "{}");
+    }
     return new VerbatimElement(patternElement);
   }
 

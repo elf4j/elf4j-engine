@@ -4,6 +4,8 @@ import elf4j.engine.logging.pattern.element.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public enum ElementType {
   TIMESTAMP {
@@ -95,9 +97,9 @@ public enum ElementType {
   public static final String DELIMITER_DISPLAY_OPTION = ",";
 
   public static ElementType from(String patternElement) {
-    String t = patternElement.split(DELIMITER_PATTERN_ELEMENT, 2)[0].strip();
+    String elementType = patternElement.split(DELIMITER_PATTERN_ELEMENT, 2)[0].strip();
     return Arrays.stream(values())
-        .filter(v -> alphaNumericOnly(v.name()).equalsIgnoreCase(alphaNumericOnly(t)))
+        .filter(v -> alphaNumericOnly(v.name()).equalsIgnoreCase(alphaNumericOnly(elementType)))
         .findFirst()
         .orElse(VERBATIM);
   }
@@ -116,8 +118,8 @@ public enum ElementType {
     return ElementType.from(predefinedPatternElement).parse(predefinedPatternElement);
   }
 
-  public static Collection<String> alphaNumericOnly(Collection<String> in) {
-    return in.stream().map(ElementType::alphaNumericOnly).toList();
+  public static Set<String> uniqueAlphaNumericOnly(Collection<String> in) {
+    return in.stream().map(ElementType::alphaNumericOnly).collect(Collectors.toUnmodifiableSet());
   }
 
   public static String alphaNumericOnly(String in) {

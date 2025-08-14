@@ -36,46 +36,47 @@ import lombok.Value;
 class NameSpaceElement implements PatternElement {
   private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.FULL;
 
+  ElementType targetElementType;
   DisplayOption displayOption;
-  TargetPattern targetPattern;
-
-  NameSpaceElement(DisplayOption displayOption, TargetPattern targetPattern) {
-    this.displayOption = displayOption;
-    this.targetPattern = targetPattern;
-  }
 
   /**
    * @param patternElement text patternElement to convert
    * @return converted patternElement object
    */
-  public static NameSpaceElement from(String patternElement, TargetPattern targetPattern) {
+  public static NameSpaceElement from(String patternElement, ElementType targetElementType) {
     ElementType type = ElementType.from(patternElement);
     if (type != ElementType.CLASS && type != ElementType.LOGGER) {
       throw new IllegalArgumentException(
           "Unexpected predefined pattern element: %s".formatted(patternElement));
     }
     return new NameSpaceElement(
+        targetElementType,
         ElementType.getElementDisplayOptions(patternElement).stream()
             .collect(MoreCollectors.toOptional())
             .map(name -> DisplayOption.valueOf(name.toUpperCase()))
-            .orElse(DEFAULT_DISPLAY_OPTION),
-        targetPattern);
+            .orElse(DEFAULT_DISPLAY_OPTION));
   }
 
   @Override
   public boolean includeCallerDetail() {
-    return switch (targetPattern) {
+    return switch (targetElementType) {
       case CLASS -> true;
       case LOGGER -> false;
+      default ->
+        throw new IllegalArgumentException(
+            "Unexpected name space element type: " + targetElementType);
     };
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
     String fullName =
-        switch (targetPattern) {
+        switch (targetElementType) {
           case LOGGER -> logEvent.getLoggerName();
           case CLASS -> Objects.requireNonNull(logEvent.getCallerFrame()).getClassName();
+          default ->
+            throw new IllegalStateException(
+                "Unexpected name space element type: " + targetElementType);
         };
     switch (displayOption) {
       case FULL -> target.append(fullName);
@@ -99,10 +100,5 @@ class NameSpaceElement implements PatternElement {
     FULL,
     SIMPLE,
     COMPRESSED
-  }
-
-  enum TargetPattern {
-    CLASS,
-    LOGGER
   }
 }

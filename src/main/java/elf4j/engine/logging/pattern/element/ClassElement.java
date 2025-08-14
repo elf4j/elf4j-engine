@@ -25,6 +25,8 @@
 
 package elf4j.engine.logging.pattern.element;
 
+import static elf4j.engine.logging.pattern.ElementType.CLASS;
+
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
@@ -38,12 +40,11 @@ public @Value class ClassElement implements PatternElement {
   }
 
   public static ClassElement from(String patternElement) {
-    if (ElementType.CLASS != ElementType.from(patternElement)) {
+    if (CLASS != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(
           "Unexpected predefined pattern element: %s".formatted(patternElement));
     }
-    return new ClassElement(
-        NameSpaceElement.from(patternElement, NameSpaceElement.TargetPattern.CLASS));
+    return new ClassElement(NameSpaceElement.from(patternElement, CLASS));
   }
 
   @Override

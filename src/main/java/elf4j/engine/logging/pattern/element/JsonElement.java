@@ -25,6 +25,9 @@
 
 package elf4j.engine.logging.pattern.element;
 
+import static elf4j.engine.logging.pattern.ElementType.alphaNumericOnly;
+import static elf4j.engine.logging.pattern.ElementType.uniqueAlphaNumericOnly;
+
 import com.dslplatform.json.CompiledJson;
 import com.dslplatform.json.DslJson;
 import com.dslplatform.json.PrettifyOutputStream;
@@ -54,7 +57,7 @@ public @Value class JsonElement implements PatternElement {
   private static final String PRETTY = "pretty";
   private static final Set<String> DISPLAY_OPTIONS = Arrays.stream(
           new String[] {CALLER_THREAD, CALLER_DETAIL, PRETTY})
-      .collect(Collectors.toSet());
+      .collect(Collectors.toUnmodifiableSet());
   private static final DslJson<Object> DSL_JSON =
       new DslJson<>(Settings.basicSetup().skipDefaultValues(true).includeServiceLoader());
   private static final int JSON_BYTES_INIT_SIZE = 1024;
@@ -83,15 +86,17 @@ public @Value class JsonElement implements PatternElement {
     if (displayOptions.isEmpty()) {
       return JsonElement.builder().build();
     }
-    Set<String> options = Set.copyOf(displayOptions);
-    if (!ElementType.alphaNumericOnly(DISPLAY_OPTIONS)
-        .containsAll(ElementType.alphaNumericOnly(options))) {
-      throw new IllegalArgumentException("Invalid JSON display option inside: " + options);
+    Set<String> uniqueOptions = uniqueAlphaNumericOnly(displayOptions);
+    if (uniqueOptions.size() != displayOptions.size()) {
+      throw new IllegalArgumentException("Duplicate JSON display option inside: " + displayOptions);
+    }
+    if (!uniqueAlphaNumericOnly(DISPLAY_OPTIONS).containsAll(uniqueOptions)) {
+      throw new IllegalArgumentException("Invalid JSON display option inside: " + displayOptions);
     }
     return JsonElement.builder()
-        .includeCallerThread(options.contains(CALLER_THREAD))
-        .includeCallerDetail(options.contains(CALLER_DETAIL))
-        .prettyPrint(options.contains(PRETTY))
+        .includeCallerThread(uniqueOptions.contains(alphaNumericOnly(CALLER_THREAD)))
+        .includeCallerDetail(uniqueOptions.contains(alphaNumericOnly(CALLER_DETAIL)))
+        .prettyPrint(uniqueOptions.contains(alphaNumericOnly(PRETTY)))
         .build();
   }
 
@@ -123,14 +128,14 @@ public @Value class JsonElement implements PatternElement {
       Map<String, String> context,
       String message,
       @Nullable String exception) {
-    static JsonLogEntry from(LogEvent logEvent, JsonElement jsonPattern) {
+    static JsonLogEntry from(LogEvent logEvent, JsonElement jsonElement) {
       return JsonLogEntry.builder()
           .timestamp(OffsetDateTime.ofInstant(logEvent.getTimestamp(), ZoneId.systemDefault()))
           .loggerName(logEvent.getLoggerName())
           .level(logEvent.getLevel().name())
-          .callerThread(jsonPattern.includeCallerThread ? logEvent.getCallerThread() : null)
+          .callerThread(jsonElement.includeCallerThread ? logEvent.getCallerThread() : null)
           .callerDetail(
-              jsonPattern.includeCallerDetail
+              jsonElement.includeCallerDetail
                   ? Objects.requireNonNull(logEvent.getCallerFrame())
                   : null)
           .message(logEvent.getResolvedMessage().toString())
