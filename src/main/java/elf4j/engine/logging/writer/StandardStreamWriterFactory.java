@@ -14,7 +14,8 @@ final class StandardStreamWriterFactory implements LogWriterFactory {
   public StandardStreamWriterFactory() { // no-arg constructor required
   }
 
-  private static StandardStreamWriter getDefaultWriter(Properties configurationProperties) {
+  @Override
+  public LogWriter getLogWriter(Properties configurationProperties) {
     return StandardStreamWriter.builder()
         .minimumThresholdLevel(Level.valueOf(configurationProperties
             .getProperty("level", StandardStreamWriter.DEFAULT_THRESHOLD_OUTPUT_LEVEL)
@@ -27,10 +28,5 @@ final class StandardStreamWriterFactory implements LogWriterFactory {
             .trim()
             .toUpperCase()))
         .build();
-  }
-
-  @Override
-  public LogWriter getLogWriter(Properties configurationProperties) {
-    return getDefaultWriter(configurationProperties);
   }
 }

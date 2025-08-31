@@ -66,8 +66,7 @@ class NameSpaceElement implements PatternElement {
       case CLASS -> true;
       case LOGGER -> false;
       default ->
-        throw new IllegalArgumentException(
-            "Unexpected name space element type: " + targetElementType);
+        throw new IllegalStateException("Unexpected name space element type: " + targetElementType);
     };
   }
 
