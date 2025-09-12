@@ -30,11 +30,8 @@ import static elf4j.engine.logging.pattern.ElementType.CLASS;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import lombok.Value;
 
-public @Value class ClassElement implements PatternElement {
-  NameSpaceElement nameSpaceElement;
-
+public record ClassElement(NameSpaceElement nameSpaceElement) implements PatternElement {
   public static ClassElement from(String patternElement) {
     if (CLASS != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(

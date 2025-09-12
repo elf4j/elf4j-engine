@@ -29,9 +29,8 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
 import java.util.Objects;
-import lombok.Value;
 
-public @Value class FileNameElement implements PatternElement {
+public record FileNameElement() implements PatternElement {
   public static FileNameElement from(String patternElement) {
     if (ElementType.FILENAME != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(

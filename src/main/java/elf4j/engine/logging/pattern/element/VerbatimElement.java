@@ -30,12 +30,9 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
 import elf4j.util.UtilLogger;
-import lombok.Value;
 
-public @Value class VerbatimElement implements PatternElement {
+public record VerbatimElement(String text) implements PatternElement {
   static Logger logger = UtilLogger.WARN;
-
-  String text;
 
   /**
    * @param patternElement text pattern element to convert

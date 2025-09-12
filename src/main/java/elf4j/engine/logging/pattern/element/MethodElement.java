@@ -29,9 +29,8 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
 import java.util.Objects;
-import lombok.Value;
 
-public @Value class MethodElement implements PatternElement {
+public record MethodElement() implements PatternElement {
   public static MethodElement from(String patternElement) {
     if (ElementType.METHOD != ElementType.from(patternElement)) {
       throw new IllegalArgumentException("patternElement: " + patternElement);

@@ -29,9 +29,8 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
 import java.util.Objects;
-import lombok.Value;
 
-public @Value class LineNumberElement implements PatternElement {
+public record LineNumberElement() implements PatternElement {
   public static LineNumberElement from(String patternElement) {
     if (ElementType.LINE_NUMBER != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(

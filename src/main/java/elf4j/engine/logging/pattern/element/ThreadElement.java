@@ -31,11 +31,8 @@ import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
 import java.util.Arrays;
 import java.util.Objects;
-import lombok.Value;
 
-public @Value class ThreadElement implements PatternElement {
-  DisplayOption threadDisplayOption;
-
+public record ThreadElement(DisplayOption threadDisplayOption) implements PatternElement {
   /**
    * @param patternElement text pattern element to convert
    * @return the thread pattern element converted from the specified text

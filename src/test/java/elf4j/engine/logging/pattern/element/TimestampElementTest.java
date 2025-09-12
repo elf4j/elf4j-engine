@@ -19,8 +19,8 @@ class TimestampElementTest {
   @ValueSource(strings = {"timestamp", "timestamp:"})
   void fromCreatesDefaultTimestampElementWhenPatternIsEmpty(String patternElement) {
     TimestampElement element = TimestampElement.from(patternElement);
-    assertEquals(TimestampElement.DEFAULT_DATE_TIME_FORMAT, element.getDateTimeFormatter());
-    assertEquals(TimestampElement.TimeZoneOption.DEFAULT, element.getTimeZoneOption());
+    assertEquals(TimestampElement.DEFAULT_DATE_TIME_FORMAT, element.dateTimeFormatter());
+    assertEquals(TimestampElement.TimeZoneOption.DEFAULT, element.timeZoneOption());
   }
 
   @Test
@@ -29,8 +29,8 @@ class TimestampElementTest {
     var now = OffsetDateTime.now();
     assertEquals(
         DateTimeFormatter.ofPattern("uuuu-MM-dd").format(now),
-        element.getDateTimeFormatter().format(now));
-    assertEquals(TimestampElement.TimeZoneOption.DEFAULT, element.getTimeZoneOption());
+        element.dateTimeFormatter().format(now));
+    assertEquals(TimestampElement.TimeZoneOption.DEFAULT, element.timeZoneOption());
   }
 
   @Test
@@ -39,8 +39,8 @@ class TimestampElementTest {
     var now = OffsetDateTime.now();
     assertEquals(
         DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss.SSSXXX").format(now),
-        element.getDateTimeFormatter().format(now));
-    assertEquals(TimestampElement.TimeZoneOption.UTC, element.getTimeZoneOption());
+        element.dateTimeFormatter().format(now));
+    assertEquals(TimestampElement.TimeZoneOption.UTC, element.timeZoneOption());
   }
 
   @Test

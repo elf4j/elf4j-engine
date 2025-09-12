@@ -30,11 +30,8 @@ import static elf4j.engine.logging.pattern.ElementType.LOGGER;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import lombok.Value;
 
-public @Value class LoggerElement implements PatternElement {
-  NameSpaceElement nameSpaceElement;
-
+public record LoggerElement(NameSpaceElement nameSpaceElement) implements PatternElement {
   public static LoggerElement from(String patternElement) {
     if (LOGGER != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(

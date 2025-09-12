@@ -22,7 +22,7 @@ class LogPatternTest {
   class parsePattern {
     @Test
     void whenNoInterpretingElementIsRecognized() {
-      assertThat(LogPattern.from("{testUnrecognizedPredefined}").getPatternElements())
+      assertThat(LogPattern.from("{testUnrecognizedPredefined}").patternElements())
           .hasSize(1)
           .element(0)
           .isInstanceOf(VerbatimElement.class);

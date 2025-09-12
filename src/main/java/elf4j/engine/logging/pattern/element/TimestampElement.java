@@ -35,16 +35,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import lombok.Builder;
-import lombok.Value;
 
-public @Value @Builder(access = lombok.AccessLevel.PRIVATE) class TimestampElement
+public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOption timeZoneOption)
     implements PatternElement {
   public static final DateTimeFormatter DEFAULT_DATE_TIME_FORMAT =
       DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSXXX");
-
-  DateTimeFormatter dateTimeFormatter;
-  TimeZoneOption timeZoneOption;
 
   /**
    * @param patternElement text pattern element to convert
@@ -57,15 +52,11 @@ public @Value @Builder(access = lombok.AccessLevel.PRIVATE) class TimestampEleme
     }
     List<String> elementDisplayOption = ElementType.getElementDisplayOptions(patternElement);
     if (elementDisplayOption.isEmpty()) {
-      return TimestampElement.builder()
-          .dateTimeFormatter(DEFAULT_DATE_TIME_FORMAT)
-          .timeZoneOption(TimeZoneOption.DEFAULT)
-          .build();
+      return new TimestampElement(DEFAULT_DATE_TIME_FORMAT, TimeZoneOption.DEFAULT);
     }
-    return TimestampElement.builder()
-        .dateTimeFormatter(DateTimeFormatter.ofPattern(elementDisplayOption.getFirst()))
-        .timeZoneOption(getTimeZoneOption(elementDisplayOption))
-        .build();
+    return new TimestampElement(
+        DateTimeFormatter.ofPattern(elementDisplayOption.getFirst()),
+        getTimeZoneOption(elementDisplayOption));
   }
 
   private static TimeZoneOption getTimeZoneOption(List<String> formatOptions) {
@@ -87,10 +78,14 @@ public @Value @Builder(access = lombok.AccessLevel.PRIVATE) class TimestampEleme
    */
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof TimestampElement that)) return false;
+    if (!(o
+        instanceof
+        TimestampElement(
+            DateTimeFormatter thatDateTimeFormatter,
+            TimeZoneOption thatTimeZoneOption))) return false;
     OffsetDateTime now = OffsetDateTime.now();
-    return timeZoneOption == that.timeZoneOption
-        && Objects.equals(dateTimeFormatter.format(now), that.dateTimeFormatter.format(now));
+    return timeZoneOption == thatTimeZoneOption
+        && Objects.equals(dateTimeFormatter.format(now), thatDateTimeFormatter.format(now));
   }
 
   @Override

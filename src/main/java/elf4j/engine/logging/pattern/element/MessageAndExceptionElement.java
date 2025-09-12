@@ -29,9 +29,8 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
 import elf4j.engine.logging.util.StackTraces;
-import lombok.Value;
 
-public @Value class MessageAndExceptionElement implements PatternElement {
+public record MessageAndExceptionElement() implements PatternElement {
   public static MessageAndExceptionElement from(String patternElement) {
     if (ElementType.MESSAGE != ElementType.from(patternElement)) {
       throw new IllegalArgumentException("Invalid pattern element: " + patternElement);

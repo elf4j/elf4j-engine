@@ -45,13 +45,12 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
-import lombok.Builder;
-import lombok.Value;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.MDC;
 
-@Builder(access = lombok.AccessLevel.PRIVATE)
-public @Value class JsonElement implements PatternElement {
+public record JsonElement(
+    boolean includeCallerThread, boolean includeCallerDetail, boolean prettyPrint)
+    implements PatternElement {
   private static final String CALLER_DETAIL = "caller-detail";
   private static final String CALLER_THREAD = "caller-thread";
   private static final String PRETTY = "pretty";
@@ -62,14 +61,6 @@ public @Value class JsonElement implements PatternElement {
       new DslJson<>(Settings.basicSetup().skipDefaultValues(true).includeServiceLoader());
   private static final int JSON_BYTES_INIT_SIZE = 1024;
 
-  boolean includeCallerThread;
-  boolean includeCallerDetail;
-  boolean prettyPrint;
-
-  /**
-   * @param patternElement to convert
-   * @return converted patternElement object
-   */
   public static JsonElement from(String patternElement) {
     if (ElementType.JSON != ElementType.from(patternElement)) {
       throw new IllegalArgumentException(
@@ -77,7 +68,7 @@ public @Value class JsonElement implements PatternElement {
     }
     List<String> displayOptions = ElementType.getElementDisplayOptions(patternElement);
     if (displayOptions.isEmpty()) {
-      return JsonElement.builder().build();
+      return new JsonElement(false, false, false);
     }
     Set<String> uniqueOptions = uniqueAlphaNumericOnly(displayOptions);
     if (uniqueOptions.size() != displayOptions.size()) {
@@ -86,11 +77,10 @@ public @Value class JsonElement implements PatternElement {
     if (!uniqueAlphaNumericOnly(DISPLAY_OPTIONS).containsAll(uniqueOptions)) {
       throw new IllegalArgumentException("Invalid JSON display option inside: " + displayOptions);
     }
-    return JsonElement.builder()
-        .includeCallerThread(uniqueOptions.contains(alphaNumericOnly(CALLER_THREAD)))
-        .includeCallerDetail(uniqueOptions.contains(alphaNumericOnly(CALLER_DETAIL)))
-        .prettyPrint(uniqueOptions.contains(alphaNumericOnly(PRETTY)))
-        .build();
+    return new JsonElement(
+        uniqueOptions.contains(alphaNumericOnly(CALLER_THREAD)),
+        uniqueOptions.contains(alphaNumericOnly(CALLER_DETAIL)),
+        uniqueOptions.contains(alphaNumericOnly(PRETTY)));
   }
 
   @Override
@@ -110,9 +100,8 @@ public @Value class JsonElement implements PatternElement {
     target.append(byteArrayOutputStream.toString(StandardCharsets.UTF_8));
   }
 
-  @Builder
   @CompiledJson
-  record JsonLogEntry(
+  public record JsonLogEntry(
       OffsetDateTime timestamp,
       String level,
       LogEvent.@Nullable ThreadValue callerThread,
@@ -121,23 +110,21 @@ public @Value class JsonElement implements PatternElement {
       Map<String, String> context,
       String message,
       @Nullable String exception) {
+
     static JsonLogEntry from(LogEvent logEvent, JsonElement jsonElement) {
-      return JsonLogEntry.builder()
-          .timestamp(OffsetDateTime.ofInstant(logEvent.getTimestamp(), ZoneId.systemDefault()))
-          .loggerName(logEvent.getLoggerName())
-          .level(logEvent.getLevel().name())
-          .callerThread(jsonElement.includeCallerThread ? logEvent.getCallerThread() : null)
-          .callerDetail(
-              jsonElement.includeCallerDetail
-                  ? Objects.requireNonNull(logEvent.getCallerFrame())
-                  : null)
-          .message(logEvent.getResolvedMessage().toString())
-          .context(MDC.getCopyOfContextMap())
-          .exception(
-              logEvent.getThrowable() == null
-                  ? null
-                  : StackTraces.getTraceAsBuffer(logEvent.getThrowable()).toString())
-          .build();
+      return new JsonLogEntry(
+          OffsetDateTime.ofInstant(logEvent.getTimestamp(), ZoneId.systemDefault()),
+          logEvent.getLevel().name(),
+          jsonElement.includeCallerThread ? logEvent.getCallerThread() : null,
+          logEvent.getLoggerName(),
+          jsonElement.includeCallerDetail
+              ? Objects.requireNonNull(logEvent.getCallerFrame())
+              : null,
+          MDC.getCopyOfContextMap(),
+          logEvent.getResolvedMessage().toString(),
+          logEvent.getThrowable() == null
+              ? null
+              : StackTraces.getTraceAsBuffer(logEvent.getThrowable()).toString());
     }
   }
 }

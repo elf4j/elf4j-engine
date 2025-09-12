@@ -31,7 +31,7 @@
 
     <groupId>io.github.elf4j</groupId>
     <artifactId>elf4j-engine</artifactId>
-    <version>19.0.6</version>
+    <version>19.0.7</version>
     <packaging>jar</packaging>
     <name>elf4j-engine</name>
     <description>A stand-alone Java log engine implementing the ELF4J (Easy Logging Facade for Java) API</description>
@@ -223,7 +223,7 @@
                     <java>
                         <removeUnusedImports/>
                         <palantirJavaFormat>
-                            <version>2.73.0</version>
+                            <version>2.74.0</version>
                             <style>GOOGLE</style>
                             <formatJavadoc>true</formatJavadoc>
                         </palantirJavaFormat>
@@ -256,6 +256,7 @@
                 <artifactId>versions-maven-plugin</artifactId>
                 <version>2.19.0</version>
             </plugin>
+
         </plugins>
     </build>
 

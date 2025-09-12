@@ -30,12 +30,9 @@ import static com.google.common.collect.MoreCollectors.toOptional;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import lombok.Value;
 
-public @Value class LevelElement implements PatternElement {
+public record LevelElement(int displayLength) implements PatternElement {
   private static final int UNSPECIFIED = -1;
-
-  int displayLength;
 
   /**
    * @param patternElement to convert

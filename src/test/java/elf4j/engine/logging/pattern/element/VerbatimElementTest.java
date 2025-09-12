@@ -44,7 +44,7 @@ class VerbatimElementTest {
 
     VerbatimElement element = VerbatimElement.from(text);
 
-    assertEquals(text, element.getText());
+    assertEquals(text, element.text());
   }
 
   @Test
@@ -53,7 +53,7 @@ class VerbatimElementTest {
 
     VerbatimElement element = VerbatimElement.from(text);
 
-    assertEquals(text, element.getText());
+    assertEquals(text, element.text());
   }
 
   @Test
@@ -62,7 +62,7 @@ class VerbatimElementTest {
 
     VerbatimElement element = VerbatimElement.from(text);
 
-    assertEquals(text, element.getText());
+    assertEquals(text, element.text());
   }
 
   @Test
@@ -113,6 +113,6 @@ class VerbatimElementTest {
 
     VerbatimElement element = VerbatimElement.from(text);
 
-    assertEquals(text, element.getText());
+    assertEquals(text, element.text());
   }
 }

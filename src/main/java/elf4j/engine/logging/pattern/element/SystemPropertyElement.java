@@ -29,11 +29,8 @@ import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
-import lombok.Value;
 
-public @Value class SystemPropertyElement implements PatternElement {
-  String key;
-
+public record SystemPropertyElement(String key) implements PatternElement {
   /**
    * @param patternElement text patternElement to convert
    * @return converted patternElement object

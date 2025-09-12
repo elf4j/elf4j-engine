@@ -5,7 +5,6 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.ElementType;
 import elf4j.engine.logging.pattern.PatternElement;
 import java.util.NoSuchElementException;
-import lombok.Value;
 import org.slf4j.MDC;
 
 /**
@@ -13,9 +12,7 @@ import org.slf4j.MDC;
  * in a log pattern. It provides methods for checking if the log should include caller detail, for
  * creating a new instance from a pattern element, and for rendering the log event.
  */
-public @Value class ContextElement implements PatternElement {
-  String key;
-
+public record ContextElement(String key) implements PatternElement {
   /**
    * Checks if the log should include caller detail such as method, line number, etc.
    *
