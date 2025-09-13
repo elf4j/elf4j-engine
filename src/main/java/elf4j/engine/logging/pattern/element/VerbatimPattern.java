@@ -34,7 +34,8 @@ record VerbatimPattern(String text) implements RenderingPattern {
   static Logger logger = UtilLogger.WARN;
 
   /**
-   * @param elementPattern text pattern element to convert
+   * @param elementPattern text pattern element to convert. Any text segment that is outside
+   *     surrounding braces will be rendered verbatim.
    * @return converted pattern element object
    */
   static VerbatimPattern from(String elementPattern) {

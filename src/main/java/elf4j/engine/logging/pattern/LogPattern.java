@@ -44,7 +44,8 @@ public record LogPattern(List<RenderingPattern> patternElements) implements Rend
    * enclosed in curly braces are parsed as predefined pattern elements, other text segments are
    * treated as literal/verbatim text.
    *
-   * @param pattern the pattern string to parse
+   * @param pattern the pattern string to parse. It is the configuration pattern text for the
+   *     complete log message. E.g. "{timestamp} [{thread}] {level} {logger} - {message}"
    * @return the constructed LogPattern object
    * @throws IllegalArgumentException if the pattern string is blank
    */

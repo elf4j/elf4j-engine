@@ -41,7 +41,8 @@ record TimestampPattern(DateTimeFormatter dateTimeFormatter, TimeZoneOption time
       DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSXXX");
 
   /**
-   * @param elementPattern text pattern element to convert
+   * @param elementPattern text pattern element to convert. E.g. "{timestamp}",
+   *     "{timestamp:uuuu-MM-dd HH:mm:ss,UTC}", excluding the surrounding braces
    * @return converted pattern element object
    */
   static TimestampPattern from(String elementPattern) {

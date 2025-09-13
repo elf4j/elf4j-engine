@@ -30,6 +30,11 @@ import elf4j.engine.logging.pattern.RenderingPattern;
 import elf4j.engine.logging.util.StackTraces;
 
 record MessageAndExceptionPattern() implements RenderingPattern {
+  /**
+   * @param elementPattern the pattern element string, e.g. "{message}", "{MESSAGE}", excluding the
+   *     surrounding braces
+   * @return the MessageAndExceptionPattern instance
+   */
   static MessageAndExceptionPattern from(String elementPattern) {
     if (PatternElementType.MESSAGE != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException("Invalid pattern element: " + elementPattern);

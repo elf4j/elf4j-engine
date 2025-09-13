@@ -31,7 +31,8 @@ import elf4j.engine.logging.pattern.RenderingPattern;
 
 record SystemEnvironmentPattern(String key) implements RenderingPattern {
   /**
-   * @param elementPattern text elementPattern to convert
+   * @param elementPattern text elementPattern to convert. e.g. "{sysEnv:myEnvVarName}",
+   *     "{SYS_ENV:MyEnvVar2}", etc., excluding the surrounding braces
    * @return converted elementPattern object
    */
   static SystemEnvironmentPattern from(String elementPattern) {

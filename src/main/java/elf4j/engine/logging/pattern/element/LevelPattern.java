@@ -34,7 +34,7 @@ record LevelPattern(int displayLength) implements RenderingPattern {
   private static final int UNSPECIFIED = -1;
 
   /**
-   * @param elementPattern to convert
+   * @param elementPattern to convert. e.g. {level} excluding the surrounding braces
    * @return converted elementPattern object
    */
   static LevelPattern from(String elementPattern) {

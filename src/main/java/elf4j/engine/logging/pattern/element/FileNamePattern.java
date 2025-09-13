@@ -30,6 +30,11 @@ import elf4j.engine.logging.pattern.RenderingPattern;
 import java.util.Objects;
 
 record FileNamePattern() implements RenderingPattern {
+  /**
+   * @param elementPattern the pattern element string, e.g. "{filename}", excluding the surrounding
+   *     braces
+   * @return the FileNamePattern instance
+   */
   static FileNamePattern from(String elementPattern) {
     if (PatternElementType.FILENAME != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException(

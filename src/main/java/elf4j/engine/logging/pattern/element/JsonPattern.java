@@ -59,6 +59,12 @@ record JsonPattern(boolean includeCallerThread, boolean includeCallerDetail, boo
       new DslJson<>(Settings.basicSetup().skipDefaultValues(true).includeServiceLoader());
   private static final int JSON_BYTES_INIT_SIZE = 1024;
 
+  /**
+   * @param elementPattern text element pattern to convert. e.g. "{json}", "{json:pretty}",
+   *     "{json:caller-thread,pretty}", "{json:caller-thread,caller-detail,pretty}", excluding the
+   *     surrounding braces
+   * @return converted elementPattern object
+   */
   static JsonPattern from(String elementPattern) {
     if (PatternElementType.JSON != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException(
