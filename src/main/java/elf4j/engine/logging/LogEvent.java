@@ -103,15 +103,9 @@ public record LogEvent(
     return resolve(this.message, this.arguments);
   }
 
-  /** Represents a value representing a call stack element. */
+  /** A renderable value representing a call stack element. */
   public record StackFrameValue(
       String className, String methodName, int lineNumber, @Nullable String fileName) {
-    /**
-     * Creates a StackFrameValue instance from a StackTraceElement.
-     *
-     * @param stackFrame call stack element
-     * @return log render-able value representing the call stack element
-     */
     public static StackFrameValue from(StackWalker.StackFrame stackFrame) {
       return new StackFrameValue(
           stackFrame.getClassName(),
