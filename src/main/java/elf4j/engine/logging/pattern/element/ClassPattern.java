@@ -25,14 +25,14 @@
 
 package elf4j.engine.logging.pattern.element;
 
-import static elf4j.engine.logging.pattern.element.ElementPatternType.CLASS;
+import static elf4j.engine.logging.pattern.element.PatternElementType.CLASS;
 
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.RenderingPattern;
 
-public record ClassPattern(NameSpacePattern nameSpacePattern) implements RenderingPattern {
-  public static ClassPattern from(String elementPattern) {
-    if (CLASS != ElementPatternType.from(elementPattern)) {
+record ClassPattern(NameSpacePattern nameSpacePattern) implements RenderingPattern {
+  static ClassPattern from(String elementPattern) {
+    if (CLASS != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException(
           "Unexpected predefined pattern element: %s".formatted(elementPattern));
     }
@@ -40,8 +40,8 @@ public record ClassPattern(NameSpacePattern nameSpacePattern) implements Renderi
   }
 
   @Override
-  public boolean includeCallerDetail() {
-    return nameSpacePattern.includeCallerDetail();
+  public boolean requiresCallerDetail() {
+    return nameSpacePattern.requiresCallerDetail();
   }
 
   @Override

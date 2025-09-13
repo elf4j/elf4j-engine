@@ -114,7 +114,7 @@ public class EventingLogHandler implements LogHandler {
         .arguments(arguments)
         .loggerName(loggerId.loggerName())
         .callerFrame(
-            logWriter.includeCallerDetail()
+            logWriter.requiresCallerDetail()
                 ? LogEvent.StackFrameValue.from(
                     StackTraces.earliestCallerOfAny(logServiceClassNames))
                 : null)

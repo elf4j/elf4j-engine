@@ -29,9 +29,9 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.RenderingPattern;
 import java.util.Objects;
 
-public record FileNamePattern() implements RenderingPattern {
-  public static FileNamePattern from(String elementPattern) {
-    if (ElementPatternType.FILENAME != ElementPatternType.from(elementPattern)) {
+record FileNamePattern() implements RenderingPattern {
+  static FileNamePattern from(String elementPattern) {
+    if (PatternElementType.FILENAME != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
@@ -39,7 +39,7 @@ public record FileNamePattern() implements RenderingPattern {
   }
 
   @Override
-  public boolean includeCallerDetail() {
+  public boolean requiresCallerDetail() {
     return true;
   }
 

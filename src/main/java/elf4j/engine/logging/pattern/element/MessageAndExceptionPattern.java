@@ -29,16 +29,16 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.RenderingPattern;
 import elf4j.engine.logging.util.StackTraces;
 
-public record MessageAndExceptionPattern() implements RenderingPattern {
-  public static MessageAndExceptionPattern from(String elementPattern) {
-    if (ElementPatternType.MESSAGE != ElementPatternType.from(elementPattern)) {
+record MessageAndExceptionPattern() implements RenderingPattern {
+  static MessageAndExceptionPattern from(String elementPattern) {
+    if (PatternElementType.MESSAGE != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException("Invalid pattern element: " + elementPattern);
     }
     return new MessageAndExceptionPattern();
   }
 
   @Override
-  public boolean includeCallerDetail() {
+  public boolean requiresCallerDetail() {
     return false;
   }
 

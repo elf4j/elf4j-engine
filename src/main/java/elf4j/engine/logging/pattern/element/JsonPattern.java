@@ -25,8 +25,8 @@
 
 package elf4j.engine.logging.pattern.element;
 
-import static elf4j.engine.logging.pattern.element.ElementPatternType.alphaNumericOnly;
-import static elf4j.engine.logging.pattern.element.ElementPatternType.uniqueAlphaNumericOnly;
+import static elf4j.engine.logging.pattern.element.ElementPatterns.alphaNumericOnly;
+import static elf4j.engine.logging.pattern.element.ElementPatterns.uniqueAlphaNumericOnly;
 
 import com.dslplatform.json.CompiledJson;
 import com.dslplatform.json.DslJson;
@@ -47,8 +47,7 @@ import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.MDC;
 
-public record JsonPattern(
-    boolean includeCallerThread, boolean includeCallerDetail, boolean prettyPrint)
+record JsonPattern(boolean includeCallerThread, boolean includeCallerDetail, boolean prettyPrint)
     implements RenderingPattern {
   private static final String CALLER_DETAIL = "caller-detail";
   private static final String CALLER_THREAD = "caller-thread";
@@ -60,12 +59,12 @@ public record JsonPattern(
       new DslJson<>(Settings.basicSetup().skipDefaultValues(true).includeServiceLoader());
   private static final int JSON_BYTES_INIT_SIZE = 1024;
 
-  public static JsonPattern from(String elementPattern) {
-    if (ElementPatternType.JSON != ElementPatternType.from(elementPattern)) {
+  static JsonPattern from(String elementPattern) {
+    if (PatternElementType.JSON != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
-    List<String> displayOptions = ElementPatternType.getElementDisplayOptions(elementPattern);
+    List<String> displayOptions = ElementPatterns.getElementPatternDisplayOptions(elementPattern);
     if (displayOptions.isEmpty()) {
       return new JsonPattern(false, false, false);
     }
@@ -83,7 +82,7 @@ public record JsonPattern(
   }
 
   @Override
-  public boolean includeCallerDetail() {
+  public boolean requiresCallerDetail() {
     return this.includeCallerDetail;
   }
 
@@ -100,7 +99,7 @@ public record JsonPattern(
   }
 
   @CompiledJson
-  public record JsonLogEntry(
+  record JsonLogEntry(
       OffsetDateTime timestamp,
       String level,
       LogEvent.@Nullable ThreadValue callerThread,

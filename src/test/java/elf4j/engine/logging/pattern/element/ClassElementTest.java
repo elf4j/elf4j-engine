@@ -12,7 +12,7 @@ class ClassElementTest {
   void fromCreatesClassElementForValidPattern() {
     ClassPattern classPattern = ClassPattern.from("CLASS");
     assertNotNull(classPattern);
-    assertTrue(classPattern.nameSpacePattern().includeCallerDetail());
+    assertTrue(classPattern.nameSpacePattern().requiresCallerDetail());
   }
 
   @Test
@@ -40,9 +40,9 @@ class ClassElementTest {
   @Test
   void includeCallerDetailReturnsCorrectValue() {
     NameSpacePattern nameSpacePattern = mock(NameSpacePattern.class);
-    given(nameSpacePattern.includeCallerDetail()).willReturn(true);
+    given(nameSpacePattern.requiresCallerDetail()).willReturn(true);
     ClassPattern classPattern = new ClassPattern(nameSpacePattern);
 
-    assertTrue(classPattern.includeCallerDetail());
+    assertTrue(classPattern.requiresCallerDetail());
   }
 }

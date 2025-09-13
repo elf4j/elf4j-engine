@@ -31,24 +31,25 @@ import elf4j.engine.logging.pattern.RenderingPattern;
 import java.util.Arrays;
 import java.util.Objects;
 
-public record ThreadPattern(DisplayOption threadDisplayOption) implements RenderingPattern {
+record ThreadPattern(DisplayOption threadDisplayOption) implements RenderingPattern {
   /**
    * @param elementPattern text pattern element to convert
    * @return the thread pattern element converted from the specified text
    */
-  public static ThreadPattern from(String elementPattern) {
-    if (ElementPatternType.THREAD != ElementPatternType.from(elementPattern)) {
+  static ThreadPattern from(String elementPattern) {
+    if (PatternElementType.THREAD != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
-    return new ThreadPattern(ElementPatternType.getElementDisplayOptions(elementPattern).stream()
-        .collect(MoreCollectors.toOptional())
-        .map(DisplayOption::from)
-        .orElse(DisplayOption.NAME));
+    return new ThreadPattern(
+        ElementPatterns.getElementPatternDisplayOptions(elementPattern).stream()
+            .collect(MoreCollectors.toOptional())
+            .map(DisplayOption::from)
+            .orElse(DisplayOption.NAME));
   }
 
   @Override
-  public boolean includeCallerDetail() {
+  public boolean requiresCallerDetail() {
     return false;
   }
 

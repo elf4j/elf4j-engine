@@ -29,9 +29,9 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.RenderingPattern;
 import java.util.Objects;
 
-public record LineNumberPattern() implements RenderingPattern {
-  public static LineNumberPattern from(String elementPattern) {
-    if (ElementPatternType.LINE_NUMBER != ElementPatternType.from(elementPattern)) {
+record LineNumberPattern() implements RenderingPattern {
+  static LineNumberPattern from(String elementPattern) {
+    if (PatternElementType.LINE_NUMBER != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
@@ -39,7 +39,7 @@ public record LineNumberPattern() implements RenderingPattern {
   }
 
   @Override
-  public boolean includeCallerDetail() {
+  public boolean requiresCallerDetail() {
     return true;
   }
 

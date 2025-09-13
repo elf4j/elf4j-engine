@@ -11,14 +11,14 @@ import org.slf4j.MDC;
  * in a log pattern. It provides methods for checking if the log should include caller detail, for
  * creating a new instance from a pattern element, and for rendering the log event.
  */
-public record ContextPattern(String key) implements RenderingPattern {
+record ContextPattern(String key) implements RenderingPattern {
   /**
    * Checks if the log should include caller detail such as method, line number, etc.
    *
    * @return false as the context element does not include caller detail
    */
   @Override
-  public boolean includeCallerDetail() {
+  public boolean requiresCallerDetail() {
     return false;
   }
 
@@ -31,13 +31,13 @@ public record ContextPattern(String key) implements RenderingPattern {
    * @return the element that can render context log
    * @throws NoSuchElementException if no key is configured in the 'context' pattern element
    */
-  public static ContextPattern from(String elementPattern) {
-    if (ElementPatternType.CONTEXT != ElementPatternType.from(elementPattern)) {
+  static ContextPattern from(String elementPattern) {
+    if (PatternElementType.CONTEXT != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
     return new ContextPattern(
-        Iterables.getOnlyElement(ElementPatternType.getElementDisplayOptions(elementPattern)));
+        Iterables.getOnlyElement(ElementPatterns.getElementPatternDisplayOptions(elementPattern)));
   }
 
   /**

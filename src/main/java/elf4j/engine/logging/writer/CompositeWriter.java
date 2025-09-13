@@ -180,9 +180,9 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
   }
 
   @Override
-  public boolean includeCallerDetail() {
+  public boolean requiresCallerDetail() {
     if (includeCallerDetail == null) {
-      includeCallerDetail = writers.stream().anyMatch(LogWriter::includeCallerDetail);
+      includeCallerDetail = writers.stream().anyMatch(LogWriter::requiresCallerDetail);
     }
     return includeCallerDetail;
   }

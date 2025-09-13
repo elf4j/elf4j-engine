@@ -29,16 +29,16 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.RenderingPattern;
 import java.util.Objects;
 
-public record MethodPattern() implements RenderingPattern {
-  public static MethodPattern from(String elementPattern) {
-    if (ElementPatternType.METHOD != ElementPatternType.from(elementPattern)) {
+record MethodPattern() implements RenderingPattern {
+  static MethodPattern from(String elementPattern) {
+    if (PatternElementType.METHOD != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException("elementPattern: " + elementPattern);
     }
     return new MethodPattern();
   }
 
   @Override
-  public boolean includeCallerDetail() {
+  public boolean requiresCallerDetail() {
     return true;
   }
 

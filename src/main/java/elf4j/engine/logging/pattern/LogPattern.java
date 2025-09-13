@@ -26,23 +26,27 @@
 package elf4j.engine.logging.pattern;
 
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.element.ElementPatternType;
+import elf4j.engine.logging.pattern.element.ElementPatterns;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Formed to represent the whole pattern of an entire log entry. Composed of individual patterns
- * (elements), it renders the entire log entry by delegation and coordination of the individual
- * rendering patterns.
+ * A composite pattern that consists of a list of individual pattern elements to render a complete
+ * log message.
+ *
+ * @param patternElements the list of individual pattern elements that make up the composite log
+ *     pattern
  */
 public record LogPattern(List<RenderingPattern> patternElements) implements RenderingPattern {
+
   /**
-   * Creates a new LogPattern instance from the specified pattern configuration text e.g.
-   * "{timestamp} {level} {logger} - {message}"
+   * Parses the specified pattern string and constructs a LogPattern object. The text segments
+   * enclosed in curly braces are parsed as predefined pattern elements, other text segments are
+   * treated as literal/verbatim text.
    *
-   * @param pattern layout pattern text for entire log entry from configuration
-   * @return composite pattern object for the entire final log message output layout
-   * @throws IllegalArgumentException if the pattern is blank
+   * @param pattern the pattern string to parse
+   * @return the constructed LogPattern object
+   * @throws IllegalArgumentException if the pattern string is blank
    */
   public static LogPattern from(String pattern) {
     if (pattern.trim().isEmpty()) {
@@ -73,7 +77,7 @@ public record LogPattern(List<RenderingPattern> patternElements) implements Rend
           elementStart = length;
         }
       }
-      elements.add(ElementPatternType.parseElement(element));
+      elements.add(ElementPatterns.parseElementPattern(element));
     }
     return new LogPattern(elements);
   }
@@ -84,8 +88,8 @@ public record LogPattern(List<RenderingPattern> patternElements) implements Rend
    * @return true if any of the pattern elements include caller detail, false otherwise
    */
   @Override
-  public boolean includeCallerDetail() {
-    return patternElements.stream().anyMatch(RenderingPattern::includeCallerDetail);
+  public boolean requiresCallerDetail() {
+    return patternElements.stream().anyMatch(RenderingPattern::requiresCallerDetail);
   }
 
   /**

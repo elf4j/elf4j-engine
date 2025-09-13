@@ -30,49 +30,48 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.RenderingPattern;
 import java.util.Objects;
 
-record NameSpacePattern(ElementPatternType targetElementPatternType, DisplayOption displayOption)
+record NameSpacePattern(PatternElementType targetPatternElementType, DisplayOption displayOption)
     implements RenderingPattern {
   private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.FULL;
 
   /**
-   * @param elementPattern text elementPattern to convert
+   * @param elementPattern text element pattern to convert
    * @return converted elementPattern object
    */
-  public static NameSpacePattern from(
-      String elementPattern, ElementPatternType targetElementPatternType) {
-    ElementPatternType type = ElementPatternType.from(elementPattern);
-    if (type != ElementPatternType.CLASS && type != ElementPatternType.LOGGER) {
+  static NameSpacePattern from(String elementPattern, PatternElementType targetPatternElementType) {
+    PatternElementType type = PatternElementType.from(elementPattern);
+    if (type != PatternElementType.CLASS && type != PatternElementType.LOGGER) {
       throw new IllegalArgumentException(
           "Unexpected predefined pattern element: %s".formatted(elementPattern));
     }
     return new NameSpacePattern(
-        targetElementPatternType,
-        ElementPatternType.getElementDisplayOptions(elementPattern).stream()
+        targetPatternElementType,
+        ElementPatterns.getElementPatternDisplayOptions(elementPattern).stream()
             .collect(MoreCollectors.toOptional())
             .map(name -> DisplayOption.valueOf(name.toUpperCase()))
             .orElse(DEFAULT_DISPLAY_OPTION));
   }
 
   @Override
-  public boolean includeCallerDetail() {
-    return switch (targetElementPatternType) {
+  public boolean requiresCallerDetail() {
+    return switch (targetPatternElementType) {
       case CLASS -> true;
       case LOGGER -> false;
       default ->
         throw new IllegalStateException(
-            "Unexpected name space element type: " + targetElementPatternType);
+            "Unexpected name space element type: " + targetPatternElementType);
     };
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
     String fullName =
-        switch (targetElementPatternType) {
+        switch (targetPatternElementType) {
           case LOGGER -> logEvent.getLoggerName();
           case CLASS -> Objects.requireNonNull(logEvent.getCallerFrame()).getClassName();
           default ->
             throw new IllegalStateException(
-                "Unexpected name space element type: " + targetElementPatternType);
+                "Unexpected name space element type: " + targetPatternElementType);
         };
     switch (displayOption) {
       case FULL -> target.append(fullName);

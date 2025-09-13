@@ -35,21 +35,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public record TimestampPattern(DateTimeFormatter dateTimeFormatter, TimeZoneOption timeZoneOption)
+record TimestampPattern(DateTimeFormatter dateTimeFormatter, TimeZoneOption timeZoneOption)
     implements RenderingPattern {
-  public static final DateTimeFormatter DEFAULT_DATE_TIME_FORMAT =
+  static final DateTimeFormatter DEFAULT_DATE_TIME_FORMAT =
       DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSXXX");
 
   /**
    * @param elementPattern text pattern element to convert
    * @return converted pattern element object
    */
-  public static TimestampPattern from(String elementPattern) {
-    if (ElementPatternType.TIMESTAMP != ElementPatternType.from(elementPattern)) {
+  static TimestampPattern from(String elementPattern) {
+    if (PatternElementType.TIMESTAMP != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
-    List<String> elementDisplayOption = ElementPatternType.getElementDisplayOptions(elementPattern);
+    List<String> elementDisplayOption =
+        ElementPatterns.getElementPatternDisplayOptions(elementPattern);
     if (elementDisplayOption.isEmpty()) {
       return new TimestampPattern(DEFAULT_DATE_TIME_FORMAT, TimeZoneOption.DEFAULT);
     }
@@ -93,7 +94,7 @@ public record TimestampPattern(DateTimeFormatter dateTimeFormatter, TimeZoneOpti
   }
 
   @Override
-  public boolean includeCallerDetail() {
+  public boolean requiresCallerDetail() {
     return false;
   }
 

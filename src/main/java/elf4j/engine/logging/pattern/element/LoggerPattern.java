@@ -25,14 +25,14 @@
 
 package elf4j.engine.logging.pattern.element;
 
-import static elf4j.engine.logging.pattern.element.ElementPatternType.LOGGER;
+import static elf4j.engine.logging.pattern.element.PatternElementType.LOGGER;
 
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.RenderingPattern;
 
-public record LoggerPattern(NameSpacePattern nameSpacePattern) implements RenderingPattern {
-  public static LoggerPattern from(String elementPattern) {
-    if (LOGGER != ElementPatternType.from(elementPattern)) {
+record LoggerPattern(NameSpacePattern nameSpacePattern) implements RenderingPattern {
+  static LoggerPattern from(String elementPattern) {
+    if (LOGGER != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException(
           "Unexpected predefined pattern element: %s".formatted(elementPattern));
     }
@@ -40,8 +40,8 @@ public record LoggerPattern(NameSpacePattern nameSpacePattern) implements Render
   }
 
   @Override
-  public boolean includeCallerDetail() {
-    return nameSpacePattern.includeCallerDetail();
+  public boolean requiresCallerDetail() {
+    return nameSpacePattern.requiresCallerDetail();
   }
 
   @Override

@@ -99,8 +99,8 @@ public class StandardStreamWriter implements LogWriter {
    * @return true if the log pattern includes caller detail, false otherwise
    */
   @Override
-  public boolean includeCallerDetail() {
-    return logPattern.includeCallerDetail();
+  public boolean requiresCallerDetail() {
+    return logPattern.requiresCallerDetail();
   }
 
   /** Enum representing the output stream type (stdout or stderr). */

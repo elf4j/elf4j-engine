@@ -35,5 +35,5 @@ public interface PerformanceSensitive {
    *
    * @return true if the log should include caller detail, false otherwise
    */
-  boolean includeCallerDetail();
+  boolean requiresCallerDetail();
 }

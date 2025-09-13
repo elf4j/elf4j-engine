@@ -29,18 +29,18 @@ import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.RenderingPattern;
 
-public record SystemEnvironmentPattern(String key) implements RenderingPattern {
+record SystemEnvironmentPattern(String key) implements RenderingPattern {
   /**
    * @param elementPattern text elementPattern to convert
    * @return converted elementPattern object
    */
-  public static SystemEnvironmentPattern from(String elementPattern) {
-    if (ElementPatternType.SYS_ENV != ElementPatternType.from(elementPattern)) {
+  static SystemEnvironmentPattern from(String elementPattern) {
+    if (PatternElementType.SYS_ENV != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
     return new SystemEnvironmentPattern(
-        Iterables.getOnlyElement(ElementPatternType.getElementDisplayOptions(elementPattern)));
+        Iterables.getOnlyElement(ElementPatterns.getElementPatternDisplayOptions(elementPattern)));
   }
 
   @Override
@@ -49,7 +49,7 @@ public record SystemEnvironmentPattern(String key) implements RenderingPattern {
   }
 
   @Override
-  public boolean includeCallerDetail() {
+  public boolean requiresCallerDetail() {
     return false;
   }
 }

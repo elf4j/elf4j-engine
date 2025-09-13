@@ -30,26 +30,26 @@ import static com.google.common.collect.MoreCollectors.toOptional;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.RenderingPattern;
 
-public record LevelPattern(int displayLength) implements RenderingPattern {
+record LevelPattern(int displayLength) implements RenderingPattern {
   private static final int UNSPECIFIED = -1;
 
   /**
    * @param elementPattern to convert
    * @return converted elementPattern object
    */
-  public static LevelPattern from(String elementPattern) {
-    if (ElementPatternType.LEVEL != ElementPatternType.from(elementPattern)) {
+  static LevelPattern from(String elementPattern) {
+    if (PatternElementType.LEVEL != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException(
           String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
-    return new LevelPattern(ElementPatternType.getElementDisplayOptions(elementPattern).stream()
+    return new LevelPattern(ElementPatterns.getElementPatternDisplayOptions(elementPattern).stream()
         .collect(toOptional())
         .map(Integer::parseInt)
         .orElse(UNSPECIFIED));
   }
 
   @Override
-  public boolean includeCallerDetail() {
+  public boolean requiresCallerDetail() {
     return false;
   }
 

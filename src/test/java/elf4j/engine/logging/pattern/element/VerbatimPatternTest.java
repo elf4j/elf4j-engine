@@ -28,6 +28,7 @@ package elf4j.engine.logging.pattern.element;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import elf4j.Level;
 import elf4j.engine.logging.LogEvent;
@@ -66,10 +67,10 @@ class VerbatimPatternTest {
   }
 
   @Test
-  void includeCallerDetailReturnsFalse() {
+  void requiresCallerDetailReturnsFalse() {
     VerbatimPattern element = VerbatimPattern.from("test");
 
-    assertFalse(element.includeCallerDetail());
+    assertFalse(element.requiresCallerDetail());
   }
 
   @Test
@@ -114,5 +115,18 @@ class VerbatimPatternTest {
     VerbatimPattern element = VerbatimPattern.from(text);
 
     assertEquals(text, element.text());
+  }
+
+  @Test
+  void appendPatternTextAsIs() {
+    LogEvent mockEntry = mock(LogEvent.class);
+    String verbatimTextToAppend = "text";
+    String inputLogText = "inputLogText";
+    StringBuilder logTextBuilder = new StringBuilder(inputLogText);
+
+    VerbatimPattern.from(verbatimTextToAppend).render(mockEntry, logTextBuilder);
+
+    verifyNoInteractions(mockEntry);
+    assertEquals(inputLogText + verbatimTextToAppend, logTextBuilder.toString());
   }
 }

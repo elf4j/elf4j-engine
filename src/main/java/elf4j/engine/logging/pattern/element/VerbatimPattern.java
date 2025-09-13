@@ -30,15 +30,15 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.RenderingPattern;
 import elf4j.util.UtilLogger;
 
-public record VerbatimPattern(String text) implements RenderingPattern {
+record VerbatimPattern(String text) implements RenderingPattern {
   static Logger logger = UtilLogger.WARN;
 
   /**
    * @param elementPattern text pattern element to convert
    * @return converted pattern element object
    */
-  public static VerbatimPattern from(String elementPattern) {
-    if (ElementPatternType.VERBATIM != ElementPatternType.from(elementPattern)) {
+  static VerbatimPattern from(String elementPattern) {
+    if (PatternElementType.VERBATIM != PatternElementType.from(elementPattern)) {
       logger.warn(
           "Treating as verbatim element: elementPattern={}. If that is not intended, check to ensure each log pattern element is set up properly and fully enclosed inside a curly braces pair '{}'",
           elementPattern,
@@ -48,7 +48,7 @@ public record VerbatimPattern(String text) implements RenderingPattern {
   }
 
   @Override
-  public boolean includeCallerDetail() {
+  public boolean requiresCallerDetail() {
     return false;
   }
 

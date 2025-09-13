@@ -104,7 +104,7 @@ class EventingLogHandlerTest {
       LogHandler sut = new EventingLogHandler(ConfigurationProperties.bySetting(new Properties()));
       LogWriter logWriter = mock(LogWriter.class);
       ReflectionTestUtils.setField(sut, "logWriter", logWriter);
-      given(logWriter.includeCallerDetail()).willReturn(true);
+      given(logWriter.requiresCallerDetail()).willReturn(true);
       given(logWriter.getMinimumThresholdLevel()).willReturn(Level.INFO);
       ArgumentCaptor<LogEvent> logEvent = ArgumentCaptor.forClass(LogEvent.class);
 
@@ -130,7 +130,7 @@ class EventingLogHandlerTest {
       LogHandler sut = new EventingLogHandler(ConfigurationProperties.bySetting(new Properties()));
       LogWriter logWriter = mock(LogWriter.class);
       ReflectionTestUtils.setField(sut, "logWriter", logWriter);
-      given(logWriter.includeCallerDetail()).willReturn(false);
+      given(logWriter.requiresCallerDetail()).willReturn(false);
       given(logWriter.getMinimumThresholdLevel()).willReturn(Level.INFO);
       ArgumentCaptor<LogEvent> logEvent = ArgumentCaptor.forClass(LogEvent.class);
 
