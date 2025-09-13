@@ -23,7 +23,7 @@
  *
  */
 
-package elf4j.engine.logging.config;
+package elf4j.engine.logging.configuration;
 
 import elf4j.Level;
 import elf4j.Logger;
@@ -36,53 +36,32 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.Value;
 
 /**
  * Manages the threshold output levels for the named logger instances. It allows for overriding the
  * default threshold output level of the root or specific logger instances based on the provided
  * configuration properties.
  */
-@Value
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString
-public class LoggerOutputMinimumLevelThreshold {
+public record LoggerOutputMinimumLevelThreshold(
+    Map<String, Level> loggerMinimumThresholdLevels, List<String> sortedLoggerNameNameSpaces) {
   private static final Logger LOGGER = UtilLogger.INFO;
   private static final String ROOT_LOGGER_NAME = "";
   private static final Level DEFAULT_THRESHOLD_OUTPUT_LEVEL = Level.TRACE;
 
-  @EqualsAndHashCode.Include
-  Map<String, Level> loggerMinimumThresholdLevels;
-
-  List<String> sortedLoggerNameNameSpaces;
-
-  /**
-   * Constructor for the LoggerOutputMinimumLevelThreshold class.
-   *
-   * @param loggerMinimumThresholdLevels a map of configured levels
-   */
-  private LoggerOutputMinimumLevelThreshold(Map<String, Level> loggerMinimumThresholdLevels) {
-    this.loggerMinimumThresholdLevels = loggerMinimumThresholdLevels;
-    this.sortedLoggerNameNameSpaces = loggerMinimumThresholdLevels.keySet().stream()
-        .sorted(new FullyQualifiedClassNameComparator())
-        .collect(Collectors.toList());
+  public LoggerOutputMinimumLevelThreshold(Map<String, Level> loggerMinimumThresholdLevels) {
+    this(
+        loggerMinimumThresholdLevels,
+        loggerMinimumThresholdLevels.keySet().stream()
+            .sorted(new FullyQualifiedClassNameComparator())
+            .collect(Collectors.toList()));
     LOGGER.info(
         "%s overriding caller level(s) in %s".formatted(loggerMinimumThresholdLevels.size(), this));
   }
 
-  /**
-   * Creates a new LoggerOutputMinimumLevelThreshold instance from a given configuration.
-   *
-   * @param configurationProperties configuration source of all threshold output levels for caller
-   *     classes
-   * @return the overriding caller levels
-   */
   public static LoggerOutputMinimumLevelThreshold from(
       ConfigurationProperties configurationProperties) {
     Map<String, Level> configuredLevels = new HashMap<>();
-    Properties properties = configurationProperties.getProperties();
+    Properties properties = configurationProperties.properties();
     getAsLevel("level", properties)
         .ifPresent(level -> configuredLevels.put(ROOT_LOGGER_NAME, level));
     configuredLevels.putAll(properties.stringPropertyNames().stream()
@@ -94,14 +73,6 @@ public class LoggerOutputMinimumLevelThreshold {
     return new LoggerOutputMinimumLevelThreshold(configuredLevels);
   }
 
-  /**
-   * Converts a given level key to a Level instance.
-   *
-   * @param levelKey the level key
-   * @param properties the properties
-   * @return an Optional containing the Level instance if the level key is valid, otherwise an empty
-   *     Optional
-   */
   private static Optional<Level> getAsLevel(String levelKey, Properties properties) {
     String levelValue = properties.getProperty(levelKey);
     return levelValue == null
@@ -109,14 +80,6 @@ public class LoggerOutputMinimumLevelThreshold {
         : Optional.of(Level.valueOf(levelValue.trim().toUpperCase()));
   }
 
-  /**
-   * Returns the threshold output level for a given logger.
-   *
-   * @param loggerName to search for configured threshold output level
-   * @return If the threshold level is configured for the specified logger name, return the
-   *     configured level. Otherwise, if no threshold level configured, return the default threshold
-   *     level.
-   */
   public Level getMinimumThresholdLevel(String loggerName) {
     return this.sortedLoggerNameNameSpaces.stream()
         .filter(loggerName::startsWith)
@@ -126,12 +89,6 @@ public class LoggerOutputMinimumLevelThreshold {
   }
 
   static class FullyQualifiedClassNameComparator implements Comparator<String> {
-    /**
-     * Returns the number of package levels for a given fqcn
-     *
-     * @param fqcn the fully qualified class name
-     * @return the number of package levels
-     */
     private static int getPackageLevels(String fqcn) {
       return fqcn.split("\\.").length;
     }

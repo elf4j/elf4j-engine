@@ -1,4 +1,4 @@
-package elf4j.engine.logging.config;
+package elf4j.engine.logging.configuration;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

@@ -55,7 +55,7 @@ record LevelPattern(int displayLength) implements RenderingPattern {
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    String level = logEvent.getLevel().name();
+    String level = logEvent.level().name();
     if (displayLength == UNSPECIFIED) {
       target.append(level);
       return;

@@ -24,7 +24,7 @@
  */
 package elf4j.engine.logging;
 
-import elf4j.engine.logging.config.ConfigurationProperties;
+import elf4j.engine.logging.configuration.ConfigurationProperties;
 import java.util.Properties;
 import org.jspecify.annotations.Nullable;
 

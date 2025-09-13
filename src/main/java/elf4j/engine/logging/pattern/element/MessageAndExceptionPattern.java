@@ -45,7 +45,7 @@ record MessageAndExceptionPattern() implements RenderingPattern {
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
     target.append(logEvent.getResolvedMessage());
-    Throwable t = logEvent.getThrowable();
+    Throwable t = logEvent.throwable();
     if (t == null) {
       return;
     }

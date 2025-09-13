@@ -45,6 +45,6 @@ record LineNumberPattern() implements RenderingPattern {
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getLineNumber());
+    target.append(Objects.requireNonNull(logEvent.callerFrame()).lineNumber());
   }
 }

@@ -33,7 +33,7 @@ import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.NativeLogServiceManager;
-import elf4j.engine.logging.config.ConfigurationProperties;
+import elf4j.engine.logging.configuration.ConfigurationProperties;
 import elf4j.util.UtilLogger;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
@@ -99,8 +99,8 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
       configuredWriterFactories.add(DEFAULT_WRITER_FACTORY);
     }
     List<LogWriter> logWriters = configuredWriterFactories.stream()
-        .map(logWriterFactory ->
-            logWriterFactory.getLogWriter(configurationProperties.getProperties()))
+        .map(
+            logWriterFactory -> logWriterFactory.getLogWriter(configurationProperties.properties()))
         .toList();
     return new CompositeWriter(
         logWriters,
@@ -114,7 +114,7 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
     if (configurationProperties.isAbsent()) {
       return Collections.emptyList();
     }
-    Properties properties = configurationProperties.getProperties();
+    Properties properties = configurationProperties.properties();
     String writerFactoryClassNames = properties.getProperty("writer.factories");
     if (writerFactoryClassNames == null) {
       return Collections.emptyList();
@@ -176,7 +176,7 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
   @Override
   public void write(LogEvent logEvent) {
     writers.forEach(writer -> conseqExecutor.execute(
-        withMdcContext(() -> writer.write(logEvent)), logEvent.getCallerThread().id()));
+        withMdcContext(() -> writer.write(logEvent)), logEvent.callerThread().id()));
   }
 
   @Override

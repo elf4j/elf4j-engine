@@ -30,30 +30,32 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.function.Supplier;
 import lombok.Builder;
-import lombok.Value;
 import org.jspecify.annotations.Nullable;
 
 /** Source data to be rendered to a final log message */
-@Value
-@Builder
-public class LogEvent {
+public record LogEvent(
+    Level level,
+    String loggerName,
+    ThreadValue callerThread,
+    Instant timestamp,
+    @Nullable Object message,
+    Object @Nullable [] arguments,
+    @Nullable Throwable throwable,
+    @Nullable StackFrameValue callerFrame) {
   private static final int INIT_ARG_LENGTH = 32;
 
-  Level level;
-
-  String loggerName;
-
-  ThreadValue callerThread;
-
-  Instant timestamp = Instant.now();
-
-  @Nullable Object message;
-
-  Object @Nullable [] arguments;
-
-  @Nullable Throwable throwable;
-
-  @Nullable StackFrameValue callerFrame;
+  @Builder
+  public LogEvent(
+      Level level,
+      String loggerName,
+      ThreadValue callerThread,
+      @Nullable Object message,
+      Object @Nullable [] arguments,
+      @Nullable Throwable throwable,
+      @Nullable StackFrameValue callerFrame) {
+    this(
+        level, loggerName, callerThread, Instant.now(), message, arguments, throwable, callerFrame);
+  }
 
   private static CharSequence resolve(
       @Nullable final Object message, final Object @Nullable [] arguments) {
@@ -95,15 +97,8 @@ public class LogEvent {
   }
 
   /** Represents a value representing a call stack element. */
-  @Value
-  @Builder
-  public static class StackFrameValue {
-    String className;
-    String methodName;
-    int lineNumber;
-
-    @Nullable String fileName;
-
+  public record StackFrameValue(
+      String className, String methodName, int lineNumber, @Nullable String fileName) {
     /**
      * Creates a StackFrameValue instance from a StackTraceElement.
      *
@@ -111,12 +106,11 @@ public class LogEvent {
      * @return log render-able value representing the call stack element
      */
     public static StackFrameValue from(StackWalker.StackFrame stackFrame) {
-      return LogEvent.StackFrameValue.builder()
-          .fileName(stackFrame.getFileName())
-          .className(stackFrame.getClassName())
-          .methodName(stackFrame.getMethodName())
-          .lineNumber(stackFrame.getLineNumber())
-          .build();
+      return new StackFrameValue(
+          stackFrame.getClassName(),
+          stackFrame.getMethodName(),
+          stackFrame.getLineNumber(),
+          stackFrame.getFileName());
     }
   }
 

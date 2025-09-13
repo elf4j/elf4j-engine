@@ -8,9 +8,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /** Parser and utility methods for predefined pattern elements used in log message patterns. */
-public final class ElementPatterns {
+public class ElementPatterns {
   private static final String DELIMITER_PATTERN_ELEMENT = ":";
   private static final String DELIMITER_DISPLAY_OPTION = ",";
+
+  private ElementPatterns() {}
 
   static String alphaNumericOnly(String in) {
     return in.replaceAll("[^a-zA-Z0-9]", "");

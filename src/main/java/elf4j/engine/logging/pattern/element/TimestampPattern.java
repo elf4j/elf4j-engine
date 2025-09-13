@@ -102,7 +102,7 @@ record TimestampPattern(DateTimeFormatter dateTimeFormatter, TimeZoneOption time
   public void render(LogEvent logEvent, StringBuilder target) {
     dateTimeFormatter.formatTo(
         logEvent
-            .getTimestamp()
+            .timestamp()
             .atZone(timeZoneOption == TimeZoneOption.UTC ? ZoneOffset.UTC : ZoneId.systemDefault()),
         target);
   }
