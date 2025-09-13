@@ -65,21 +65,28 @@ public record LogEvent(
     }
     int messageLength = suppliedMessage.length();
     StringBuilder resolvedMessage = new StringBuilder(messageLength + INIT_ARG_LENGTH);
-    int iMessage = 0;
-    int iArguments = 0;
-    while (iMessage < messageLength) {
-      char character = suppliedMessage.charAt(iMessage);
-      if (character == '{'
-          && ((iMessage + 1) < messageLength && suppliedMessage.charAt(iMessage + 1) == '}')
-          && iArguments < arguments.length) {
-        resolvedMessage.append(supply(arguments[iArguments++]));
-        iMessage += 2;
+    int messageIndex = 0;
+    int argumentIndex = 0;
+    while (messageIndex < messageLength) {
+      if (atArgumentSymbol(messageIndex, suppliedMessage)
+          && availableAt(argumentIndex, arguments)) {
+        resolvedMessage.append(supply(arguments[argumentIndex++]));
+        messageIndex += 2;
       } else {
-        resolvedMessage.append(character);
-        iMessage += 1;
+        resolvedMessage.append(suppliedMessage.charAt(messageIndex));
+        messageIndex += 1;
       }
     }
     return resolvedMessage;
+  }
+
+  private static boolean availableAt(final int index, final Object[] arguments) {
+    return index < arguments.length;
+  }
+
+  private static boolean atArgumentSymbol(final int index, final String message) {
+    return '{' == message.charAt(index)
+        && (index + 1 < message.length() && '}' == message.charAt(index + 1));
   }
 
   private static @Nullable Object supply(@Nullable Object o) {
