@@ -31,6 +31,11 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.RenderingPattern;
 
 record LoggerPattern(NameSpacePattern nameSpacePattern) implements RenderingPattern {
+  /**
+   * @param elementPattern the pattern element string, e.g. "{logger}", "{Logger}" excluding the
+   *     surrounding braces
+   * @return the LoggerPattern instance
+   */
   static LoggerPattern from(String elementPattern) {
     if (LOGGER != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException(

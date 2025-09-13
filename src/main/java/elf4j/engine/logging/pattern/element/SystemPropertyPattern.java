@@ -31,7 +31,9 @@ import elf4j.engine.logging.pattern.RenderingPattern;
 
 record SystemPropertyPattern(String key) implements RenderingPattern {
   /**
-   * @param elementPattern text elementPattern to convert
+   * @param elementPattern text elementPattern to convert. E.g. "{sysprop:myJavaPropertyName}",
+   *     "{sys-prop:myJavaPropertyName2}", "{SYSPROP:myJavaPropertyName3}", excluding the
+   *     surrounding braces
    * @return converted elementPattern object
    */
   static SystemPropertyPattern from(String elementPattern) {

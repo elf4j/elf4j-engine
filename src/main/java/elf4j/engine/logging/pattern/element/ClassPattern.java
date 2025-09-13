@@ -31,6 +31,11 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.RenderingPattern;
 
 record ClassPattern(NameSpacePattern nameSpacePattern) implements RenderingPattern {
+  /**
+   * @param elementPattern the pattern element string, e.g. "{class}", "{class:full}",
+   *     "{class:compressed}", "{class:simple}", excluding the surrounding braces
+   * @return the corresponding {@link ClassPattern} instance
+   */
   static ClassPattern from(String elementPattern) {
     if (CLASS != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException(

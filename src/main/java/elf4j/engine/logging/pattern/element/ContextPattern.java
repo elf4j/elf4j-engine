@@ -26,8 +26,8 @@ record ContextPattern(String key) implements RenderingPattern {
    * Creates a new ContextElement instance from the element pattern to print thread scoped context.
    *
    * @param elementPattern the context pattern text without the enclosing braces, i.e. In the log
-   *     configuration pattern {@code {time} {level} {context} - {message}}, the
-   *     {@code elementPattern} passed in this method is expected to be {@code context}
+   *     configuration pattern "{time} {level} {context} - {message}", the elementPattern passed in
+   *     this method is expected to be "{context}", excluding the surrounding braces.
    * @return the element that can render context log
    * @throws NoSuchElementException if no key is configured in the 'context' pattern element
    */

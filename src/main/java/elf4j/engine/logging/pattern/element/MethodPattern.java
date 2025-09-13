@@ -30,6 +30,11 @@ import elf4j.engine.logging.pattern.RenderingPattern;
 import java.util.Objects;
 
 record MethodPattern() implements RenderingPattern {
+  /**
+   * @param elementPattern the pattern element string, e.g. "{method}", excluding the surrounding
+   *     braces
+   * @return the MethodPattern instance
+   */
   static MethodPattern from(String elementPattern) {
     if (PatternElementType.METHOD != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException("elementPattern: " + elementPattern);

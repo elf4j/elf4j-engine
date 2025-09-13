@@ -33,7 +33,8 @@ import java.util.Objects;
 
 record ThreadPattern(DisplayOption threadDisplayOption) implements RenderingPattern {
   /**
-   * @param elementPattern text pattern element to convert
+   * @param elementPattern text pattern element to convert. E.g. "{thread}", "{Thread:id}", or
+   *     "{THREAD:name}", excluding the surrounding braces
    * @return the thread pattern element converted from the specified text
    */
   static ThreadPattern from(String elementPattern) {

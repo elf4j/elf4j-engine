@@ -30,6 +30,11 @@ import elf4j.engine.logging.pattern.RenderingPattern;
 import java.util.Objects;
 
 record LineNumberPattern() implements RenderingPattern {
+  /**
+   * @param elementPattern the pattern element string, e.g. "{lineNumber}", "{line-number}", or
+   *     "{linenumber}", excluding the surrounding
+   * @return the LineNumberPattern instance
+   */
   static LineNumberPattern from(String elementPattern) {
     if (PatternElementType.LINE_NUMBER != PatternElementType.from(elementPattern)) {
       throw new IllegalArgumentException(

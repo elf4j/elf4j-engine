@@ -30,6 +30,12 @@ import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.RenderingPattern;
 import java.util.Objects;
 
+/**
+ * Delegate pattern to render class name or logger name with display options
+ *
+ * @param targetPatternElementType the target pattern element type, either CLASS or LOGGER
+ * @param displayOption the display option for the target pattern element
+ */
 record NameSpacePattern(PatternElementType targetPatternElementType, DisplayOption displayOption)
     implements RenderingPattern {
   private static final DisplayOption DEFAULT_DISPLAY_OPTION = DisplayOption.FULL;
