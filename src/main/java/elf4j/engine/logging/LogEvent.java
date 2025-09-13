@@ -84,10 +84,8 @@ public record LogEvent(
   }
 
   private static boolean atPlaceHolder(final int index, final String message) {
-    if (index < 0 || index + 1 >= message.length()) {
-      return false;
-    }
-    return '{' == message.charAt(index) && '}' == message.charAt(index + 1);
+    return '{' == message.charAt(index)
+        && (index + 1 < message.length() && '}' == message.charAt(index + 1));
   }
 
   private static @Nullable Object supply(@Nullable Object o) {
