@@ -67,7 +67,8 @@ public record LogEvent(
     int messageIndex = 0;
     int argumentIndex = 0;
     while (messageIndex < suppliedMessage.length()) {
-      if (atPlaceHolder(messageIndex, suppliedMessage) && availableAt(argumentIndex, arguments)) {
+      if (atPlaceHolder(messageIndex, suppliedMessage)
+          && argumentAvailable(argumentIndex, arguments)) {
         resolvedMessage.append(supply(arguments[argumentIndex++]));
         messageIndex += 2;
       } else {
@@ -78,7 +79,7 @@ public record LogEvent(
     return resolvedMessage;
   }
 
-  private static boolean availableAt(final int index, final Object[] arguments) {
+  private static boolean argumentAvailable(final int index, final Object[] arguments) {
     return index < arguments.length;
   }
 
