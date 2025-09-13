@@ -84,7 +84,7 @@ public record LogEvent(
   }
 
   private static boolean atPlaceHolder(final int index, final String message) {
-    if (message == null || index < 0 || index + 1 >= message.length()) {
+    if (index < 0 || index + 1 >= message.length()) {
       return false;
     }
     return '{' == message.charAt(index) && '}' == message.charAt(index + 1);
