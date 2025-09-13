@@ -30,7 +30,7 @@ import static elf4j.engine.logging.writer.StandardStreamWriter.OutStreamType.STD
 import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.RenderingPattern;
 import elf4j.util.UtilLogger;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -54,12 +54,12 @@ public class StandardStreamWriter implements LogWriter {
 
   transient StandardOutput standardOutput;
   Level minimumThresholdLevel;
-  PatternElement logPattern;
+  RenderingPattern logPattern;
   OutStreamType outStreamType;
 
   @Builder
   private StandardStreamWriter(
-      Level minimumThresholdLevel, PatternElement logPattern, OutStreamType outStreamType) {
+      Level minimumThresholdLevel, RenderingPattern logPattern, OutStreamType outStreamType) {
     this.minimumThresholdLevel = minimumThresholdLevel;
     this.logPattern = logPattern;
     this.outStreamType = outStreamType;

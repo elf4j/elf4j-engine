@@ -25,32 +25,26 @@
 
 package elf4j.engine.logging.pattern.element;
 
-import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.ElementType;
-import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.RenderingPattern;
+import java.util.Objects;
 
-public record SystemEnvironmentElement(String key) implements PatternElement {
-  /**
-   * @param patternElement text patternElement to convert
-   * @return converted patternElement object
-   */
-  public static SystemEnvironmentElement from(String patternElement) {
-    if (ElementType.SYS_ENV != ElementType.from(patternElement)) {
+public record FileNamePattern() implements RenderingPattern {
+  public static FileNamePattern from(String elementPattern) {
+    if (ElementPatternType.FILENAME != ElementPatternType.from(elementPattern)) {
       throw new IllegalArgumentException(
-          String.format("Unexpected predefined pattern element: %s", patternElement));
+          String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
-    return new SystemEnvironmentElement(
-        Iterables.getOnlyElement(ElementType.getElementDisplayOptions(patternElement)));
-  }
-
-  @Override
-  public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(System.getenv(key));
+    return new FileNamePattern();
   }
 
   @Override
   public boolean includeCallerDetail() {
-    return false;
+    return true;
+  }
+
+  @Override
+  public void render(LogEvent logEvent, StringBuilder target) {
+    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getFileName());
   }
 }

@@ -25,27 +25,44 @@
 
 package elf4j.engine.logging.pattern.element;
 
-import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.ElementType;
-import elf4j.engine.logging.pattern.PatternElement;
-import java.util.Objects;
+import static com.google.common.collect.MoreCollectors.toOptional;
 
-public record FileNameElement() implements PatternElement {
-  public static FileNameElement from(String patternElement) {
-    if (ElementType.FILENAME != ElementType.from(patternElement)) {
+import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.RenderingPattern;
+
+public record LevelPattern(int displayLength) implements RenderingPattern {
+  private static final int UNSPECIFIED = -1;
+
+  /**
+   * @param elementPattern to convert
+   * @return converted elementPattern object
+   */
+  public static LevelPattern from(String elementPattern) {
+    if (ElementPatternType.LEVEL != ElementPatternType.from(elementPattern)) {
       throw new IllegalArgumentException(
-          String.format("Unexpected predefined pattern element: %s", patternElement));
+          String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
-    return new FileNameElement();
+    return new LevelPattern(ElementPatternType.getElementDisplayOptions(elementPattern).stream()
+        .collect(toOptional())
+        .map(Integer::parseInt)
+        .orElse(UNSPECIFIED));
   }
 
   @Override
   public boolean includeCallerDetail() {
-    return true;
+    return false;
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getFileName());
+    String level = logEvent.getLevel().name();
+    if (displayLength == UNSPECIFIED) {
+      target.append(level);
+      return;
+    }
+    char[] levelChars = level.toCharArray();
+    for (int i = 0; i < displayLength; i++) {
+      target.append(i < levelChars.length ? levelChars[i] : ' ');
+    }
   }
 }

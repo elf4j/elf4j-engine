@@ -10,39 +10,39 @@ class ClassElementTest {
 
   @Test
   void fromCreatesClassElementForValidPattern() {
-    ClassElement classElement = ClassElement.from("CLASS");
-    assertNotNull(classElement);
-    assertTrue(classElement.nameSpaceElement().includeCallerDetail());
+    ClassPattern classPattern = ClassPattern.from("CLASS");
+    assertNotNull(classPattern);
+    assertTrue(classPattern.nameSpacePattern().includeCallerDetail());
   }
 
   @Test
   void fromThrowsExceptionForInvalidPattern() {
     IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> ClassElement.from("INVALID"));
+        assertThrows(IllegalArgumentException.class, () -> ClassPattern.from("INVALID"));
     assertTrue(exception.getMessage().contains("Unexpected predefined pattern element"));
   }
 
   @Test
   void renderDelegatesToNameSpaceElement() {
-    NameSpaceElement nameSpaceElement = mock(NameSpaceElement.class);
-    ClassElement classElement = new ClassElement(nameSpaceElement);
+    NameSpacePattern nameSpacePattern = mock(NameSpacePattern.class);
+    ClassPattern classPattern = new ClassPattern(nameSpacePattern);
     LogEvent logEvent = mock(LogEvent.class);
     StringBuilder target = new StringBuilder();
 
     // BDD style
-    willDoNothing().given(nameSpaceElement).render(logEvent, target);
+    willDoNothing().given(nameSpacePattern).render(logEvent, target);
 
-    classElement.render(logEvent, target);
+    classPattern.render(logEvent, target);
 
-    then(nameSpaceElement).should().render(logEvent, target);
+    then(nameSpacePattern).should().render(logEvent, target);
   }
 
   @Test
   void includeCallerDetailReturnsCorrectValue() {
-    NameSpaceElement nameSpaceElement = mock(NameSpaceElement.class);
-    given(nameSpaceElement.includeCallerDetail()).willReturn(true);
-    ClassElement classElement = new ClassElement(nameSpaceElement);
+    NameSpacePattern nameSpacePattern = mock(NameSpacePattern.class);
+    given(nameSpacePattern.includeCallerDetail()).willReturn(true);
+    ClassPattern classPattern = new ClassPattern(nameSpacePattern);
 
-    assertTrue(classElement.includeCallerDetail());
+    assertTrue(classPattern.includeCallerDetail());
   }
 }

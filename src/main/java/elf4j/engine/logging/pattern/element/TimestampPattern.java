@@ -26,8 +26,7 @@
 package elf4j.engine.logging.pattern.element;
 
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.ElementType;
-import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.RenderingPattern;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -36,25 +35,25 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOption timeZoneOption)
-    implements PatternElement {
+public record TimestampPattern(DateTimeFormatter dateTimeFormatter, TimeZoneOption timeZoneOption)
+    implements RenderingPattern {
   public static final DateTimeFormatter DEFAULT_DATE_TIME_FORMAT =
       DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSXXX");
 
   /**
-   * @param patternElement text pattern element to convert
+   * @param elementPattern text pattern element to convert
    * @return converted pattern element object
    */
-  public static TimestampElement from(String patternElement) {
-    if (ElementType.TIMESTAMP != ElementType.from(patternElement)) {
+  public static TimestampPattern from(String elementPattern) {
+    if (ElementPatternType.TIMESTAMP != ElementPatternType.from(elementPattern)) {
       throw new IllegalArgumentException(
-          String.format("Unexpected predefined pattern element: %s", patternElement));
+          String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
-    List<String> elementDisplayOption = ElementType.getElementDisplayOptions(patternElement);
+    List<String> elementDisplayOption = ElementPatternType.getElementDisplayOptions(elementPattern);
     if (elementDisplayOption.isEmpty()) {
-      return new TimestampElement(DEFAULT_DATE_TIME_FORMAT, TimeZoneOption.DEFAULT);
+      return new TimestampPattern(DEFAULT_DATE_TIME_FORMAT, TimeZoneOption.DEFAULT);
     }
-    return new TimestampElement(
+    return new TimestampPattern(
         DateTimeFormatter.ofPattern(elementDisplayOption.getFirst()),
         getTimeZoneOption(elementDisplayOption));
   }
@@ -80,7 +79,7 @@ public record TimestampElement(DateTimeFormatter dateTimeFormatter, TimeZoneOpti
   public boolean equals(Object o) {
     if (!(o
         instanceof
-        TimestampElement(
+        TimestampPattern(
             DateTimeFormatter thatDateTimeFormatter,
             TimeZoneOption thatTimeZoneOption))) return false;
     OffsetDateTime now = OffsetDateTime.now();

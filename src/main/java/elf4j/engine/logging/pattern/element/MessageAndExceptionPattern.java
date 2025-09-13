@@ -26,25 +26,29 @@
 package elf4j.engine.logging.pattern.element;
 
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.ElementType;
-import elf4j.engine.logging.pattern.PatternElement;
-import java.util.Objects;
+import elf4j.engine.logging.pattern.RenderingPattern;
+import elf4j.engine.logging.util.StackTraces;
 
-public record MethodElement() implements PatternElement {
-  public static MethodElement from(String patternElement) {
-    if (ElementType.METHOD != ElementType.from(patternElement)) {
-      throw new IllegalArgumentException("patternElement: " + patternElement);
+public record MessageAndExceptionPattern() implements RenderingPattern {
+  public static MessageAndExceptionPattern from(String elementPattern) {
+    if (ElementPatternType.MESSAGE != ElementPatternType.from(elementPattern)) {
+      throw new IllegalArgumentException("Invalid pattern element: " + elementPattern);
     }
-    return new MethodElement();
+    return new MessageAndExceptionPattern();
   }
 
   @Override
   public boolean includeCallerDetail() {
-    return true;
+    return false;
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getMethodName());
+    target.append(logEvent.getResolvedMessage());
+    Throwable t = logEvent.getThrowable();
+    if (t == null) {
+      return;
+    }
+    target.append(System.lineSeparator()).append(StackTraces.getTraceAsBuffer(t));
   }
 }

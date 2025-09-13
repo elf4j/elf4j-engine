@@ -30,7 +30,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.element.VerbatimElement;
+import elf4j.engine.logging.pattern.element.VerbatimPattern;
 import org.junit.jupiter.api.Test;
 
 class VerbatimPatternTest {
@@ -42,7 +42,7 @@ class VerbatimPatternTest {
     String inputLogText = "inputLogText";
     StringBuilder logTextBuilder = new StringBuilder(inputLogText);
 
-    VerbatimElement.from(verbatimTextToAppend).render(mockEntry, logTextBuilder);
+    VerbatimPattern.from(verbatimTextToAppend).render(mockEntry, logTextBuilder);
 
     verifyNoInteractions(mockEntry);
     assertEquals(inputLogText + verbatimTextToAppend, logTextBuilder.toString());

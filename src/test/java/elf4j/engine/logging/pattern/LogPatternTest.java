@@ -5,7 +5,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.inOrder;
 
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.element.VerbatimElement;
+import elf4j.engine.logging.pattern.element.VerbatimPattern;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -25,17 +25,17 @@ class LogPatternTest {
       assertThat(LogPattern.from("{testUnrecognizedPredefined}").patternElements())
           .hasSize(1)
           .element(0)
-          .isInstanceOf(VerbatimElement.class);
+          .isInstanceOf(VerbatimPattern.class);
     }
   }
 
   @Nested
   class render {
     @Mock
-    PatternElement mockPattern;
+    RenderingPattern mockPattern;
 
     @Mock
-    PatternElement mockPattern2;
+    RenderingPattern mockPattern2;
 
     @Mock
     LogEvent stubLogEvent;

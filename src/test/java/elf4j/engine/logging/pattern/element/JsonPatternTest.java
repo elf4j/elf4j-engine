@@ -38,7 +38,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class JsonElementTest {
+class JsonPatternTest {
   LogEvent mockLogEvent;
   String mockMessage = "testLogMessage {}";
 
@@ -60,28 +60,28 @@ class JsonElementTest {
   class from {
     @Test
     void noPatternOptionDefaults() {
-      JsonElement jsonPattern = JsonElement.from("json");
+      JsonPattern jsonPattern = JsonPattern.from("json");
 
       assertFalse(jsonPattern.includeCallerDetail());
     }
 
     @Test
     void includeCallerOption() {
-      JsonElement jsonPattern = JsonElement.from("json:caller-detail");
+      JsonPattern jsonPattern = JsonPattern.from("json:caller-detail");
 
       assertTrue(jsonPattern.includeCallerDetail());
     }
 
     @Test
     void includeThreadOption() {
-      JsonElement jsonPattern = JsonElement.from("json:caller-thread");
+      JsonPattern jsonPattern = JsonPattern.from("json:caller-thread");
 
       assertFalse(jsonPattern.includeCallerDetail());
     }
 
     @Test
     void includeCallerAndThreadOptions() {
-      JsonElement jsonPattern = JsonElement.from("json:caller-thread,caller-detail");
+      JsonPattern jsonPattern = JsonPattern.from("json:caller-thread,caller-detail");
 
       assertTrue(jsonPattern.includeCallerDetail());
     }
@@ -89,7 +89,7 @@ class JsonElementTest {
 
   @Nested
   class render {
-    JsonElement jsonPattern = JsonElement.from("json");
+    JsonPattern jsonPattern = JsonPattern.from("json");
 
     @Test
     void resolveMessage() {

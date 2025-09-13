@@ -25,45 +25,27 @@
 
 package elf4j.engine.logging.pattern.element;
 
-import static com.google.common.collect.MoreCollectors.toOptional;
+import static elf4j.engine.logging.pattern.element.ElementPatternType.LOGGER;
 
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.ElementType;
-import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.RenderingPattern;
 
-public record LevelElement(int displayLength) implements PatternElement {
-  private static final int UNSPECIFIED = -1;
-
-  /**
-   * @param patternElement to convert
-   * @return converted patternElement object
-   */
-  public static LevelElement from(String patternElement) {
-    if (ElementType.LEVEL != ElementType.from(patternElement)) {
+public record LoggerPattern(NameSpacePattern nameSpacePattern) implements RenderingPattern {
+  public static LoggerPattern from(String elementPattern) {
+    if (LOGGER != ElementPatternType.from(elementPattern)) {
       throw new IllegalArgumentException(
-          String.format("Unexpected predefined pattern element: %s", patternElement));
+          "Unexpected predefined pattern element: %s".formatted(elementPattern));
     }
-    return new LevelElement(ElementType.getElementDisplayOptions(patternElement).stream()
-        .collect(toOptional())
-        .map(Integer::parseInt)
-        .orElse(UNSPECIFIED));
+    return new LoggerPattern(NameSpacePattern.from(elementPattern, LOGGER));
   }
 
   @Override
   public boolean includeCallerDetail() {
-    return false;
+    return nameSpacePattern.includeCallerDetail();
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    String level = logEvent.getLevel().name();
-    if (displayLength == UNSPECIFIED) {
-      target.append(level);
-      return;
-    }
-    char[] levelChars = level.toCharArray();
-    for (int i = 0; i < displayLength; i++) {
-      target.append(i < levelChars.length ? levelChars[i] : ' ');
-    }
+    nameSpacePattern.render(logEvent, target);
   }
 }

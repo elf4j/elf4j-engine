@@ -27,26 +27,25 @@ package elf4j.engine.logging.pattern.element;
 
 import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.ElementType;
-import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.RenderingPattern;
 
-public record SystemPropertyElement(String key) implements PatternElement {
+public record SystemEnvironmentPattern(String key) implements RenderingPattern {
   /**
-   * @param patternElement text patternElement to convert
-   * @return converted patternElement object
+   * @param elementPattern text elementPattern to convert
+   * @return converted elementPattern object
    */
-  public static SystemPropertyElement from(String patternElement) {
-    if (ElementType.SYS_PROP != ElementType.from(patternElement)) {
+  public static SystemEnvironmentPattern from(String elementPattern) {
+    if (ElementPatternType.SYS_ENV != ElementPatternType.from(elementPattern)) {
       throw new IllegalArgumentException(
-          String.format("Unexpected predefined pattern element: %s", patternElement));
+          String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
-    return new SystemPropertyElement(
-        Iterables.getOnlyElement(ElementType.getElementDisplayOptions(patternElement)));
+    return new SystemEnvironmentPattern(
+        Iterables.getOnlyElement(ElementPatternType.getElementDisplayOptions(elementPattern)));
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(System.getProperty(this.key));
+    target.append(System.getenv(key));
   }
 
   @Override

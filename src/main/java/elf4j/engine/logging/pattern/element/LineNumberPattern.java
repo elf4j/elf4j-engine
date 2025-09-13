@@ -25,28 +25,26 @@
 
 package elf4j.engine.logging.pattern.element;
 
-import static elf4j.engine.logging.pattern.ElementType.CLASS;
-
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.ElementType;
-import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.RenderingPattern;
+import java.util.Objects;
 
-public record ClassElement(NameSpaceElement nameSpaceElement) implements PatternElement {
-  public static ClassElement from(String patternElement) {
-    if (CLASS != ElementType.from(patternElement)) {
+public record LineNumberPattern() implements RenderingPattern {
+  public static LineNumberPattern from(String elementPattern) {
+    if (ElementPatternType.LINE_NUMBER != ElementPatternType.from(elementPattern)) {
       throw new IllegalArgumentException(
-          "Unexpected predefined pattern element: %s".formatted(patternElement));
+          String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
-    return new ClassElement(NameSpaceElement.from(patternElement, CLASS));
+    return new LineNumberPattern();
   }
 
   @Override
   public boolean includeCallerDetail() {
-    return nameSpaceElement.includeCallerDetail();
+    return true;
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    nameSpaceElement.render(logEvent, target);
+    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getLineNumber());
   }
 }

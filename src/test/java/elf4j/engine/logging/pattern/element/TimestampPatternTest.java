@@ -13,59 +13,59 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-class TimestampElementTest {
+class TimestampPatternTest {
 
   @ParameterizedTest
   @ValueSource(strings = {"timestamp", "timestamp:"})
   void fromCreatesDefaultTimestampElementWhenPatternIsEmpty(String patternElement) {
-    TimestampElement element = TimestampElement.from(patternElement);
-    assertEquals(TimestampElement.DEFAULT_DATE_TIME_FORMAT, element.dateTimeFormatter());
-    assertEquals(TimestampElement.TimeZoneOption.DEFAULT, element.timeZoneOption());
+    TimestampPattern element = TimestampPattern.from(patternElement);
+    assertEquals(TimestampPattern.DEFAULT_DATE_TIME_FORMAT, element.dateTimeFormatter());
+    assertEquals(TimestampPattern.TimeZoneOption.DEFAULT, element.timeZoneOption());
   }
 
   @Test
   void fromCreatesTimestampElementWithCustomFormatAndDefaultTimeZone() {
-    TimestampElement element = TimestampElement.from("timestamp:uuuu-MM-dd");
+    TimestampPattern element = TimestampPattern.from("timestamp:uuuu-MM-dd");
     var now = OffsetDateTime.now();
     assertEquals(
         DateTimeFormatter.ofPattern("uuuu-MM-dd").format(now),
         element.dateTimeFormatter().format(now));
-    assertEquals(TimestampElement.TimeZoneOption.DEFAULT, element.timeZoneOption());
+    assertEquals(TimestampPattern.TimeZoneOption.DEFAULT, element.timeZoneOption());
   }
 
   @Test
   void fromCreatesTimestampElementWithCustomFormatAndUTC() {
-    TimestampElement element = TimestampElement.from("timestamp:uuuu-MM-dd HH:mm:ss.SSSXXX,UTC");
+    TimestampPattern element = TimestampPattern.from("timestamp:uuuu-MM-dd HH:mm:ss.SSSXXX,UTC");
     var now = OffsetDateTime.now();
     assertEquals(
         DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss.SSSXXX").format(now),
         element.dateTimeFormatter().format(now));
-    assertEquals(TimestampElement.TimeZoneOption.UTC, element.timeZoneOption());
+    assertEquals(TimestampPattern.TimeZoneOption.UTC, element.timeZoneOption());
   }
 
   @Test
   void fromThrowsExceptionForInvalidTimeZoneOption() {
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
-        () -> TimestampElement.from("timestamp:uuuu-MM-dd,INVALID"));
+        () -> TimestampPattern.from("timestamp:uuuu-MM-dd,INVALID"));
     assertTrue(exception.getMessage().contains("Unknown time zone option"));
   }
 
   @Test
   void equalsReturnsTrueForEquivalentTimestampElements() {
-    TimestampElement element1 = new TimestampElement(
-        DateTimeFormatter.ofPattern("uuuu-MM-dd"), TimestampElement.TimeZoneOption.DEFAULT);
-    TimestampElement element2 = new TimestampElement(
-        DateTimeFormatter.ofPattern("uuuu-MM-dd"), TimestampElement.TimeZoneOption.DEFAULT);
+    TimestampPattern element1 = new TimestampPattern(
+        DateTimeFormatter.ofPattern("uuuu-MM-dd"), TimestampPattern.TimeZoneOption.DEFAULT);
+    TimestampPattern element2 = new TimestampPattern(
+        DateTimeFormatter.ofPattern("uuuu-MM-dd"), TimestampPattern.TimeZoneOption.DEFAULT);
     assertEquals(element1, element2);
   }
 
   @Test
   void equalsReturnsFalseForDifferentTimeZoneOptions() {
-    TimestampElement element1 = new TimestampElement(
-        DateTimeFormatter.ofPattern("uuuu-MM-dd"), TimestampElement.TimeZoneOption.DEFAULT);
-    TimestampElement element2 = new TimestampElement(
-        DateTimeFormatter.ofPattern("uuuu-MM-dd"), TimestampElement.TimeZoneOption.UTC);
+    TimestampPattern element1 = new TimestampPattern(
+        DateTimeFormatter.ofPattern("uuuu-MM-dd"), TimestampPattern.TimeZoneOption.DEFAULT);
+    TimestampPattern element2 = new TimestampPattern(
+        DateTimeFormatter.ofPattern("uuuu-MM-dd"), TimestampPattern.TimeZoneOption.UTC);
     assertNotEquals(element1, element2);
   }
 
@@ -75,9 +75,9 @@ class TimestampElementTest {
     var timestamp = Instant.now();
     when(logEvent.getTimestamp()).thenReturn(timestamp);
 
-    TimestampElement element = new TimestampElement(
+    TimestampPattern element = new TimestampPattern(
         DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss.SSSXXX"),
-        TimestampElement.TimeZoneOption.DEFAULT);
+        TimestampPattern.TimeZoneOption.DEFAULT);
     StringBuilder target = new StringBuilder();
     element.render(logEvent, target);
 
@@ -94,8 +94,8 @@ class TimestampElementTest {
     var timestamp = Instant.now();
     when(logEvent.getTimestamp()).thenReturn(timestamp);
 
-    TimestampElement element = new TimestampElement(
-        DateTimeFormatter.ofPattern("uuuu-MM-dd"), TimestampElement.TimeZoneOption.UTC);
+    TimestampPattern element = new TimestampPattern(
+        DateTimeFormatter.ofPattern("uuuu-MM-dd"), TimestampPattern.TimeZoneOption.UTC);
     StringBuilder target = new StringBuilder();
     element.render(logEvent, target);
 

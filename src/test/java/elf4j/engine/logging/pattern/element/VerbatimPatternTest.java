@@ -36,13 +36,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class VerbatimElementTest {
+class VerbatimPatternTest {
 
   @Test
   void fromCreatesVerbatimElement() {
     String text = "Hello World";
 
-    VerbatimElement element = VerbatimElement.from(text);
+    VerbatimPattern element = VerbatimPattern.from(text);
 
     assertEquals(text, element.text());
   }
@@ -51,7 +51,7 @@ class VerbatimElementTest {
   void fromHandlesEmptyString() {
     String text = "";
 
-    VerbatimElement element = VerbatimElement.from(text);
+    VerbatimPattern element = VerbatimPattern.from(text);
 
     assertEquals(text, element.text());
   }
@@ -60,14 +60,14 @@ class VerbatimElementTest {
   void fromHandlesSpecialCharacters() {
     String text = "Special chars: {}[]()!@#$%^&*";
 
-    VerbatimElement element = VerbatimElement.from(text);
+    VerbatimPattern element = VerbatimPattern.from(text);
 
     assertEquals(text, element.text());
   }
 
   @Test
   void includeCallerDetailReturnsFalse() {
-    VerbatimElement element = VerbatimElement.from("test");
+    VerbatimPattern element = VerbatimPattern.from("test");
 
     assertFalse(element.includeCallerDetail());
   }
@@ -75,7 +75,7 @@ class VerbatimElementTest {
   @Test
   void renderAppendsTextToTarget() {
     String text = "Test message";
-    VerbatimElement element = VerbatimElement.from(text);
+    VerbatimPattern element = VerbatimPattern.from(text);
     StringBuilder target = new StringBuilder();
     LogEvent logEvent = createMockLogEvent();
 
@@ -88,7 +88,7 @@ class VerbatimElementTest {
   void renderAppendsToExistingContent() {
     String existingContent = "Existing: ";
     String text = "New content";
-    VerbatimElement element = VerbatimElement.from(text);
+    VerbatimPattern element = VerbatimPattern.from(text);
     StringBuilder target = new StringBuilder(existingContent);
     LogEvent logEvent = createMockLogEvent();
 
@@ -111,7 +111,7 @@ class VerbatimElementTest {
   void fromTreatsOtherElementTypeAsVerbatim() {
     String text = "timestamp:test-timestamp-pattern";
 
-    VerbatimElement element = VerbatimElement.from(text);
+    VerbatimPattern element = VerbatimPattern.from(text);
 
     assertEquals(text, element.text());
   }

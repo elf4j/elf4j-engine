@@ -2,8 +2,7 @@ package elf4j.engine.logging.pattern.element;
 
 import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.ElementType;
-import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.RenderingPattern;
 import java.util.NoSuchElementException;
 import org.slf4j.MDC;
 
@@ -12,7 +11,7 @@ import org.slf4j.MDC;
  * in a log pattern. It provides methods for checking if the log should include caller detail, for
  * creating a new instance from a pattern element, and for rendering the log event.
  */
-public record ContextElement(String key) implements PatternElement {
+public record ContextPattern(String key) implements RenderingPattern {
   /**
    * Checks if the log should include caller detail such as method, line number, etc.
    *
@@ -24,19 +23,21 @@ public record ContextElement(String key) implements PatternElement {
   }
 
   /**
-   * Creates a new ContextElement instance from a given pattern element.
+   * Creates a new ContextElement instance from the element pattern to print thread scoped context.
    *
-   * @param patternElement the pattern text to config the context logging
+   * @param elementPattern the context pattern text without the enclosing braces, i.e. In the log
+   *     configuration pattern {@code {time} {level} {context} - {message}}, the
+   *     {@code elementPattern} passed in this method is expected to be {@code context}
    * @return the element that can render context log
    * @throws NoSuchElementException if no key is configured in the 'context' pattern element
    */
-  public static ContextElement from(String patternElement) {
-    if (ElementType.CONTEXT != ElementType.from(patternElement)) {
+  public static ContextPattern from(String elementPattern) {
+    if (ElementPatternType.CONTEXT != ElementPatternType.from(elementPattern)) {
       throw new IllegalArgumentException(
-          String.format("Unexpected predefined pattern element: %s", patternElement));
+          String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
-    return new ContextElement(
-        Iterables.getOnlyElement(ElementType.getElementDisplayOptions(patternElement)));
+    return new ContextPattern(
+        Iterables.getOnlyElement(ElementPatternType.getElementDisplayOptions(elementPattern)));
   }
 
   /**

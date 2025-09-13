@@ -23,27 +23,37 @@
  *
  */
 
-package elf4j.engine.logging.pattern;
+package elf4j.engine.logging.pattern.element;
 
+import elf4j.Logger;
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.PerformanceSensitive;
-import javax.annotation.concurrent.ThreadSafe;
+import elf4j.engine.logging.pattern.RenderingPattern;
+import elf4j.util.UtilLogger;
 
-/** Implementation should be thread-safe */
-@ThreadSafe
-public interface PatternElement extends PerformanceSensitive {
+public record VerbatimPattern(String text) implements RenderingPattern {
+  static Logger logger = UtilLogger.WARN;
 
   /**
-   * Extracts the content of particular interest to this log pattern instance from the specified log
-   * event, and appends the result to the specified target aggregator of the final log message.
-   *
-   * @param logEvent entire log content data source to render
-   * @param target logging text aggregator of the final log message
-   * @apiNote A PatternElement only mutates the specified target based on the content of the
-   *     specified logEvent, and does not flush the target to its final logging destination (e.g.
-   *     the STDOUT stream or a log file). Shipping the completely rendered target message to the
-   *     final destination (e.g. the STDOUT stream, a log file, or aggregation vendors like
-   *     Newrelic/Datadog) is the {@link elf4j.engine.logging.writer.LogWriter}'s responsibility.
+   * @param elementPattern text pattern element to convert
+   * @return converted pattern element object
    */
-  void render(LogEvent logEvent, StringBuilder target);
+  public static VerbatimPattern from(String elementPattern) {
+    if (ElementPatternType.VERBATIM != ElementPatternType.from(elementPattern)) {
+      logger.warn(
+          "Treating as verbatim element: elementPattern={}. If that is not intended, check to ensure each log pattern element is set up properly and fully enclosed inside a curly braces pair '{}'",
+          elementPattern,
+          "{}");
+    }
+    return new VerbatimPattern(elementPattern);
+  }
+
+  @Override
+  public boolean includeCallerDetail() {
+    return false;
+  }
+
+  @Override
+  public void render(LogEvent logEvent, StringBuilder target) {
+    target.append(text);
+  }
 }

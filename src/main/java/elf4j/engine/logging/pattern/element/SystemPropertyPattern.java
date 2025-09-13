@@ -25,28 +25,31 @@
 
 package elf4j.engine.logging.pattern.element;
 
-import static elf4j.engine.logging.pattern.ElementType.LOGGER;
-
+import com.google.common.collect.Iterables;
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.ElementType;
-import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.RenderingPattern;
 
-public record LoggerElement(NameSpaceElement nameSpaceElement) implements PatternElement {
-  public static LoggerElement from(String patternElement) {
-    if (LOGGER != ElementType.from(patternElement)) {
+public record SystemPropertyPattern(String key) implements RenderingPattern {
+  /**
+   * @param elementPattern text elementPattern to convert
+   * @return converted elementPattern object
+   */
+  public static SystemPropertyPattern from(String elementPattern) {
+    if (ElementPatternType.SYS_PROP != ElementPatternType.from(elementPattern)) {
       throw new IllegalArgumentException(
-          "Unexpected predefined pattern element: %s".formatted(patternElement));
+          String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
-    return new LoggerElement(NameSpaceElement.from(patternElement, LOGGER));
-  }
-
-  @Override
-  public boolean includeCallerDetail() {
-    return nameSpaceElement.includeCallerDetail();
+    return new SystemPropertyPattern(
+        Iterables.getOnlyElement(ElementPatternType.getElementDisplayOptions(elementPattern)));
   }
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    nameSpaceElement.render(logEvent, target);
+    target.append(System.getProperty(this.key));
+  }
+
+  @Override
+  public boolean includeCallerDetail() {
+    return false;
   }
 }

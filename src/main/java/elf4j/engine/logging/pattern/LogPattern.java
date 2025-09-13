@@ -26,18 +26,19 @@
 package elf4j.engine.logging.pattern;
 
 import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.element.ElementPatternType;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The LogPattern class implements the PatternElement interface and represents a composite of
- * individual patterns (elements), intended to form the entire log layout. It provides methods for
- * checking if the log should include caller detail, for creating a new instance from a pattern
- * element, and for rendering the log event.
+ * Formed to represent the whole pattern of an entire log entry. Composed of individual patterns
+ * (elements), it renders the entire log entry by delegation and coordination of the individual
+ * rendering patterns.
  */
-public record LogPattern(List<PatternElement> patternElements) implements PatternElement {
+public record LogPattern(List<RenderingPattern> patternElements) implements RenderingPattern {
   /**
-   * Creates a new LogPattern instance from a given pattern element.
+   * Creates a new LogPattern instance from the specified pattern configuration text e.g.
+   * "{timestamp} {level} {logger} - {message}"
    *
    * @param pattern layout pattern text for entire log entry from configuration
    * @return composite pattern object for the entire final log message output layout
@@ -47,7 +48,7 @@ public record LogPattern(List<PatternElement> patternElements) implements Patter
     if (pattern.trim().isEmpty()) {
       throw new IllegalArgumentException("Unexpected blank pattern");
     }
-    List<PatternElement> elements = new ArrayList<>();
+    List<RenderingPattern> elements = new ArrayList<>();
     final int length = pattern.length();
     int elementStart = 0;
     while (elementStart < length) {
@@ -72,7 +73,7 @@ public record LogPattern(List<PatternElement> patternElements) implements Patter
           elementStart = length;
         }
       }
-      elements.add(ElementType.parseElement(element));
+      elements.add(ElementPatternType.parseElement(element));
     }
     return new LogPattern(elements);
   }
@@ -84,7 +85,7 @@ public record LogPattern(List<PatternElement> patternElements) implements Patter
    */
   @Override
   public boolean includeCallerDetail() {
-    return patternElements.stream().anyMatch(PatternElement::includeCallerDetail);
+    return patternElements.stream().anyMatch(RenderingPattern::includeCallerDetail);
   }
 
   /**
@@ -108,7 +109,7 @@ public record LogPattern(List<PatternElement> patternElements) implements Patter
    */
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    for (PatternElement element : patternElements) {
+    for (RenderingPattern element : patternElements) {
       element.render(logEvent, target);
     }
   }

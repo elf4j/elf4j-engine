@@ -26,17 +26,15 @@
 package elf4j.engine.logging.pattern.element;
 
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.ElementType;
-import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.RenderingPattern;
 import java.util.Objects;
 
-public record LineNumberElement() implements PatternElement {
-  public static LineNumberElement from(String patternElement) {
-    if (ElementType.LINE_NUMBER != ElementType.from(patternElement)) {
-      throw new IllegalArgumentException(
-          String.format("Unexpected predefined pattern element: %s", patternElement));
+public record MethodPattern() implements RenderingPattern {
+  public static MethodPattern from(String elementPattern) {
+    if (ElementPatternType.METHOD != ElementPatternType.from(elementPattern)) {
+      throw new IllegalArgumentException("elementPattern: " + elementPattern);
     }
-    return new LineNumberElement();
+    return new MethodPattern();
   }
 
   @Override
@@ -46,6 +44,6 @@ public record LineNumberElement() implements PatternElement {
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getLineNumber());
+    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getMethodName());
   }
 }

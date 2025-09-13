@@ -25,16 +25,15 @@
 
 package elf4j.engine.logging.pattern.element;
 
-import static elf4j.engine.logging.pattern.ElementType.alphaNumericOnly;
-import static elf4j.engine.logging.pattern.ElementType.uniqueAlphaNumericOnly;
+import static elf4j.engine.logging.pattern.element.ElementPatternType.alphaNumericOnly;
+import static elf4j.engine.logging.pattern.element.ElementPatternType.uniqueAlphaNumericOnly;
 
 import com.dslplatform.json.CompiledJson;
 import com.dslplatform.json.DslJson;
 import com.dslplatform.json.PrettifyOutputStream;
 import com.dslplatform.json.runtime.Settings;
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.ElementType;
-import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.RenderingPattern;
 import elf4j.engine.logging.util.StackTraces;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -48,9 +47,9 @@ import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.MDC;
 
-public record JsonElement(
+public record JsonPattern(
     boolean includeCallerThread, boolean includeCallerDetail, boolean prettyPrint)
-    implements PatternElement {
+    implements RenderingPattern {
   private static final String CALLER_DETAIL = "caller-detail";
   private static final String CALLER_THREAD = "caller-thread";
   private static final String PRETTY = "pretty";
@@ -61,14 +60,14 @@ public record JsonElement(
       new DslJson<>(Settings.basicSetup().skipDefaultValues(true).includeServiceLoader());
   private static final int JSON_BYTES_INIT_SIZE = 1024;
 
-  public static JsonElement from(String patternElement) {
-    if (ElementType.JSON != ElementType.from(patternElement)) {
+  public static JsonPattern from(String elementPattern) {
+    if (ElementPatternType.JSON != ElementPatternType.from(elementPattern)) {
       throw new IllegalArgumentException(
-          String.format("Unexpected predefined pattern element: %s", patternElement));
+          String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
-    List<String> displayOptions = ElementType.getElementDisplayOptions(patternElement);
+    List<String> displayOptions = ElementPatternType.getElementDisplayOptions(elementPattern);
     if (displayOptions.isEmpty()) {
-      return new JsonElement(false, false, false);
+      return new JsonPattern(false, false, false);
     }
     Set<String> uniqueOptions = uniqueAlphaNumericOnly(displayOptions);
     if (uniqueOptions.size() != displayOptions.size()) {
@@ -77,7 +76,7 @@ public record JsonElement(
     if (!uniqueAlphaNumericOnly(DISPLAY_OPTIONS).containsAll(uniqueOptions)) {
       throw new IllegalArgumentException("Invalid JSON display option inside: " + displayOptions);
     }
-    return new JsonElement(
+    return new JsonPattern(
         uniqueOptions.contains(alphaNumericOnly(CALLER_THREAD)),
         uniqueOptions.contains(alphaNumericOnly(CALLER_DETAIL)),
         uniqueOptions.contains(alphaNumericOnly(PRETTY)));
@@ -111,13 +110,13 @@ public record JsonElement(
       String message,
       @Nullable String exception) {
 
-    static JsonLogEntry from(LogEvent logEvent, JsonElement jsonElement) {
+    static JsonLogEntry from(LogEvent logEvent, JsonPattern jsonPattern) {
       return new JsonLogEntry(
           OffsetDateTime.ofInstant(logEvent.getTimestamp(), ZoneId.systemDefault()),
           logEvent.getLevel().name(),
-          jsonElement.includeCallerThread ? logEvent.getCallerThread() : null,
+          jsonPattern.includeCallerThread ? logEvent.getCallerThread() : null,
           logEvent.getLoggerName(),
-          jsonElement.includeCallerDetail
+          jsonPattern.includeCallerDetail
               ? Objects.requireNonNull(logEvent.getCallerFrame())
               : null,
           MDC.getCopyOfContextMap(),

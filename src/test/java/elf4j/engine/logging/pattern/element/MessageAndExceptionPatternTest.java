@@ -61,8 +61,8 @@ class MessageAndExceptionPatternTest {
   class render {
     @Test
     void includeBothMessageAndException() {
-      MessageAndExceptionElement messageAndExceptionPattern =
-          MessageAndExceptionElement.from("message");
+      MessageAndExceptionPattern messageAndExceptionPattern =
+          MessageAndExceptionPattern.from("message");
       StringBuilder logText = new StringBuilder();
 
       messageAndExceptionPattern.render(mockLogEvent, logText);

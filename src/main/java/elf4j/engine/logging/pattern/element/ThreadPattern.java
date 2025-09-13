@@ -27,22 +27,21 @@ package elf4j.engine.logging.pattern.element;
 
 import com.google.common.collect.MoreCollectors;
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.ElementType;
-import elf4j.engine.logging.pattern.PatternElement;
+import elf4j.engine.logging.pattern.RenderingPattern;
 import java.util.Arrays;
 import java.util.Objects;
 
-public record ThreadElement(DisplayOption threadDisplayOption) implements PatternElement {
+public record ThreadPattern(DisplayOption threadDisplayOption) implements RenderingPattern {
   /**
-   * @param patternElement text pattern element to convert
+   * @param elementPattern text pattern element to convert
    * @return the thread pattern element converted from the specified text
    */
-  public static ThreadElement from(String patternElement) {
-    if (ElementType.THREAD != ElementType.from(patternElement)) {
+  public static ThreadPattern from(String elementPattern) {
+    if (ElementPatternType.THREAD != ElementPatternType.from(elementPattern)) {
       throw new IllegalArgumentException(
-          String.format("Unexpected predefined pattern element: %s", patternElement));
+          String.format("Unexpected predefined pattern element: %s", elementPattern));
     }
-    return new ThreadElement(ElementType.getElementDisplayOptions(patternElement).stream()
+    return new ThreadPattern(ElementPatternType.getElementDisplayOptions(elementPattern).stream()
         .collect(MoreCollectors.toOptional())
         .map(DisplayOption::from)
         .orElse(DisplayOption.NAME));
