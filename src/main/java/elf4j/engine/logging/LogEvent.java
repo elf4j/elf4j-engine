@@ -63,13 +63,11 @@ public record LogEvent(
     if (message == null || arguments == null || arguments.length == 0) {
       return suppliedMessage;
     }
-    int messageLength = suppliedMessage.length();
-    StringBuilder resolvedMessage = new StringBuilder(messageLength + INIT_ARG_LENGTH);
+    StringBuilder resolvedMessage = new StringBuilder(suppliedMessage.length() + INIT_ARG_LENGTH);
     int messageIndex = 0;
     int argumentIndex = 0;
-    while (messageIndex < messageLength) {
-      if (atArgumentSymbol(messageIndex, suppliedMessage)
-          && availableAt(argumentIndex, arguments)) {
+    while (messageIndex < suppliedMessage.length()) {
+      if (atPlaceHolder(messageIndex, suppliedMessage) && availableAt(argumentIndex, arguments)) {
         resolvedMessage.append(supply(arguments[argumentIndex++]));
         messageIndex += 2;
       } else {
@@ -84,7 +82,7 @@ public record LogEvent(
     return index < arguments.length;
   }
 
-  private static boolean atArgumentSymbol(final int index, final String message) {
+  private static boolean atPlaceHolder(final int index, final String message) {
     return '{' == message.charAt(index)
         && (index + 1 < message.length() && '}' == message.charAt(index + 1));
   }
