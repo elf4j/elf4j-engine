@@ -23,7 +23,7 @@
  *
  */
 
-package elf4j.engine.logging.config;
+package elf4j.engine.logging.configuration;
 
 import elf4j.Logger;
 import elf4j.util.UtilLogger;
@@ -31,20 +31,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.jspecify.annotations.Nullable;
 
-@ToString(doNotUseGetters = true)
-@EqualsAndHashCode
-public final class ConfigurationProperties {
+public record ConfigurationProperties(@Nullable Properties properties) {
   private static final Logger LOGGER = UtilLogger.INFO;
-
-  @Nullable private final Properties properties;
-
-  private ConfigurationProperties(@Nullable Properties properties) {
-    this.properties = properties;
-  }
 
   /**
    * By loading log service configuration.
@@ -80,7 +70,7 @@ public final class ConfigurationProperties {
    *     missing or the corresponding value contains no digit
    */
   public @Nullable Integer getAsInteger(String name) {
-    String value = getProperties().getProperty(name);
+    String value = properties().getProperty(name);
     if (value == null) {
       return null;
     }
@@ -97,7 +87,8 @@ public final class ConfigurationProperties {
    *
    * @return the properties
    */
-  public Properties getProperties() {
+  @Override
+  public Properties properties() {
     if (isAbsent()) {
       throw new IllegalStateException("No elf4j configuration present");
     }
@@ -111,7 +102,7 @@ public final class ConfigurationProperties {
    * @return true only when the named property exists, and has a true value
    */
   public boolean isTrue(String name) {
-    return Boolean.parseBoolean(getProperties().getProperty(name));
+    return Boolean.parseBoolean(properties().getProperty(name));
   }
 
   /** The type Properties file loader. */

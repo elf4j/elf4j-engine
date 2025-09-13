@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 
 import elf4j.Level;
 import elf4j.engine.NativeLogger;
-import elf4j.engine.logging.config.ConfigurationProperties;
+import elf4j.engine.logging.configuration.ConfigurationProperties;
 import elf4j.engine.logging.writer.LogWriter;
 import java.util.Objects;
 import java.util.Properties;
@@ -118,11 +118,10 @@ class EventingLogHandlerTest {
       then(logWriter).should().write(logEvent.capture());
       assertEquals(
           Thread.currentThread().getName(),
-          Objects.requireNonNull(logEvent.getValue().getCallerThread()).name());
+          Objects.requireNonNull(logEvent.getValue().callerThread()).name());
       assertEquals(
-          Thread.currentThread().threadId(),
-          logEvent.getValue().getCallerThread().id());
-      assertNotNull(logEvent.getValue().getCallerFrame());
+          Thread.currentThread().threadId(), logEvent.getValue().callerThread().id());
+      assertNotNull(logEvent.getValue().callerFrame());
     }
 
     @Test
@@ -144,11 +143,10 @@ class EventingLogHandlerTest {
       then(logWriter).should().write(logEvent.capture());
       assertEquals(
           Thread.currentThread().getName(),
-          Objects.requireNonNull(logEvent.getValue().getCallerThread()).name());
+          Objects.requireNonNull(logEvent.getValue().callerThread()).name());
       assertEquals(
-          Thread.currentThread().threadId(),
-          logEvent.getValue().getCallerThread().id());
-      assertNull(logEvent.getValue().getCallerFrame());
+          Thread.currentThread().threadId(), logEvent.getValue().callerThread().id());
+      assertNull(logEvent.getValue().callerFrame());
     }
 
     @Test

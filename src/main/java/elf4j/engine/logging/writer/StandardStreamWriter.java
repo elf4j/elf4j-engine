@@ -84,7 +84,7 @@ public class StandardStreamWriter implements LogWriter {
    */
   @Override
   public void write(LogEvent logEvent) {
-    if (logEvent.getLevel().compareTo(this.minimumThresholdLevel) < 0) {
+    if (logEvent.level().compareTo(this.minimumThresholdLevel) < 0) {
       return;
     }
     StringBuilder target = new StringBuilder();

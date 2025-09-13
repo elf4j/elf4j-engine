@@ -73,7 +73,7 @@ class TimestampPatternTest {
   void renderFormatsLogEventTimestampCorrectlyWithDefaultTimeZone() {
     LogEvent logEvent = mock(LogEvent.class);
     var timestamp = Instant.now();
-    when(logEvent.getTimestamp()).thenReturn(timestamp);
+    when(logEvent.timestamp()).thenReturn(timestamp);
 
     TimestampPattern element = new TimestampPattern(
         DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss.SSSXXX"),
@@ -92,7 +92,7 @@ class TimestampPatternTest {
   void renderFormatsLogEventTimestampCorrectlyWithUTC() {
     LogEvent logEvent = mock(LogEvent.class);
     var timestamp = Instant.now();
-    when(logEvent.getTimestamp()).thenReturn(timestamp);
+    when(logEvent.timestamp()).thenReturn(timestamp);
 
     TimestampPattern element = new TimestampPattern(
         DateTimeFormatter.ofPattern("uuuu-MM-dd"), TimestampPattern.TimeZoneOption.UTC);

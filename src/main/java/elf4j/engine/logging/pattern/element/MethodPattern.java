@@ -44,6 +44,6 @@ record MethodPattern() implements RenderingPattern {
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getMethodName());
+    target.append(Objects.requireNonNull(logEvent.callerFrame()).methodName());
   }
 }

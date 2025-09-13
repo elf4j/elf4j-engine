@@ -111,18 +111,16 @@ record JsonPattern(boolean includeCallerThread, boolean includeCallerDetail, boo
 
     static JsonLogEntry from(LogEvent logEvent, JsonPattern jsonPattern) {
       return new JsonLogEntry(
-          OffsetDateTime.ofInstant(logEvent.getTimestamp(), ZoneId.systemDefault()),
-          logEvent.getLevel().name(),
-          jsonPattern.includeCallerThread ? logEvent.getCallerThread() : null,
-          logEvent.getLoggerName(),
-          jsonPattern.includeCallerDetail
-              ? Objects.requireNonNull(logEvent.getCallerFrame())
-              : null,
+          OffsetDateTime.ofInstant(logEvent.timestamp(), ZoneId.systemDefault()),
+          logEvent.level().name(),
+          jsonPattern.includeCallerThread ? logEvent.callerThread() : null,
+          logEvent.loggerName(),
+          jsonPattern.includeCallerDetail ? Objects.requireNonNull(logEvent.callerFrame()) : null,
           MDC.getCopyOfContextMap(),
           logEvent.getResolvedMessage().toString(),
-          logEvent.getThrowable() == null
+          logEvent.throwable() == null
               ? null
-              : StackTraces.getTraceAsBuffer(logEvent.getThrowable()).toString());
+              : StackTraces.getTraceAsBuffer(logEvent.throwable()).toString());
     }
   }
 }

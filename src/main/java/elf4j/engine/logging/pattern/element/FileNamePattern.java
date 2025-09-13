@@ -45,6 +45,6 @@ record FileNamePattern() implements RenderingPattern {
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    target.append(Objects.requireNonNull(logEvent.getCallerFrame()).getFileName());
+    target.append(Objects.requireNonNull(logEvent.callerFrame()).fileName());
   }
 }

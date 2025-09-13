@@ -67,8 +67,8 @@ record NameSpacePattern(PatternElementType targetPatternElementType, DisplayOpti
   public void render(LogEvent logEvent, StringBuilder target) {
     String fullName =
         switch (targetPatternElementType) {
-          case LOGGER -> logEvent.getLoggerName();
-          case CLASS -> Objects.requireNonNull(logEvent.getCallerFrame()).getClassName();
+          case LOGGER -> logEvent.loggerName();
+          case CLASS -> Objects.requireNonNull(logEvent.callerFrame()).className();
           default ->
             throw new IllegalStateException(
                 "Unexpected name space element type: " + targetPatternElementType);

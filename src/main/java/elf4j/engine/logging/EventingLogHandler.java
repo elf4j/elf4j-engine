@@ -27,8 +27,8 @@ package elf4j.engine.logging;
 
 import elf4j.Logger;
 import elf4j.engine.NativeLogger;
-import elf4j.engine.logging.config.ConfigurationProperties;
-import elf4j.engine.logging.config.LoggerOutputMinimumLevelThreshold;
+import elf4j.engine.logging.configuration.ConfigurationProperties;
+import elf4j.engine.logging.configuration.LoggerOutputMinimumLevelThreshold;
 import elf4j.engine.logging.util.StackTraces;
 import elf4j.engine.logging.writer.CompositeWriter;
 import elf4j.engine.logging.writer.LogWriter;
