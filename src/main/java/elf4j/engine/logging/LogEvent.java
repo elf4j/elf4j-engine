@@ -63,23 +63,35 @@ public record LogEvent(
     if (message == null || arguments == null || arguments.length == 0) {
       return suppliedMessage;
     }
-    int messageLength = suppliedMessage.length();
-    StringBuilder resolvedMessage = new StringBuilder(messageLength + INIT_ARG_LENGTH);
-    int iMessage = 0;
-    int iArguments = 0;
-    while (iMessage < messageLength) {
-      char character = suppliedMessage.charAt(iMessage);
-      if (character == '{'
-          && ((iMessage + 1) < messageLength && suppliedMessage.charAt(iMessage + 1) == '}')
-          && iArguments < arguments.length) {
-        resolvedMessage.append(supply(arguments[iArguments++]));
-        iMessage += 2;
+    StringBuilder resolvedMessage = new StringBuilder(suppliedMessage.length() + INIT_ARG_LENGTH);
+    int messageIndex = 0;
+    int argumentIndex = 0;
+    while (messageIndex < suppliedMessage.length()) {
+      if (atPlaceHolder(messageIndex, suppliedMessage) && !exceedsBound(argumentIndex, arguments)) {
+        resolvedMessage.append(supply(arguments[argumentIndex]));
+        argumentIndex += 1;
+        messageIndex += 2;
       } else {
-        resolvedMessage.append(character);
-        iMessage += 1;
+        resolvedMessage.append(suppliedMessage.charAt(messageIndex));
+        messageIndex += 1;
       }
     }
     return resolvedMessage;
+  }
+
+  private static boolean atPlaceHolder(final int index, final String message) {
+    if (exceedsLength(index + 1, message)) {
+      return false;
+    }
+    return '{' == message.charAt(index) && '}' == message.charAt(index + 1);
+  }
+
+  private static boolean exceedsLength(final int index, final String message) {
+    return index >= message.length();
+  }
+
+  private static boolean exceedsBound(final int index, final Object[] arguments) {
+    return index >= arguments.length;
   }
 
   private static @Nullable Object supply(@Nullable Object o) {
@@ -96,15 +108,9 @@ public record LogEvent(
     return resolve(this.message, this.arguments);
   }
 
-  /** Represents a value representing a call stack element. */
+  /** A renderable value representing a call stack element. */
   public record StackFrameValue(
       String className, String methodName, int lineNumber, @Nullable String fileName) {
-    /**
-     * Creates a StackFrameValue instance from a StackTraceElement.
-     *
-     * @param stackFrame call stack element
-     * @return log render-able value representing the call stack element
-     */
     public static StackFrameValue from(StackWalker.StackFrame stackFrame) {
       return new StackFrameValue(
           stackFrame.getClassName(),
