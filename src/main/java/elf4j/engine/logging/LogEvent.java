@@ -88,7 +88,7 @@ public record LogEvent(
   }
 
   private static boolean exceedsLength(final int index, final String message) {
-    return index > message.length() - 1;
+    return index >= message.length();
   }
 
   private static boolean exceedsLength(final int index, final Object[] arguments) {
