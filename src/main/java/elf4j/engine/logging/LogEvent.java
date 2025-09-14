@@ -67,7 +67,8 @@ public record LogEvent(
     int messageIndex = 0;
     int argumentIndex = 0;
     while (messageIndex < suppliedMessage.length()) {
-      if (atPlaceHolder(messageIndex, suppliedMessage) && inBounds(argumentIndex, arguments)) {
+      if (atPlaceHolder(messageIndex, suppliedMessage)
+          && !exceedsLength(argumentIndex, arguments)) {
         resolvedMessage.append(supply(arguments[argumentIndex]));
         argumentIndex += 1;
         messageIndex += 2;
@@ -80,18 +81,18 @@ public record LogEvent(
   }
 
   private static boolean atPlaceHolder(final int index, final String message) {
-    if (outOfBounds(index, message) || outOfBounds(index + 1, message)) {
+    if (exceedsLength(index + 1, message)) {
       return false;
     }
     return '{' == message.charAt(index) && '}' == message.charAt(index + 1);
   }
 
-  private static boolean outOfBounds(final int index, final String message) {
-    return index < 0 || index >= message.length();
+  private static boolean exceedsLength(final int index, final String message) {
+    return index > message.length() - 1;
   }
 
-  private static boolean inBounds(final int index, final Object[] arguments) {
-    return index >= 0 && index < arguments.length;
+  private static boolean exceedsLength(final int index, final Object[] arguments) {
+    return index > arguments.length - 1;
   }
 
   private static @Nullable Object supply(@Nullable Object o) {
