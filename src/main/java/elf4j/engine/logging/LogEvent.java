@@ -67,8 +67,7 @@ public record LogEvent(
     int messageIndex = 0;
     int argumentIndex = 0;
     while (messageIndex < suppliedMessage.length()) {
-      if (atPlaceHolder(messageIndex, suppliedMessage)
-          && !exceedsLength(argumentIndex, arguments)) {
+      if (atPlaceHolder(messageIndex, suppliedMessage) && !exceedsBound(argumentIndex, arguments)) {
         resolvedMessage.append(supply(arguments[argumentIndex]));
         argumentIndex += 1;
         messageIndex += 2;
@@ -91,8 +90,8 @@ public record LogEvent(
     return index >= message.length();
   }
 
-  private static boolean exceedsLength(final int index, final Object[] arguments) {
-    return index > arguments.length - 1;
+  private static boolean exceedsBound(final int index, final Object[] arguments) {
+    return index >= arguments.length;
   }
 
   private static @Nullable Object supply(@Nullable Object o) {
