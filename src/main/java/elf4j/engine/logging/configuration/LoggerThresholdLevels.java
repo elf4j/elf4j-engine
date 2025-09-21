@@ -58,8 +58,8 @@ public record LoggerThresholdLevels(
             .collect(Collectors.toList()));
     int count = loggerMinimumThresholdLevels.size();
     if (LOGGER.isInfoEnabled()) {
-        LOGGER.info("Specified %d logger minimum threshold level%s in %s"
-            .formatted(count, count == 1 ? "" : "s", this));
+      LOGGER.info("Specified %d logger minimum threshold level%s in %s"
+          .formatted(count, count == 1 ? "" : "s", this));
     }
   }
 
