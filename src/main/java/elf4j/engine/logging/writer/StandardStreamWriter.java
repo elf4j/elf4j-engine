@@ -47,9 +47,9 @@ import lombok.Value;
 @ToString
 public class StandardStreamWriter implements LogWriter {
   /**
-   * For simplicity, the standard stream writer threshold level is always set to TRACE and not configurable,
-   * regardless of whether the output stream is stdout or stderr. i.e. it is entirely up to the logger name
-   * threshold level whether a specific log is printed or not.
+   * For simplicity, the standard stream writer threshold level is always set to TRACE and not
+   * configurable, regardless of whether the output stream is stdout or stderr. i.e. it is entirely
+   * up to the logger name threshold level whether a specific log is printed or not.
    */
   static final Level DEFAULT_WRITER_THRESHOLD_LEVEL = Level.TRACE;
 
@@ -96,7 +96,7 @@ public class StandardStreamWriter implements LogWriter {
   }
 
   /** Enum representing the output stream type (stdout or stderr). */
-  enum OutStreamType {
+  public enum OutStreamType {
     STDOUT,
     STDERR
   }

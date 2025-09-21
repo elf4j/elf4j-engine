@@ -39,7 +39,8 @@ public interface LogHandler {
   /**
    * Service a log operation at the specified severity level for the specified logger.
    *
-   * @param loggerId the logger ID (containing the logger name and severity) used to resolve configuration
+   * @param loggerId the logger ID (containing the logger name and severity) used to resolve
+   *     configuration
    * @param throwable to log
    * @param message to log, can have argument placeholders to be replaced by the values of the
    *     specified arguments
