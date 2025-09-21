@@ -57,8 +57,10 @@ public record LoggerThresholdLevels(
             .sorted(new FullyQualifiedClassNameComparator())
             .collect(Collectors.toList()));
     int count = loggerMinimumThresholdLevels.size();
-    LOGGER.info("Specified %d logger minimum threshold level%s in %s"
-        .formatted(count, count == 1 ? "" : "s", this));
+    if (LOGGER.isInfoEnabled()) {
+        LOGGER.info("Specified %d logger minimum threshold level%s in %s"
+            .formatted(count, count == 1 ? "" : "s", this));
+    }
   }
 
   public static LoggerThresholdLevels from(ConfigurationProperties configurationProperties) {
