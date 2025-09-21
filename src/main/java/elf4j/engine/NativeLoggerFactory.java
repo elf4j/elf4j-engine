@@ -46,7 +46,7 @@ public class NativeLoggerFactory implements LoggerFactory {
 
   /**
    * The default class or interface that the API client calls first to get a {@link Logger}
-   * instance, providing the "service access API" in the * {@link ServiceLoader} framework. The
+   * instance, providing the "service access API" in the {@link ServiceLoader} framework. The
    * client caller class of this class is the declaring class of the logger instances this factory
    * produces.
    *
