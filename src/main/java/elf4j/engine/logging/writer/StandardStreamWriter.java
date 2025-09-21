@@ -60,7 +60,7 @@ public class StandardStreamWriter implements LogWriter {
   RenderingPattern logPattern;
   transient StandardOutputStream standardOutputStream;
 
-  StandardStreamWriter(RenderingPattern logPattern, OutStreamType outStreamType) {
+  public StandardStreamWriter(RenderingPattern logPattern, OutStreamType outStreamType) {
     this.logPattern = logPattern;
     this.standardOutputStream = new StandardOutputStream(outStreamType);
   }
