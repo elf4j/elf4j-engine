@@ -11,7 +11,6 @@ import java.util.Properties;
  * have an accessible no-arg constructor
  */
 final class StandardStreamWriterFactory implements LogWriterFactory {
-
   public StandardStreamWriterFactory() { // no-arg constructor required
   }
 
