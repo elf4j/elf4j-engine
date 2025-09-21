@@ -66,7 +66,7 @@ public record LoggerThresholdLevels(
     getAsThresholdLevel(LEVEL, properties)
         .ifPresent(level -> thresholdLevelsByNameSpace.put(ROOT_LOGGER_NAME, level));
     thresholdLevelsByNameSpace.putAll(properties.stringPropertyNames().stream()
-        .filter(name -> name.trim().startsWith(LEVEL + LEVEL_NAME_DELIMITER))
+        .filter(name -> name.strip().startsWith(LEVEL + LEVEL_NAME_DELIMITER))
         .filter(name -> !properties.getProperty(name).isBlank())
         .collect(Collectors.toMap(
             name -> name.split(LEVEL_NAME_DELIMITER, 2)[1].strip(),
