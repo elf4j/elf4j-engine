@@ -28,7 +28,7 @@ package elf4j.engine.logging;
 import elf4j.Logger;
 import elf4j.engine.NativeLogger;
 import elf4j.engine.logging.configuration.ConfigurationProperties;
-import elf4j.engine.logging.configuration.LoggerOutputMinimumLevelThreshold;
+import elf4j.engine.logging.configuration.LoggerThresholdLevels;
 import elf4j.engine.logging.util.StackTraces;
 import elf4j.engine.logging.writer.CompositeWriter;
 import elf4j.engine.logging.writer.LogWriter;
@@ -36,6 +36,7 @@ import elf4j.util.UtilLogger;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.jspecify.annotations.Nullable;
@@ -49,55 +50,61 @@ public class EventingLogHandler implements LogHandler {
 
   @Nullable LogWriter logWriter;
 
-  @Nullable LoggerOutputMinimumLevelThreshold loggerOutputMinimumLevelThreshold;
+  @Nullable LoggerThresholdLevels loggerThresholdLevels;
+
+  Set<String> logServiceClassNames;
 
   @EqualsAndHashCode.Exclude
   Map<NativeLogger.LoggerId, Boolean> loggerEnablements = new ConcurrentHashMap<>();
 
   /**
-   * Constructor for the EventingLogHandler class.
-   *
    * @param configurationProperties parsed configuration for the logger service
+   * @param logServiceClasses concrete implementation classes of the log service API, directly
+   *     called by the client at runtime. Used to identify the stack frame of the caller at runtime
+   *     if the specified log pattern requires such details as the caller's class, method, line
+   *     number, etc.
    */
-  public EventingLogHandler(ConfigurationProperties configurationProperties) {
-    if (configurationProperties.isAbsent() || configurationProperties.isTrue("noop")) {
+  public EventingLogHandler(
+      ConfigurationProperties configurationProperties, final Set<Class<?>> logServiceClasses) {
+    logServiceClassNames =
+        logServiceClasses.stream().map(Class::getName).collect(Collectors.toUnmodifiableSet());
+    if (configurationProperties.isAbsent()
+        || configurationProperties.isTrue(ConfigurationProperties.NOOP)) {
       noop = true;
       LOGGER.warn("No-op per configuration %s".formatted(configurationProperties));
       logWriter = null;
-      loggerOutputMinimumLevelThreshold = null;
+      loggerThresholdLevels = null;
       return;
     }
     noop = false;
     logWriter = CompositeWriter.from(configurationProperties);
-    loggerOutputMinimumLevelThreshold =
-        LoggerOutputMinimumLevelThreshold.from(configurationProperties);
+    loggerThresholdLevels = LoggerThresholdLevels.from(configurationProperties);
   }
 
   /**
-   * Checks if a logger is enabled.
+   * Return true if the specified log severity level is greater than the configured (if any,
+   * otherwise the default) threshold levels for both the logger name and the writer.
    *
-   * @return true if the logger is enabled, false otherwise
+   * @return true if the specified logger ID is enabled for logging, false otherwise.
    */
   @Override
   public boolean isEnabled(NativeLogger.LoggerId loggerId) {
     if (noop) {
       return false;
     }
-    assert loggerOutputMinimumLevelThreshold != null;
+    assert loggerThresholdLevels != null;
     assert logWriter != null;
-    return loggerEnablements.computeIfAbsent(
-        loggerId,
-        k -> k.level()
-                    .compareTo(
-                        loggerOutputMinimumLevelThreshold.getMinimumThresholdLevel(k.loggerName()))
-                >= 0
-            && k.level().compareTo(logWriter.getMinimumThresholdLevel()) >= 0);
+    return loggerEnablements.computeIfAbsent(loggerId, k -> {
+      var logSeverity = k.logSeverity();
+      return logSeverity.compareTo(loggerThresholdLevels.getLoggerThresholdLevel(k.loggerName()))
+              >= 0
+          && logSeverity.compareTo(logWriter.getWriterThresholdLevel()) >= 0;
+    });
   }
 
   @Override
   public void log(
       NativeLogger.LoggerId loggerId,
-      Set<String> logServiceClassNames,
       @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments) {
@@ -107,15 +114,16 @@ public class EventingLogHandler implements LogHandler {
     assert logWriter != null;
     Thread callerThread = Thread.currentThread();
     logWriter.write(LogEvent.builder()
-        .callerThread(new LogEvent.ThreadValue(callerThread.getName(), callerThread.threadId()))
-        .level(loggerId.level())
+        .loggerName(loggerId.loggerName())
+        .level(loggerId.logSeverity())
         .throwable(throwable)
         .message(message)
         .arguments(arguments)
-        .loggerName(loggerId.loggerName())
+        .callerThread(
+            new LogEvent.CallerThreadValue(callerThread.getName(), callerThread.threadId()))
         .callerFrame(
             logWriter.requiresCallerDetail()
-                ? LogEvent.StackFrameValue.from(
+                ? LogEvent.CallerFrameValue.from(
                     StackTraces.earliestCallerOfAny(logServiceClassNames))
                 : null)
         .build());

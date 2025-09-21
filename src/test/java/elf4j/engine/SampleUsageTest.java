@@ -29,13 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import elf4j.Level;
 import elf4j.Logger;
-import elf4j.engine.logging.util.ShutdownUnitTestExtension;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(ShutdownUnitTestExtension.class)
 class SampleUsageTest {
   static Logger logger = Logger.instance();
 
@@ -75,10 +72,10 @@ class SampleUsageTest {
       var debugLogger = logger.atDebug();
       assertTrue(
           debugLogger.isDebugEnabled(),
-          "Assuming minimum severity level configured is TRACE, thus DEBUG level should be enabled");
+          "Assuming minimum threshold level configured is TRACE, thus DEBUG severity log level should be enabled");
       if (debugLogger.isDebugEnabled()) {
         debugLogger.debug(
-            "The DEBUG level log message '{}' will print here as the default minimum writer threshold level is {}",
+            "The DEBUG severity level log message '{}' will print here as the default minimum writer threshold level is {}",
             message,
             Level.TRACE);
       }

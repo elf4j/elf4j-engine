@@ -102,8 +102,8 @@ class VerbatimPatternTest {
     return LogEvent.builder()
         .loggerName("test.Logger")
         .level(Level.INFO)
-        .callerThread(new LogEvent.ThreadValue("main", 1L))
-        .callerFrame(LogEvent.StackFrameValue.from(mock(StackWalker.StackFrame.class)))
+        .callerThread(new LogEvent.CallerThreadValue("main", 1L))
+        .callerFrame(LogEvent.CallerFrameValue.from(mock(StackWalker.StackFrame.class)))
         .message("test message")
         .build();
   }

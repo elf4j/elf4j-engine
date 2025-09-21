@@ -48,9 +48,9 @@ class MessageAndExceptionPatternTest {
     mockLogEvent = LogEvent.builder()
         .level(Level.ERROR)
         .loggerName("testLoggerName")
-        .callerThread(new LogEvent.ThreadValue(
+        .callerThread(new LogEvent.CallerThreadValue(
             Thread.currentThread().getName(), Thread.currentThread().threadId()))
-        .callerFrame(LogEvent.StackFrameValue.from(mock(StackWalker.StackFrame.class)))
+        .callerFrame(LogEvent.CallerFrameValue.from(mock(StackWalker.StackFrame.class)))
         .message(mockMessage)
         .arguments(mockArgs)
         .throwable(mockException)

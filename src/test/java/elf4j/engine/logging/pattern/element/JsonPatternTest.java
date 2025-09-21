@@ -47,9 +47,9 @@ class JsonPatternTest {
     mockLogEvent = LogEvent.builder()
         .loggerName("testCallerClassName")
         .level(Level.ERROR)
-        .callerThread(new LogEvent.ThreadValue(
+        .callerThread(new LogEvent.CallerThreadValue(
             Thread.currentThread().getName(), Thread.currentThread().threadId()))
-        .callerFrame(LogEvent.StackFrameValue.from(mock(StackWalker.StackFrame.class)))
+        .callerFrame(LogEvent.CallerFrameValue.from(mock(StackWalker.StackFrame.class)))
         .message(mockMessage)
         .arguments(new Object[] {"testArg1"})
         .throwable(new Exception("testExceptionMessage"))

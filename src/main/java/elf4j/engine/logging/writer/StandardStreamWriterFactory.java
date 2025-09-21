@@ -1,6 +1,6 @@
 package elf4j.engine.logging.writer;
 
-import elf4j.Level;
+import elf4j.engine.logging.configuration.ConfigurationProperties;
 import elf4j.engine.logging.pattern.LogPattern;
 import java.util.Properties;
 
@@ -16,17 +16,13 @@ final class StandardStreamWriterFactory implements LogWriterFactory {
 
   @Override
   public LogWriter getLogWriter(Properties configurationProperties) {
-    return StandardStreamWriter.builder()
-        .minimumThresholdLevel(Level.valueOf(configurationProperties
-            .getProperty("level", StandardStreamWriter.DEFAULT_THRESHOLD_OUTPUT_LEVEL)
+    return new StandardStreamWriter(
+        LogPattern.from(configurationProperties.getProperty(
+            ConfigurationProperties.PATTERN, StandardStreamWriter.DEFAULT_PATTERN)),
+        StandardStreamWriter.OutStreamType.valueOf(configurationProperties
+            .getProperty(
+                ConfigurationProperties.STREAM, StandardStreamWriter.DEFAULT_OUT_STREAM_TYPE.name())
             .trim()
-            .toUpperCase()))
-        .logPattern(LogPattern.from(
-            configurationProperties.getProperty("pattern", StandardStreamWriter.DEFAULT_PATTERN)))
-        .outStreamType(StandardStreamWriter.OutStreamType.valueOf(configurationProperties
-            .getProperty("stream", StandardStreamWriter.DEFAULT_OUT_STREAM_TYPE.name())
-            .trim()
-            .toUpperCase()))
-        .build();
+            .toUpperCase()));
   }
 }

@@ -36,9 +36,8 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
 import elf4j.Logger;
-import elf4j.engine.logging.ConfiguredLogHandlerFactory;
 import elf4j.engine.logging.LogHandler;
-import java.util.Set;
+import elf4j.engine.logging.RefreshableLogHandlerFactory;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -85,12 +84,12 @@ class NativeLoggerTest {
 
     @Test
     void delegateToService() {
-      ConfiguredLogHandlerFactory configuredLogHandlerFactory =
-          mock(ConfiguredLogHandlerFactory.class);
+      RefreshableLogHandlerFactory refreshableLogHandlerFactory =
+          mock(RefreshableLogHandlerFactory.class);
       LogHandler logHandler = mock(LogHandler.class);
-      given(configuredLogHandlerFactory.getLogHandler()).willReturn(logHandler);
+      given(refreshableLogHandlerFactory.getLogHandler()).willReturn(logHandler);
       NativeLogger sut = new NativeLogger(
-          new NativeLogger.LoggerId(this.getClass().getName(), INFO), configuredLogHandlerFactory);
+          new NativeLogger.LoggerId(this.getClass().getName(), INFO), refreshableLogHandlerFactory);
 
       sut.isEnabled();
 
@@ -106,7 +105,7 @@ class NativeLoggerTest {
     LogHandler logHandler;
 
     @Mock
-    ConfiguredLogHandlerFactory configuredLogHandlerFactory;
+    RefreshableLogHandlerFactory refreshableLogHandlerFactory;
 
     NativeLogger sut;
     String plainTextMessage = "plainTextMessage";
@@ -116,10 +115,10 @@ class NativeLoggerTest {
 
     @BeforeEach
     void beforeEach() {
-      given(configuredLogHandlerFactory.getLogHandler()).willReturn(logHandler);
+      given(refreshableLogHandlerFactory.getLogHandler()).willReturn(logHandler);
       sut = new NativeLogger(
           new NativeLogger.LoggerId(NativeLoggerTest.class.getName(), INFO),
-          configuredLogHandlerFactory);
+          refreshableLogHandlerFactory);
     }
 
     @Test
@@ -130,7 +129,6 @@ class NativeLoggerTest {
           .should()
           .log(
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
-              eq(Set.of(NativeLogger.class.getName(), Logger.class.getName())),
               same(exception),
               eq(NativeLogger.DEFAULT_THROWABLE_MESSAGE),
               isNull());
@@ -144,7 +142,6 @@ class NativeLoggerTest {
           .should()
           .log(
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
-              eq(Set.of(NativeLogger.class.getName(), Logger.class.getName())),
               same(exception),
               same(plainTextMessage),
               isNull());
@@ -158,7 +155,6 @@ class NativeLoggerTest {
           .should()
           .log(
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
-              eq(Set.of(NativeLogger.class.getName(), Logger.class.getName())),
               same(exception),
               same(textMessageWithArgHolders),
               same(args));
@@ -172,7 +168,6 @@ class NativeLoggerTest {
           .should()
           .log(
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
-              eq(Set.of(NativeLogger.class.getName(), Logger.class.getName())),
               isNull(),
               same(textMessageWithArgHolders),
               same(args));
@@ -186,7 +181,6 @@ class NativeLoggerTest {
           .should()
           .log(
               eq(new NativeLogger.LoggerId(sut.getLoggerId().loggerName(), sut.getLevel())),
-              eq(Set.of(NativeLogger.class.getName(), Logger.class.getName())),
               isNull(),
               same(plainTextMessage),
               isNull());

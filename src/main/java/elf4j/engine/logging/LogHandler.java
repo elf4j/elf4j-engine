@@ -26,25 +26,21 @@
 package elf4j.engine.logging;
 
 import elf4j.engine.NativeLogger;
-import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 /** Performs the logging operations delegated from the Logger */
 public interface LogHandler {
   /**
-   * @return true if the logger instance's severity level is at or above the configured threshold
-   *     for the specified logger loggerId, false otherwise
+   * @return true if the logger instance's severity level is at or above the configured minimum
+   *     threshold for the specified logger and writer, false otherwise
    */
   boolean isEnabled(NativeLogger.LoggerId loggerId);
 
   /**
-   * Service a log operation at the specified level, for the specified caller class
+   * Service a log operation at the specified severity level for the specified logger.
    *
-   * @param loggerId the logger loggerId to look up configurations for
-   * @param logServiceClassNames the fully qualified class names of the concrete log service API
-   *     implementation. In elf4j-engine, they are those of the {@link NativeLogger} class, as well
-   *     as the {@link elf4j.Logger} interface because its default methods also implement the
-   *     service interface API and are directly called by the client code.
+   * @param loggerId the logger ID (containing the logger name and severity) used to resolve
+   *     configuration
    * @param throwable to log
    * @param message to log, can have argument placeholders to be replaced by the values of the
    *     specified arguments
@@ -54,7 +50,6 @@ public interface LogHandler {
    */
   void log(
       NativeLogger.LoggerId loggerId,
-      Set<String> logServiceClassNames,
       @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments);

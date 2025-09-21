@@ -56,7 +56,7 @@ record ThreadPattern(DisplayOption threadDisplayOption) implements RenderingPatt
 
   @Override
   public void render(LogEvent logEvent, StringBuilder target) {
-    LogEvent.ThreadValue callerThread = Objects.requireNonNull(logEvent.callerThread());
+    LogEvent.CallerThreadValue callerThread = Objects.requireNonNull(logEvent.callerThread());
     target.append(
         threadDisplayOption == DisplayOption.ID ? callerThread.id() : callerThread.name());
   }

@@ -34,6 +34,14 @@ import java.util.*;
 import org.jspecify.annotations.Nullable;
 
 public record ConfigurationProperties(@Nullable Properties properties) {
+  public static final String PATTERN = "pattern";
+  public static final String STREAM = "stream";
+  public static final String CONCURRENCY = "concurrency";
+  public static final String WRITER_FACTORIES = "writer.factories";
+  public static final String NOOP = "noop";
+  public static final String LEVEL = "level";
+  public static final String LEVEL_NAME_DELIMITER = "@";
+
   private static final Logger LOGGER = UtilLogger.INFO;
 
   /**
@@ -114,7 +122,7 @@ public record ConfigurationProperties(@Nullable Properties properties) {
         new String[] {"/elf4j-test.properties", "/elf4j.properties"};
 
     /** @return configuration properties loaded from either the default or specified location */
-    @Nullable public Properties load() {
+    public @Nullable Properties load() {
       Properties properties = new Properties();
       InputStream propertiesInputStream;
       final String customPropertiesLocation = System.getProperty(ELF4J_PROPERTIES_LOCATION);

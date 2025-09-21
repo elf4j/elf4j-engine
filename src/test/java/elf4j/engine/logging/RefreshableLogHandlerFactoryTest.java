@@ -27,26 +27,28 @@ package elf4j.engine.logging;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import elf4j.engine.NativeLoggerFactory;
 import java.util.Properties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-class ConfiguredLogHandlerFactoryTest {
+class RefreshableLogHandlerFactoryTest {
   @Test
   void service() {
-    ConfiguredLogHandlerFactory sut = new ConfiguredLogHandlerFactory();
+    RefreshableLogHandlerFactory sut =
+        new RefreshableLogHandlerFactory(NativeLoggerFactory.ELF4J_SERVICE_CLASSES);
     NativeLogServiceManager.INSTANCE.deregister(sut);
     assertNotNull(sut.getLogHandler());
   }
 
   @Nested
   class refresh {
-    ConfiguredLogHandlerFactory sut;
+    RefreshableLogHandlerFactory sut;
 
     @BeforeEach
     void beforeEach() {
-      sut = new ConfiguredLogHandlerFactory();
+      sut = new RefreshableLogHandlerFactory(NativeLoggerFactory.ELF4J_SERVICE_CLASSES);
       NativeLogServiceManager.INSTANCE.deregister(sut);
     }
 

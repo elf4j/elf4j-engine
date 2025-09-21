@@ -35,7 +35,6 @@ import elf4j.util.UtilLogger;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.locks.Lock;
-import lombok.Builder;
 import lombok.ToString;
 import lombok.Value;
 
@@ -47,33 +46,29 @@ import lombok.Value;
 @Value
 @ToString
 public class StandardStreamWriter implements LogWriter {
-  static final String DEFAULT_THRESHOLD_OUTPUT_LEVEL = "trace";
+  /**
+   * For simplicity, the standard stream writer threshold level is always set to TRACE and not
+   * configurable, regardless of whether the output stream is stdout or stderr. i.e. it is entirely
+   * up to the logger name threshold level whether a specific log is printed or not.
+   */
+  static final Level DEFAULT_WRITER_THRESHOLD_LEVEL = Level.TRACE;
+
   static final String DEFAULT_PATTERN = "{timestamp} {level} {logger} - {message}";
   static final OutStreamType DEFAULT_OUT_STREAM_TYPE = STDOUT;
   static final String LINE_FEED = System.lineSeparator();
 
-  transient StandardOutput standardOutput;
-  Level minimumThresholdLevel;
   RenderingPattern logPattern;
-  OutStreamType outStreamType;
+  transient StandardOutputStream standardOutputStream;
 
-  @Builder
-  private StandardStreamWriter(
-      Level minimumThresholdLevel, RenderingPattern logPattern, OutStreamType outStreamType) {
-    this.minimumThresholdLevel = minimumThresholdLevel;
+  public StandardStreamWriter(RenderingPattern logPattern, OutStreamType outStreamType) {
     this.logPattern = logPattern;
-    this.outStreamType = outStreamType;
-    this.standardOutput = new StandardOutput(this.outStreamType);
+    this.standardOutputStream = new StandardOutputStream(outStreamType);
   }
 
-  /**
-   * Returns the threshold output level for this log writer.
-   *
-   * @return the threshold output level
-   */
+  /** @return TRACE for stdout writer */
   @Override
-  public Level getMinimumThresholdLevel() {
-    return minimumThresholdLevel;
+  public Level getWriterThresholdLevel() {
+    return DEFAULT_WRITER_THRESHOLD_LEVEL;
   }
 
   /**
@@ -84,13 +79,10 @@ public class StandardStreamWriter implements LogWriter {
    */
   @Override
   public void write(LogEvent logEvent) {
-    if (logEvent.level().compareTo(this.minimumThresholdLevel) < 0) {
-      return;
-    }
     StringBuilder target = new StringBuilder();
     logPattern.render(logEvent, target);
     byte[] bytes = target.append(LINE_FEED).toString().getBytes(StandardCharsets.UTF_8);
-    standardOutput.write(bytes);
+    standardOutputStream.write(bytes);
   }
 
   /**
@@ -104,7 +96,7 @@ public class StandardStreamWriter implements LogWriter {
   }
 
   /** Enum representing the output stream type (stdout or stderr). */
-  enum OutStreamType {
+  public enum OutStreamType {
     STDOUT,
     STDERR
   }
@@ -124,7 +116,7 @@ public class StandardStreamWriter implements LogWriter {
    *     That means this log engine should not be used together with any other logging provider at
    *     the same time.
    */
-  private static final class StandardOutput {
+  private static final class StandardOutputStream {
     private static final Logger LOGGER = UtilLogger.ERROR;
 
     /**
@@ -142,7 +134,7 @@ public class StandardStreamWriter implements LogWriter {
      */
     private final OutputStream outputStream;
 
-    public StandardOutput(OutStreamType outStreamType) {
+    public StandardOutputStream(OutStreamType outStreamType) {
       this.outputStream = switch (outStreamType) {
         case STDOUT -> new BufferedOutputStream(new FileOutputStream(FileDescriptor.out));
         case STDERR -> new BufferedOutputStream(new FileOutputStream(FileDescriptor.err));
