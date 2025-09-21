@@ -37,10 +37,9 @@ public interface LogHandler {
   boolean isEnabled(NativeLogger.LoggerId loggerId);
 
   /**
-   * Service a log operation at the specified severity level, for the specified caller class (aka
-   * logger name)
+   * Service a log operation at the specified severity level for the specified logger.
    *
-   * @param loggerId the logger loggerId to look up configurations for
+   * @param loggerId the logger ID (containing the logger name and severity) used to resolve configuration
    * @param throwable to log
    * @param message to log, can have argument placeholders to be replaced by the values of the
    *     specified arguments
