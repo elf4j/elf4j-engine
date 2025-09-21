@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Maven push CI
+name: maven-push-ci
 
 on:
   push:
