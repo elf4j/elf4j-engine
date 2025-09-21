@@ -104,7 +104,8 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
         .toList();
     return new CompositeWriter(
         logWriters,
-        Optional.ofNullable(configurationProperties.getAsInteger("concurrency"))
+        Optional.ofNullable(
+                configurationProperties.getAsInteger(ConfigurationProperties.CONCURRENCY))
             .map(ConseqExecutor::instance)
             .orElse(ConseqExecutor.instance()));
   }
@@ -115,7 +116,8 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
       return Collections.emptyList();
     }
     Properties properties = configurationProperties.properties();
-    String writerFactoryClassNames = properties.getProperty("writer.factories");
+    String writerFactoryClassNames =
+        properties.getProperty(ConfigurationProperties.WRITER_FACTORIES);
     if (writerFactoryClassNames == null) {
       return Collections.emptyList();
     }
@@ -162,13 +164,13 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
   }
 
   @Override
-  public Level getMinimumThresholdLevel() {
+  public Level getWriterThresholdLevel() {
     if (thresholdOutputLevel == null) {
       thresholdOutputLevel = Level.values()[
           writers.stream()
-              .mapToInt(writer -> writer.getMinimumThresholdLevel().ordinal())
+              .mapToInt(writer -> writer.getWriterThresholdLevel().ordinal())
               .min()
-              .orElseThrow(NoSuchElementException::new)];
+              .orElseThrow()];
     }
     return thresholdOutputLevel;
   }

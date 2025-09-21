@@ -25,6 +25,9 @@
 
 package elf4j.engine.logging.configuration;
 
+import static elf4j.engine.logging.configuration.ConfigurationProperties.LEVEL;
+import static elf4j.engine.logging.configuration.ConfigurationProperties.LEVEL_NAME_DELIMITER;
+
 import elf4j.Level;
 import elf4j.Logger;
 import elf4j.util.UtilLogger;
@@ -32,7 +35,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -42,45 +44,46 @@ import java.util.stream.Collectors;
  * default threshold output level of the root or specific logger instances based on the provided
  * configuration properties.
  */
-public record LoggerOutputMinimumLevelThreshold(
+public record LoggerThresholdLevels(
     Map<String, Level> loggerMinimumThresholdLevels, List<String> sortedLoggerNameNameSpaces) {
   private static final Logger LOGGER = UtilLogger.INFO;
   private static final String ROOT_LOGGER_NAME = "";
   private static final Level DEFAULT_THRESHOLD_OUTPUT_LEVEL = Level.TRACE;
 
-  public LoggerOutputMinimumLevelThreshold(Map<String, Level> loggerMinimumThresholdLevels) {
+  public LoggerThresholdLevels(Map<String, Level> loggerMinimumThresholdLevels) {
     this(
         loggerMinimumThresholdLevels,
         loggerMinimumThresholdLevels.keySet().stream()
             .sorted(new FullyQualifiedClassNameComparator())
             .collect(Collectors.toList()));
-    LOGGER.info(
-        "%s overriding caller level(s) in %s".formatted(loggerMinimumThresholdLevels.size(), this));
+    LOGGER.info("Specified %s logger minimum threshold level(s) in %s"
+        .formatted(loggerMinimumThresholdLevels.size(), this));
   }
 
-  public static LoggerOutputMinimumLevelThreshold from(
-      ConfigurationProperties configurationProperties) {
-    Map<String, Level> configuredLevels = new HashMap<>();
+  public static LoggerThresholdLevels from(ConfigurationProperties configurationProperties) {
+    Map<String, Level> thresholdLevelsByNameSpace = new HashMap<>();
     Properties properties = configurationProperties.properties();
-    getAsLevel("level", properties)
-        .ifPresent(level -> configuredLevels.put(ROOT_LOGGER_NAME, level));
-    configuredLevels.putAll(properties.stringPropertyNames().stream()
-        .filter(name -> name.trim().startsWith("level@"))
+    getAsThresholdLevel(LEVEL, properties)
+        .ifPresent(level -> thresholdLevelsByNameSpace.put(ROOT_LOGGER_NAME, level));
+    thresholdLevelsByNameSpace.putAll(properties.stringPropertyNames().stream()
+        .filter(name -> name.trim().startsWith(LEVEL + LEVEL_NAME_DELIMITER))
         .filter(name -> !properties.getProperty(name).isBlank())
         .collect(Collectors.toMap(
-            name -> name.split("@", 2)[1].trim(),
-            name -> getAsLevel(name, properties).orElseThrow(NoSuchElementException::new))));
-    return new LoggerOutputMinimumLevelThreshold(configuredLevels);
+            name -> name.split(LEVEL_NAME_DELIMITER, 2)[1].strip(),
+            name -> getAsThresholdLevel(name, properties)
+                .orElseThrow(() -> new IllegalArgumentException(
+                    "Value of configured threshold level cannot be empty")))));
+    return new LoggerThresholdLevels(thresholdLevelsByNameSpace);
   }
 
-  private static Optional<Level> getAsLevel(String levelKey, Properties properties) {
-    String levelValue = properties.getProperty(levelKey);
-    return levelValue == null
+  private static Optional<Level> getAsThresholdLevel(String name, Properties properties) {
+    String thresholdLevelValue = properties.getProperty(name);
+    return thresholdLevelValue == null
         ? Optional.empty()
-        : Optional.of(Level.valueOf(levelValue.trim().toUpperCase()));
+        : Optional.of(Level.valueOf(thresholdLevelValue.strip().toUpperCase()));
   }
 
-  public Level getMinimumThresholdLevel(String loggerName) {
+  public Level getLoggerThresholdLevel(String loggerName) {
     return this.sortedLoggerNameNameSpaces.stream()
         .filter(loggerName::startsWith)
         .findFirst()

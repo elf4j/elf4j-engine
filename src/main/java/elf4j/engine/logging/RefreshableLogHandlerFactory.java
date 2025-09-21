@@ -26,6 +26,7 @@ package elf4j.engine.logging;
 
 import elf4j.engine.logging.configuration.ConfigurationProperties;
 import java.util.Properties;
+import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -33,13 +34,16 @@ import org.jspecify.annotations.Nullable;
  * concrete implementation for getting the log service, reloading the log service, and resetting the
  * log service with the specified properties.
  */
-public class ConfiguredLogHandlerFactory
+public class RefreshableLogHandlerFactory
     implements LogHandlerFactory, NativeLogServiceManager.Refreshable {
   private LogHandler logHandler;
+  private final Set<Class<?>> logServiceClasses;
 
   /** Constructor for the ConfiguredLogHandlerFactory class. */
-  public ConfiguredLogHandlerFactory() {
-    logHandler = new EventingLogHandler(ConfigurationProperties.byLoading());
+  public RefreshableLogHandlerFactory(final Set<Class<?>> logServiceClasses) {
+    this.logServiceClasses = logServiceClasses;
+    this.logHandler =
+        new EventingLogHandler(ConfigurationProperties.byLoading(), logServiceClasses);
     NativeLogServiceManager.INSTANCE.register(this);
   }
 
@@ -55,7 +59,7 @@ public class ConfiguredLogHandlerFactory
 
   /** Reloads the log service. */
   private void reload() {
-    logHandler = new EventingLogHandler(ConfigurationProperties.byLoading());
+    logHandler = new EventingLogHandler(ConfigurationProperties.byLoading(), logServiceClasses);
   }
 
   /**
@@ -64,7 +68,8 @@ public class ConfiguredLogHandlerFactory
    * @param properties the new properties for the log service
    */
   private void reset(@Nullable Properties properties) {
-    logHandler = new EventingLogHandler(ConfigurationProperties.bySetting(properties));
+    logHandler =
+        new EventingLogHandler(ConfigurationProperties.bySetting(properties), logServiceClasses);
   }
 
   @Override

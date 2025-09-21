@@ -31,7 +31,7 @@
 
     <groupId>io.github.elf4j</groupId>
     <artifactId>elf4j-engine</artifactId>
-    <version>19.0.9</version>
+    <version>19.1.0</version>
     <packaging>jar</packaging>
     <name>elf4j-engine</name>
     <description>A stand-alone Java log engine implementing the ELF4J (Easy Logging Facade for Java) API</description>
@@ -112,8 +112,15 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.13.4</version>
-            <optional>true</optional>
+            <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>1.13.4</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>

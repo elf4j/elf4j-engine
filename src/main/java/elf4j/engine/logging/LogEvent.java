@@ -34,27 +34,27 @@ import org.jspecify.annotations.Nullable;
 
 /** Source data to be rendered to a final log message */
 public record LogEvent(
-    Level level,
-    String loggerName,
-    ThreadValue callerThread,
     Instant timestamp,
+    String loggerName,
+    Level level,
+    @Nullable Throwable throwable,
     @Nullable Object message,
     Object @Nullable [] arguments,
-    @Nullable Throwable throwable,
-    @Nullable StackFrameValue callerFrame) {
+    CallerThreadValue callerThread,
+    LogEvent.@Nullable CallerFrameValue callerFrame) {
   private static final int INIT_ARG_LENGTH = 32;
 
   @Builder
   public LogEvent(
-      Level level,
       String loggerName,
-      ThreadValue callerThread,
+      Level level,
+      @Nullable Throwable throwable,
       @Nullable Object message,
       Object @Nullable [] arguments,
-      @Nullable Throwable throwable,
-      @Nullable StackFrameValue callerFrame) {
+      CallerThreadValue callerThread,
+      LogEvent.@Nullable CallerFrameValue callerFrame) {
     this(
-        level, loggerName, callerThread, Instant.now(), message, arguments, throwable, callerFrame);
+        Instant.now(), loggerName, level, throwable, message, arguments, callerThread, callerFrame);
   }
 
   private static CharSequence resolve(
@@ -109,10 +109,10 @@ public record LogEvent(
   }
 
   /** A renderable value representing a call stack element. */
-  public record StackFrameValue(
+  public record CallerFrameValue(
       String className, String methodName, int lineNumber, @Nullable String fileName) {
-    public static StackFrameValue from(StackWalker.StackFrame stackFrame) {
-      return new StackFrameValue(
+    public static CallerFrameValue from(StackWalker.StackFrame stackFrame) {
+      return new CallerFrameValue(
           stackFrame.getClassName(),
           stackFrame.getMethodName(),
           stackFrame.getLineNumber(),
@@ -121,5 +121,5 @@ public record LogEvent(
   }
 
   /** Represents the value of a thread. */
-  public record ThreadValue(String name, long id) {}
+  public record CallerThreadValue(String name, long id) {}
 }

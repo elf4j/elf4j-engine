@@ -108,9 +108,9 @@ record JsonPattern(boolean includeCallerThread, boolean includeCallerDetail, boo
   record JsonLogEntry(
       OffsetDateTime timestamp,
       String level,
-      LogEvent.@Nullable ThreadValue callerThread,
+      LogEvent.@Nullable CallerThreadValue callerThread,
       @Nullable String loggerName,
-      LogEvent.@Nullable StackFrameValue callerDetail,
+      LogEvent.@Nullable CallerFrameValue callerDetail,
       Map<String, String> context,
       String message,
       @Nullable String exception) {

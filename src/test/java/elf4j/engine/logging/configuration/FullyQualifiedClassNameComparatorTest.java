@@ -8,9 +8,8 @@ import org.junit.jupiter.api.Test;
 class FullyQualifiedClassNameComparatorTest {
   @Nested
   class compare {
-    LoggerOutputMinimumLevelThreshold.FullyQualifiedClassNameComparator
-        fullyQualifiedClassNameComparator =
-            new LoggerOutputMinimumLevelThreshold.FullyQualifiedClassNameComparator();
+    LoggerThresholdLevels.FullyQualifiedClassNameComparator fullyQualifiedClassNameComparator =
+        new LoggerThresholdLevels.FullyQualifiedClassNameComparator();
 
     @Test
     void whenMorePackageLevels_thenGoesFirst() {

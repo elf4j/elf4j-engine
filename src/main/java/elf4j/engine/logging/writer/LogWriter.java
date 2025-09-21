@@ -41,11 +41,12 @@ import javax.annotation.concurrent.ThreadSafe;
 public interface LogWriter extends PerformanceSensitive {
   /**
    * Returns the threshold output level for this log writer. Log events with a level lower than the
-   * threshold will not be written.
+   * returned writer threshold will not be written, regardless of the logger threshold level
+   * specified in the configurations.
    *
    * @return the threshold output level of this writer
    */
-  Level getMinimumThresholdLevel();
+  Level getWriterThresholdLevel();
 
   /**
    * Writes the given log event to the output destination(s) configured for this log writer.

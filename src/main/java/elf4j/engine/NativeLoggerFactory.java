@@ -27,8 +27,8 @@ package elf4j.engine;
 
 import elf4j.Level;
 import elf4j.Logger;
-import elf4j.engine.logging.ConfiguredLogHandlerFactory;
 import elf4j.engine.logging.LogHandlerFactory;
+import elf4j.engine.logging.RefreshableLogHandlerFactory;
 import elf4j.engine.logging.util.StackTraces;
 import elf4j.spi.LoggerFactory;
 import java.util.ServiceLoader;
@@ -40,35 +40,40 @@ import org.slf4j.MdcAdapterInitializer;
  * The implementation class of the elf4j SPI.
  *
  * <p>It also provides methods for refreshing the properties of the log service.
- *
- * <p>This class contains a map of native loggers, categorized by their level, and a reference to
- * the class or interface that the API client calls first to get a logger instance. The client
- * caller class of this class will be the declaring class of the logger instances this factory
- * produces.
- *
- * <p>For this native implementation, the service access class is the {@link Logger} interface
- * itself as the client calls the static factory method {@link Logger#instance()} first to get a
- * logger instance. If this library is used as the engine of another logging API, then this access
- * class would be the class in that API that the client calls first to get a logger instance of that
- * API.
  */
 public class NativeLoggerFactory implements LoggerFactory {
-  private static final Level DEFAULT_LOGGER_SEVERITY_LEVEL = Level.INFO;
-  private static final Set<Class<?>> ELF4J_SERVICE_ACCESS_CLASSES = Set.of(Logger.class);
+  public static final Level DEFAULT_LOG_SEVERITY_LEVEL = Level.INFO;
+
+  /**
+   * The default class or interface that the API client calls first to get a {@link Logger}
+   * instance, providing the "service access API" in the * {@link ServiceLoader} framework. The
+   * client caller class of this class is the declaring class of the logger instances this factory
+   * produces.
+   *
+   * @implNote In the default case, it is always the {@link Logger} interface itself because, at
+   *     runtime, the log service client calls the static factory method {@link Logger#instance()}
+   *     first to get (gain "access" to) a reference to the log service interface.
+   */
+  public static final Set<Class<?>> ELF4J_SERVICE_ACCESS_CLASSES = Set.of(Logger.class);
+
+  /**
+   * The default concrete implementation class(es) of the log service API that the client calls at
+   * runtime.
+   *
+   * @implNote In the default case, it includes not only the {@link NativeLogger} class but also the
+   *     {@link Logger} interface itself as its default methods are directly called by the client at
+   *     runtime.
+   */
+  public static final Set<Class<?>> ELF4J_SERVICE_CLASSES =
+      Set.of(NativeLogger.class, Logger.class);
 
   /** Made injectable for extensions other than this native ELF4J implementation */
-  private final Level defaultLoggerLevel;
+  private final Level defaultLogSeverityLevel;
 
   /**
    * The class or interface that the API client calls first to get a {@link Logger} instance. The
-   * client caller class of this class will be the declaring class of the logger instances this
-   * factory produces.
-   *
-   * @implNote The log service access class(es) (providing the "service access API" in the
-   *     {@link ServiceLoader} framework). In this case, it is always the {@link Logger} interface
-   *     itself because, at runtime, the log service client calls the static factory method
-   *     {@link Logger#instance()} first to get (gain "access" to) a reference to the log service
-   *     interface.
+   * client caller class of this class is the declaring class of the logger instances this factory
+   * produces.
    */
   private final Set<String> logServiceAccessClassNames;
 
@@ -83,23 +88,31 @@ public class NativeLoggerFactory implements LoggerFactory {
    */
   @SuppressWarnings("unused")
   public NativeLoggerFactory() {
-    this(ELF4J_SERVICE_ACCESS_CLASSES);
+    this(ELF4J_SERVICE_ACCESS_CLASSES, ELF4J_SERVICE_CLASSES);
   }
 
   /**
-   * NativeLoggerFactory constructor with the default logger level
+   * NativeLoggerFactory constructor with the default logger severity level
    *
    * @param logServiceAccessClasses the concrete implementation of the log service access API. In
-   *     this case, since the sole log service access API is the static method
+   *     the default case, since the sole log service access API is the static method
    *     {@link Logger#instance()}, the service access class is always the {@code Logger} interface
    *     itself.
+   * @param logServiceClasses the concrete implementation class(es) of the log service API that the
+   *     client calls at runtime. In the default case, it includes not only the {@link NativeLogger}
+   *     class but also the {@link Logger} interface itself as its default methods are directly
+   *     called by the client at runtime.
    * @apiNote This constructor can be used by other logging frameworks trying to use this as its own
    *     log engine. The specified log service access class is whatever class the other framework
    *     uses to provide access/factory method(s) for the client code to obtain/gain a reference to
    *     call the log service operations.
    */
-  public NativeLoggerFactory(Set<Class<?>> logServiceAccessClasses) {
-    this(logServiceAccessClasses, DEFAULT_LOGGER_SEVERITY_LEVEL, new ConfiguredLogHandlerFactory());
+  public NativeLoggerFactory(
+      Set<Class<?>> logServiceAccessClasses, Set<Class<?>> logServiceClasses) {
+    this(
+        logServiceAccessClasses,
+        new RefreshableLogHandlerFactory(logServiceClasses),
+        DEFAULT_LOG_SEVERITY_LEVEL);
   }
 
   /**
@@ -108,20 +121,21 @@ public class NativeLoggerFactory implements LoggerFactory {
    * @param logServiceAccessClasses the concrete implementation of the log service access API. In
    *     this case, it is always the {@link Logger} interface itself as the access API is a static
    *     method of the interface.
-   * @param defaultLoggerLevel the default severity level this factory will produce logger instances
-   *     with
    * @param logHandlerFactory the factory for native log handler. Capable of reconfiguring the
    *     handler at runtime.
+   * @param defaultLogSeverityLevel the default severity level this factory will produce logger
+   *     instances with
    */
   private NativeLoggerFactory(
       Set<Class<?>> logServiceAccessClasses,
-      Level defaultLoggerLevel,
-      LogHandlerFactory logHandlerFactory) {
-    MdcAdapterInitializer.initialize();
-    this.logServiceAccessClassNames =
-        logServiceAccessClasses.stream().map(Class::getName).collect(Collectors.toSet());
-    this.defaultLoggerLevel = defaultLoggerLevel;
+      LogHandlerFactory logHandlerFactory,
+      Level defaultLogSeverityLevel) {
+    this.logServiceAccessClassNames = logServiceAccessClasses.stream()
+        .map(Class::getName)
+        .collect(Collectors.toUnmodifiableSet());
     this.logHandlerFactory = logHandlerFactory;
+    this.defaultLogSeverityLevel = defaultLogSeverityLevel;
+    MdcAdapterInitializer.initialize();
   }
 
   /**
@@ -135,7 +149,7 @@ public class NativeLoggerFactory implements LoggerFactory {
     return new NativeLogger(
         new NativeLogger.LoggerId(
             StackTraces.earliestCallerOfAny(logServiceAccessClassNames).getClassName(),
-            defaultLoggerLevel),
+            defaultLogSeverityLevel),
         logHandlerFactory);
   }
 }
