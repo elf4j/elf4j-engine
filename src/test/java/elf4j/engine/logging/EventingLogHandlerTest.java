@@ -81,7 +81,6 @@ class EventingLogHandlerTest {
           Set.of(LogHandler.class));
       LogWriter mockLogWriter = mock(LogWriter.class);
       ReflectionTestUtils.setField(logHandler, "logWriter", mockLogWriter);
-      given(mockLogWriter.getWriterThresholdLevel()).willReturn(Level.INFO);
 
       logHandler.log(
           new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO), null, null, null);
@@ -96,7 +95,6 @@ class EventingLogHandlerTest {
       LogWriter logWriter = mock(LogWriter.class);
       ReflectionTestUtils.setField(sut, "logWriter", logWriter);
       given(logWriter.requiresCallerDetail()).willReturn(true);
-      given(logWriter.getWriterThresholdLevel()).willReturn(Level.INFO);
       ArgumentCaptor<LogEvent> logEvent = ArgumentCaptor.forClass(LogEvent.class);
 
       sut.log(new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO), null, null, null);
@@ -117,7 +115,6 @@ class EventingLogHandlerTest {
       LogWriter logWriter = mock(LogWriter.class);
       ReflectionTestUtils.setField(sut, "logWriter", logWriter);
       given(logWriter.requiresCallerDetail()).willReturn(false);
-      given(logWriter.getWriterThresholdLevel()).willReturn(Level.INFO);
       ArgumentCaptor<LogEvent> logEvent = ArgumentCaptor.forClass(LogEvent.class);
 
       sut.log(new NativeLogger.LoggerId(this.getClass().getName(), Level.INFO), null, null, null);
@@ -133,11 +130,12 @@ class EventingLogHandlerTest {
 
     @Test
     void onlyLogWhenEnabled() {
+      var properties = new Properties();
+      properties.setProperty(ConfigurationProperties.LEVEL, "info");
       LogHandler sut = new EventingLogHandler(
-          ConfigurationProperties.bySetting(new Properties()), Set.of(this.getClass()));
+          ConfigurationProperties.bySetting(properties), Set.of(this.getClass()));
       LogWriter logWriter = mock(LogWriter.class);
       ReflectionTestUtils.setField(sut, "logWriter", logWriter);
-      given(logWriter.getWriterThresholdLevel()).willReturn(Level.INFO);
 
       sut.log(new NativeLogger.LoggerId(this.getClass().getName(), Level.TRACE), null, null, null);
 

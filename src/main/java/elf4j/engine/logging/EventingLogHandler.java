@@ -83,7 +83,7 @@ public class EventingLogHandler implements LogHandler {
 
   /**
    * Return true if the specified log severity level is greater than the configured (if any,
-   * otherwise the default) threshold levels for both the logger name and the writer.
+   * otherwise the default) threshold level for the logger name.
    *
    * @return true if the specified logger ID is enabled for logging, false otherwise.
    */
@@ -94,12 +94,11 @@ public class EventingLogHandler implements LogHandler {
     }
     assert loggerThresholdLevels != null;
     assert logWriter != null;
-    return loggerEnablements.computeIfAbsent(loggerId, k -> {
-      var logSeverity = k.logSeverity();
-      return logSeverity.compareTo(loggerThresholdLevels.getLoggerThresholdLevel(k.loggerName()))
-              >= 0
-          && logSeverity.compareTo(logWriter.getWriterThresholdLevel()) >= 0;
-    });
+    return loggerEnablements.computeIfAbsent(
+        loggerId,
+        k ->
+            k.logSeverity().compareTo(loggerThresholdLevels.getLoggerThresholdLevel(k.loggerName()))
+                >= 0);
   }
 
   @Override

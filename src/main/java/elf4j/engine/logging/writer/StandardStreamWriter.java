@@ -65,12 +65,6 @@ public class StandardStreamWriter implements LogWriter {
     this.standardOutputStream = new StandardOutputStream(outStreamType);
   }
 
-  /** @return TRACE for stdout writer */
-  @Override
-  public Level getWriterThresholdLevel() {
-    return DEFAULT_WRITER_THRESHOLD_LEVEL;
-  }
-
   /**
    * Writes the given log event to the configured output stream (stdout or stderr) if the log
    * event's level is greater than or equal to the configured threshold output level.
