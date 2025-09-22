@@ -29,7 +29,6 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.awaitility.Awaitility.await;
 
 import conseq4j.execute.ConseqExecutor;
-import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.NativeLogServiceManager;
@@ -66,12 +65,6 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
    * concurrency is determined by the <a href="https://q3769.github.io/conseq4j">conseq4j API</a>
    */
   private final ConseqExecutor conseqExecutor;
-
-  /**
-   * The lowest threshold output Level of all configured log writers, cached after deriving from the
-   * writers.
-   */
-  private @Nullable Level thresholdOutputLevel;
 
   /**
    * {@code true} if any of the configured log writer's log pattern requires run-time caller detail,
@@ -161,18 +154,6 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
     Map<String, String> replaced = MDC.getCopyOfContextMap();
     MDC.setContextMap(targetContext);
     return replaced;
-  }
-
-  @Override
-  public Level getWriterThresholdLevel() {
-    if (thresholdOutputLevel == null) {
-      thresholdOutputLevel = Level.values()[
-          writers.stream()
-              .mapToInt(writer -> writer.getWriterThresholdLevel().ordinal())
-              .min()
-              .orElseThrow()];
-    }
-    return thresholdOutputLevel;
   }
 
   @Override
