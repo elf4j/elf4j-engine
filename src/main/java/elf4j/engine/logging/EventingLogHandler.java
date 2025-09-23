@@ -30,8 +30,8 @@ import elf4j.engine.NativeLogger;
 import elf4j.engine.logging.configuration.ConfigurationProperties;
 import elf4j.engine.logging.configuration.LoggerThresholdLevels;
 import elf4j.engine.logging.util.StackTraces;
-import elf4j.engine.logging.writer.CompositeWriter;
-import elf4j.engine.logging.writer.LogWriter;
+import elf4j.engine.logging.writer.CompositeLogEventWriter;
+import elf4j.engine.logging.writer.LogEventWriter;
 import elf4j.util.UtilLogger;
 import java.util.Map;
 import java.util.Set;
@@ -48,14 +48,14 @@ public class EventingLogHandler implements LogHandler {
 
   boolean noop;
 
-  @Nullable LogWriter logWriter;
+  @Nullable LogEventWriter logEventWriter;
 
   @Nullable LoggerThresholdLevels loggerThresholdLevels;
 
   Set<String> logServiceClassNames;
 
   @EqualsAndHashCode.Exclude
-  Map<NativeLogger.LoggerId, Boolean> loggerEnablements = new ConcurrentHashMap<>();
+  Map<NativeLogger.LoggerId, Boolean> logEnablements = new ConcurrentHashMap<>();
 
   /**
    * @param configurationProperties parsed configuration for the logger service
@@ -72,12 +72,12 @@ public class EventingLogHandler implements LogHandler {
         || configurationProperties.isTrue(ConfigurationProperties.NOOP)) {
       noop = true;
       LOGGER.warn("No-op per configuration %s".formatted(configurationProperties));
-      logWriter = null;
+      logEventWriter = null;
       loggerThresholdLevels = null;
       return;
     }
     noop = false;
-    logWriter = CompositeWriter.from(configurationProperties);
+    logEventWriter = CompositeLogEventWriter.from(configurationProperties);
     loggerThresholdLevels = LoggerThresholdLevels.from(configurationProperties);
   }
 
@@ -93,8 +93,8 @@ public class EventingLogHandler implements LogHandler {
       return false;
     }
     assert loggerThresholdLevels != null;
-    assert logWriter != null;
-    return loggerEnablements.computeIfAbsent(
+    assert logEventWriter != null;
+    return logEnablements.computeIfAbsent(
         loggerId,
         k ->
             k.logSeverity().compareTo(loggerThresholdLevels.getLoggerThresholdLevel(k.loggerName()))
@@ -110,9 +110,9 @@ public class EventingLogHandler implements LogHandler {
     if (!isEnabled(loggerId)) {
       return;
     }
-    assert logWriter != null;
+    assert logEventWriter != null;
     Thread callerThread = Thread.currentThread();
-    logWriter.write(LogEvent.builder()
+    logEventWriter.write(LogEvent.builder()
         .loggerName(loggerId.loggerName())
         .level(loggerId.logSeverity())
         .throwable(throwable)
@@ -121,7 +121,7 @@ public class EventingLogHandler implements LogHandler {
         .callerThread(
             new LogEvent.CallerThreadValue(callerThread.getName(), callerThread.threadId()))
         .callerFrame(
-            logWriter.requiresCallerDetail()
+            logEventWriter.requiresCallerDetail()
                 ? LogEvent.CallerFrameValue.from(
                     StackTraces.earliestCallerOfAny(logServiceClassNames))
                 : null)

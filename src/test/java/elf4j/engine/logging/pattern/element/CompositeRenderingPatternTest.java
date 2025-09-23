@@ -4,7 +4,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.inOrder;
 
 import elf4j.engine.logging.LogEvent;
-import elf4j.engine.logging.pattern.LogPattern;
+import elf4j.engine.logging.pattern.CompositeRenderingPattern;
 import elf4j.engine.logging.pattern.RenderingPattern;
 import java.util.Arrays;
 import org.assertj.core.api.Assertions;
@@ -17,13 +17,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class LogPatternTest {
+class CompositeRenderingPatternTest {
 
   @Nested
   class parsePattern {
     @Test
     void whenNoInterpretingElementIsRecognized() {
-      Assertions.assertThat(LogPattern.from("{testUnrecognizedPredefined}").patternElements())
+      Assertions.assertThat(
+              CompositeRenderingPattern.from("{testUnrecognizedPredefined}").patternElements())
           .hasSize(1)
           .element(0)
           .isInstanceOf(VerbatimPattern.class);
@@ -43,10 +44,10 @@ class LogPatternTest {
 
     @BeforeEach
     void setUp() {
-      patternGroupEntry = new LogPattern(Arrays.asList(mockPattern2, mockPattern));
+      patternGroupEntry = new CompositeRenderingPattern(Arrays.asList(mockPattern2, mockPattern));
     }
 
-    LogPattern patternGroupEntry;
+    CompositeRenderingPattern patternGroupEntry;
 
     @Test
     void dispatchAll() {
