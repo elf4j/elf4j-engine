@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
 public interface LogHandler {
   /**
    * @return true if the logger instance's severity level is at or above the configured minimum
-   *     threshold for the specified logger and writer, false otherwise
+   *     threshold for the specified logger, false otherwise
    */
   boolean isEnabled(NativeLogger.LoggerId loggerId);
 

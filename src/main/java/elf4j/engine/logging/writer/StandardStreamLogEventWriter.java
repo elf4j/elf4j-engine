@@ -27,7 +27,6 @@ package elf4j.engine.logging.writer;
 
 import static elf4j.engine.logging.writer.StandardStreamLogEventWriter.OutStreamType.STDOUT;
 
-import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.RenderingPattern;
@@ -39,20 +38,12 @@ import lombok.ToString;
 import lombok.Value;
 
 /**
- * A log writer implementation that writes log events to the standard output or standard error
- * stream. The log pattern, threshold output level, and target stream (stdout or stderr) can be
- * configured.
+ * A log event writer targeting the standard stream output destination. The log pattern and target
+ * stream type (stdout or stderr) can be configured.
  */
 @Value
 @ToString
 public class StandardStreamLogEventWriter implements LogEventWriter {
-  /**
-   * For simplicity, the standard stream writer threshold level is always set to TRACE and not
-   * configurable, regardless of whether the output stream is stdout or stderr. i.e. it is entirely
-   * up to the logger name threshold level whether a specific log is printed or not.
-   */
-  static final Level DEFAULT_WRITER_THRESHOLD_LEVEL = Level.TRACE;
-
   static final String DEFAULT_PATTERN = "{timestamp} {level} {logger} - {message}";
   static final OutStreamType DEFAULT_OUT_STREAM_TYPE = STDOUT;
   static final String LINE_FEED = System.lineSeparator();

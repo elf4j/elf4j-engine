@@ -4,11 +4,8 @@ import java.util.Properties;
 
 public interface LogEventWriterFactory {
   /**
-   * Returns a list of log writers of the enclosing writer type based on the provided logging
-   * configuration.
-   *
    * @param configurationProperties the entire log service configuration
-   * @return all log writers of the enclosing writer type from the given configuration
+   * @return a log event writer instance based on the provided configuration
    */
   LogEventWriter getWriter(Properties configurationProperties);
 }

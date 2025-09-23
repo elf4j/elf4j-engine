@@ -39,7 +39,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public interface LogEventWriter extends PerformanceSensitive {
   /**
-   * Writes the given log event to the output destination(s) configured for this log writer.
+   * Writes the given log event to the output destination(s) configured for this writer.
    *
    * @param logEvent the log data entry to write out
    */
