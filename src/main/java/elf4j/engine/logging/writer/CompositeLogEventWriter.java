@@ -44,11 +44,12 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.MDC;
 
 /**
- * In general, log events are asynchronously written/rendered in parallel by multiple concurrent
- * threads. However, events issued by the same caller application thread are rendered sequentially
- * with the {@link ConseqExecutor} API. Thus, logs by different caller threads may arrive at the
- * final destination (e.g. system Console or a log file) in any order; meanwhile, logs from the same
- * caller thread will arrive sequentially in the same order as they are called by such thread.
+ * @implNote Log events are usually asynchronously written/rendered in parallel by multiple
+ *     concurrent threads. However, events issued by the same caller application thread are rendered
+ *     sequentially with the {@link ConseqExecutor} API. Thus, logs by different caller threads may
+ *     arrive at the final destination (e.g. system Console or a log file) in any order; meanwhile,
+ *     logs from the same caller thread will arrive sequentially in the same order as they are
+ *     called by such thread.
  */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString

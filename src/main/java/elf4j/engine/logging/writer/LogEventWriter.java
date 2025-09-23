@@ -34,12 +34,18 @@ import javax.annotation.concurrent.ThreadSafe;
  * messages to an output destination e.g. the STDOUT stream, a log file, or a remote vendor log
  * collector (Datadog, Newrelic, ...). Implementations of this interface should be thread-safe.
  *
+ * @apiNote A writer instance determines if the logging requires performance sensitive operations
+ *     (caller class/method/...). However, it does not concern itself with the logging threshold
+ *     levels.
+ * @implSpec A {@link LogEventWriter} instance normally includes various log patterns. Collectively,
+ *     the patterns determine if the writer instance requires performance sensitive operations such
+ *     as the inclusion of caller detail.
  * @see PerformanceSensitive
  */
 @ThreadSafe
 public interface LogEventWriter extends PerformanceSensitive {
   /**
-   * Writes the given log event to the output destination(s) configured for this log writer.
+   * Writes the given log event to the output destination(s) configured for this writer.
    *
    * @param logEvent the log data entry to write out
    */

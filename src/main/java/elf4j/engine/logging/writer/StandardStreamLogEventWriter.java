@@ -27,7 +27,6 @@ package elf4j.engine.logging.writer;
 
 import static elf4j.engine.logging.writer.StandardStreamLogEventWriter.OutStreamType.STDOUT;
 
-import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.pattern.RenderingPattern;
@@ -39,20 +38,16 @@ import lombok.ToString;
 import lombok.Value;
 
 /**
- * A log writer implementation that writes log events to the standard output or standard error
- * stream. The log pattern, threshold output level, and target stream (stdout or stderr) can be
- * configured.
+ * A log event writer targeting the standard stream output destination. The log pattern and target
+ * stream type (stdout or stderr) can be configured.
+ *
+ * @apiNote Due to the implementation approach on output synchrony and atomicity, this writer - and
+ *     the elf4j-engine in general - is not intended to be used simultaneously with other logging
+ *     providers. Otherwise, logs from different providers may intertwine.
  */
 @Value
 @ToString
 public class StandardStreamLogEventWriter implements LogEventWriter {
-  /**
-   * For simplicity, the standard stream writer threshold level is always set to TRACE and not
-   * configurable, regardless of whether the output stream is stdout or stderr. i.e. it is entirely
-   * up to the logger name threshold level whether a specific log is printed or not.
-   */
-  static final Level DEFAULT_WRITER_THRESHOLD_LEVEL = Level.TRACE;
-
   static final String DEFAULT_PATTERN = "{timestamp} {level} {logger} - {message}";
   static final OutStreamType DEFAULT_OUT_STREAM_TYPE = STDOUT;
   static final String LINE_FEED = System.lineSeparator();
@@ -115,10 +110,10 @@ public class StandardStreamLogEventWriter implements LogEventWriter {
 
     /**
      * Locking is in the default "unfair" mode for performance. This means under contention, logs
-     * from different threads may appear in the final destination in any order. However, 1) the
-     * (unchanged) timestamps on the logs still reflect the chronicle order, and can/should be used
-     * to sort the logs when viewing them; and 2) the logs from the same thread are still ensured to
-     * appear in the same order as the thread requested.
+     * from different caller threads may appear in the final destination in any order. However, 1)
+     * the (unchanged) timestamps on the logs still reflect the chronicle order, and can/should be
+     * used to sort the logs when viewing them; and 2) the logs from the same caller thread are
+     * still ensured to appear in the same order as the thread requested.
      */
     private static final Lock OUTPUT_LOCK = new java.util.concurrent.locks.ReentrantLock(false);
 
@@ -136,9 +131,8 @@ public class StandardStreamLogEventWriter implements LogEventWriter {
     }
 
     /**
-     * This method is supposed to be called once and only once per each entirely complete log
-     * message.
-     *
+     * @apiNote This method is supposed to be called once and only once per each entirely complete
+     *     log message.
      * @param bytes of the completely rendered log message to write to the target output stream
      */
     public void write(byte[] bytes) {

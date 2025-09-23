@@ -27,7 +27,6 @@ package elf4j.engine;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import elf4j.Level;
 import elf4j.Logger;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Nested;
@@ -74,10 +73,7 @@ class SampleUsageTest {
           debugLogger.isDebugEnabled(),
           "Assuming minimum threshold level configured is TRACE, thus DEBUG severity log level should be enabled");
       if (debugLogger.isDebugEnabled()) {
-        debugLogger.debug(
-            "The DEBUG severity level log message '{}' will print here as the default minimum writer threshold level is {}",
-            message,
-            Level.TRACE);
+        debugLogger.debug("The DEBUG severity level log message '{}' will print here", message);
       }
     }
   }
