@@ -40,6 +40,10 @@ import lombok.Value;
 /**
  * A log event writer targeting the standard stream output destination. The log pattern and target
  * stream type (stdout or stderr) can be configured.
+ *
+ * @apiNote Due to the implementation approach on output synchrony and atomicity, this writer - and
+ *     the elf4j-engine in general - is not intended to be used simultaneously with other logging
+ *     providers. Otherwise, logs from different providers may intertwine.
  */
 @Value
 @ToString
@@ -106,10 +110,10 @@ public class StandardStreamLogEventWriter implements LogEventWriter {
 
     /**
      * Locking is in the default "unfair" mode for performance. This means under contention, logs
-     * from different threads may appear in the final destination in any order. However, 1) the
-     * (unchanged) timestamps on the logs still reflect the chronicle order, and can/should be used
-     * to sort the logs when viewing them; and 2) the logs from the same thread are still ensured to
-     * appear in the same order as the thread requested.
+     * from different caller threads may appear in the final destination in any order. However, 1)
+     * the (unchanged) timestamps on the logs still reflect the chronicle order, and can/should be
+     * used to sort the logs when viewing them; and 2) the logs from the same caller thread are
+     * still ensured to appear in the same order as the thread requested.
      */
     private static final Lock OUTPUT_LOCK = new java.util.concurrent.locks.ReentrantLock(false);
 
@@ -127,9 +131,8 @@ public class StandardStreamLogEventWriter implements LogEventWriter {
     }
 
     /**
-     * This method is supposed to be called once and only once per each entirely complete log
-     * message.
-     *
+     * @apiNote This method is supposed to be called once and only once per each entirely complete
+     *     log message.
      * @param bytes of the completely rendered log message to write to the target output stream
      */
     public void write(byte[] bytes) {
