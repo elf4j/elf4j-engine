@@ -25,7 +25,7 @@
 
 package elf4j.engine.logging.writer;
 
-import static elf4j.engine.logging.writer.StandardStreamWriter.OutStreamType.STDOUT;
+import static elf4j.engine.logging.writer.StandardStreamLogEventWriter.OutStreamType.STDOUT;
 
 import elf4j.Level;
 import elf4j.Logger;
@@ -45,7 +45,7 @@ import lombok.Value;
  */
 @Value
 @ToString
-public class StandardStreamWriter implements LogWriter {
+public class StandardStreamLogEventWriter implements LogEventWriter {
   /**
    * For simplicity, the standard stream writer threshold level is always set to TRACE and not
    * configurable, regardless of whether the output stream is stdout or stderr. i.e. it is entirely
@@ -60,7 +60,7 @@ public class StandardStreamWriter implements LogWriter {
   RenderingPattern logPattern;
   transient StandardOutputStream standardOutputStream;
 
-  public StandardStreamWriter(RenderingPattern logPattern, OutStreamType outStreamType) {
+  public StandardStreamLogEventWriter(RenderingPattern logPattern, OutStreamType outStreamType) {
     this.logPattern = logPattern;
     this.standardOutputStream = new StandardOutputStream(outStreamType);
   }

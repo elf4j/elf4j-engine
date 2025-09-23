@@ -52,13 +52,14 @@ import org.slf4j.MDC;
  */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
-public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stoppable {
+public class CompositeLogEventWriter implements LogEventWriter, NativeLogServiceManager.Stoppable {
   private static final Logger LOGGER = UtilLogger.INFO;
-  private static final LogWriterFactory DEFAULT_WRITER_FACTORY = new StandardStreamWriterFactory();
+  private static final LogEventWriterFactory DEFAULT_WRITER_FACTORY =
+      new StandardStreamLogEventWriterFactory();
 
   /** Composed writers are created based on configuration properties. */
   @EqualsAndHashCode.Include
-  private final List<LogWriter> writers;
+  private final List<LogEventWriter> writers;
 
   /**
    * The async executor's concurrency is based on configuration properties. If omitted, the default
@@ -72,7 +73,7 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
    */
   private @Nullable Boolean includeCallerDetail;
 
-  private CompositeWriter(List<LogWriter> writers, ConseqExecutor conseqExecutor) {
+  private CompositeLogEventWriter(List<LogEventWriter> writers, ConseqExecutor conseqExecutor) {
     this.writers = writers;
     this.conseqExecutor = conseqExecutor;
     LOGGER.info("%s service writer(s) in %s".formatted(writers.size(), this));
@@ -85,25 +86,25 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
    * @param configurationProperties entire configuration
    * @return the composite writer containing all writers configured in the specified properties
    */
-  public static CompositeWriter from(ConfigurationProperties configurationProperties) {
-    List<LogWriterFactory> configuredWriterFactories =
+  public static CompositeLogEventWriter from(ConfigurationProperties configurationProperties) {
+    List<LogEventWriterFactory> configuredWriterFactories =
         new ArrayList<>(getLogWriterFactories(configurationProperties));
     if (configuredWriterFactories.isEmpty()) {
       configuredWriterFactories.add(DEFAULT_WRITER_FACTORY);
     }
-    List<LogWriter> logWriters = configuredWriterFactories.stream()
-        .map(
-            logWriterFactory -> logWriterFactory.getLogWriter(configurationProperties.properties()))
+    List<LogEventWriter> logEventWriters = configuredWriterFactories.stream()
+        .map(logEventWriterFactory ->
+            logEventWriterFactory.getWriter(configurationProperties.properties()))
         .toList();
-    return new CompositeWriter(
-        logWriters,
+    return new CompositeLogEventWriter(
+        logEventWriters,
         Optional.ofNullable(
                 configurationProperties.getAsInteger(ConfigurationProperties.CONCURRENCY))
             .map(ConseqExecutor::instance)
             .orElse(ConseqExecutor.instance()));
   }
 
-  private static List<LogWriterFactory> getLogWriterFactories(
+  private static List<LogEventWriterFactory> getLogWriterFactories(
       ConfigurationProperties configurationProperties) {
     if (configurationProperties.isAbsent()) {
       return Collections.emptyList();
@@ -119,7 +120,7 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
         .filter(strip -> !isNullOrEmpty(strip))
         .map(fqcn -> {
           try {
-            return (LogWriterFactory)
+            return (LogEventWriterFactory)
                 Class.forName(fqcn).getDeclaredConstructor().newInstance();
           } catch (InstantiationException
               | IllegalAccessException
@@ -128,7 +129,7 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
               | ClassNotFoundException e) {
             LOGGER.error(
                 "Unable to construct log writer factory: fqcn='%s' - it must have a no-arg constructor and of type %s"
-                    .formatted(fqcn, LogWriterFactory.class),
+                    .formatted(fqcn, LogEventWriterFactory.class),
                 e);
             throw new IllegalArgumentException(
                 "Error instantiating writer class '%s'".formatted(fqcn), e);
@@ -165,7 +166,7 @@ public class CompositeWriter implements LogWriter, NativeLogServiceManager.Stopp
   @Override
   public boolean requiresCallerDetail() {
     if (includeCallerDetail == null) {
-      includeCallerDetail = writers.stream().anyMatch(LogWriter::requiresCallerDetail);
+      includeCallerDetail = writers.stream().anyMatch(LogEventWriter::requiresCallerDetail);
     }
     return includeCallerDetail;
   }

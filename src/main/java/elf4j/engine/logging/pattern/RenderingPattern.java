@@ -27,6 +27,7 @@ package elf4j.engine.logging.pattern;
 
 import elf4j.engine.logging.LogEvent;
 import elf4j.engine.logging.PerformanceSensitive;
+import elf4j.engine.logging.writer.LogEventWriter;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -46,7 +47,7 @@ public interface RenderingPattern extends PerformanceSensitive {
    *     logEvent, and does not flush the target to its final logging destination (e.g. the STDOUT
    *     stream or a log file). Shipping the completely rendered target message to the final
    *     destination (e.g. the STDOUT stream, a log file, or aggregation vendors like
-   *     Newrelic/Datadog) is the {@link elf4j.engine.logging.writer.LogWriter}'s responsibility.
+   *     Newrelic/Datadog) is the {@link LogEventWriter}'s responsibility.
    */
   void render(LogEvent logEvent, StringBuilder target);
 }

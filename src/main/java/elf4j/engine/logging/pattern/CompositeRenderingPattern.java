@@ -37,7 +37,8 @@ import java.util.List;
  * @param patternElements the list of individual pattern elements that make up the composite log
  *     pattern
  */
-public record LogPattern(List<RenderingPattern> patternElements) implements RenderingPattern {
+public record CompositeRenderingPattern(List<RenderingPattern> patternElements)
+    implements RenderingPattern {
 
   /**
    * Parses the specified pattern string and constructs a LogPattern object. The text segments
@@ -49,7 +50,7 @@ public record LogPattern(List<RenderingPattern> patternElements) implements Rend
    * @return the constructed LogPattern object
    * @throws IllegalArgumentException if the pattern string is blank
    */
-  public static LogPattern from(String pattern) {
+  public static CompositeRenderingPattern from(String pattern) {
     if (pattern.trim().isEmpty()) {
       throw new IllegalArgumentException("Unexpected blank pattern");
     }
@@ -80,7 +81,7 @@ public record LogPattern(List<RenderingPattern> patternElements) implements Rend
       }
       elements.add(ElementPatterns.parseElementPattern(element));
     }
-    return new LogPattern(elements);
+    return new CompositeRenderingPattern(elements);
   }
 
   /**
