@@ -5,7 +5,7 @@ import elf4j.engine.logging.pattern.CompositeRenderingPattern;
 import java.util.Properties;
 
 /**
- * Produces the default StandardStreamWriter based on the provided ConfigurationProperties.
+ * Produces the default StandardStreamLogEventWriter based on the provided ConfigurationProperties.
  *
  * <p>To work with elf4j-engine, any implementation of the {@link LogEventWriterFactory} interface
  * must have an accessible no-arg constructor
