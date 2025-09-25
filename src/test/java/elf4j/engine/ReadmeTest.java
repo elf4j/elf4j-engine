@@ -43,7 +43,7 @@ public class ReadmeTest {
     Logger warn = info.atWarn();
     warn.log(
         "Houston, we do not have {} but let's do {}", "a problem", (Supplier<?>) () -> "a drill");
-    Throwable exception = new Exception("This is a drill");
+    Throwable exception = new Exception("test drill exception message");
     warn.atError().log(exception);
     logger.atInfo().log(exception, "When being logged, the Throwable always comes {}", "first");
     logger.atInfo().log(
