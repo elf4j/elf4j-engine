@@ -25,10 +25,13 @@
 
 package elf4j.engine;
 
+import elf4j.Level;
 import elf4j.Logger;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
+
+import javax.swing.*;
 
 public class ReadmeTest {
   static Logger logger = Logger.instance();
@@ -54,6 +57,6 @@ public class ReadmeTest {
         .atWarn()
         .atTrace()
         .atDebug()
-        .log("Not a practical example but now the severity level is DEBUG");
+        .log("Not a practical example but now the severity level is {}", Level.DEBUG);
   }
 }
