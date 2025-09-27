@@ -25,10 +25,13 @@
 
 package elf4j.engine;
 
+import elf4j.Level;
 import elf4j.Logger;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
+
+import javax.swing.*;
 
 public class ReadmeTest {
   static Logger logger = Logger.instance();
@@ -43,7 +46,7 @@ public class ReadmeTest {
     Logger warn = info.atWarn();
     warn.log(
         "Houston, we do not have {} but let's do {}", "a problem", (Supplier<?>) () -> "a drill");
-    Throwable exception = new Exception("This is a drill");
+    Throwable exception = new Exception("test drill exception message");
     warn.atError().log(exception);
     logger.atInfo().log(exception, "When being logged, the Throwable always comes {}", "first");
     logger.atInfo().log(
@@ -54,6 +57,6 @@ public class ReadmeTest {
         .atWarn()
         .atTrace()
         .atDebug()
-        .log("Not a practical example but now the severity level is DEBUG");
+        .log("Not a practical example but now the severity level is {}", Level.DEBUG);
   }
 }
