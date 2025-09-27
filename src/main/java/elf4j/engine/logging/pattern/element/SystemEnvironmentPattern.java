@@ -23,17 +23,34 @@
  *
  */
 
-package elf4j.engine.logging;
+package elf4j.engine.logging.pattern.element;
 
-/** Strategies that influence the performance of the log service */
-public interface PerformanceSensitive {
+import com.google.common.collect.Iterables;
+import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.RenderingPattern;
+
+record SystemEnvironmentPattern(String key) implements RenderingPattern {
   /**
-   * Whether the log message should include caller detail such as class, method, file line number,
-   * etc. Including such detail impacts the performance of the log service or maybe even the
-   * application using the log service; it should be used only as needed or when the application is
-   * performance tolerant/insensitive.
-   *
-   * @return true if the log should include caller detail, false otherwise
+   * @param elementPattern text elementPattern to convert. e.g. "{sysEnv:myEnvVarName}",
+   *     "{SYS_ENV:MyEnvVar2}", etc., excluding the surrounding braces
+   * @return converted elementPattern object
    */
-  boolean requiresCallerDetail();
+  static SystemEnvironmentPattern from(String elementPattern) {
+    if (PatternElementType.SYS_ENV != PatternElementType.from(elementPattern)) {
+      throw new IllegalArgumentException(
+          String.format("Unexpected predefined pattern element: %s", elementPattern));
+    }
+    return new SystemEnvironmentPattern(
+        Iterables.getOnlyElement(ElementPatterns.getElementPatternDisplayOptions(elementPattern)));
+  }
+
+  @Override
+  public void render(LogEvent logEvent, StringBuilder target) {
+    target.append(System.getenv(key));
+  }
+
+  @Override
+  public boolean requiresCallerDetail() {
+    return false;
+  }
 }

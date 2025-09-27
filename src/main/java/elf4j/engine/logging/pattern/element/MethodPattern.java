@@ -23,17 +23,32 @@
  *
  */
 
-package elf4j.engine.logging;
+package elf4j.engine.logging.pattern.element;
 
-/** Strategies that influence the performance of the log service */
-public interface PerformanceSensitive {
+import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.RenderingPattern;
+import java.util.Objects;
+
+record MethodPattern() implements RenderingPattern {
   /**
-   * Whether the log message should include caller detail such as class, method, file line number,
-   * etc. Including such detail impacts the performance of the log service or maybe even the
-   * application using the log service; it should be used only as needed or when the application is
-   * performance tolerant/insensitive.
-   *
-   * @return true if the log should include caller detail, false otherwise
+   * @param elementPattern the pattern element string, e.g. "{method}", excluding the surrounding
+   *     braces
+   * @return the MethodPattern instance
    */
-  boolean requiresCallerDetail();
+  static MethodPattern from(String elementPattern) {
+    if (PatternElementType.METHOD != PatternElementType.from(elementPattern)) {
+      throw new IllegalArgumentException("elementPattern: " + elementPattern);
+    }
+    return new MethodPattern();
+  }
+
+  @Override
+  public boolean requiresCallerDetail() {
+    return true;
+  }
+
+  @Override
+  public void render(LogEvent logEvent, StringBuilder target) {
+    target.append(Objects.requireNonNull(logEvent.callerFrame()).methodName());
+  }
 }

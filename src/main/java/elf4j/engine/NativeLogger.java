@@ -28,7 +28,6 @@ package elf4j.engine;
 import elf4j.Level;
 import elf4j.Logger;
 import elf4j.engine.logging.LogHandlerFactory;
-import java.util.Set;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -46,13 +45,6 @@ import org.jspecify.annotations.Nullable;
 @ThreadSafe
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class NativeLogger implements Logger {
-  /**
-   * {@link Logger} is also an "implementation" of the log service interface API because of the
-   * default methods.
-   */
-  private static final Set<String> LOG_SERVICE_CLASS_NAMES =
-      Set.of(NativeLogger.class.getName(), Logger.class.getName());
-
   static final String DEFAULT_THROWABLE_MESSAGE = "";
 
   @Getter
@@ -75,14 +67,14 @@ public class NativeLogger implements Logger {
 
   @Override
   public NativeLogger atLevel(Level level) {
-    return loggerId.level == level
+    return loggerId.logSeverity == level
         ? this
         : new NativeLogger(new LoggerId(loggerId.loggerName, level), logHandlerFactory);
   }
 
   @Override
   public Level getLevel() {
-    return loggerId.level;
+    return loggerId.logSeverity;
   }
 
   @Override
@@ -92,37 +84,32 @@ public class NativeLogger implements Logger {
 
   @Override
   public void log(Object message) {
-    process(LOG_SERVICE_CLASS_NAMES, null, message, null);
+    process(null, message, null);
   }
 
   @Override
   public void log(String message, Object... arguments) {
-    process(LOG_SERVICE_CLASS_NAMES, null, message, arguments);
+    process(null, message, arguments);
   }
 
   @Override
   public void log(Throwable throwable) {
-    process(LOG_SERVICE_CLASS_NAMES, throwable, DEFAULT_THROWABLE_MESSAGE, null);
+    process(throwable, DEFAULT_THROWABLE_MESSAGE, null);
   }
 
   @Override
   public void log(Throwable throwable, Object message) {
-    process(LOG_SERVICE_CLASS_NAMES, throwable, message, null);
+    process(throwable, message, null);
   }
 
   @Override
   public void log(Throwable throwable, String message, Object... arguments) {
-    process(LOG_SERVICE_CLASS_NAMES, throwable, message, arguments);
+    process(throwable, message, arguments);
   }
 
   /**
    * Public API in addition to the [Logger] interface
    *
-   * @param logServiceClassNames the concrete runtime implementation class name(s) that the logging
-   *     framework provides for the client code to call the service interface API at runtime. In
-   *     this case, it contains this [NativeLogger] class which implements the service interface
-   *     API, as well as the [Logger] interface itself because its default methods are also
-   *     implementations directly called by the client code.
    * @param throwable to log
    * @param message to log
    * @param arguments to log
@@ -130,33 +117,26 @@ public class NativeLogger implements Logger {
    *     public for potential internal usage of other logging frameworks.
    */
   public void process(
-      Set<String> logServiceClassNames,
-      @Nullable Throwable throwable,
-      @Nullable Object message,
-      Object @Nullable [] arguments) {
-    logHandlerFactory
-        .getLogHandler()
-        .log(loggerId, logServiceClassNames, throwable, message, arguments);
+      @Nullable Throwable throwable, @Nullable Object message, Object @Nullable [] arguments) {
+    logHandlerFactory.getLogHandler().log(loggerId, throwable, message, arguments);
   }
 
   /**
    * Although the logger's ID includes both the name and severity level of the logger, only the
-   * logger name is used to configure the logger's minimum output level. Only when the logger's
-   * severity level is equal or greater than the configured minimum level, will this logger's
-   * messages eventually print out.
+   * logger name is used to configure the logger's minimum output threshold level. Only when the
+   * logger's severity level is equal or greater than the configured minimum threshold level, will
+   * this logger's messages eventually print out.
    *
    * <p>In general, there are two types of client "caller classes" of the log service:
    *
-   * <p>1. One (type-1) is the caller class of the "service access API", calling to obtain (gain
-   * "access" to) a "service class" reference on which subsequent log service requests can be
-   * issued.
+   * <p>1. One (type-1) is the caller class of the "service access API" - the API that provides
+   * access to a "service class" reference on which the actual log service requests can be made.
    *
-   * <p>2. The other (type-2) is the caller class of the "service interface API", calling to issue
-   * log service requests to the "service class" which is the concrete implementation of the service
-   * interface API.
+   * <p>2. The other (type-2) is the caller class of the "service interface API" - the API that the
+   * "service class" implements for the actual log service requests.
    *
-   * <p>In the final log message, "logger" is the name of the type-1 caller class; "class" is the
-   * name of the type-2 caller class.
+   * <p>In the final log message pattern, "logger" is the fully-qualified name of the type-1 caller
+   * class; "class" is the fully-qualified name of the type-2 caller class.
    *
    * <p>In this implementation, the logger name is the fully-qualified name of the type-1 caller
    * class, so it will end up being the "logger" value of the final log message. Meanwhile, it may
@@ -187,12 +167,12 @@ public class NativeLogger implements Logger {
    * @param loggerName This field stores the fully qualified name of the client code "caller class"
    *     to the service access API. The minimum output threshold level is configured based on this
    *     logger name.
-   * @param level the severity level of this logger instance
+   * @param logSeverity the severity level of this logger instance
    * @implNote The logger name in the id determines the minimum threshold output level configured
    *     for all Logger instances of the same name. Given such configured threshold level, the
-   *     instance's id (name and level combined) determines if messages from this Logger instance
-   *     will ultimately print: Only when the instance level in the id is equal or greater than the
-   *     threshold configured for that logger name, will the message print.
+   *     instance's id (name and severity level combined) determines if messages from this Logger
+   *     instance will ultimately print: Only when the instance severity level in the id is equal or
+   *     greater than the threshold level configured for that logger name, will the message print.
    */
-  public record LoggerId(String loggerName, Level level) {}
+  public record LoggerId(String loggerName, Level logSeverity) {}
 }

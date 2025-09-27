@@ -23,17 +23,38 @@
  *
  */
 
-package elf4j.engine.logging;
+package elf4j.engine.logging.pattern.element;
 
-/** Strategies that influence the performance of the log service */
-public interface PerformanceSensitive {
+import elf4j.Logger;
+import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.RenderingPattern;
+import elf4j.util.UtilLogger;
+
+record VerbatimPattern(String text) implements RenderingPattern {
+  static Logger logger = UtilLogger.WARN;
+
   /**
-   * Whether the log message should include caller detail such as class, method, file line number,
-   * etc. Including such detail impacts the performance of the log service or maybe even the
-   * application using the log service; it should be used only as needed or when the application is
-   * performance tolerant/insensitive.
-   *
-   * @return true if the log should include caller detail, false otherwise
+   * @param elementPattern text pattern element to convert. Any text segment that is outside
+   *     surrounding braces will be rendered verbatim.
+   * @return converted pattern element object
    */
-  boolean requiresCallerDetail();
+  static VerbatimPattern from(String elementPattern) {
+    if (PatternElementType.VERBATIM != PatternElementType.from(elementPattern)) {
+      logger.warn(
+          "Treating as verbatim element: elementPattern={}. If that is not intended, check to ensure each log pattern element is set up properly and fully enclosed inside a curly braces pair '{}'",
+          elementPattern,
+          "{}");
+    }
+    return new VerbatimPattern(elementPattern);
+  }
+
+  @Override
+  public boolean requiresCallerDetail() {
+    return false;
+  }
+
+  @Override
+  public void render(LogEvent logEvent, StringBuilder target) {
+    target.append(text);
+  }
 }

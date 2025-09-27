@@ -30,30 +30,32 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.function.Supplier;
 import lombok.Builder;
-import lombok.Value;
 import org.jspecify.annotations.Nullable;
 
 /** Source data to be rendered to a final log message */
-@Value
-@Builder
-public class LogEvent {
+public record LogEvent(
+    Instant timestamp,
+    String loggerName,
+    Level level,
+    @Nullable Throwable throwable,
+    @Nullable Object message,
+    Object @Nullable [] arguments,
+    CallerThreadValue callerThread,
+    LogEvent.@Nullable CallerFrameValue callerFrame) {
   private static final int INIT_ARG_LENGTH = 32;
 
-  Level level;
-
-  String loggerName;
-
-  ThreadValue callerThread;
-
-  Instant timestamp = Instant.now();
-
-  @Nullable Object message;
-
-  Object @Nullable [] arguments;
-
-  @Nullable Throwable throwable;
-
-  @Nullable StackFrameValue callerFrame;
+  @Builder
+  public LogEvent(
+      String loggerName,
+      Level level,
+      @Nullable Throwable throwable,
+      @Nullable Object message,
+      Object @Nullable [] arguments,
+      CallerThreadValue callerThread,
+      LogEvent.@Nullable CallerFrameValue callerFrame) {
+    this(
+        Instant.now(), loggerName, level, throwable, message, arguments, callerThread, callerFrame);
+  }
 
   private static CharSequence resolve(
       @Nullable final Object message, final Object @Nullable [] arguments) {
@@ -61,23 +63,35 @@ public class LogEvent {
     if (message == null || arguments == null || arguments.length == 0) {
       return suppliedMessage;
     }
-    int messageLength = suppliedMessage.length();
-    StringBuilder resolvedMessage = new StringBuilder(messageLength + INIT_ARG_LENGTH);
-    int im = 0;
-    int ia = 0;
-    while (im < messageLength) {
-      char character = suppliedMessage.charAt(im);
-      if (character == '{'
-          && ((im + 1) < messageLength && suppliedMessage.charAt(im + 1) == '}')
-          && ia < arguments.length) {
-        resolvedMessage.append(supply(arguments[ia++]));
-        im += 2;
+    StringBuilder resolvedMessage = new StringBuilder(suppliedMessage.length() + INIT_ARG_LENGTH);
+    int messageIndex = 0;
+    int argumentIndex = 0;
+    while (messageIndex < suppliedMessage.length()) {
+      if (atPlaceHolder(messageIndex, suppliedMessage) && !exceedsBound(argumentIndex, arguments)) {
+        resolvedMessage.append(supply(arguments[argumentIndex]));
+        argumentIndex += 1;
+        messageIndex += 2;
       } else {
-        resolvedMessage.append(character);
-        im += 1;
+        resolvedMessage.append(suppliedMessage.charAt(messageIndex));
+        messageIndex += 1;
       }
     }
     return resolvedMessage;
+  }
+
+  private static boolean atPlaceHolder(final int index, final String message) {
+    if (exceedsLength(index + 1, message)) {
+      return false;
+    }
+    return '{' == message.charAt(index) && '}' == message.charAt(index + 1);
+  }
+
+  private static boolean exceedsLength(final int index, final String message) {
+    return index >= message.length();
+  }
+
+  private static boolean exceedsBound(final int index, final Object[] arguments) {
+    return index >= arguments.length;
   }
 
   private static @Nullable Object supply(@Nullable Object o) {
@@ -94,32 +108,18 @@ public class LogEvent {
     return resolve(this.message, this.arguments);
   }
 
-  /** Represents a value representing a call stack element. */
-  @Value
-  @Builder
-  public static class StackFrameValue {
-    String className;
-    String methodName;
-    int lineNumber;
-
-    @Nullable String fileName;
-
-    /**
-     * Creates a StackFrameValue instance from a StackTraceElement.
-     *
-     * @param stackFrame call stack element
-     * @return log render-able value representing the call stack element
-     */
-    public static StackFrameValue from(StackWalker.StackFrame stackFrame) {
-      return LogEvent.StackFrameValue.builder()
-          .fileName(stackFrame.getFileName())
-          .className(stackFrame.getClassName())
-          .methodName(stackFrame.getMethodName())
-          .lineNumber(stackFrame.getLineNumber())
-          .build();
+  /** A renderable value representing a call stack element. */
+  public record CallerFrameValue(
+      String className, String methodName, int lineNumber, @Nullable String fileName) {
+    public static CallerFrameValue from(StackWalker.StackFrame stackFrame) {
+      return new CallerFrameValue(
+          stackFrame.getClassName(),
+          stackFrame.getMethodName(),
+          stackFrame.getLineNumber(),
+          stackFrame.getFileName());
     }
   }
 
   /** Represents the value of a thread. */
-  public record ThreadValue(String name, long id) {}
+  public record CallerThreadValue(String name, long id) {}
 }

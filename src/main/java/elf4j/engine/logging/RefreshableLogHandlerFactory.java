@@ -1,0 +1,84 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2025 Qingtian Wang
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+package elf4j.engine.logging;
+
+import elf4j.engine.logging.configuration.ConfigurationProperties;
+import java.util.Properties;
+import java.util.Set;
+import org.jspecify.annotations.Nullable;
+
+/**
+ * The ConfiguredLogHandlerFactory class implements the LogHandlerFactory interface and provides a
+ * concrete implementation for getting the log service, reloading the log service, and resetting the
+ * log service with the specified properties.
+ */
+public class RefreshableLogHandlerFactory
+    implements LogHandlerFactory, NativeLogServiceManager.Refreshable {
+  private LogHandler logHandler;
+  private final Set<Class<?>> logServiceClasses;
+
+  /** Constructor for the ConfiguredLogHandlerFactory class. */
+  public RefreshableLogHandlerFactory(final Set<Class<?>> logServiceClasses) {
+    this.logServiceClasses = logServiceClasses;
+    this.logHandler =
+        new EventingLogHandler(ConfigurationProperties.byLoading(), logServiceClasses);
+    NativeLogServiceManager.INSTANCE.register(this);
+  }
+
+  /**
+   * Gets the log service.
+   *
+   * @return the log service
+   */
+  @Override
+  public LogHandler getLogHandler() {
+    return logHandler;
+  }
+
+  /** Reloads the log service. */
+  private void reload() {
+    logHandler = new EventingLogHandler(ConfigurationProperties.byLoading(), logServiceClasses);
+  }
+
+  /**
+   * Resets the log service with the specified properties.
+   *
+   * @param properties the new properties for the log service
+   */
+  private void reset(@Nullable Properties properties) {
+    logHandler =
+        new EventingLogHandler(ConfigurationProperties.bySetting(properties), logServiceClasses);
+  }
+
+  @Override
+  public void refresh(@Nullable Properties properties) {
+    reset(properties);
+  }
+
+  @Override
+  public void refresh() {
+    reload();
+  }
+}

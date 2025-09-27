@@ -23,17 +23,34 @@
  *
  */
 
-package elf4j.engine.logging;
+package elf4j.engine.logging.pattern.element;
 
-/** Strategies that influence the performance of the log service */
-public interface PerformanceSensitive {
+import static elf4j.engine.logging.pattern.element.PatternElementType.CLASS;
+
+import elf4j.engine.logging.LogEvent;
+import elf4j.engine.logging.pattern.RenderingPattern;
+
+record ClassPattern(NameSpacePattern nameSpacePattern) implements RenderingPattern {
   /**
-   * Whether the log message should include caller detail such as class, method, file line number,
-   * etc. Including such detail impacts the performance of the log service or maybe even the
-   * application using the log service; it should be used only as needed or when the application is
-   * performance tolerant/insensitive.
-   *
-   * @return true if the log should include caller detail, false otherwise
+   * @param elementPattern the pattern element string, e.g. "{class}", "{class:full}",
+   *     "{class:compressed}", "{class:simple}", excluding the surrounding braces
+   * @return the corresponding {@link ClassPattern} instance
    */
-  boolean requiresCallerDetail();
+  static ClassPattern from(String elementPattern) {
+    if (CLASS != PatternElementType.from(elementPattern)) {
+      throw new IllegalArgumentException(
+          "Unexpected predefined pattern element: %s".formatted(elementPattern));
+    }
+    return new ClassPattern(NameSpacePattern.from(elementPattern, CLASS));
+  }
+
+  @Override
+  public boolean requiresCallerDetail() {
+    return nameSpacePattern.requiresCallerDetail();
+  }
+
+  @Override
+  public void render(LogEvent logEvent, StringBuilder target) {
+    nameSpacePattern.render(logEvent, target);
+  }
 }
