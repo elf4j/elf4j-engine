@@ -31,8 +31,6 @@ import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 
-import javax.swing.*;
-
 public class ReadmeTest {
   static Logger logger = Logger.instance();
 
